@@ -34,7 +34,7 @@
     "jsonwebtoken": "^9.0.3",
     "kanun": "^0.1.7",
     "pg": "^8.18.0",
-    "resora": "^0.2.9",
+    "resora": "^0.2.10",
     "simple-body-validator": "^1.3.9"
   },
   "devDependencies": {
