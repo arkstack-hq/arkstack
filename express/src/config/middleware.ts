@@ -1,3 +1,4 @@
+import { GenericResource, Resource, ResourceCollection } from 'resora'
 import express, { Express } from 'express'
 
 import { MiddlewareConfig } from 'src/types/config'
@@ -16,7 +17,14 @@ const config = (_app: Express): MiddlewareConfig => {
       // Enable CORS for all routes
       cors(),
     ],
-    before: [],
+    before: [
+      (req, res, next) => {
+        Resource.setCtx({ req, res })
+        GenericResource.setCtx({ req, res })
+        ResourceCollection.setCtx({ res, req })
+        next()
+      }
+    ],
     after: [],
   }
 }
