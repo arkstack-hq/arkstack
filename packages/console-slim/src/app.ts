@@ -55,19 +55,11 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
         super()
         this.core = core
         this.options = options
-
-        // Recursively merge defaultConfig with config from resora.config.js
-        this.config = {
-            ...defaultConfig(core),
-            ...this.config,
-            stubs: {
-                ...defaultConfig(core).stubs,
-                ...this.config?.stubs,
-            },
-        }
+        this.mergeConfig()
     }
 
     makeController = (name: string, opts: any) => {
+        this.mergeConfig()
         const normalized = (name.endsWith('Controller') ? name.replace(/controller/i, '') : name)
 
         let controllerName = normalized.endsWith('Controller') ? normalized : `${normalized}Controller`
@@ -112,7 +104,28 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
         return outputPath
     }
 
+    /**
+     * Normalize a file path by removing the current working directory from it. 
+     * 
+     * @param p 
+     * @returns 
+     */
     normalizePath = (p: string) => {
         return p.replace(process.cwd(), '')
+    }
+
+    /**
+     * Recursively merge defaultConfig with config from resora.config.js, giving 
+     * precedence to resora.
+     */
+    mergeConfig = () => {
+        this.config = {
+            ...defaultConfig(this.core),
+            ...this.config,
+            stubs: {
+                ...defaultConfig(this.core).stubs,
+                ...this.config?.stubs,
+            },
+        }
     }
 }
