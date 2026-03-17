@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/console",
-    "version": "0.1.28",
+    "version": "0.1.29",
     "type": "module",
     "description": "Console package for Arkstack providing console-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
     "homepage": "https://arkstack.toneflix.net",

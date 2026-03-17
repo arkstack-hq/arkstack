@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/driver-h3",
-    "version": "0.1.28",
+    "version": "0.1.29",
     "type": "module",
     "private": true,
     "description": "H3 driver package for Arkstack providing H3-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
