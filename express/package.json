@@ -31,9 +31,7 @@
     "detect-port": "^2.1.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
     "kanun": "^0.1.8",
-    "method-override": "^3.0.0",
     "pg": "^8.18.0",
     "resora": "^0.2.15"
   },

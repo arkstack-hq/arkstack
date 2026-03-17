@@ -3,7 +3,6 @@ import express, { Express } from 'express'
 
 import { MiddlewareConfig } from 'src/types/config'
 import cors from 'cors'
-import methodOverride from 'method-override'
 
 const config = (_app: Express): MiddlewareConfig => {
   return {
@@ -12,8 +11,6 @@ const config = (_app: Express): MiddlewareConfig => {
       express.json(),
       // Parse application/x-www-form-urlencoded (for non-multipart forms)
       express.urlencoded({ extended: true }),
-      // Override HTTP methods using the X-HTTP-Method header
-      methodOverride('X-HTTP-Method'),
       // Enable CORS for all routes
       cors(),
     ],
