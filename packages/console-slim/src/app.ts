@@ -58,10 +58,10 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
 
         // Recursively merge defaultConfig with config from resora.config.js
         this.config = {
-            ...defaultConfig,
+            ...defaultConfig(core),
             ...this.config,
             stubs: {
-                ...defaultConfig.stubs,
+                ...defaultConfig(core).stubs,
                 ...this.config?.stubs,
             },
         }

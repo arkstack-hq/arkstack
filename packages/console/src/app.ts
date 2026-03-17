@@ -1,21 +1,10 @@
+import { ConsoleAppOptions, Core } from './types'
 // oxlint-disable typescript/no-explicit-any
 import path, { isAbsolute, join } from 'node:path'
 
 import { CliApp } from 'resora'
 import { defaultConfig } from './config'
 import { existsSync } from 'node:fs'
-
-interface Core {
-    [k: string]: any
-    getDriver: () => {
-        [k: string]: any
-        name: string
-    }
-}
-
-export interface ConsoleAppOptions {
-    stubsDir?: string;
-}
 
 export const resolveStubsDir = (
     config: { localStubsDir?: string } | undefined,
@@ -58,10 +47,10 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
 
         // Recursively merge defaultConfig with config from resora.config.js
         this.config = {
-            ...defaultConfig,
+            ...defaultConfig(core),
             ...this.config,
             stubs: {
-                ...defaultConfig.stubs,
+                ...defaultConfig(core).stubs,
                 ...this.config?.stubs,
             },
         }
