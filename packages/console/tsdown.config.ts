@@ -7,7 +7,7 @@ export default defineConfig({
     entry: ['src/index.ts', 'src/app.ts', 'src/prepare.ts'],
     format: 'esm',
     sourcemap: false,
-    minify: true,
+    minify: false,
     dts: true,
     clean: true,
     outDir: 'dist',
