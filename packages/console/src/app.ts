@@ -2,6 +2,7 @@
 import path, { isAbsolute, join } from 'node:path'
 
 import { CliApp } from 'resora'
+import { defaultConfig } from './config'
 import { existsSync } from 'node:fs'
 
 interface Core {
@@ -54,6 +55,16 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
         super()
         this.core = core
         this.options = options
+
+        // Recursively merge defaultConfig with config from resora.config.js
+        this.config = {
+            ...defaultConfig,
+            ...this.config,
+            stubs: {
+                ...defaultConfig.stubs,
+                ...this.config?.stubs,
+            },
+        }
     }
 
     makeController = (name: string, opts: any) => {
