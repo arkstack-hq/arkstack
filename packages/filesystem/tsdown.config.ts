@@ -1,9 +1,8 @@
-import config from '../../tsdown.config'
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-    ...config,
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/commands/StorageLinkCommand.ts'],
+    exports: true,
     format: 'esm',
     sourcemap: true,
     dts: true,

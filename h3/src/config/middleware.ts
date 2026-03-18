@@ -8,7 +8,7 @@ const config = (_app: H3): MiddlewareConfig => {
   return {
     global: [cors()],
     before: [
-      ({ req, res }, next) => {
+      function ({ req, res }, next) {
         Resource.setCtx({ req, res })
         GenericResource.setCtx({ req, res })
         ResourceCollection.setCtx({ res, req })

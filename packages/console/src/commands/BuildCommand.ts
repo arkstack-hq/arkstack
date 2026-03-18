@@ -12,7 +12,7 @@ export class BuildCommand extends Command {
             const child = spawn(command, ['exec', 'tsdown'], {
                 cwd: process.cwd(),
                 stdio: 'inherit',
-                env: Object.assign({}, process.env, {
+                env: Object.assign(process.env, {
                     NODE_ENV: 'production',
                 }),
             })

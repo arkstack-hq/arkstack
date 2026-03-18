@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["es2022", "DOM"],
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "strictBindCallApply": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "paths": {
+      // "@h3ravel/filesystem": ["./packages/filesystem/src/index.ts"]
+    }
+  }
+}

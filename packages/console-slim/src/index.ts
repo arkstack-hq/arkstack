@@ -29,6 +29,10 @@ const loadCoreApp = async () => {
     const bootstrapPath = pathToFileURL(join(process.cwd(), 'src/core/bootstrap.ts')).href
     const module = await import(bootstrapPath)
 
+    globalThis.arkctx = {
+        runtime: 'CLI',
+    }
+
     return module.app
 }
 
@@ -42,6 +46,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
 
     const app = await loadCoreApp()
     const stubsDir = process.env.ARKSTACK_STUBS_DIR
+    globalThis.app = () => app as never
 
     await Kernel.init(await new ArkstackConsoleApp(app, { stubsDir }).loadConfig(), {
         logo: options.logo ?? logo,
@@ -55,7 +60,12 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             BuildCommand,
             MakeCommand,
         ],
-        discoveryPaths: [join(process.cwd(), 'src/app/console/commands/*.ts')],
+        discoveryPaths: [
+            join(process.cwd(), 'src', 'app', 'console', 'commands/*.ts'),
+            join(process.cwd(), 'src', 'app/console/commands/*.js'),
+            join(process.cwd(), 'src', 'app/console/commands/*.mjs'),
+            join(process.cwd(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js'),
+        ],
         exceptionHandler (exception) {
             throw exception
         },

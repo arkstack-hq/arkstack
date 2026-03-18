@@ -40,17 +40,11 @@ Use each group with this intent:
 ```ts
 import express, { Express } from 'express';
 import cors from 'cors';
-import methodOverride from 'method-override';
 import { MiddlewareConfig } from 'src/types/config';
 
 const config = (_app: Express): MiddlewareConfig => {
   return {
-    global: [
-      express.json(),
-      express.urlencoded({ extended: true }),
-      methodOverride('X-HTTP-Method'),
-      cors(),
-    ],
+    global: [express.json(), express.urlencoded({ extended: true }), cors()],
     before: [],
     after: [],
   };

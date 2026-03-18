@@ -1,0 +1,54 @@
+{
+    "name": "@arkstack/filesystem",
+    "version": "0.1.30",
+    "type": "module",
+    "description": "Shared Filesystem utilities for ArkStack.",
+    "homepage": "https://arkstack.toneflix.net",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/filesystem"
+    },
+    "keywords": [
+        "filesystem",
+        "storage",
+        "utilities",
+        "interface",
+        "runtime",
+        "application",
+        "framework",
+        "flydrive"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsdown",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "pnpm build"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./commands/StorageLinkCommand": "./dist/commands/StorageLinkCommand.js",
+        "./package.json": "./package.json"
+    },
+    "peerDependencies": {
+        "@h3ravel/musket": "^0.10.1"
+    },
+    "dependencies": {
+        "@h3ravel/shared": "^0.27.13",
+        "@arkstack/common": "workspace:^",
+        "@arkstack/contract": "workspace:^",
+        "@aws-sdk/client-s3": "^3.1011.0",
+        "@aws-sdk/s3-request-presigner": "^3.1011.0",
+        "flydrive": "^2.0.0",
+        "ssh2-sftp-client": "^12.1.0"
+    },
+    "devDependencies": {
+        "@types/ssh2-sftp-client": "^9.0.6"
+    }
+}

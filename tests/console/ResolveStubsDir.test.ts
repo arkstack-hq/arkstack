@@ -18,8 +18,8 @@ test('resolveStubsDir falls back to options stubsDir', () => {
     assert.equal(selected, '/tmp/stubs')
 })
 
-test('resolveStubsDir returns undefined without config or fallback', () => {
+test('resolveStubsDir falls back to default stubsDir', () => {
     const selected = resolveStubsDir(undefined)
 
-    assert.equal(selected, undefined)
+    assert.containSubset(selected, `${process.cwd()}/stubs`)
 })

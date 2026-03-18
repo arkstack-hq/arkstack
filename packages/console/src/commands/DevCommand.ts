@@ -12,6 +12,9 @@ export class DevCommand extends Command {
             const child = spawn(command, ['exec', 'tsdown', '--log-level', 'silent'], {
                 cwd: process.cwd(),
                 stdio: 'inherit',
+                env: Object.assign(process.env, {
+                    NODE_ENV: 'development',
+                }),
             })
 
             child.on('error', (error) => {
@@ -21,8 +24,8 @@ export class DevCommand extends Command {
             child.on('exit', (code) => {
                 if (code === 0 || code === null) {
                     resolve()
-                    
-return
+
+                    return
                 }
 
                 reject(new Error(`tsdown exited with code ${code}`))

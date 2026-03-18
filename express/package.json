@@ -14,6 +14,8 @@
     "cmd": "NODE_OPTIONS=--enable-source-maps tsx ./node_modules/@arkstack/console/dist/index.js"
   },
   "dependencies": {
+    "@kanun-hq/plugin-file": "^0.1.1",
+    "@arkstack/filesystem": "workspace:^",
     "@arkstack/common": "workspace:^",
     "@arkstack/console": "workspace:^",
     "@arkstack/contract": "workspace:^",
@@ -31,7 +33,7 @@
     "detect-port": "^2.1.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
-    "kanun": "^0.1.8",
+    "kanun": "^1.0.2",
     "pg": "^8.18.0",
     "resora": "^0.2.15"
   },
@@ -41,7 +43,6 @@
     "@rollup/plugin-run": "^3.1.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/method-override": "^3.0.0",
     "@types/node": "^25.2.3",
     "@types/pg": "^8.16.0",
     "eslint": "^10.0.2",

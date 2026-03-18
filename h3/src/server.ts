@@ -8,4 +8,4 @@ await bootWithDetectedPort(async (port) => {
   } else {
     await app.boot(parseInt(env('APP_PORT', String(port)), 10))
   }
-})
+}, undefined, app)

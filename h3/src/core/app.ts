@@ -36,6 +36,7 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
     this.app = app ?? this.driver.createApp()
 
     Application.app = this.app
+    globalThis.app = () => this.app as never
   }
 
   /**
