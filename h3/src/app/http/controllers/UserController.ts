@@ -1,8 +1,9 @@
 import { BaseController } from '@controllers/BaseController'
 import { HttpContext } from 'clear-router/types/h3'
-import { Storage } from '@arkstack/filesystem'
 import UserCollection from '../resources/UserCollection'
 import UserResource from '../resources/UserResource'
+
+// import { Storage } from '@arkstack/filesystem'
 
 /**
  * UserController
@@ -69,10 +70,10 @@ export default class UserController extends BaseController {
     const data = await this.validate({
       name: 'string|required',
       age: 'numeric|required|min:22',
-      image: 'required|image|mimes:jpg,png|max:2048',
+      // image: 'required|image|mimes:jpg,png|max:2048',
     })
 
-    Storage.disk('public').saveFile(data.image)
+    // Storage.disk('public').saveFile(data.image)
 
     return new UserResource({ data })
       .additional({

@@ -3,6 +3,8 @@ import { Resource, ResourceCollection } from 'resora'
 import { BaseController } from '@controllers/BaseController'
 import { HttpContext } from 'clear-router/types/express'
 
+// import { Storage } from '@arkstack/filesystem'
+
 /**
  * UserController
  */
@@ -67,6 +69,8 @@ export default class UserController extends BaseController {
       age: 'numeric|required|min:30',
       // image: 'required|image|mimes:jpg,png|max:2048',
     })
+
+    // Storage.disk('public').saveFile(data.image)
 
     return new Resource({ data })
       .additional({
