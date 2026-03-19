@@ -1,4 +1,8 @@
+import { GlobalConfig, GlobalEnv } from './system'
+
 declare global {
+  var env: GlobalEnv
+  var config: GlobalConfig
   interface String {
     /**
      * Converts the string to title case.

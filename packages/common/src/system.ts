@@ -4,6 +4,13 @@ import { createRequire } from 'module'
 import path from 'node:path'
 import { readdirSync } from 'fs'
 
+export interface GlobalEnv {
+    <X = string, Y = undefined> (
+        env: string,
+        defaultValue?: Y,
+    ): Y extends undefined ? X : Y
+}
+
 /**
  * Read the .env file
  *
@@ -11,10 +18,10 @@ import { readdirSync } from 'fs'
  * @param def
  * @returns
  */
-export const env = <X = string, Y = undefined> (
+export const env: GlobalEnv = <X = string, Y = undefined> (
     env: string,
     defaultValue?: Y,
-): Y extends undefined ? X : Y => {
+) => {
     let val: string | number | boolean | undefined | null = process.env[env] ?? ''
 
     if ([true, 'true', 'on', false, 'false', 'off'].includes(val)) {
@@ -72,6 +79,13 @@ export const appUrl = (link?: string): string => {
     }
 }
 
+export interface GlobalConfig {
+    <X extends Record<string, any>, P extends DotPath<X> | undefined = undefined> (
+        key?: P,
+        defaultValue?: any
+    ): P extends string ? any : X
+}
+
 /**
  * Gets the application configuration.
  * 
@@ -79,10 +93,10 @@ export const appUrl = (link?: string): string => {
  * @param defaultValue    The default value to return if the key is not found.
  * @returns               The configuration value.
  */
-export const config = <X extends Record<string, any>, P extends DotPath<X> | undefined = undefined> (
+export const config: GlobalConfig = <X extends Record<string, any>, P extends DotPath<X> | undefined = undefined> (
     key?: P,
     defaultValue?: any
-): P extends string ? any : X => {
+) => {
     const require = createRequire(import.meta.url)
 
     const files = readdirSync(path.join(process.cwd(), 'dist/config'), { withFileTypes: true })

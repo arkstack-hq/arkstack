@@ -1,3 +1,5 @@
+import { config, env } from './system'
+
 import { detect } from 'detect-port'
 
 export const bootWithDetectedPort = async (
@@ -5,8 +7,10 @@ export const bootWithDetectedPort = async (
   preferredPort: number = 3000,
   app?: any
 ) => {
-  if (app && globalThis.app)
+  if (app && !globalThis.app)
     globalThis.app = () => app
+  globalThis.env = env
+  globalThis.config = config
   globalThis.arkctx = {
     runtime: 'HTTP',
   }
