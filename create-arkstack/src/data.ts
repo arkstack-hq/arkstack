@@ -4,6 +4,7 @@ export const filesToRemove = [
     'database',
     'src/routes/api.ts',
     'src/core/database.ts',
+    'src/core/utils/drivers/ValidatorDBDriver.ts',
     'prisma',
     'prisma.config.ts',
     'arkorm.config.ts',

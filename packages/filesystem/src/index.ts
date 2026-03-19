@@ -18,10 +18,9 @@ interface FileLike {
 
 export class Storage implements DriverContract {
     driver: DriveManager<any>
+    services: Record<string, () => DriverContract> = {}
 
     constructor() {
-        const services: Record<string, () => DriverContract> = {}
-
         for (const diskName in config('filesystem.disks')) {
             const diskConfig = config('filesystem.disks')[diskName]
             const driverFactory = this.driversMap[diskConfig.driver]
@@ -30,13 +29,32 @@ export class Storage implements DriverContract {
                 throw new Error(`Unsupported driver: ${diskConfig.driver}`)
             }
 
-            services[diskName] = () => driverFactory(diskConfig)
+            this.services[diskName] = () => driverFactory(diskConfig)
         }
 
         this.driver = new DriveManager({
             default: config('filesystem.default'),
-            services
+            services: this.services
         })
+    }
+
+    /**
+     * Static method to get a disk instance directly from the Storage class without needing to instantiate it first.
+     * 
+     * @param diskName The name of the disk to use. If not provided, the default disk will be used.
+     * @returns A Storage instance
+     */
+    static disk<K extends string> (diskName?: K): Storage {
+        const storage = new Storage()
+
+        if (diskName) {
+            storage.driver = new DriveManager({
+                default: diskName,
+                services: storage.services
+            })
+        }
+
+        return storage
     }
 
     /**
@@ -45,10 +63,16 @@ export class Storage implements DriverContract {
      * @param file  The file object containing the original name
      * @returns     A unique file name
      */
-    static generateName = (file: { originalname: string }): string => {
+    static generateName = (file: { name?: string; originalname?: string }): string => {
+        const name = file.originalname || file.name || 'file'
+
+        if (typeof config('filesystem.fileNameGenerator') === 'function') {
+            return config('filesystem.fileNameGenerator')(name)
+        }
+
         return Math.floor(Math.random() * 999999999999).toString() +
             '_' + Math.floor(Math.random() * 999999999999) +
-            '.' + file.originalname.split('.').pop()
+            '.' + (name).split('.').pop()
     }
 
     /**
@@ -82,6 +106,10 @@ export class Storage implements DriverContract {
     ): Promise<[string, string]> => {
         const name = fileName || Storage.generateName(file)
         const drive = this.driver.use()
+
+        if (file instanceof File && !file.buffer) {
+            file.buffer = Buffer.from(await file.arrayBuffer())
+        }
 
         await drive.put(path.join(filePath, name), file.buffer)
 

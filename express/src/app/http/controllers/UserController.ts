@@ -61,8 +61,14 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  update = async ({ res }: HttpContext) => {
-    return new Resource({ data: {} }, res)
+  update = async () => {
+    const data = await this.validate({
+      name: 'string|required',
+      age: 'numeric|required|min:30',
+      // image: 'required|image|mimes:jpg,png|max:2048',
+    })
+
+    return new Resource({ data })
       .additional({
         status: 'success',
         message: 'User updated successfully',

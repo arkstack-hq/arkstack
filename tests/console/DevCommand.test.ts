@@ -31,6 +31,10 @@ describe('DevCommand', () => {
             {
                 cwd: process.cwd(),
                 stdio: 'inherit',
+                env: {
+                    ...process.env,
+                    NODE_ENV: 'development',
+                }
             },
         )
     })

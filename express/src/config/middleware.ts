@@ -3,6 +3,8 @@ import express, { Express } from 'express'
 
 import { MiddlewareConfig } from 'src/types/config'
 import cors from 'cors'
+import { formdata } from 'src/app/http/middlewares/formdata'
+import { useExpressUploadContext } from '@kanun-hq/plugin-file'
 
 const config = (_app: Express): MiddlewareConfig => {
   return {
@@ -13,12 +15,14 @@ const config = (_app: Express): MiddlewareConfig => {
       express.urlencoded({ extended: true }),
       // Enable CORS for all routes
       cors(),
+      formdata.any()
     ],
     before: [
       (req, res, next) => {
         Resource.setCtx({ req, res })
         GenericResource.setCtx({ req, res })
         ResourceCollection.setCtx({ res, req })
+        useExpressUploadContext(req)
         next()
       }
     ],

@@ -69,7 +69,7 @@
     "@h3ravel/collect.js": "^5.3.4",
     "@h3ravel/musket": "^0.10.1",
     "@h3ravel/shared": "^0.28.4",
-    "@h3ravel/support": "^0.16.1",
+    "@h3ravel/support": "^0.15.11",
     "@inquirer/core": "^10.2.2",
     "giget": "^2.0.0",
     "inquirer": "^12.9.6",

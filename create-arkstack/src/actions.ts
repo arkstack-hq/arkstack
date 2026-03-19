@@ -239,6 +239,7 @@ export default class {
 
     const filesToPatch = [
       'src/core/app.ts',
+      'src/core/bootstrap.ts',
       'src/core/utils/request-handlers.ts',
     ]
 
@@ -252,9 +253,11 @@ export default class {
       let content = await readFile(filePath, 'utf-8')
 
       content = content
+        .replace('import { ValidatorDBDriver } from \'./utils/drivers/ValidatorDBDriver\'\n', '')
         .replace('import { ModelNotFoundException } from \'arkormx\'\n', '')
         .replace('import { prisma } from \'src/core/database\'\n', '')
         .replace('import { Prisma } from \'@prisma/client\'\n', '')
+        .replace('Validator.useDatabase(new ValidatorDBDriver())', '')
         .replace('  async shutdown () {\n    await prisma.$disconnect()\n    process.exit(0)\n  }', '  async shutdown () {\n    process.exit(0)\n  }')
         .replace(
           ' * Shuts down the application by disconnecting from the database and exiting the process.',

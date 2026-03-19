@@ -26,13 +26,11 @@ export const ErrorHandler = (
   _next?: NextFunction,
 ) => {
   const logsDir = path.resolve(process.cwd(), 'storage/logs')
-  const message = 'Something went wrong'
+  const message = typeof err !== 'string' ? (err as any).message : 'Something went wrong'
   let logContent = ''
-
-  // oxlint-disable-next-line typescript/no-explicit-any
   const error: Record<string, any> = {
     status: 'error',
-    code: typeof err === 'string' || !(err instanceof BaseError) ? 500 : err.statusCode,
+    code: typeof err === 'string' || !(err instanceof BaseError) ? (err as any)?.statusCode ?? 500 : err.statusCode,
     message: typeof err === 'string' ? `${message}: ${err}` : err instanceof BaseError ? err.message : message,
   }
 
@@ -50,7 +48,7 @@ export const ErrorHandler = (
   }
 
   if (err instanceof ValidationException) {
-    error.code = 422
+    error.code = err.statusCode ?? 422
     error.message = err.message
     error.errors = err.errors()
   }
@@ -69,8 +67,9 @@ export const ErrorHandler = (
     logContent = readFileSync(path.join(logsDir, 'error.log'), 'utf-8')
   } catch { /** */ }
 
-  if (!(err instanceof ValidationException)) {
-    const newLogEntry = `[${new Date().toISOString()}] ${typeof err === 'string' ? err : err instanceof BaseError ? err.stack || err.message : err.statusMessage}\n\n`
+  if (!(err instanceof ValidationException) &&
+    !(err instanceof ModelNotFoundException)) {
+    const newLogEntry = `[${new Date().toISOString()}] ${typeof err === 'string' ? err : err instanceof BaseError ? err.stack || err.message : err.toString()}\n\n`
     writeFileSync(path.join(logsDir, 'error.log'), logContent + newLogEntry, 'utf-8')
   }
 
@@ -78,6 +77,12 @@ export const ErrorHandler = (
 
   // If the request is an API call, return a JSON response. Otherwise, you might want to render an error page.
   const headers = req instanceof ServerResponse ? req.getHeaders() : req.headers
+
+  if (process.env.NODE_ENV === 'development') console.error(error)
+
+  if (!(err instanceof ValidationException)) {
+    delete error.errors
+  }
 
   if (headers.accept?.includes('application/json')) {
     return res.status(error.code).json(error)

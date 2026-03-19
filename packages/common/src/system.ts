@@ -21,7 +21,7 @@ export const env = <X = string, Y = undefined> (
         val = [true, 'true', 'on'].includes(val)
     }
 
-    if (!isNaN(Number(val)) && typeof val !== 'boolean') {
+    if (!isNaN(Number(val)) && typeof val !== 'boolean' && typeof val !== 'undefined' && val !== '') {
         val = Number(val)
     }
 
@@ -85,7 +85,7 @@ export const config = <X extends Record<string, any>, P extends DotPath<X> | und
 ): P extends string ? any : X => {
     const require = createRequire(import.meta.url)
 
-    const files = readdirSync(path.join(process.cwd(), 'src/config'), { withFileTypes: true })
+    const files = readdirSync(path.join(process.cwd(), 'dist/config'), { withFileTypes: true })
         .filter(file => {
             if (file.name.includes('middleware') && globalThis.arkctx.runtime === 'CLI') return false
 

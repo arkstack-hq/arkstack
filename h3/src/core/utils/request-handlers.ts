@@ -1,4 +1,3 @@
-// oxlint-disable typescript/no-explicit-any
 import { H3Event, HTTPError, HTTPResponse } from 'h3'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
@@ -63,9 +62,16 @@ export const ErrorHandler = (err: HTTPError, event: H3Event) => {
     logContent = readFileSync(path.join(logsDir, 'error.log'), 'utf-8')
   } catch { /** */ }
 
-  if (!(cause instanceof ValidationException)) {
+  if (!(err instanceof ValidationException) &&
+    !(err instanceof ModelNotFoundException)) {
     const newLogEntry = `[${new Date().toISOString()}] ${typeof err === 'string' ? err : err.stack || err.message}\n\n`
     writeFileSync(path.join(logsDir, 'error.log'), logContent + newLogEntry, 'utf-8')
+  }
+
+  if (process.env.NODE_ENV === 'development') console.error(error)
+
+  if (!(err instanceof ValidationException)) {
+    delete error.errors
   }
 
   // If the request is an API call, return a JSON response. Otherwise, you might want to render an error page.

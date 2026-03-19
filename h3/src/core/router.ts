@@ -24,7 +24,7 @@ export class Router extends ClearRouter {
 
   static async list (_options: ArkstackRouteListOptions = {}, app: H3) {
     await this.bind(app)
-    
-return this.allRoutes()
+
+    return this.allRoutes()
   }
 }

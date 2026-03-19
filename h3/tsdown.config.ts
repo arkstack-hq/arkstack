@@ -10,7 +10,7 @@ export default defineConfig([
   {
     unbundle: true,
     tsconfig: 'tsconfig.json',
-    entry: ['src/server.ts', 'src/routes/**/*.ts', 'src/app/**/*.ts'],
+    entry: ['src/**/*.ts'],
     platform: 'node',
     outDir: 'dist',
     format: 'esm',
