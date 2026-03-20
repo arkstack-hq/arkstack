@@ -28,7 +28,7 @@
     "@types/pg": "^8.16.0",
     "@types/react": "^18.3.28",
     "@vitest/coverage-v8": "3.2.4",
-    "arkormx": "^1.0.0",
+    "arkormx": "^1.1.0",
     "dotenv": "^17.3.1",
     "escalade": "^3.2.0",
     "eslint": "^10.0.2",
