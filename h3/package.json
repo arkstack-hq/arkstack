@@ -22,7 +22,7 @@
     "@arkstack/filesystem": "workspace:^",
     "@h3ravel/musket": "^0.10.1",
     "@h3ravel/support": "^0.15.11",
-    "@kanun-hq/plugin-file": "^0.1.2",
+    "@kanun-hq/plugin-file": "^0.1.4",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "argon2": "^0.44.0",
@@ -34,7 +34,7 @@
     "detect-port": "^2.1.0",
     "dotenv": "^17.3.1",
     "h3": "2.0.1-rc.16",
-    "kanun": "^1.0.5",
+    "kanun": "^1.0.8",
     "pg": "^8.18.0",
     "resora": "^0.2.15"
   },
