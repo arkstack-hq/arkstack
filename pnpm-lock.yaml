@@ -36,8 +36,8 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@25.2.3)(jiti@2.6.1)(tsx@4.21.0))
       arkormx:
-        specifier: ^1.0.0
-        version: 1.0.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
       dotenv:
         specifier: ^17.3.1
         version: 17.3.1
@@ -166,8 +166,8 @@ importers:
         specifier: ^0.44.0
         version: 0.44.0
       arkormx:
-        specifier: ^1.0.0
-        version: 1.0.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -296,8 +296,8 @@ importers:
         specifier: ^0.44.0
         version: 0.44.0
       arkormx:
-        specifier: ^1.0.0
-        version: 1.0.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -390,8 +390,8 @@ importers:
         specifier: ^0.10.1
         version: 0.10.1(@types/node@25.2.3)
       arkormx:
-        specifier: ^1.0.0
-        version: 1.0.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -2588,8 +2588,8 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  arkormx@1.0.0:
-    resolution: {integrity: sha512-ujdsHLMPlWOW1JoQE3qsHh+Vch3ZOKaFdBnA4gjDPgObiIwYawPDbnzsIEFdkg3FVaVZmnXOd09Jo9iO2GVfSA==}
+  arkormx@1.1.0:
+    resolution: {integrity: sha512-xIIRuGBtE8Ef6n5XH0Tb6j7qaJXNmnGOH8gmILi7m8IyZRfws/0KdaPGAfsvXuhBFRsXe8b1Wn/dw3SsQQia8w==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
@@ -7644,7 +7644,7 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  arkormx@1.0.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3):
+  arkormx@1.1.0(@prisma/client@7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3))(@types/node@25.2.3):
     dependencies:
       '@h3ravel/collect.js': 5.3.6
       '@h3ravel/musket': 0.10.1(@types/node@25.2.3)
