@@ -19,6 +19,7 @@ interface FileLike {
 export class Storage implements DriverContract {
     driver: DriveManager<any>
     services: Record<string, () => DriverContract> = {}
+    diskName: string
 
     constructor() {
         for (const diskName in config('filesystem.disks')) {
@@ -32,6 +33,7 @@ export class Storage implements DriverContract {
             this.services[diskName] = () => driverFactory(diskConfig)
         }
 
+        this.diskName = config('filesystem.default')
         this.driver = new DriveManager({
             default: config('filesystem.default'),
             services: this.services
@@ -48,6 +50,7 @@ export class Storage implements DriverContract {
         const storage = new Storage()
 
         if (diskName) {
+            storage.diskName = diskName
             storage.driver = new DriveManager({
                 default: diskName,
                 services: storage.services
@@ -113,7 +116,10 @@ export class Storage implements DriverContract {
 
         await drive.put(path.join(filePath, name), file.buffer)
 
-        return [await drive.getUrl(path.join(filePath, name)), path.join(filePath, name)]
+        const url = await drive.getUrl(path.join(filePath, name))
+        const pth = this.diskName === 'local' ? path.join(filePath, name) : url
+
+        return [url, pth]
     }
 
     /**

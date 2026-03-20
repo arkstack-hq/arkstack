@@ -49,7 +49,7 @@
     },
     "peerDependencies": {
         "clear-router": "^2.3.3",
-        "arkormx": "^0.2.11"
+        "arkormx": "^1.0.0"
     },
     "dependencies": {
         "@arkstack/common": "workspace:^",
