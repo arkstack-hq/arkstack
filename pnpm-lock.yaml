@@ -193,8 +193,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       kanun:
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.5
       multer:
         specifier: ^2.1.1
         version: 2.1.1
@@ -320,8 +320,8 @@ importers:
         specifier: 2.0.1-rc.16
         version: 2.0.1-rc.16
       kanun:
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.5
       pg:
         specifier: ^8.18.0
         version: 8.18.0
@@ -3634,6 +3634,9 @@ packages:
 
   kanun@1.0.4:
     resolution: {integrity: sha512-X9V5BkSZm+WEWDmCXVwSpVAfVLqbOCaUrk8tB3OrzMFqflXGCaaVLKCGa/dwUH2UmU53XXUDeltmCUwbwgfrsA==}
+
+  kanun@1.0.5:
+    resolution: {integrity: sha512-2sZ9lM+QQQ3ezmeuKkAA6h0f+MqB9uao6ECqyqrur8ki9DgFEdawFcADY49WNsvrZJZ9R9T/Ql2Mn/VVtbzbIg==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -8731,6 +8734,10 @@ snapshots:
       graceful-fs: 4.2.11
 
   kanun@1.0.4:
+    dependencies:
+      dayjs: 1.11.20
+
+  kanun@1.0.5:
     dependencies:
       dayjs: 1.11.20
 
