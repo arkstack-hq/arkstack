@@ -2,11 +2,11 @@ node_modules
 dist
 # Keep environment variables out of version control
 .env
+.arkormx
 
 /generated/prisma
-/storage/**/*.log
-/storage/**/*.tmp
 /src/models/**/*.ts
 /database/**/*.ts
 
-.arkormx
+/public/storage
+/storage/*.key
