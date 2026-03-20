@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/contract",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "type": "module",
     "description": "Contract package for Arkstack providing contract-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
     "homepage": "https://arkstack.toneflix.net",
