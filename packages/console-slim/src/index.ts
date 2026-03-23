@@ -64,6 +64,8 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             join(process.cwd(), 'src', 'app', 'console', 'commands/*.ts'),
             join(process.cwd(), 'src', 'app/console/commands/*.js'),
             join(process.cwd(), 'src', 'app/console/commands/*.mjs'),
+            join(process.cwd(), 'dist', 'app/console/commands/*.js'),
+            join(process.cwd(), 'dist', 'app/console/commands/*.mjs'),
             join(process.cwd(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js'),
         ],
         exceptionHandler (exception) {
