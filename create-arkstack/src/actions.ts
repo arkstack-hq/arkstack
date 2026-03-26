@@ -239,6 +239,7 @@ export default class {
 
     const filesToPatch = [
       'src/core/app.ts',
+      'src/core/router.ts',
       'src/core/bootstrap.ts',
       'src/core/utils/request-handlers.ts',
     ]
@@ -269,6 +270,10 @@ export default class {
         )
         .replace(
           /\n\s*if \((?:err|cause) instanceof ModelNotFoundException\) \{\n\s*error\.code = 404\n\s*error\.message = `\$\{(?:err|cause)\.getModelName\(\)\} not found!`\n\s*\}\n/g,
+          '\n',
+        )
+        .replace(
+          /\s*\/\/ Register API routes\s*await ClearRouter\.group\('\/api', async \(\) => \{\s*await import\(pathToFileURL\(join\(process\.cwd\(\), 'src\/routes\/api\.ts'\)\)\.href\)\s*\}\)\s*/g,
           '\n',
         )
 
