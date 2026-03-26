@@ -2,6 +2,7 @@
 
 [![Create Arkstack][i1]][l1]
 [![Downloads][d1]][l1]
+[![Arkormˣ Downloads](https://img.shields.io/npm/dt/arkormx?style=flat-square&label=Arkormˣ&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Farkormx)](https://www.npmjs.com/package/arkormx)
 [![Contract Downloads](https://img.shields.io/npm/dt/@arkstack/contract?style=flat-square&label=@arkstack/contract&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/contract)](https://www.npmjs.com/package/@arkstack/contract)
 [![Common Downloads](https://img.shields.io/npm/dt/@arkstack/common?style=flat-square&label=@arkstack/common&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/common)](https://www.npmjs.com/package/@arkstack/common)
 [![Console Downloads](https://img.shields.io/npm/dt/@arkstack/console?style=flat-square&label=@arkstack/console&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/console)](https://www.npmjs.com/package/@arkstack/console)
