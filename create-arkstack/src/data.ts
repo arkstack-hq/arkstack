@@ -1,5 +1,6 @@
 export const filesToRemove = [
-    'src/app',
+    'src/app/http/controllers',
+    'src/app/http/resources',
     'src/models',
     'database',
     'src/routes/api.ts',
