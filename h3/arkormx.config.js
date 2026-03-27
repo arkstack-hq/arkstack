@@ -2,6 +2,10 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { createArkormCurrentPageResolver } from 'resora'
 import { defineConfig } from 'arkormx'
+import { outputDir } from '@arkstack/common'
+import path from 'node:path'
+
+const dist = path.relative(process.cwd(), outputDir())
 
 export default defineConfig({
     paths: {
@@ -9,7 +13,7 @@ export default defineConfig({
         factories: './src/database/factories',
         seeders: './src/database/seeders',
         migrations: './src/database/migrations',
-        buildOutput: './dist',
+        buildOutput: dist,
     },
     outputExt: 'ts',
     prisma: () => {

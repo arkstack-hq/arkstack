@@ -84,9 +84,10 @@ export const config: GlobalConfig = <X extends Record<string, any>, P extends Do
     key?: P,
     defaultValue?: any
 ) => {
+    const dist = path.relative(process.cwd(), outputDir())
     const require = createRequire(import.meta.url)
 
-    const files = readdirSync(path.join(process.cwd(), 'dist/config'), { withFileTypes: true })
+    const files = readdirSync(path.join(process.cwd(), `${dist}/config`), { withFileTypes: true })
         .filter(file => {
             if (file.name.includes('middleware') && globalThis.arkctx.runtime === 'CLI') return false
 

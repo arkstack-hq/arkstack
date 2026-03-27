@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { loadPrototypes, outputDir } from '@arkstack/common'
+import path, { join } from 'node:path'
 
 import { ArkstackConsoleApp } from './app'
 import { BuildCommand } from './commands/BuildCommand'
@@ -20,8 +22,6 @@ import { MigrationHistoryCommand } from './commands/MigrationHistoryCommand'
 import { ModelsSyncCommand } from './commands/ModelsSyncCommand'
 import { RouteList } from './commands/RouteList'
 import { SeedCommand } from './commands/SeedCommand'
-import { join } from 'node:path'
-import { loadPrototypes } from '@arkstack/common'
 import logo from './logo'
 import { realpathSync } from 'node:fs'
 
@@ -54,6 +54,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
     loadPrototypes()
 
     const app = await loadCoreApp()
+    const dist = path.relative(process.cwd(), outputDir())
     const stubsDir = process.env.ARKSTACK_STUBS_DIR
     globalThis.app = () => app as never
 
@@ -82,8 +83,8 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             join(process.cwd(), 'src', 'app', 'console', 'commands/*.ts'),
             join(process.cwd(), 'src', 'app/console/commands/*.js'),
             join(process.cwd(), 'src', 'app/console/commands/*.mjs'),
-            join(process.cwd(), 'dist', 'app/console/commands/*.js'),
-            join(process.cwd(), 'dist', 'app/console/commands/*.mjs'),
+            join(process.cwd(), dist, 'app/console/commands/*.js'),
+            join(process.cwd(), dist, 'app/console/commands/*.mjs'),
             join(process.cwd(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js'),
         ],
         exceptionHandler (exception) {

@@ -36,6 +36,7 @@ export default defineConfig(
             'bin/**',
             'dist/**',
             'build/**',
+            '.arkstack/**',
             'node_modules/**',
         ])
     ],

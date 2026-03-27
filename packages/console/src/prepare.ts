@@ -6,7 +6,8 @@ const child = spawn(command, ['exec', 'tsdown', '--log-level=silent'], {
     cwd: process.cwd(),
     stdio: 'inherit',
     env: Object.assign({}, process.env, {
-        NODE_ENV: 'production',
+        NODE_ENV: process.env.NODE_ENV || 'development',
+        CLI_BUILD: 'true',
     }),
 })
 
