@@ -2,7 +2,7 @@
   "name": "h3-app",
   "description": "Simple H3 project created with Toneflix's Node.js starter kit.",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "base": true,
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
@@ -36,7 +36,7 @@
     "h3": "2.0.1-rc.16",
     "kanun": "^1.0.10",
     "pg": "^8.18.0",
-    "resora": "^0.2.15"
+    "resora": "^0.2.17"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

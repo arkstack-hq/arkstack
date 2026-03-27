@@ -2,7 +2,7 @@
   "name": "express-app",
   "description": "Simple Express.js project created with Toneflix's Node.js starter kit.",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
     "prebuild": "pnpm -w run build:packages --log-level silent",
@@ -37,7 +37,7 @@
     "kanun": "^1.0.10",
     "multer": "^2.1.1",
     "pg": "^8.18.0",
-    "resora": "^0.2.15"
+    "resora": "^0.2.18"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

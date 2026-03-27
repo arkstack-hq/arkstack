@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/driver-h3",
-    "version": "0.2.4",
+    "version": "0.3.0",
     "type": "module",
     "description": "H3 driver package for Arkstack providing H3-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
     "homepage": "https://arkstack.toneflix.net",
@@ -37,12 +37,14 @@
     },
     "exports": {
         ".": "./dist/index.js",
+        "./middlewares": "./dist/middlewares/index.js",
         "./package.json": "./package.json"
     },
     "dependencies": {
         "@arkstack/contract": "workspace:^"
     },
     "peerDependencies": {
+        "@arkstack/common": "workspace:^",
         "clear-router": "^2.3.3",
         "h3": "2.0.1-rc.16"
     }

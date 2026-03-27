@@ -1,7 +1,8 @@
-import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
-import { H3, serve } from 'h3'
+import { ArkstackKitDriver, ArkstackMiddlewareConfig, PromiseOrValue } from '@arkstack/contract'
+import { H3, serve, toResponse } from 'h3'
 
 import { Middleware as H3BaseMiddleware } from 'clear-router/types/h3'
+import { Logger } from '@arkstack/common'
 
 // oxlint-disable-next-line typescript/no-explicit-any
 export type H3Middleware = H3BaseMiddleware | [H3BaseMiddleware, Record<string, any>];
@@ -10,6 +11,20 @@ export interface H3DriverOptions {
     bindRouter: (app: H3) => PromiseOrValue<void>;
     mountPublicAssets: (app: H3, publicPath: string) => PromiseOrValue<void>;
     createApp?: () => H3;
+}
+
+export class H3EventResponse {
+    status: number = 200
+    statusText?: string
+
+    constructor(public response: Response) {
+        this.status = response.status
+        this.statusText = response.statusText
+    }
+
+    get headers (): Headers {
+        return this.response.headers
+    }
 }
 
 /**
@@ -63,11 +78,37 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * @param app 
      * @param middleware 
      */
-    applyMiddleware (app: H3, middleware: H3Middleware): void {
-        app.use(
-            Array.isArray(middleware) ? middleware[0] : middleware,
-            Array.isArray(middleware) ? middleware[1] : undefined,
-        )
+    applyMiddleware (
+        app: H3,
+        middleware: H3Middleware | ArkstackMiddlewareConfig<H3Middleware>,
+    ): void {
+        const mw = Array.isArray(middleware) ? middleware[0] : middleware
+        const conf = Array.isArray(middleware) && middleware[1] ? middleware[1] : {}
+
+        if (typeof mw === 'function') {
+            app.use(mw, conf)
+
+            return
+        }
+
+        for (const [pos, entries] of Object.entries(middleware) as [string, H3Middleware[]][]) {
+            for (const entry of entries) {
+                const mw = Array.isArray(entry) ? entry[0] : entry
+                const conf = Array.isArray(entry) && entry[1] ? entry[1] : {}
+
+                if (pos === 'after') {
+                    app.use(async (evt, next) => {
+                        const response = await toResponse(await next(), evt)
+                        // evt.res.status = response.status
+                        evt[Symbol.for('h3.internal.event.res') as never] = new H3EventResponse(response) as never
+                        await mw(evt, next)
+                        next()
+                    }, conf)
+                } else {
+                    app.use(mw, conf)
+                }
+            }
+        }
     }
 
     /**
@@ -77,6 +118,11 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * @param port 
      */
     start (app: H3, port: number): void {
-        serve(app, { port })
+        serve(app, { port, silent: true }).ready().then(() => {
+            Logger.log([
+                ['Server is running on', 'white'],
+                [`http://localhost:${port}`, 'cyan']
+            ], ' ')
+        })
     }
 }

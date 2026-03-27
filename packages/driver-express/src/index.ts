@@ -1,6 +1,7 @@
 import express, { type ErrorRequestHandler, type Express, type Handler } from 'express'
 
-import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
+import { ArkstackKitDriver, ArkstackMiddlewareConfig, PromiseOrValue } from '@arkstack/contract'
+import { Logger } from '@arkstack/common'
 
 export interface ExpressDriverOptions {
     bindRouter: (app: Express) => PromiseOrValue<void>;
@@ -59,8 +60,30 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * @param app 
      * @param middleware 
      */
-    applyMiddleware (app: Express, middleware: Handler): void {
-        app.use(middleware)
+    applyMiddleware (
+        app: Express,
+        middleware: Handler | ArkstackMiddlewareConfig<Handler>,
+    ): void {
+        if (typeof middleware === 'function') {
+            app.use(middleware)
+
+            return
+        }
+
+        for (const [pos, entries] of Object.entries(middleware) as [string, Handler[]][]) {
+            for (const entry of entries) {
+                if (pos === 'after') {
+                    app.use(async (req, res, next) => {
+                        res.once('finish', async () => {
+                            await entry(req, res, next)
+                        })
+                        next()
+                    })
+                } else {
+                    app.use(entry)
+                }
+            }
+        }
     }
 
     /**
@@ -83,7 +106,10 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      */
     start (app: Express, port: number): void {
         app.listen(port, () => {
-            console.log(`Server is running on http://localhost:${port}`)
+            Logger.log([
+                ['Server is running on', 'white'],
+                [`http://localhost:${port}`, 'cyan']
+            ], ' ')
         })
     }
 }

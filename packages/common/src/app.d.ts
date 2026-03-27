@@ -1,4 +1,4 @@
-import { GlobalConfig, GlobalEnv } from './system'
+import { GlobalConfig, GlobalEnv } from './'
 
 declare global {
   var env: GlobalEnv

@@ -1,10 +1,11 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 
 import { defineConfig } from 'tsdown'
+import { nodeEnv } from '@arkstack/common'
 import path from 'node:path'
 import run from '@rollup/plugin-run'
 
-const env = process.env.NODE_ENV || 'development'
+const env = nodeEnv()
 
 export default defineConfig([
   {
@@ -16,9 +17,9 @@ export default defineConfig([
     format: 'esm',
     sourcemap: true,
     logLevel: 'silent',
-    watch: env === 'development' ? ['.env', '.env.*', 'src', 'tsconfig.json'] : false,
+    watch: env === 'dev' ? ['.env', '.env.*', 'src', 'tsconfig.json'] : false,
     plugins:
-      env === 'development' && process.env.CLI_BUILD !== 'true'
+      env === 'dev' && process.env.CLI_BUILD !== 'true'
         ? [
           run({
             env: Object.assign({}, process.env, {

@@ -4,6 +4,7 @@ import express, { Express } from 'express'
 import { MiddlewareConfig } from 'src/types/config'
 import cors from 'cors'
 import { formdata } from 'src/app/http/middlewares/formdata'
+import { requestLogger } from '@arkstack/driver-express/middlewares'
 import { useExpressUploadContext } from '@kanun-hq/plugin-file'
 
 const config = (_app: Express): MiddlewareConfig => {
@@ -15,7 +16,7 @@ const config = (_app: Express): MiddlewareConfig => {
       express.urlencoded({ extended: true }),
       // Enable CORS for all routes
       cors(),
-      formdata.any()
+      formdata.any(),
     ],
     before: [
       (req, res, next) => {
@@ -26,7 +27,9 @@ const config = (_app: Express): MiddlewareConfig => {
         next()
       }
     ],
-    after: [],
+    after: [
+      requestLogger()
+    ],
   }
 }
 

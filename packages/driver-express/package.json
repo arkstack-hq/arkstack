@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/driver-express",
-    "version": "0.2.4",
+    "version": "0.3.0",
     "type": "module",
     "description": "Express driver package for Arkstack providing Express-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
     "homepage": "https://arkstack.toneflix.net",
@@ -37,12 +37,14 @@
     },
     "exports": {
         ".": "./dist/index.js",
+        "./middlewares": "./dist/middlewares/index.js",
         "./package.json": "./package.json"
     },
     "dependencies": {
         "@arkstack/contract": "workspace:^"
     },
     "peerDependencies": {
+        "@arkstack/common": "workspace:^",
         "express": "^5.2.1"
     },
     "devDependencies": {

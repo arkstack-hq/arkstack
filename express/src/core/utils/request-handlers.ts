@@ -6,7 +6,6 @@ import { ModelNotFoundException } from 'arkormx'
 import { ServerResponse } from 'node:http'
 import { ValidationException } from 'kanun'
 import { buildHtmlErrorResponse } from '@arkstack/common'
-import { env } from './helpers'
 import path from 'node:path'
 
 /**
@@ -78,11 +77,12 @@ export const ErrorHandler = (
   // If the request is an API call, return a JSON response. Otherwise, you might want to render an error page.
   const headers = req instanceof ServerResponse ? req.getHeaders() : req.headers
 
-  if (process.env.NODE_ENV === 'development') console.error(error)
-
-  if (!(err instanceof ValidationException)) {
+  if (!(err instanceof ValidationException) || Number(error.code) === 404) {
     delete error.errors
+    delete error.stack
   }
+
+  if (process.env.NODE_ENV === 'development') console.error(error)
 
   if (headers.accept?.includes('application/json')) {
     return res.status(error.code).json(error)

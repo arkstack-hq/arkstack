@@ -1,6 +1,5 @@
 import { bindGracefulShutdown } from '@arkstack/common'
 
-import config from 'src/config/middleware'
 import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
 import { H3 } from 'h3'
@@ -88,23 +87,11 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
     // Load public assets
     await this.driver.mountPublicAssets(this.app, 'public')
 
-    // Apply global middleware
-    for (const middleware of config(this.app).global) {
-      await this.driver.applyMiddleware(this.app, middleware)
-    }
-
-    // Apply before middleware
-    for (const middleware of config(this.app).before) {
-      await this.driver.applyMiddleware(this.app, middleware)
-    }
+    // Apply all middleware
+    await this.driver.applyMiddleware(this.app, config('middleware'))
 
     // Bind the router
     await this.driver.bindRouter(this.app)
-
-    // Apply after middleware
-    for (const middleware of config(this.app).after) {
-      await this.driver.applyMiddleware(this.app, middleware)
-    }
 
     // Start the server
     await this.driver.start(this.app, port)

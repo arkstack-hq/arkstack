@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/middlewares/index.ts'],
     sourcemap: true,
     exports: true,
     format: 'esm',

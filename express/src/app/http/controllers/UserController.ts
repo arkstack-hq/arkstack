@@ -15,8 +15,8 @@ export default class UserController extends BaseController {
    * @param req
    * @param res
    */
-  index = async ({ res }: HttpContext) => {
-    return new ResourceCollection({ data: [] }, res)
+  index = async () => {
+    return new ResourceCollection({ data: [] })
       .additional({
         status: 'success',
         message: 'OK',

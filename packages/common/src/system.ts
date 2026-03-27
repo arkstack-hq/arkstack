@@ -1,15 +1,9 @@
 import { DotPath, Obj } from '@h3ravel/support'
+import { GlobalConfig, GlobalEnv } from './types'
 
 import { createRequire } from 'module'
 import path from 'node:path'
 import { readdirSync } from 'fs'
-
-export interface GlobalEnv {
-    <X = string, Y = undefined> (
-        env: string,
-        defaultValue?: Y,
-    ): Y extends undefined ? X : Y
-}
 
 /**
  * Read the .env file
@@ -18,7 +12,7 @@ export interface GlobalEnv {
  * @param def
  * @returns
  */
-export const env: GlobalEnv = <X = string, Y = undefined> (
+export const env: GlobalEnv = <X = string, Y = undefined | X> (
     env: string,
     defaultValue?: Y,
 ) => {
@@ -79,13 +73,6 @@ export const appUrl = (link?: string): string => {
     }
 }
 
-export interface GlobalConfig {
-    <X extends Record<string, any>, P extends DotPath<X> | undefined = undefined> (
-        key?: P,
-        defaultValue?: any
-    ): P extends string ? any : X
-}
-
 /**
  * Gets the application configuration.
  * 
@@ -121,4 +108,38 @@ export const config: GlobalConfig = <X extends Record<string, any>, P extends Do
     }
 
     return config
+}
+
+/**
+ * Gets the current Node environment (development or production).
+ * 
+ * @returns 
+ */
+export const nodeEnv = () => {
+    let envValue = env<'development' | 'production'>('NODE_ENV', 'development')
+
+    if (envValue !== 'development' && envValue !== 'production') {
+        envValue = 'development'
+    }
+
+    return envValue === 'production' ? 'prod' : 'dev'
+}
+
+/**
+ * Gets the output directory for the application based on the current environment.
+ * 
+ * @param cwd  The current working directory (optional, defaults to process.cwd()).
+ * @returns 
+ */
+export const outputDir = (cwd = process.cwd()) => {
+    const NODE_ENV = nodeEnv()
+
+    const output = {
+        dev: env('OUTPUT_DIR_DEV', '.arkstack/build'),
+        prod: env('OUTPUT_DIR', 'dist'),
+    }
+
+    return path.isAbsolute(output[NODE_ENV] ?? output.dev)
+        ? (output[NODE_ENV] ?? output.dev)
+        : path.join(cwd, output[NODE_ENV] ?? output.dev)
 }

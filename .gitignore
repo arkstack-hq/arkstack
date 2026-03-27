@@ -9,3 +9,7 @@ dist
 /storage/**
 /coverage
 docs/architecture/unification-roadmap.md
+
+# ArkStack specific files and directories
+.arkstack
+.arkormx

@@ -1,4 +1,4 @@
-import { bindGracefulShutdown, config } from '@arkstack/common'
+import { bindGracefulShutdown } from '@arkstack/common'
 import { Router } from 'src/core/router'
 import path from 'path'
 import ErrorHandler from './utils/request-handlers'
@@ -81,23 +81,11 @@ export default class Application implements ArkstackRouterAwareCore<Express, unk
     // Load public assets
     await this.driver.mountPublicAssets(this.app, path.join(process.cwd(), 'public'))
 
-    // Apply global middleware
-    for (const middleware of config('middleware.global')) {
-      await this.driver.applyMiddleware(this.app, middleware)
-    }
+    // Apply all middleware
+    await this.driver.applyMiddleware(this.app, config('middleware'))
 
-    // Apply before middleware
-    for (const middleware of config('middleware.before')) {
-      await this.driver.applyMiddleware(this.app, middleware)
-    }
-
-    // Bind the router
+    // Bind the router 
     await this.driver.bindRouter(this.app)
-
-    // Apply after middleware
-    for (const middleware of config('middleware.after')) {
-      await this.driver.applyMiddleware(this.app, middleware)
-    }
 
     // Error Handler
     await this.driver.registerErrorHandler?.(this.app)

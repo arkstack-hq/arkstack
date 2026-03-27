@@ -4,7 +4,6 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { ModelNotFoundException } from 'arkormx'
 import { ValidationException } from 'kanun'
 import { buildHtmlErrorResponse } from '@arkstack/common'
-import { env } from './helpers'
 import path from 'node:path'
 
 /**
@@ -68,11 +67,12 @@ export const ErrorHandler = (err: HTTPError, event: H3Event) => {
     writeFileSync(path.join(logsDir, 'error.log'), logContent + newLogEntry, 'utf-8')
   }
 
-  if (process.env.NODE_ENV === 'development') console.error(error)
-
-  if (!(err instanceof ValidationException)) {
+  if (!(err instanceof ValidationException) || Number(error.code) === 404) {
     delete error.errors
+    delete error.stack
   }
+
+  if (process.env.NODE_ENV === 'development') console.error(error)
 
   // If the request is an API call, return a JSON response. Otherwise, you might want to render an error page.
   if (
