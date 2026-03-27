@@ -26,7 +26,12 @@ export interface RunConsoleOptions {
  * @returns 
  */
 const loadCoreApp = async () => {
-    const bootstrapPath = pathToFileURL(join(process.cwd(), 'src/core/bootstrap.ts')).href
+    const dist = path.relative(process.cwd(), outputDir())
+
+    const bootstrapPath = pathToFileURL(
+        join(process.cwd(), `${dist}/core/bootstrap.js`)
+    ).href
+
     const module = await import(bootstrapPath)
 
     globalThis.arkctx = {
