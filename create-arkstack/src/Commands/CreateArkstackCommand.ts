@@ -6,7 +6,6 @@ import { basename, join } from 'node:path'
 import { templates } from 'src/templates'
 import { Str } from '@h3ravel/support'
 import Actions from 'src/actions'
-import ora from 'ora'
 import { Logger } from '@h3ravel/shared'
 import { cleanDirectoryExcept, hoistDirectoryContents } from 'src/utils'
 import type { KitName } from 'src/types'
@@ -157,7 +156,7 @@ export class CreateArkstackCommand extends Command {
     const kitName = (kit.baseAlias ?? kit.alias).replace(/-lean$/i, '') as KitName
     const source: string = pre && kit.prereleaseSource ? kit.prereleaseSource! : kit.source
     const actions = new Actions(join(process.cwd(), location), appName, description)
-    const spinner = ora('Loading Template...').start()
+    const spinner = this.spinner('Loading Template...').start()
 
     const result = await actions.download(source, install, token, options.overwrite)
 
@@ -175,9 +174,11 @@ export class CreateArkstackCommand extends Command {
     }
 
     spinner.info(Logger.parse([['Cleaning Up...', 'green']], '', false)).start()
+
     await actions.cleanup(kitName)
 
     spinner.info(Logger.parse([['Initializing Project...', 'green']], '', false)).start()
+
     await actions.copyExampleEnv()
 
     await actions.complete(install)
