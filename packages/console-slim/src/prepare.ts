@@ -17,7 +17,7 @@ child.on('error', (error) => {
 
 child.on('exit', (code) => {
     if (code === 0 || code === null) {
-        console.log(chalk.green('Arkstak is ready for development!'))
+        console.log(chalk.green(`Arkstak is ready for ${process.env.NODE_ENV === 'production' ? 'deployment' : process.env.NODE_ENV}!`))
 
         return
     }
