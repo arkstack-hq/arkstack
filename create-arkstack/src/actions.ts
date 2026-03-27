@@ -273,8 +273,12 @@ export default class {
           '\n',
         )
         .replace(
+          /if \(\!\(err instanceof ValidationException\) &&\n\s*!\(err instanceof ModelNotFoundException\)\) {/g,
+          'if (!(err instanceof ValidationException)) {'
+        )
+        .replace(
           /\s*\/\/ Register API routes\s*await ClearRouter\.group\('\/api', async \(\) => \{\s*await import\(pathToFileURL\(join\(process\.cwd\(\), 'src\/routes\/api\.ts'\)\)\.href\)\s*\}\)\s*/g,
-          '\n',
+          '\n\n    ',
         )
 
       await writeFile(filePath, content, 'utf-8')

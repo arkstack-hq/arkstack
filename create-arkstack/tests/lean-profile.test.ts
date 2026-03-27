@@ -59,9 +59,41 @@ describe('makeLeanProfile', () => {
                 '    error.message = `${cause.getModelName()} not found!`',
                 '  }',
                 '',
+                '  if (!(err instanceof ValidationException) &&\n    !(err instanceof ModelNotFoundException)) {',
+                '    error.stack = (cause as Error).stack',
+                '  }',
+                '',
                 '  return error',
                 '}',
                 '',
+            ].join('\n'),
+        )
+
+        await writeFile(
+            join(location, 'src/core/router.ts'),
+            [
+                'import { Router as ClearRouter } from \'clear-router/express\'',
+                '',
+                'export class Router extends ClearRouter {',
+                '  static async bind () {',
+                '    const router = ClearRouter.express.Router()',
+                '',
+                '    // Register API routes',
+                '    await ClearRouter.group(\'/api\', async () => {',
+                '      await import(pathToFileURL(join(process.cwd(), \'src/routes/api.ts\')).href)',
+                '    })',
+                '',
+                '    // Register web routes',
+                '    await ClearRouter.group(\'/\', async () => {',
+                '      await import(pathToFileURL(join(process.cwd(), \'src/routes/web.ts\')).href)',
+                '    })',
+                '',
+                '    // Apply the registered routes to the Express application',
+                '    ClearRouter.apply(router)',
+                '',
+                '    return router',
+                '  }',
+                '}',
             ].join('\n'),
         )
 
@@ -93,7 +125,8 @@ describe('makeLeanProfile', () => {
         const actions = new Actions(location)
         await actions.makeLeanProfile('express')
 
-        expect(existsSync(join(location, 'src/app'))).toBe(false)
+        expect(existsSync(join(location, 'src/app/http/controllers'))).toBe(false)
+        expect(existsSync(join(location, 'src/app/http/resources'))).toBe(false)
         expect(existsSync(join(location, 'src/routes/api.ts'))).toBe(false)
         expect(existsSync(join(location, 'src/core/database.ts'))).toBe(false)
         expect(existsSync(join(location, 'prisma.config.ts'))).toBe(false)
@@ -114,5 +147,7 @@ describe('makeLeanProfile', () => {
         expect(handlersContent).not.toContain('ModelNotFoundException')
         expect(handlersContent).not.toContain('not found!')
 
+        const routerContent = await readFile(join(location, 'src/core/router.ts'), 'utf-8')
+        expect(routerContent).not.toContain('await ClearRouter.group(\'/api\'')
     })
 })
