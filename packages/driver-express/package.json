@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/driver-express",
-    "version": "0.3.1",
+    "version": "0.3.2",
     "type": "module",
     "description": "Express driver package for Arkstack providing Express-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
     "homepage": "https://arkstack.toneflix.net",

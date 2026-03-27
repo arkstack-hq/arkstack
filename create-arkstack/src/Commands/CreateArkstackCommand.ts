@@ -180,8 +180,8 @@ export class CreateArkstackCommand extends Command {
     spinner.info(Logger.parse([['Initializing Project...', 'green']], '', false)).start()
     await actions.copyExampleEnv()
 
-    spinner.succeed(Logger.parse([['Project initialization complete!', 'green']], '', false))
-
     await actions.complete(install)
+
+    spinner.succeed(Logger.parse([['Project initialization complete!', 'green']], '', false))
   }
 }
