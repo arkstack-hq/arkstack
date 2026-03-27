@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/driver-h3",
-    "version": "0.3.5",
+    "version": "0.3.6",
     "type": "module",
     "description": "H3 driver package for Arkstack providing H3-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
     "homepage": "https://arkstack.toneflix.net",
