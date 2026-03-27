@@ -14,7 +14,7 @@ afterEach(async () => {
 })
 
 describe('makeLeanProfile', () => {
-    test('removes app dir, api route, and prisma/database artifacts from lean kits', async () => {
+    test('removes controllers,resources dirs, api route, and prisma/database artifacts from lean kits', async () => {
         const location = await mkdtemp(join(tmpdir(), 'create-arkstack-lean-'))
         tempDirs.push(location)
 
