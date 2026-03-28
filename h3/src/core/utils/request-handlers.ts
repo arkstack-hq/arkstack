@@ -27,8 +27,7 @@ export const ErrorHandler = (err: HTTPError, event: H3Event) => {
     message: typeof err === 'string' ? `${message}: ${err}` : err.message || message,
   }
 
-  event.res.status = error.code
-  event.res.statusText = error.message
+  event.res.status = error.code < 100 || error.code >= 600 ? 500 : error.code
 
   if (typeof err !== 'string' && err.stack) {
     const [stack, ...rest] = err.stack.split('\n')
@@ -75,10 +74,10 @@ export const ErrorHandler = (err: HTTPError, event: H3Event) => {
   if (process.env.NODE_ENV === 'development') console.error(error)
 
   // If the request is an API call, return a JSON response. Otherwise, you might want to render an error page.
-  if (
-    event.req.headers.get('accept')?.includes('application/json') ||
-    event.req._url?.pathname?.startsWith('/api')
-  ) {
+  const acceptsHeader = event.req.headers.get('accept') ?? ''
+  const expectsJson = acceptsHeader.includes('application/json') || event.req._url?.pathname?.startsWith('/api')
+
+  if (expectsJson) {
     return {
       ...error,
       error: true,

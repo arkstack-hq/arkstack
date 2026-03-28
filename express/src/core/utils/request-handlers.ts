@@ -72,10 +72,10 @@ export const ErrorHandler = (
     writeFileSync(path.join(logsDir, 'error.log'), logContent + newLogEntry, 'utf-8')
   }
 
-  res.statusMessage = error.message
-
   // If the request is an API call, return a JSON response. Otherwise, you might want to render an error page.
   const headers = req instanceof ServerResponse ? req.getHeaders() : req.headers
+  const acceptsHeader = Array.isArray(headers.accept) ? headers.accept.join(',') : headers.accept ?? ''
+  const expectsJson = acceptsHeader.includes('application/json') || req.originalUrl.startsWith('/api/')
 
   if (!(err instanceof ValidationException) || Number(error.code) === 404) {
     delete error.errors
@@ -84,7 +84,7 @@ export const ErrorHandler = (
 
   if (process.env.NODE_ENV === 'development') console.error(error)
 
-  if (headers.accept?.includes('application/json')) {
+  if (expectsJson) {
     return res.status(error.code).json(error)
   } else {
     return res.status(error.code).setHeader('Content-Type', 'text/html').send(buildHtmlErrorResponse({
