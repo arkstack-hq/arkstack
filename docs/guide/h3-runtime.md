@@ -90,9 +90,38 @@ await app.boot(3000);
 await app.shutdown();
 ```
 
+## Static Assets
+
+H3 mounts the `public` directory automatically during `app.boot(port)` through `H3Driver`.
+
+Default behavior:
+
+- serves files from `process.cwd()/public`
+- only handles requests that look like asset paths
+- blocks dotfiles and path traversal attempts
+- applies long-lived cache headers and permissive CORS headers
+
+If you need to change that behavior, override `mountPublicAssets` in `src/core/app.ts` when constructing `H3Driver`.
+
+```ts
+import { H3Driver } from '@arkstack/driver-h3';
+import { staticAssetHandler } from '@arkstack/driver-h3/middlewares';
+
+this.driver = new H3Driver({
+  createApp: () => new H3({ onError: ErrorHandler }),
+  bindRouter: async (runtime) => {
+    await Router.bind(runtime);
+  },
+  mountPublicAssets: (runtime, publicPath) => {
+    runtime.use(staticAssetHandler(publicPath));
+  },
+});
+```
+
 ## Notes
 
 - `app.boot(port)` mounts public assets, binds router, applies middleware, starts the server, and attaches graceful shutdown.
+- Static asset mounting happens before configured middleware is applied.
 - For middleware layering and recommended usage, see [Middleware Guide](/guide/middleware).
 - Use the router contract (`getRouter`) for framework-agnostic behavior where possible.
 - Prefer `h3App` only when you specifically need native H3 APIs.

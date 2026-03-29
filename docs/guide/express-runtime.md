@@ -88,9 +88,43 @@ await app.boot(3000);
 await app.shutdown();
 ```
 
+## Static Assets
+
+Express mounts the `public` directory automatically during `app.boot(port)` through the runtime driver.
+
+Default behavior:
+
+- serves files from `path.join(process.cwd(), 'public')`
+- applies `Cache-Control: public, max-age=31536000, immutable`
+- adds permissive CORS headers for static responses
+
+If you need different static asset behavior, override `mountPublicAssets` in `src/core/app.ts` when constructing `ExpressDriver`.
+
+```ts
+import express from 'express';
+import path from 'path';
+import { ExpressDriver } from '@arkstack/driver-express';
+
+this.driver = new ExpressDriver({
+  bindRouter: async (runtime) => {
+    runtime.use(await Router.bind());
+  },
+  mountPublicAssets: (runtime, publicPath) => {
+    runtime.use(
+      '/assets',
+      express.static(path.resolve(publicPath), {
+        maxAge: '7d',
+      }),
+    );
+  },
+  errorHandler: ErrorHandler,
+});
+```
+
 ## Notes
 
 - `app.boot(port)` mounts public assets, binds router, applies middleware, registers error handling, starts the server, and attaches graceful shutdown.
+- Static asset mounting happens before configured middleware is applied.
 - For middleware layering and recommended usage, see [Middleware Guide](/guide/middleware).
 - Use the router contract (`getRouter`) for framework-agnostic behavior where possible.
 - Prefer `expressApp` only when you specifically need native Express APIs.

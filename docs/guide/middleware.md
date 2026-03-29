@@ -27,6 +27,45 @@ Arkstack applies middleware in this order during `app.boot(port)`:
 5. `after` middleware runs.
 6. Runtime-specific startup continues (Express error handler registration, then server start).
 
+## Static asset mounting
+
+Static assets are mounted by the runtime driver before configured middleware runs.
+
+Default locations:
+
+- Express: `path.join(process.cwd(), 'public')`
+- H3: `process.cwd()/public`
+
+Use this default behavior when your app only needs a conventional `public` directory. If you need a different mount path, cache policy, or asset strategy, override `mountPublicAssets` when constructing the driver in `src/core/app.ts`.
+
+Express example:
+
+```ts
+this.driver = new ExpressDriver({
+  bindRouter: async (runtime) => {
+    runtime.use(await Router.bind());
+  },
+  mountPublicAssets: (runtime, publicPath) => {
+    runtime.use('/assets', express.static(publicPath));
+  },
+  errorHandler: ErrorHandler,
+});
+```
+
+H3 example:
+
+```ts
+this.driver = new H3Driver({
+  createApp: () => new H3({ onError: ErrorHandler }),
+  bindRouter: async (runtime) => {
+    await Router.bind(runtime);
+  },
+  mountPublicAssets: (runtime, publicPath) => {
+    runtime.use(staticAssetHandler(publicPath));
+  },
+});
+```
+
 Use each group with this intent:
 
 - `global`: middleware that should always run for every request (body parsing, CORS, method override, baseline security headers).
