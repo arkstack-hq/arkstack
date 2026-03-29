@@ -5,7 +5,6 @@ import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
 import { H3 } from 'h3'
 import { Router } from 'src/core/router'
 import ErrorHandler from './utils/request-handlers'
-import { staticAssetHandler } from '@app/http/middlewares/staticAssetHandler'
 
 export default class Application implements ArkstackRouterAwareCore<H3, unknown> {
   private app: H3
@@ -26,9 +25,6 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
         }),
       bindRouter: async (runtime) => {
         await Router.bind(runtime)
-      },
-      mountPublicAssets: (runtime) => {
-        runtime.use(staticAssetHandler())
       },
     })
 

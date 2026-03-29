@@ -3,13 +3,14 @@ import { H3, serve, toResponse } from 'h3'
 
 import { Middleware as H3BaseMiddleware } from 'clear-router/types/h3'
 import { Logger } from '@arkstack/common'
+import { staticAssetHandler } from './middlewares'
 
 // oxlint-disable-next-line typescript/no-explicit-any
 export type H3Middleware = H3BaseMiddleware | [H3BaseMiddleware, Record<string, any>];
 
 export interface H3DriverOptions {
     bindRouter: (app: H3) => PromiseOrValue<void>;
-    mountPublicAssets: (app: H3, publicPath: string) => PromiseOrValue<void>;
+    mountPublicAssets?: (app: H3, publicPath: string) => PromiseOrValue<void>;
     createApp?: () => H3;
 }
 
@@ -60,7 +61,11 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * @param publicPath 
      */
     mountPublicAssets (app: H3, publicPath: string): PromiseOrValue<void> {
-        return this.options.mountPublicAssets(app, publicPath)
+        if (this.options.mountPublicAssets) {
+            return this.options.mountPublicAssets(app, publicPath)
+        }
+
+        app.use(staticAssetHandler(publicPath))
     }
 
     /**

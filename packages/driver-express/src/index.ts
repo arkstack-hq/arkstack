@@ -5,6 +5,7 @@ import { Logger } from '@arkstack/common'
 
 export interface ExpressDriverOptions {
     bindRouter: (app: Express) => PromiseOrValue<void>;
+    mountPublicAssets?: (app: Express, publicPath: string) => PromiseOrValue<void>;
     errorHandler?: ErrorRequestHandler | Handler;
 }
 
@@ -41,8 +42,20 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * @param app 
      * @param publicPath 
      */
-    mountPublicAssets (app: Express, publicPath: string): void {
-        app.use(express.static(publicPath))
+    mountPublicAssets (app: Express, publicPath: string): PromiseOrValue<void> {
+        if (this.options.mountPublicAssets) {
+            return this.options.mountPublicAssets(app, publicPath)
+        }
+
+        app.use(express.static(publicPath, {
+            maxAge: '1y',
+            immutable: true,
+            setHeaders: (res) => {
+                res.setHeader('Access-Control-Allow-Origin', '*')
+                res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS')
+                res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+            },
+        }))
     }
 
     /**

@@ -1,0 +1,60 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import express, { type Express } from 'express'
+
+import { ExpressDriver } from '../src/index'
+
+describe('ExpressDriver', () => {
+    beforeEach(() => {
+        vi.restoreAllMocks()
+    })
+
+    it('uses a custom mountPublicAssets override when provided', async () => {
+        const app = { use: vi.fn() } as unknown as Express
+        const mountPublicAssets = vi.fn().mockResolvedValue(undefined)
+        const staticSpy = vi.spyOn(express, 'static')
+        const driver = new ExpressDriver({
+            bindRouter: vi.fn(),
+            mountPublicAssets,
+        })
+
+        await driver.mountPublicAssets(app, '/tmp/public')
+
+        expect(mountPublicAssets).toHaveBeenCalledWith(app, '/tmp/public')
+        expect(staticSpy).not.toHaveBeenCalled()
+        expect(app.use).not.toHaveBeenCalled()
+    })
+
+    it('falls back to express.static with cache and cors headers', () => {
+        const app = { use: vi.fn() } as unknown as Express
+        const staticMiddleware = vi.fn() as ReturnType<typeof express.static>
+        const staticSpy = vi.spyOn(express, 'static').mockReturnValue(staticMiddleware)
+        const driver = new ExpressDriver({
+            bindRouter: vi.fn(),
+        })
+
+        driver.mountPublicAssets(app, '/tmp/public')
+
+        expect(staticSpy).toHaveBeenCalledTimes(1)
+        expect(staticSpy).toHaveBeenCalledWith('/tmp/public', expect.objectContaining({
+            maxAge: '1y',
+            immutable: true,
+            setHeaders: expect.any(Function),
+        }))
+        expect(app.use).toHaveBeenCalledWith(staticMiddleware)
+
+        const staticOptions = staticSpy.mock.calls[0][1] as {
+            setHeaders: (res: { setHeader: (name: string, value: string) => void }) => void;
+        }
+        const headers = new Map<string, string>()
+
+        staticOptions.setHeaders({
+            setHeader: (name, value) => {
+                headers.set(name, value)
+            },
+        })
+
+        expect(headers.get('Access-Control-Allow-Origin')).toBe('*')
+        expect(headers.get('Access-Control-Allow-Methods')).toBe('GET, HEAD, OPTIONS')
+        expect(headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
+    })
+})
