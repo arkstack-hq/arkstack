@@ -273,7 +273,7 @@ export default class {
           '\n',
         )
         .replace(
-          /if \(\!\(err instanceof ValidationException\) &&\n\s*!\(err instanceof ModelNotFoundException\)\) {/g,
+          /if \(!\(err instanceof ValidationException\) &&\n\s*!\(err instanceof ModelNotFoundException\)\) {/g,
           'if (!(err instanceof ValidationException)) {'
         )
         .replace(
