@@ -22,7 +22,7 @@ export const ErrorHandler = (
   err: BaseError | string | ServerResponse,
   req: Request,
   res: Response,
-  _next?: NextFunction,
+  next?: NextFunction,
 ) => {
   const logsDir = path.resolve(process.cwd(), 'storage/logs')
   const message = typeof err !== 'string' ? (err as any).message : 'Something went wrong'
@@ -83,6 +83,12 @@ export const ErrorHandler = (
   }
 
   if (process.env.NODE_ENV === 'development') console.error(error)
+
+  if (res.headersSent) {
+    next?.(err as never)
+
+    return
+  }
 
   if (expectsJson) {
     return res.status(error.code).json(error)

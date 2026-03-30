@@ -1,6 +1,4 @@
-import { Request, Response } from 'express'
-
-import ErrorHandler from './request-handlers'
+import type { Request, Response } from 'express'
 
 export class BaseError extends Error {
 
@@ -32,14 +30,10 @@ export class RequestError extends BaseError {
         value: T | null | undefined,
         message: string,
         code: number = 404,
-        req?: Request,
-        res?: Response
+        _req?: Request,
+        _res?: Response
     ): asserts value is T {
         if (!value) {
-            if (req && res) {
-                return void ErrorHandler(new RequestError(message, code), req, res)
-            }
-
             throw new RequestError(message, code)
         }
     }
@@ -56,14 +50,10 @@ export class RequestError extends BaseError {
         boolean: T,
         message: string,
         code?: number,
-        req?: Request,
-        res?: Response
+        _req?: Request,
+        _res?: Response
     ): asserts  boolean is T {
         if (boolean) {
-            if (req && res) {
-                return void ErrorHandler(new RequestError(message, code), req, res)
-            }
-
             throw new RequestError(message, code)
         }
     }
