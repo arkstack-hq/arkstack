@@ -113,9 +113,6 @@ importers:
       inquirer:
         specifier: ^12.9.6
         version: 12.11.1(@types/node@25.2.3)
-      ora:
-        specifier: ^9.0.0
-        version: 9.3.0
       tsdown:
         specifier: ^0.15.4
         version: 0.15.12(typescript@5.9.3)(unrun@0.2.27)
@@ -162,6 +159,9 @@ importers:
       '@prisma/client':
         specifier: ^7.5.0
         version: 7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@resora/plugin-clear-router':
+        specifier: ^0.1.0
+        version: 0.1.0(@types/node@25.2.3)(clear-router@2.3.3(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.11.4))
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
@@ -202,8 +202,8 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0
       resora:
-        specifier: ^0.2.18
-        version: 0.2.18(@types/node@25.2.3)
+        specifier: ^1.0.0
+        version: 1.0.0(@types/node@25.2.3)
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -292,6 +292,9 @@ importers:
       '@prisma/client':
         specifier: ^7.5.0
         version: 7.5.0(prisma@7.5.0(@types/react@18.3.28)(magicast@0.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(typescript@5.9.3)
+      '@resora/plugin-clear-router':
+        specifier: ^0.1.0
+        version: 0.1.0(@types/node@25.2.3)(clear-router@2.3.3(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.11.4))
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
@@ -326,8 +329,8 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0
       resora:
-        specifier: ^0.2.17
-        version: 0.2.17(@types/node@25.2.3)
+        specifier: ^1.0.0
+        version: 1.0.0(@types/node@25.2.3)
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -1623,6 +1626,11 @@ packages:
 
   '@quansync/fs@1.0.0':
     resolution: {integrity: sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ==}
+
+  '@resora/plugin-clear-router@0.1.0':
+    resolution: {integrity: sha512-n5sYotX5rJpjXhMlpseBvlYahRt8wHaGQ7Q2tf6xMfGluUR+jXGDNU/TE4QUeeayE8pwV9OJ/YsZETjCPg/3/g==}
+    peerDependencies:
+      clear-router: ^2.3.3
 
   '@rolldown/binding-android-arm64@1.0.0-beta.45':
     resolution: {integrity: sha512-bfgKYhFiXJALeA/riil908+2vlyWGdwa7Ju5S+JgWZYdR4jtiPOGdM6WLfso1dojCh+4ZWeiTwPeV9IKQEX+4g==}
@@ -4353,13 +4361,8 @@ packages:
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  resora@0.2.17:
-    resolution: {integrity: sha512-MY8Apsc1lx2qsBv4IJDNe4wUAUO6AMEzWG0Sghw8wCa1LQZWFrLytzsEYoJMGH6whMyP5lccjmLA36b7sGe1sA==}
-    engines: {node: '>=20.0.0'}
-    hasBin: true
-
-  resora@0.2.18:
-    resolution: {integrity: sha512-NTSKAj2nHd16hl2F1R2TgOjATevAU3tertDr8vDZbMevVvve3XcimwfqKXAbaXPlRQgm/AxGnzAwbZ5/h7nqoQ==}
+  resora@1.0.0:
+    resolution: {integrity: sha512-3YmxN7o2Vmhc9xsidPOSUK6wtSqK/9wx4rk/Qi18/O+Lf1OEopE06oe7CFM8rxUWIIfnG+aDSm8/mw/AVgF/cw==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
@@ -6615,6 +6618,14 @@ snapshots:
   '@quansync/fs@1.0.0':
     dependencies:
       quansync: 1.0.0
+
+  '@resora/plugin-clear-router@0.1.0(@types/node@25.2.3)(clear-router@2.3.3(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.11.4))':
+    dependencies:
+      clear-router: 2.3.3(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.11.4)
+      resora: 1.0.0(@types/node@25.2.3)
+    transitivePeerDependencies:
+      - '@types/node'
+      - crossws
 
   '@rolldown/binding-android-arm64@1.0.0-beta.45':
     optional: true
@@ -9587,14 +9598,7 @@ snapshots:
       - '@types/node'
       - crossws
 
-  resora@0.2.17(@types/node@25.2.3):
-    dependencies:
-      '@h3ravel/musket': 0.10.1(@types/node@25.2.3)
-    transitivePeerDependencies:
-      - '@types/node'
-      - crossws
-
-  resora@0.2.18(@types/node@25.2.3):
+  resora@1.0.0(@types/node@25.2.3):
     dependencies:
       '@h3ravel/musket': 0.10.1(@types/node@25.2.3)
     transitivePeerDependencies:

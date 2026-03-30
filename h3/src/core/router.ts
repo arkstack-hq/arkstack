@@ -1,8 +1,12 @@
 import { ArkstackRouteListOptions } from '@arkstack/contract'
 import { Router as ClearRouter } from 'clear-router/h3'
 import { H3 } from 'h3'
+import { clearRouterH3Plugin } from '@resora/plugin-clear-router'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { registerPlugin } from 'resora'
+
+registerPlugin(clearRouterH3Plugin)
 
 export class Router extends ClearRouter {
   static async bind (app: H3) {
