@@ -267,7 +267,7 @@ export class Storage implements DriverContract {
             const untarget = target.replace(process.cwd(), '')
 
             try {
-                if (force && existsSync(link)) rmSync(link, { recursive: true })
+                if (force) rmSync(link, { recursive: true, force: true })
                 symlinkSync(target, link)
 
                 Logger.log([
