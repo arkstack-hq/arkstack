@@ -1,7 +1,7 @@
 import { DriveDirectory, DriveFile, DriveManager } from 'flydrive'
 import { DriverContract, ObjectMetaData, ObjectVisibility, SignedURLOptions, WriteOptions } from 'flydrive/types'
 import { appUrl, config } from '@arkstack/common'
-import { existsSync, rmSync, symlinkSync } from 'node:fs'
+import { rmSync, symlinkSync } from 'node:fs'
 
 import { FSDriver } from 'flydrive/drivers/fs'
 import { FtpDriver } from './FtpDriver'
