@@ -1,9 +1,13 @@
 import { DotPath, Obj } from '@h3ravel/support'
 import { GlobalConfig, GlobalEnv } from './types'
 
+// TODO: @rexxars/jiti has to be replaced with jiti once a new release is available. See https://github.com/unjs/jiti/pull/427
+import { createJiti } from '@rexxars/jiti'
 import { createRequire } from 'module'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { readdirSync } from 'fs'
+import { resolve } from 'node:path'
 
 /**
  * Read the .env file
@@ -143,4 +147,15 @@ export const outputDir = (cwd = process.cwd()) => {
     return path.isAbsolute(output[NODE_ENV] ?? output.dev)
         ? (output[NODE_ENV] ?? output.dev)
         : path.join(cwd, output[NODE_ENV] ?? output.dev)
+}
+
+
+export const importFile = async <T = unknown> (filePath: string): Promise<T> => {
+    const resolvedPath = resolve(filePath)
+    const jiti = createJiti(pathToFileURL(resolvedPath).href, {
+        interopDefault: false,
+        tsconfigPaths: true,
+    })
+
+    return await jiti.import<T>(resolvedPath)
 }

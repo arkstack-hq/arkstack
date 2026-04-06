@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { config, env, loadPrototypes, outputDir } from '@arkstack/common'
+import { config, env, importFile, loadPrototypes, outputDir } from '@arkstack/common'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path, { join } from 'node:path'
 
@@ -37,11 +37,9 @@ export interface RunConsoleOptions {
 const loadCoreApp = async () => {
     const dist = path.relative(process.cwd(), outputDir())
 
-    const bootstrapPath = pathToFileURL(
-        join(process.cwd(), `${dist}/core/bootstrap.js`)
-    ).href
+    const bootstrapPath = join(process.cwd(), `${dist}/core/bootstrap.js`)
 
-    const module = await import(bootstrapPath)
+    const module = await importFile<{ app: any }>(bootstrapPath)
 
     return module.app
 }

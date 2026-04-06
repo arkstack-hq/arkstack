@@ -277,7 +277,7 @@ export default class {
           'if (!(err instanceof ValidationException)) {'
         )
         .replace(
-          /\s*\/\/ Register API routes\s*await ClearRouter\.group\('\/api', async \(\) => \{\s*await import\(pathToFileURL\(join\(process\.cwd\(\), 'src\/routes\/api\.ts'\)\)\.href\)\s*\}\)\s*/g,
+          /\s*\/\/ Register API routes\s*await ClearRouter\.group\('\/api', async \(\) => \{\s*await importFile\(join\(process\.cwd\(\), 'src\/routes\/api\.ts'\)\)\s*\}\)\s*/g,
           '\n\n    ',
         )
 
