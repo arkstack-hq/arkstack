@@ -5,7 +5,6 @@ import { join } from 'node:path'
 
 const filesToPatch = [
     'src/core/app.ts',
-    'src/core/utils/request-handlers.ts',
 ]
 
 for (const file of filesToPatch) {

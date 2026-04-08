@@ -1,8 +1,9 @@
 import { ArkstackKitDriver, ArkstackMiddlewareConfig, PromiseOrValue } from '@arkstack/contract'
-import { H3, serve, toResponse } from 'h3'
+import { H3, H3Event, serve, toResponse } from 'h3'
 
 import { Middleware as H3BaseMiddleware } from 'clear-router/types/h3'
 import { Logger } from '@arkstack/common'
+import { defaultErrorHandler } from './error-handler'
 import { staticAssetHandler } from './middlewares'
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -12,6 +13,7 @@ export interface H3DriverOptions {
     bindRouter: (app: H3) => PromiseOrValue<void>;
     mountPublicAssets?: (app: H3, publicPath: string) => PromiseOrValue<void>;
     createApp?: () => H3;
+    onError?: (err: Error | string, event: H3Event) => unknown;
 }
 
 export class H3EventResponse {
@@ -51,7 +53,9 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * @returns 
      */
     createApp (): H3 {
-        return this.options.createApp?.() ?? new H3()
+        return this.options.createApp?.() ?? new H3({
+            onError: this.options.onError ?? defaultErrorHandler,
+        })
     }
 
     /**
@@ -131,3 +135,5 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
         })
     }
 }
+
+export * from './error-handler'

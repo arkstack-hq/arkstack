@@ -241,7 +241,6 @@ export default class {
       'src/core/app.ts',
       'src/core/router.ts',
       'src/core/bootstrap.ts',
-      'src/core/utils/request-handlers.ts',
     ]
 
     for (const file of filesToPatch) {

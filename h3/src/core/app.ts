@@ -4,7 +4,6 @@ import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, Ark
 import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
 import { H3 } from 'h3'
 import { Router } from 'src/core/router'
-import ErrorHandler from './utils/request-handlers'
 
 export default class Application implements ArkstackRouterAwareCore<H3, unknown> {
   private app: H3
@@ -19,10 +18,6 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
    */
   constructor(app?: H3) {
     this.driver = new H3Driver({
-      createApp: () =>
-        new H3({
-          onError: ErrorHandler,
-        }),
       bindRouter: async (runtime) => {
         await Router.bind(runtime)
       },

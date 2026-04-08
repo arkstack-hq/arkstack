@@ -64,3 +64,20 @@ export interface GlobalConfig {
         defaultValue: D,
     ): DotPathValue<X, P> | D
 }
+
+export type ArkstackErrorShape = Error & {
+    cause?: unknown;
+    code?: number | string;
+    errors?: unknown;
+    getModelName?: () => string;
+    status?: number;
+    statusCode?: number;
+}
+
+export interface ArkstackErrorPayload {
+    status: 'error';
+    code: number;
+    message: string;
+    errors?: unknown;
+    stack?: string;
+}

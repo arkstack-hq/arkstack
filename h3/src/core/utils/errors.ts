@@ -1,4 +1,3 @@
-import ErrorHandler from './request-handlers'
 import { HTTPError } from 'h3'
 import { HttpContext } from 'clear-router/types/h3'
 
@@ -19,13 +18,9 @@ export class RequestError extends HTTPError {
     value: T | null | undefined,
     message: string,
     code: number = 404,
-    ctx?: HttpContext,
+    _ctx?: HttpContext,
   ): asserts value is T {
     if (!value) {
-      if (ctx) {
-        return ErrorHandler(new RequestError(message, code), ctx) as never
-      }
-
       throw new RequestError(message, code)
     }
   }
@@ -42,13 +37,9 @@ export class RequestError extends HTTPError {
     boolean: T,
     message: string,
     code?: number,
-    ctx?: HttpContext,
+    _ctx?: HttpContext,
   ): asserts boolean is T {
     if (boolean) {
-      if (ctx) {
-        return ErrorHandler(new RequestError(message, code), ctx) as never
-      }
-
       throw new RequestError(message, code)
     }
   }

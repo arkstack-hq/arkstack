@@ -1,7 +1,8 @@
+import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import express, { type Express } from 'express'
 
-import { ExpressDriver } from '../src/index'
+import { ExpressDriver, defaultErrorHandler } from '../src/index'
 
 describe('ExpressDriver', () => {
     beforeEach(() => {
@@ -56,5 +57,53 @@ describe('ExpressDriver', () => {
         expect(headers.get('Access-Control-Allow-Origin')).toBe('*')
         expect(headers.get('Access-Control-Allow-Methods')).toBe('GET, HEAD, OPTIONS')
         expect(headers.get('Access-Control-Allow-Headers')).toBe('Content-Type, Authorization')
+    })
+
+    it('registers the built-in error handler when no override is provided', () => {
+        const app = { use: vi.fn() } as unknown as Express
+        const driver = new ExpressDriver({
+            bindRouter: vi.fn(),
+        })
+
+        driver.registerErrorHandler(app)
+
+        expect(app.use).toHaveBeenCalledWith(defaultErrorHandler)
+    })
+
+    it('registers a custom error handler override when provided', () => {
+        const app = { use: vi.fn() } as unknown as Express
+        const customHandler = vi.fn() as unknown as ErrorRequestHandler
+        const driver = new ExpressDriver({
+            bindRouter: vi.fn(),
+            errorHandler: customHandler,
+        })
+
+        driver.registerErrorHandler(app)
+
+        expect(app.use).toHaveBeenCalledWith(customHandler)
+    })
+
+    it('delegates to next when headers were already sent', () => {
+        const err = new Error('Already handled')
+        const next = vi.fn() as NextFunction
+        const req = {
+            headers: { accept: 'application/json' },
+            method: 'GET',
+            originalUrl: '/api/test',
+            url: '/api/test',
+        } as Request
+        const res = {
+            headersSent: true,
+            status: vi.fn(),
+            json: vi.fn(),
+            setHeader: vi.fn(),
+            send: vi.fn(),
+        } as unknown as Response
+
+        defaultErrorHandler(err, req, res, next)
+
+        expect(next).toHaveBeenCalledWith(err)
+        expect(res.status).not.toHaveBeenCalled()
+        expect(res.json).not.toHaveBeenCalled()
     })
 })

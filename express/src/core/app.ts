@@ -1,7 +1,6 @@
 import { bindGracefulShutdown } from '@arkstack/common'
 import { Router } from 'src/core/router'
 import path from 'path'
-import ErrorHandler from './utils/request-handlers'
 import { ExpressDriver } from '@arkstack/driver-express'
 import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { type Express, type Handler } from 'express'
@@ -23,7 +22,6 @@ export default class Application implements ArkstackRouterAwareCore<Express, unk
       bindRouter: async (runtime) => {
         runtime.use(await Router.bind())
       },
-      errorHandler: ErrorHandler,
     })
 
     this.app = app ?? this.driver.createApp()

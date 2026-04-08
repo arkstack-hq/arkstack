@@ -2,6 +2,7 @@ import express, { type ErrorRequestHandler, type Express, type Handler } from 'e
 
 import { ArkstackKitDriver, ArkstackMiddlewareConfig, PromiseOrValue } from '@arkstack/contract'
 import { Logger } from '@arkstack/common'
+import { defaultErrorHandler } from './error-handler'
 
 export interface ExpressDriverOptions {
     bindRouter: (app: Express) => PromiseOrValue<void>;
@@ -106,9 +107,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * @param app 
      */
     registerErrorHandler (app: Express): void {
-        if (this.options.errorHandler) {
-            app.use(this.options.errorHandler as ErrorRequestHandler)
-        }
+        app.use((this.options.errorHandler ?? defaultErrorHandler) as ErrorRequestHandler)
     }
 
     /**
@@ -126,3 +125,5 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
         })
     }
 }
+
+export * from './error-handler'

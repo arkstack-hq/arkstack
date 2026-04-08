@@ -20,7 +20,7 @@ describe('makeLeanProfile', () => {
 
         await mkdir(join(location, 'src/app/http/controllers'), { recursive: true })
         await mkdir(join(location, 'src/app/http/resources'), { recursive: true })
-        await mkdir(join(location, 'src/core/utils'), { recursive: true })
+        await mkdir(join(location, 'src/core'), { recursive: true })
         await mkdir(join(location, 'src/routes'), { recursive: true })
         await mkdir(join(location, 'prisma/migrations'), { recursive: true })
 
@@ -41,29 +41,6 @@ describe('makeLeanProfile', () => {
                 '  async shutdown () {',
                 '    process.exit(0)',
                 '  }',
-                '}',
-                '',
-            ].join('\n'),
-        )
-
-        await writeFile(
-            join(location, 'src/core/utils/request-handlers.ts'),
-            [
-                'import { ModelNotFoundException } from \'arkormx\'',
-                '',
-                'export const ErrorHandler = (cause: unknown) => {',
-                '  const error: Record<string, any> = {}',
-                '',
-                '  if (cause instanceof ModelNotFoundException) {',
-                '    error.code = 404',
-                '    error.message = `${cause.getModelName()} not found!`',
-                '  }',
-                '',
-                '  if (!(err instanceof ValidationException) &&\n    !(err instanceof ModelNotFoundException)) {',
-                '    error.stack = (cause as Error).stack',
-                '  }',
-                '',
-                '  return error',
                 '}',
                 '',
             ].join('\n'),
@@ -143,10 +120,6 @@ describe('makeLeanProfile', () => {
 
         const appContent = await readFile(join(location, 'src/core/app.ts'), 'utf-8')
         expect(appContent).not.toContain('import { ModelNotFoundException } from \'arkormx\'')
-
-        const handlersContent = await readFile(join(location, 'src/core/utils/request-handlers.ts'), 'utf-8')
-        expect(handlersContent).not.toContain('ModelNotFoundException')
-        expect(handlersContent).not.toContain('not found!')
 
         const routerContent = await readFile(join(location, 'src/core/router.ts'), 'utf-8')
         expect(routerContent).not.toContain('await ClearRouter.group(\'/api\'')
