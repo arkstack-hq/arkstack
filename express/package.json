@@ -38,7 +38,7 @@
     "kanun": "^1.0.10",
     "multer": "^2.1.1",
     "pg": "^8.18.0",
-    "resora": "^1.0.0"
+    "resora": "^1.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
