@@ -67,10 +67,10 @@ jobs:
         run: cd express; pnpm prisma generate; pnpm build
 
       - name: Build H3
-        run: cd ../h3; pnpm prisma generate; pnpm build
+        run: cd h3; pnpm prisma generate; pnpm build
 
       - name: Migrate Prisma
-        run: cd ../; pnpm prisma migrate dev;
+        run: pnpm prisma migrate dev;
 
       - name: Run tests
         run: pnpm prisma generate; pnpm test:coverage
