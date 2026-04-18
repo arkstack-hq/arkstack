@@ -202,8 +202,8 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0
       resora:
-        specifier: ^1.0.0
-        version: 1.0.0(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@types/node@25.2.3)
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -329,8 +329,8 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0
       resora:
-        specifier: ^1.0.0
-        version: 1.0.0(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@types/node@25.2.3)
     devDependencies:
       '@eslint/js':
         specifier: ^10.0.1
@@ -411,8 +411,8 @@ importers:
         specifier: ^2.3.3
         version: 2.3.3(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)
       resora:
-        specifier: ^0.2.14
-        version: 0.2.14(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@types/node@25.2.3)
 
   packages/console-slim:
     dependencies:
@@ -432,8 +432,8 @@ importers:
         specifier: ^2.3.3
         version: 2.3.3(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)
       resora:
-        specifier: ^0.2.14
-        version: 0.2.14(@types/node@25.2.3)
+        specifier: ^1.1.0
+        version: 1.1.0(@types/node@25.2.3)
 
   packages/contract: {}
 
@@ -4444,13 +4444,13 @@ packages:
   resolve-pkg-maps@1.0.0:
     resolution: {integrity: sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw==}
 
-  resora@0.2.14:
-    resolution: {integrity: sha512-W6KEyODH42BmUaYCQNYuAwkmu/uVVeuuQRssj6KR2WKVeERCh2OlAykH9S8zFcbjcvEcle/a32aSZdY2JMTjTg==}
+  resora@1.0.0:
+    resolution: {integrity: sha512-3YmxN7o2Vmhc9xsidPOSUK6wtSqK/9wx4rk/Qi18/O+Lf1OEopE06oe7CFM8rxUWIIfnG+aDSm8/mw/AVgF/cw==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  resora@1.0.0:
-    resolution: {integrity: sha512-3YmxN7o2Vmhc9xsidPOSUK6wtSqK/9wx4rk/Qi18/O+Lf1OEopE06oe7CFM8rxUWIIfnG+aDSm8/mw/AVgF/cw==}
+  resora@1.1.0:
+    resolution: {integrity: sha512-qdN7VTaKghDXzAPZyILWMAXTNedFWWMGTjT4iTtT31MM+1HWdSRoKec3AzMJ8DtyYMSkGnjQAhJYa1d9nmrzVg==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
@@ -9749,14 +9749,14 @@ snapshots:
 
   resolve-pkg-maps@1.0.0: {}
 
-  resora@0.2.14(@types/node@25.2.3):
+  resora@1.0.0(@types/node@25.2.3):
     dependencies:
       '@h3ravel/musket': 0.10.1(@types/node@25.2.3)
     transitivePeerDependencies:
       - '@types/node'
       - crossws
 
-  resora@1.0.0(@types/node@25.2.3):
+  resora@1.1.0(@types/node@25.2.3):
     dependencies:
       '@h3ravel/musket': 0.10.1(@types/node@25.2.3)
     transitivePeerDependencies:
