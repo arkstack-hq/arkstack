@@ -64,10 +64,18 @@ jobs:
         run: pnpm build:packages
 
       - name: Build Express
-        run: cd express; pnpm prisma generate; pnpm build
+        run: |
+          cd express; 
+          pnpm prepare
+          pnpm prisma generate; 
+          pnpm build
 
       - name: Build H3
-        run: cd h3; pnpm prisma generate; pnpm build
+        run: |
+          cd h3; 
+          pnpm prepare
+          pnpm prisma generate; 
+          pnpm build
 
       - name: Migrate Prisma
         run: pnpm prisma migrate dev;
