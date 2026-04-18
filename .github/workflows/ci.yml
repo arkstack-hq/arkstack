@@ -60,12 +60,17 @@ jobs:
       - name: Run linter
         run: pnpm lint
 
-      - name: Build the project
-        run: |
-          cd express; pnpm prisma generate; pnpm build
-          cd ../h3; pnpm prisma generate; pnpm build
-          cd ../; pnpm prisma migrate dev;
-          pnpm build:packages
+      - name: Build Packages
+        run: pnpm build:packages
+
+      - name: Build Express
+        run: cd express; pnpm prisma generate; pnpm build
+
+      - name: Build H3
+        run: cd ../h3; pnpm prisma generate; pnpm build
+
+      - name: Migrate Prisma
+        run: cd ../; pnpm prisma migrate dev;
 
       - name: Run tests
         run: pnpm prisma generate; pnpm test:coverage
