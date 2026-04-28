@@ -18,7 +18,7 @@ export const filesToRemove = [
     'arkormx.config.mjs',
 ]
 
-export const depsToRemove = [
+export const fullDependencies = [
     '@prisma/adapter-pg',
     '@arkstack/console',
     '@prisma/client',
@@ -29,15 +29,15 @@ export const depsToRemove = [
     'arkormx',
 ]
 
-export const depsToAdd = {
-    '@arkstack/console-slim': '^0.3.12',
+export const leanDependencies = {
+    '@arkstack/console-slim': '^0.3.13',
 }
 
 export const depsList: Record<string, string> = {
-    '@arkstack/common': '^0.3.12',
-    '@arkstack/console': '^0.3.12',
-    '@arkstack/contract': '^0.3.12',
-    '@arkstack/driver-h3': '^0.3.12',
-    '@arkstack/filesystem': '^0.3.12',
-    '@arkstack/driver-express': '^0.3.12',
+    '@arkstack/common': '^0.3.13',
+    '@arkstack/console': '^0.3.13',
+    '@arkstack/contract': '^0.3.13',
+    '@arkstack/driver-h3': '^0.3.13',
+    '@arkstack/filesystem': '^0.3.13',
+    '@arkstack/driver-express': '^0.3.13',
 }

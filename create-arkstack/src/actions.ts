@@ -1,6 +1,6 @@
 import { Logger, Resolver } from '@h3ravel/shared'
 import { copyFile, readFile, readdir, rm, unlink, writeFile } from 'node:fs/promises'
-import { depsToAdd, depsToRemove, filesToRemove } from './data'
+import { filesToRemove, fullDependencies, leanDependencies } from './data'
 import path, { basename, join, relative } from 'node:path'
 
 import type { KitName } from './types'
@@ -225,12 +225,12 @@ export default class {
     if (existsSync(pkgPath)) {
       const pkg = await readFile(pkgPath, 'utf-8').then(JSON.parse)
 
-      for (const dep of depsToRemove) {
+      for (const dep of fullDependencies) {
         delete pkg.dependencies?.[dep]
         delete pkg.devDependencies?.[dep]
       }
 
-      for (const [name, version] of Object.entries(depsToAdd)) {
+      for (const [name, version] of Object.entries(leanDependencies)) {
         pkg.dependencies[name] = version
       }
 
