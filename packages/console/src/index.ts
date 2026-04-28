@@ -17,6 +17,7 @@ import { MakeModelCommand } from './commands/MakeModelCommand'
 import { MakeResource } from './commands/MakeResource'
 import { MakeSeederCommand } from './commands/MakeSeederCommand'
 import { MigrateCommand } from './commands/MigrateCommand'
+import { MigrateFreshCommand } from './commands/MigrateFreshCommand'
 import { MigrateRollbackCommand } from './commands/MigrateRollbackCommand'
 import { MigrationHistoryCommand } from './commands/MigrationHistoryCommand'
 import { ModelsSyncCommand } from './commands/ModelsSyncCommand'
@@ -80,6 +81,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             ModelsSyncCommand,
             SeedCommand,
             MakeCommand,
+            MigrateFreshCommand,
             MigrateRollbackCommand,
             MigrationHistoryCommand,
         ],

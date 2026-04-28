@@ -31,7 +31,6 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/arkstack_dev?schema=public
-      # SHADOW_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/arkstack_shadow?schema=public
       NODE_ENV: test
       NODE_CI: true
 

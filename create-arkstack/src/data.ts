@@ -2,8 +2,10 @@ export const filesToRemove = [
     'src/app/http/controllers',
     'src/app/http/resources',
     'src/models',
+    'src/app/models',
     'database',
     'src/routes/api.ts',
+    'src/database',
     'src/core/database.ts',
     'src/core/utils/drivers/ValidatorDBDriver.ts',
     'prisma',
@@ -22,6 +24,7 @@ export const depsToRemove = [
     '@prisma/client',
     '@types/pg',
     'pg',
+    'kysely',
     'prisma',
     'arkormx',
 ]

@@ -10,6 +10,35 @@ The format follows semantic versioning principles.
 
 ### Changed
 
+### Docs
+
+## [0.2.1] - 2026-04-28
+
+## Breaking changes
+
+- Moved to Arkormˣ 2.x which no longer uses Prisma. This includes changes to migration and model definitions, as well as the query API. See the [database modeling guide](https://arkstack.toneflix.net/guide/database-modeling) for details on how to update your code.
+- Removed Prisma and related dependencies from both Express and H3 kits. This means that if you were using the full templates, you will need to update your database configuration and model definitions to work with Arkormˣ instead.
+- The `make:model` command which is an extension of the Arkormˣ model generator now creates Arkormˣ model files instead of Prisma schema files. This includes changes to the generated model structure and syntax.
+
+### Added
+
+- Framework-agnostic shared packages: `@arkstack/contract`, `@arkstack/common`, `@arkstack/console`.
+- Dedicated runtime drivers: `@arkstack/driver-express` and `@arkstack/driver-h3`.
+- Shared console base commands in `@arkstack/console`: `route:list`, `make:controller`, `make:resource`, `make:full-resource`, `dev`, `build`.
+- Lean starter profiles in scaffolding: `express-lean` and `h3-lean`.
+- Root-level tests for shared command surface and integration behavior.
+
+### Changed
+
+- Moved duplicated console logic from kit-local implementations into shared console package architecture.
+- Standardized router contract usage for route binding/listing across runtimes.
+- Lean kit generation now strips app/api/database scaffolding by removing `src/app`, `src/routes/api.ts`, Prisma/database files, and DB dependencies.
+- Added root script `publish:packages` to publish `@arkstack/*` packages.
+
+### Docs
+
+- Expanded docs landing page, getting started guide, architecture overview, API reference, and roadmap content.
+
 ## [0.2.0] - 2026-03-09
 
 ### Added
