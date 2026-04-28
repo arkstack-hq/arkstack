@@ -52,6 +52,7 @@
     },
     "onlyBuiltDependencies": [
       "@swc/core",
+      "@arkstack/console",
       "argon2",
       "cpu-features",
       "esbuild",
