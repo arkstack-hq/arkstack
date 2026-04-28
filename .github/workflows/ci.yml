@@ -70,16 +70,16 @@ jobs:
       - name: Build Express
         run: |
           cd express; 
-          node ../packages/console/dist/prepare.js
+          pnpm prepare
           pnpm build
 
       - name: Build H3
         run: |
           cd h3; 
-          node ../packages/console/dist/prepare.js
+          pnpm prepare
           pnpm build
 
-      - name: Migrate Prisma
+      - name: Run database migrations
         run: pnpm arkorm migrate:fresh;
 
       - name: Run tests
