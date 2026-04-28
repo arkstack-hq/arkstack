@@ -62,7 +62,10 @@ jobs:
         run: pnpm lint
 
       - name: Build Packages
-        run: pnpm -w run build:packages
+        run: |
+          pnpm -w run build:packages
+          pnpm --filter @arkstack/console run build
+          pnpm install --frozen-lockfile
 
       - name: Build Express
         run: |
