@@ -3,7 +3,6 @@ dist
 # Keep environment variables out of version control
 .env
 
-/generated/prisma
 /src/models/**/*.ts
 /database/**/*.ts
 
@@ -13,3 +12,6 @@ dist
 # ArkStack specific files and directories
 .arkstack
 .arkormx
+.DS_Store
+.idea
+.vscode

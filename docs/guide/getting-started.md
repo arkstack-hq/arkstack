@@ -99,17 +99,17 @@ For full command usage and generation workflows, see [Arkstack CLI](/guide/cli).
 
 ## Full vs Lean
 
-Use **full** templates when you want the complete Arkstack experience with Prisma and database features included. Full kits come with:
+Use **full** templates when you want the complete Arkstack experience with Arkormˣ and database features included. Full kits come with:
 
 - `src/app` with generated controllers, resources, and services
 - `src/routes/api.ts` with scaffolded API routes
-- Prisma and related runtime files and dependencies
+- Arkormˣ and related runtime files and dependencies
 
 Use **lean** templates when you want a minimal HTTP starter without database dependencies. In lean kits, Arkstack removes:
 
 - `src/app`
 - `src/routes/api.ts`
-- Prisma/database runtime files and dependencies
+- Arkormˣ/database runtime files and dependencies
 
 ## Monorepo Packages (Concept)
 

@@ -34,7 +34,6 @@ export class MakeController extends Command<ArkstackConsoleApp<any>> {
         [
             ['Controller', name],
             model ? ['Model', model.model.path] : '',
-            model ? [`Prisma schema ${model.prisma.updated ? '(updated)' : '(already up to date)'}`, model?.prisma.path] : '',
             model?.factory ? ['Factory', model.factory.path] : '',
             model?.seeder ? ['Seeder', model.seeder.path] : '',
             model?.migration ? ['Migration', model.migration.path] : ''

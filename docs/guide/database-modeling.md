@@ -1,6 +1,6 @@
 # Database & Modeling
 
-Arkstack uses **Arkormˣ** as its modeling layer on top of Prisma, so you can work with models and query builders while keeping Prisma’s reliable schema/migration workflow.
+Arkstack uses **Arkormˣ** as its modeling layer, so you can work with models and query builders using its reliable schema/migration workflow.
 
 This page covers the basics you need to start using Arkormˣ in an Arkstack app.
 
@@ -12,37 +12,15 @@ Set your database connection in `.env`:
 DATABASE_URL="postgres://postgres:postgres@localhost:5432/arkstack_dev?schema=public"
 ```
 
-Then run Prisma migrations and generate the client:
+Then run Arkormˣ migrations and generate the client:
 
 ```sh
-pnpm prisma migrate dev
+pnpm ark migrate
 ```
 
-```sh
-pnpm prisma generate
-```
+## Create a model
 
-## Define a model
-
-Create a Prisma schema model entry in `prisma/schema.prisma`:
-
-```prisma
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-```
-
-Then run the Prisma generate command to update the client:
-
-```sh
-pnpm prisma generate
-```
-
-Create a model class (example):
+Create an Arkormˣ model entry in `src/app/models` (example `User.ts`):
 
 ```ts
 import { Model } from 'arkormx';
@@ -56,18 +34,18 @@ export class User extends Model {
 }
 ```
 
-Or use the Arkstack CLI to generate a model and a linked prisma schema entry:
+Or use the Arkstack CLI to generate a model:
 
 ```sh
-npx ark make:model User
+pnpm ark make:model User
 ```
 
-If you need to make changes to the database schema, the Arkstack CLI can also generate Prisma schema, migrations and sync model files:
+If you need to make changes to the database schema, the Arkstack CLI can also generate migrations and sync model files:
 
 ```sh
 npx ark make:migration add-users-table
 npx ark migrate --name add-users-table ## Or use `pnpm ark migrate --all` for short
-npx ark models:sync ## Sync model files with Prisma schema (optional, for type safety)
+npx ark models:sync ## Sync model files with database schema (optional, for type safety)
 ```
 
 For advanced Arkstack CLI model generation options, see [Arkstack CLI](/guide/cli#arkormx-powered-commands) or the [Arkormˣ documentation](https://arkorm.toneflix.net/guide/migrations-cli.html#generate-files).

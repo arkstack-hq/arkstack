@@ -124,7 +124,7 @@ Arkstack currently provides four template aliases in `create-arkstack`:
 
 ### Full Profiles
 
-Include app scaffolding and Prisma/database features.
+Include app scaffolding and Arkormˣ/database features.
 
 ### Lean Profiles
 
@@ -132,7 +132,7 @@ Remove:
 
 - `src/app`
 - `src/routes/api.ts`
-- Prisma/database files and dependencies
+- Arkormˣ/database files and dependencies
 
 ## Package Surface
 

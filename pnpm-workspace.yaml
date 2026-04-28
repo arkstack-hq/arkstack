@@ -5,8 +5,6 @@ packages:
   - create-arkstack
 
 onlyBuiltDependencies:
-  - '@prisma/engines'
   - '@swc/core'
   - argon2
   - esbuild
-  - prisma

@@ -8,6 +8,20 @@ The format follows semantic versioning principles.
 
 ### Added
 
+### Changed
+
+### Docs
+
+## [0.2.0] - 2026-04-28
+
+## Breaking changes
+
+- Moved to Arkormˣ 2.x which no longer uses Prisma. This includes changes to migration and model definitions, as well as the query API. See the [database modeling guide](https://arkstack.toneflix.net/guide/database-modeling) for details on how to update your code.
+- Removed Prisma and related dependencies from both Express and H3 kits. This means that if you were using the full templates, you will need to update your database configuration and model definitions to work with Arkormˣ instead.
+- The `make:model` command which is an extension of the Arkormˣ model generator now creates Arkormˣ model files instead of Prisma schema files. This includes changes to the generated model structure and syntax.
+
+### Added
+
 - Framework-agnostic shared packages: `@arkstack/contract`, `@arkstack/common`, `@arkstack/console`.
 - Dedicated runtime drivers: `@arkstack/driver-express` and `@arkstack/driver-h3`.
 - Shared console base commands in `@arkstack/console`: `route:list`, `make:controller`, `make:resource`, `make:full-resource`, `dev`, `build`.

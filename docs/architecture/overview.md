@@ -43,12 +43,12 @@ Arkstack centralizes common developer commands in `@arkstack/console` and allows
 
 ### Full Profiles
 
-- Includes Prisma/database features.
+- Includes Arkormˣ/database features.
 - Includes generated app resources and API route scaffolding.
 
 ### Lean Profiles
 
-- Removes Prisma/database dependencies and runtime files.
+- Removes Arkormˣ/database dependencies and runtime files.
 - Removes `src/app` and `src/routes/api.ts` for a minimal baseline.
 
 ## Why This Matters

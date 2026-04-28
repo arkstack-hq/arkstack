@@ -1,11 +1,22 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
+import 'dotenv/config'
+
+import { Kysely, PostgresDialect } from 'kysely'
+import { createKyselyAdapter, defineConfig } from 'arkormx'
+
+import { Pool } from 'pg'
 import { createArkormCurrentPageResolver } from 'resora'
-import { defineConfig } from 'arkormx'
 import { outputDir } from '@arkstack/common'
 import path from 'node:path'
 
 const dist = path.relative(process.cwd(), outputDir())
+
+const db = new Kysely<Record<string, never>>({
+    dialect: new PostgresDialect({
+        pool: new Pool({
+            connectionString: process.env.DATABASE_URL,
+        }),
+    }),
+})
 
 export default defineConfig({
     paths: {
@@ -16,13 +27,7 @@ export default defineConfig({
         buildOutput: dist,
     },
     outputExt: 'ts',
-    prisma: () => {
-        return new PrismaClient({
-            adapter: new PrismaPg({
-                connectionString: process.env.DATABASE_URL,
-            }),
-        })
-    },
+    adapter: createKyselyAdapter(db),
     pagination: {
         resolveCurrentPage: createArkormCurrentPageResolver(),
     },

@@ -15,16 +15,10 @@ Full framework documentations are available from [https://arkstack.toneflix.net]
 npm install
 ```
 
-### Generate Prisma schema
-
-```sh
-npx prisma generate
-```
-
 ### Run migrations
 
 ```sh
-npx prisma migrate dev
+npx ark migrate dev
 ```
 
 ### Start dev server

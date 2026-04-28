@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "Arkstack"
+  name: 'Arkstack'
   tagline: Framework-agnostic TypeScript backend starter kits.
   image:
     src: /logo.jpg
@@ -30,7 +30,7 @@ features:
     details: Build on reusable packages like contract, common, console, and database.
   - icon: 📚
     title: Lean or Full
-    details: Choose lean templates without database features or full templates with Prisma included.
+    details: Choose lean templates without database features or full templates with Arkormˣ included.
   - icon: 🤝
     title: Extensible Drivers
     details: Add new runtime drivers without rewriting your application architecture.

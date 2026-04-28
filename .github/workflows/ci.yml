@@ -68,21 +68,19 @@ jobs:
         run: |
           cd express; 
           pnpm prepare
-          pnpm prisma generate; 
           pnpm build
 
       - name: Build H3
         run: |
           cd h3; 
           pnpm prepare
-          pnpm prisma generate; 
           pnpm build
 
       - name: Migrate Prisma
-        run: pnpm prisma migrate dev;
+        run: pnpm arkorm migrate:fresh;
 
       - name: Run tests
-        run: pnpm prisma generate; pnpm test:coverage
+        run: pnpm test:coverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5

@@ -1,22 +1,17 @@
 import { IDatabaseDriver, ValidationDatabaseExistsInput } from 'kanun'
 
-import { str } from '@h3ravel/support'
+import { DB } from 'arkormx'
 
 export class ValidatorDBDriver extends IDatabaseDriver {
     async exists ({ table, column, value, ignore }: ValidationDatabaseExistsInput) {
         try {
-            const { prisma } = await import('src/database/prismaClient')
-            const delegate = prisma[str(table).singular().toString() as keyof typeof prisma] as any
-            const row = await delegate.findFirst({
-                where: {
-                    [column]: value,
-                }
-            })
+            const query = DB.table<{ id: string }>(table).where({ [column]: value })
 
-            if (!row) return false
-            if (ignore != null && String(row.id) === String(ignore)) return false
+            if (ignore) {
+                query.whereNot({ [column]: ignore })
+            }
 
-            return true
+            return await query.exists()
         } catch {
             return false
         }
