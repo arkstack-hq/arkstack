@@ -2,7 +2,7 @@
   "name": "express-app",
   "description": "Simple Express.js project created with Toneflix's Node.js starter kit.",
   "type": "module",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
     "prebuild": "pnpm -w run build:packages --log-level silent",

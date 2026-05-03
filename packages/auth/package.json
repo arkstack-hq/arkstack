@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/auth",
-    "version": "0.3.13",
+    "version": "0.3.14",
     "type": "module",
     "description": "Authentication package for Arkstack applications, providing utilities for user authentication, password hashing, and two-factor authentication.",
     "homepage": "https://arkstack.toneflix.net",
