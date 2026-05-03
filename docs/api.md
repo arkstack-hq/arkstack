@@ -141,8 +141,68 @@ Core shared packages:
 - `@arkstack/contract`
 - `@arkstack/common`
 - `@arkstack/console`
+- `@arkstack/http`
+- `@arkstack/auth`
 
 Driver packages:
 
 - `@arkstack/driver-express`
 - `@arkstack/driver-h3`
+
+## Authentication
+
+`@arkstack/auth` exposes the framework-neutral auth service and session contracts.
+
+### `Auth`
+
+- `Auth.make(secret?)` — create an auth service instance.
+- `Auth.setRequest(req)` — set the current normalized request on the static auth context.
+- `setRequest(req)` — set the request source for the current auth instance.
+- `verify(email, password)` — verify credentials.
+- `attempt(email, password)` — authenticate and return the user or throw `AuthenticationException`.
+- `login(email, password)` — authenticate and create a personal access token.
+- `authorizeToken(token)` — validate a bearer token and return the authenticated user.
+- `createTemporaryToken(user, purpose, expiresIn?)` — create a short-lived JWT for a specific purpose.
+- `authorizeTemporaryToken(token, purpose)` — validate a temporary token and return its user.
+- `logout(token?)` — delete a specific token or the current user's tokens.
+- `currentSession()` — create a `CurrentSession` helper for the current request.
+
+### Driver Auth Middleware
+
+Express:
+
+```ts
+import { auth } from '@arkstack/driver-express/middlewares';
+```
+
+H3:
+
+```ts
+import { auth } from '@arkstack/driver-h3/middlewares';
+```
+
+Both middlewares expect an `Authorization: Bearer <token>` header.
+
+## HTTP
+
+`@arkstack/http` exposes framework-neutral wrappers:
+
+- `Request.from(source?)`
+- `request.header(name)`
+- `request.bearerToken()`
+- `request.setUser(user)`
+- `request.user`
+- `Response.from(source?)`
+- `response.status(code)`
+- `response.json(body)`
+
+## Common Utilities
+
+`@arkstack/common` exposes:
+
+- `ErrorHandler` — class-based error normalization, logging, and payload creation.
+- `Exception`, `AppException`, `RequestException` — shared exception classes.
+- `Hash` — password hashing and verification helper.
+- `Encryption` — encryption/decryption helper.
+- `getModel(name)` — typed app model resolver.
+- `perPage(query)` — pagination limit helper.

@@ -38,6 +38,8 @@ export default defineConfig({
           { text: 'Getting Started', link: '/guide/getting-started' },
           { text: 'CLI', link: '/guide/cli' },
           { text: 'Middleware', link: '/guide/middleware' },
+          { text: 'Authentication', link: '/guide/authentication' },
+          { text: 'HTTP', link: '/guide/http' },
           { text: 'Database & Modeling', link: '/guide/database-modeling' },
           { text: 'API Reference', link: '/api' },
         ]

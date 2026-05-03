@@ -69,6 +69,32 @@ if (found) {
 }
 ```
 
+## Resolve models from shared code
+
+Shared Arkstack packages use `getModel()` from `@arkstack/common` when they need an application model without importing from a fixed app path.
+
+```ts
+import { getModel } from '@arkstack/common';
+import type User from '../app/models/User';
+
+const UserModel = await getModel<typeof User>('User');
+const user = await UserModel.query().where({ email }).first();
+```
+
+Apps can also augment the model registry to get typed model names without passing the constructor type each time:
+
+```ts
+import type User from './src/app/models/User';
+
+declare module '@arkstack/common' {
+  interface ModelRegistry {
+    User: typeof User;
+  }
+}
+```
+
+`getModel('User')` then returns the registered `typeof User`.
+
 ## Advanced usage
 
 For relationships, advanced query patterns, factories, seeders, and full Arkormˣ capabilities, see the official documentation:

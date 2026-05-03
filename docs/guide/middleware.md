@@ -116,6 +116,18 @@ export default config;
 
 Use config middleware for app-wide concerns. For route-specific behavior, attach middleware at route declaration time.
 
+Authentication middleware is provided by runtime driver packages so it can integrate with each framework naturally:
+
+```ts
+import { auth } from '@arkstack/driver-express/middlewares';
+```
+
+```ts
+import { auth } from '@arkstack/driver-h3/middlewares';
+```
+
+For a full auth flow, see [Authentication](/guide/authentication).
+
 Example from Express route registration:
 
 ```ts

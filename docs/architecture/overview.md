@@ -20,7 +20,15 @@ Defines framework-agnostic contracts for:
 
 ### `@arkstack/common`
 
-Provides reusable runtime helpers, including lifecycle and error response utilities.
+Provides reusable runtime helpers, including lifecycle utilities, typed model resolution, hashing/encryption helpers, and the shared `ErrorHandler`.
+
+### `@arkstack/http`
+
+Provides framework-neutral request and response wrappers for shared packages that need request data without importing Express, H3, or another runtime.
+
+### `@arkstack/auth`
+
+Provides framework-neutral authentication services, user/session contracts, personal access token support, and current-session helpers.
 
 ### `@arkstack/console`
 
@@ -33,7 +41,7 @@ Each runtime implements the contract through a dedicated driver package:
 - `@arkstack/driver-express`
 - `@arkstack/driver-h3`
 
-This keeps runtime-specific behavior in one place while preserving a uniform app structure.
+This keeps runtime-specific behavior in one place while preserving a uniform app structure. Framework integrations such as auth middleware live in the driver packages so Express routes receive authenticated request properties and H3 routes receive authenticated event context.
 
 ## Console Command Model
 

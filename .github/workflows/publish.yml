@@ -71,13 +71,26 @@ jobs:
       - name: Run linter
         run: pnpm lint
 
-      - name: Build the project
+      - name: Build Packages
         run: |
-          cd express; pnpm build
-          cd ../h3; pnpm build
-          cd ../
-          pnpm arkorm migrate
-          pnpm build:packages
+          pnpm -w run build:packages
+          pnpm --filter @arkstack/console run build
+          pnpm install --frozen-lockfile
+
+      - name: Build Express
+        run: |
+          cd express; 
+          pnpm prepare
+          pnpm build
+
+      - name: Build H3
+        run: |
+          cd h3; 
+          pnpm prepare
+          pnpm build
+
+      - name: Run database migrations
+        run: pnpm ark migrate:fresh;
 
       - name: Run tests
         run: pnpm test

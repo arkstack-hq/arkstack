@@ -8,9 +8,25 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- Added `@arkstack/auth` with JWT-based login, personal access tokens, current-session helpers, temporary tokens, and auth exceptions.
+- Added `@arkstack/http` with framework-neutral request and response wrappers.
+- Added Express and H3 auth middleware through `@arkstack/driver-express/middlewares` and `@arkstack/driver-h3/middlewares`.
+- Added `User` and `PersonalAccessToken` app models to the Express and H3 templates.
+- Added auth and HTTP tests across shared packages, runtime drivers, and full templates.
+- Added `migrate:fresh` command support to console packages.
+
 ### Changed
 
+- Replaced common `error-handling` utilities with the class-based `ErrorHandler` while preserving named helper exports.
+- Updated `getModel()` to support typed model registries, explicit model constructor typing, and abstract constructors.
+- Updated Express and H3 error handling to use shared error payload utilities.
+- Updated lean scaffolding to remove Arkorm/database model files and dependencies more completely.
+- Updated CI, docs deploy, and publish workflows to install with `pnpm install --frozen-lockfile`.
+
 ### Docs
+
+- Added authentication and HTTP guides.
+- Documented auth middleware, shared auth APIs, HTTP wrappers, `ErrorHandler`, and typed `getModel()`.
 
 ## [0.2.1] - 2026-04-28
 
