@@ -30,14 +30,16 @@ export const fullDependencies = [
 ]
 
 export const leanDependencies = {
-    '@arkstack/console-slim': '^0.3.13',
+    '@arkstack/console-slim': '^0.3.14',
 }
 
 export const depsList: Record<string, string> = {
-    '@arkstack/common': '^0.3.13',
-    '@arkstack/console': '^0.3.13',
-    '@arkstack/contract': '^0.3.13',
-    '@arkstack/driver-h3': '^0.3.13',
-    '@arkstack/filesystem': '^0.3.13',
-    '@arkstack/driver-express': '^0.3.13',
+    '@arkstack/http': '^0.3.14',
+    '@arkstack/auth': '^0.3.14',
+    '@arkstack/common': '^0.3.14',
+    '@arkstack/console': '^0.3.14',
+    '@arkstack/contract': '^0.3.14',
+    '@arkstack/driver-h3': '^0.3.14',
+    '@arkstack/filesystem': '^0.3.14',
+    '@arkstack/driver-express': '^0.3.14',
 }

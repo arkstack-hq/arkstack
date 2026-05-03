@@ -90,7 +90,7 @@ jobs:
           pnpm build
 
       - name: Run database migrations
-        run: pnpm ark migrate:fresh;
+        run: pnpm arkorm migrate:fresh;
 
       - name: Run tests
         run: pnpm test

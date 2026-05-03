@@ -197,12 +197,16 @@ export class Auth extends AuthContract {
 
         if (token) {
             if (typeof token === 'string') {
-                await PersonalAccessToken.query().where({ token }).delete()
+                const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+
+                await TokenModel.query().where({ token }).delete()
             } else {
                 await token.delete()
             }
         } else {
-            await PersonalAccessToken.query().where({ userId: this.#user!.id }).delete()
+            const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+
+            await TokenModel.query().where({ userId: this.#user!.id }).delete()
         }
 
         this.#user = null
@@ -259,20 +263,30 @@ export class Auth extends AuthContract {
      * @param deviceInfo The current request's device information.
      */
     private async upsertDeviceToken (user: User, token: string, deviceInfo: Record<string, unknown> | null) {
+        const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
         const deviceKey = SessionDevice.getUniqueKey(deviceInfo)
         const payload = {
+            abilities: [],
             token,
             name: SessionDevice.getDisplayName(deviceInfo),
             userId: user.id,
-            deviceInfo,
             lastUsedAt: new Date(),
+        } as {
+            abilities: string[]
+            token: string
+            name: string
+            userId: User['id']
+            deviceInfo?: Record<string, unknown> | null
+            lastUsedAt: Date
         }
 
         if (!deviceKey) {
-            return await PersonalAccessToken.query().create(payload)
+            return await TokenModel.query().create(payload)
         }
 
-        const existingSessions = (await PersonalAccessToken.query().where({ userId: user.id }).get()).all()
+        payload.deviceInfo = deviceInfo
+
+        const existingSessions = (await TokenModel.query().where({ userId: user.id }).get()).all()
         const matchingSessions = existingSessions
             .filter((session) => SessionDevice.matches(session.deviceInfo, deviceInfo))
             .sort((left, right) => {
@@ -283,7 +297,7 @@ export class Auth extends AuthContract {
             })
 
         if (matchingSessions.length < 1) {
-            return await PersonalAccessToken.query().create(payload)
+            return await TokenModel.query().create(payload)
         }
 
         const [currentSession, ...duplicateSessions] = matchingSessions
@@ -292,7 +306,7 @@ export class Auth extends AuthContract {
             await Promise.all(duplicateSessions.map(async (session) => await session.delete()))
         }
 
-        await PersonalAccessToken.query().where({ id: currentSession.id }).update(payload)
+        await TokenModel.query().where({ id: currentSession.id }).update(payload)
 
         currentSession.token = payload.token
         currentSession.name = payload.name
@@ -420,7 +434,9 @@ export class Auth extends AuthContract {
             payload.name = currentDisplayName
         }
 
-        await PersonalAccessToken.query().where({ id: pat.id }).update(payload)
+        const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+
+        await TokenModel.query().where({ id: pat.id }).update(payload)
 
         pat.lastUsedAt = now
 

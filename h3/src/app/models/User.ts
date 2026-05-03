@@ -8,6 +8,11 @@ export default class User extends BaseUser {
     declare createdAt: Date
     declare updatedAt: Date
 
+    protected static columns = {
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+    }
+
     personalAccessTokens () {
         return this.hasMany(PersonalAccessToken, 'userId')
     }

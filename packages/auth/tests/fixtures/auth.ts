@@ -9,11 +9,11 @@ export const authSecret = 'test-secret'
 const users: User[] = []
 const personalAccessTokens: PersonalAccessToken[] = []
 
-export const createAuthUser = async () => {
+export const createAuthUser = async (attributes: Partial<Pick<User, 'email' | 'name' | 'password'>> = {}) => {
     const user = await (await getModel<typeof User>('User')).query().create({
-        email: `auth-test-${randomUUID()}@example.com`,
-        name: 'Auth Test',
-        password: 'password',
+        email: attributes.email ?? `auth-test-${randomUUID()}@example.com`,
+        name: attributes.name ?? 'Auth Test',
+        password: attributes.password ?? 'password',
     })
 
     users.push(user)

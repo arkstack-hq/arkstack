@@ -11,6 +11,15 @@ export default class PersonalAccessToken extends BasePersonalAccessToken {
     declare createdAt: Date
     declare updatedAt: Date
 
+    protected static columns = {
+        userId: 'user_id',
+        deviceInfo: 'device_info',
+        lastUsedAt: 'last_used_at',
+        expiresAt: 'expires_at',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+    }
+
     user () {
         return this.belongsTo(User, 'userId')
     }
