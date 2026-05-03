@@ -1,9 +1,9 @@
+import { RequestException, importFile } from '@arkstack/common'
+
 import { ArkstackRouteListOptions } from '@arkstack/contract'
 import { Router as ClearRouter } from 'clear-router/express'
-import { RequestError } from './utils/errors'
 import { clearRouterExpressPlugin } from '@resora/plugin-clear-router'
 import express from 'express'
-import { importFile } from '@arkstack/common'
 import { join } from 'node:path'
 import { registerPlugin } from 'resora'
 
@@ -29,7 +29,7 @@ export class Router extends ClearRouter {
     // Handle unmatched routes
     router.all('/*splat', (req, _res, next) => {
       const url = req.originalUrl || req.url
-      next(new RequestError(`Cannot find any route matching [${req.method}] ${url}`, 404))
+      next(new RequestException(`Cannot find any route matching [${req.method}] ${url}`, 404))
     })
 
     return router

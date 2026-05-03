@@ -1,0 +1,34 @@
+{
+    "name": "@arkstack/http",
+    "version": "0.3.13",
+    "type": "module",
+    "description": "Framework-agnostic HTTP request and response primitives for Arkstack.",
+    "homepage": "https://arkstack.toneflix.net",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/http"
+    },
+    "keywords": [
+        "http",
+        "request",
+        "response",
+        "adapter",
+        "arkstack"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsdown --config-loader unconfig",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "pnpm build"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./package.json": "./package.json"
+    }
+}

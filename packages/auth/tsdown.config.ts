@@ -1,10 +1,11 @@
-import { baseConfig } from '../../tsdown.config'
 import { defineConfig } from 'tsdown'
+import { baseConfig } from '../../tsdown.config'
 
 export default defineConfig({
     ...baseConfig,
     entry: ['src/index.ts'],
     format: 'esm',
     sourcemap: true,
+    shims: false,
     outDir: 'dist',
 })

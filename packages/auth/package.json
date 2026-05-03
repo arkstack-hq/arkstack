@@ -1,16 +1,21 @@
 {
-    "name": "@arkstack/common",
+    "name": "@arkstack/auth",
     "version": "0.3.13",
     "type": "module",
-    "description": "Common package for Arkstack providing common implementations of core Arkstack features such as routing, middleware, and database integration.",
+    "description": "Authentication package for Arkstack applications, providing utilities for user authentication, password hashing, and two-factor authentication.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/common"
+        "directory": "packages/auth"
     },
     "keywords": [
-        "common",
+        "authentication",
+        "password",
+        "hashing",
+        "two-factor",
+        "2fa",
+        "auth",
         "utilities",
         "helpers",
         "logging",
@@ -35,12 +40,10 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
-        "@rexxars/jiti": "^2.6.2",
-        "bcryptjs": "^3.0.3",
-        "chalk": "^5.6.2",
-        "detect-port": "^2.1.0",
-        "otpauth": "^9.5.1",
-        "pino": "^10.3.1"
+        "@arkstack/common": "workspace:^",
+        "@arkstack/http": "workspace:^",
+        "jose": "^6.2.3",
+        "ua-parser-js": "^2.0.9"
     },
     "peerDependencies": {
         "@h3ravel/support": "^0.15.11",

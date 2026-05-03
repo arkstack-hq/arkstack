@@ -41,11 +41,18 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
-        "@arkstack/contract": "workspace:^"
+        "@arkstack/contract": "workspace:^",
+        "express-rate-limit": "^8.4.1"
     },
     "peerDependencies": {
+        "@arkstack/auth": "workspace:^",
         "@arkstack/common": "workspace:^",
         "express": "^5.2.1"
+    },
+    "peerDependenciesMeta": {
+        "@arkstack/auth": {
+            "optional": true
+        }
     },
     "devDependencies": {
         "@types/express": "^5.0.6"

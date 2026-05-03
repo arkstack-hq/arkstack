@@ -1,17 +1,14 @@
 import { H3Event, HTTPError, HTTPResponse } from 'h3'
 import {
     buildHtmlErrorResponse,
-    createErrorPayload,
-    logUnhandledError,
-    normalizeStatusCode,
-    shouldLogError,
+    ErrorHandler,
 } from '@arkstack/common'
 
 export const defaultErrorHandler = (err: HTTPError | Error | string, event: H3Event) => {
-    const responseBody = createErrorPayload(err)
+    const responseBody = ErrorHandler.createErrorPayload(err)
 
-    if (shouldLogError(err)) {
-        logUnhandledError(err, {
+    if (ErrorHandler.shouldLogError(err)) {
+        ErrorHandler.logUnhandledError(err, {
             headers: Object.fromEntries(event.req.headers.entries()),
             method: event.req.method,
             url: event.req.url,
@@ -20,7 +17,7 @@ export const defaultErrorHandler = (err: HTTPError | Error | string, event: H3Ev
 
     if (process.env.NODE_ENV === 'development') console.error(responseBody)
 
-    const code = normalizeStatusCode(responseBody.code)
+    const code = ErrorHandler.normalizeStatusCode(responseBody.code)
     event.res.status = code
 
     const acceptsHeader = event.req.headers.get('accept') ?? ''

@@ -15,6 +15,8 @@
     "cmd": "NODE_OPTIONS=--enable-source-maps tsx ./node_modules/@arkstack/console/dist/index.js"
   },
   "dependencies": {
+    "@arkstack/auth": "workspace:^",
+    "@arkstack/http": "workspace:^",
     "@arkstack/common": "workspace:^",
     "@arkstack/console": "workspace:^",
     "@arkstack/contract": "workspace:^",

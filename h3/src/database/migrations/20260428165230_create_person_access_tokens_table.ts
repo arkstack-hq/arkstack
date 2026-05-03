@@ -9,6 +9,7 @@ export default class CreatePersonAccessTokensTableMigration extends Migration {
             table.string('name')
             table.text('token').unique()
             table.json('abilities')
+            table.json('deviceInfo').nullable().map('device_info')
             table.date('lastUsedAt').nullable().map('last_used_at')
             table.date('expiresAt').nullable().map('expires_at')
             table.timestamps()
