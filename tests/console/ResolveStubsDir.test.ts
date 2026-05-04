@@ -20,6 +20,7 @@ test('resolveStubsDir falls back to options stubsDir', () => {
 
 test('resolveStubsDir falls back to default stubsDir', () => {
     const selected = resolveStubsDir(undefined)
+        .replaceAll(/node_modules\/@arkstack\/driver-([A-Za-z0-9]+)\//g, '')
 
     assert.containSubset(selected, `${process.cwd()}/stubs`)
 })

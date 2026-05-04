@@ -3,16 +3,16 @@ import request from 'supertest'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { Router as ClearRouter } from 'clear-router/express'
 
-import { Auth } from '@arkstack/auth'
-import { Hash } from '@arkstack/common'
-import { auth, type AuthenticatedExpressRequest } from '@arkstack/driver-express/middlewares'
+import { Auth } from '../../packages/auth/src'
+import { Hash } from '../../packages/common/src'
+import { auth, type AuthenticatedExpressRequest } from '../../packages/driver-express/src/middlewares/auth'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../packages/auth/tests/fixtures/auth'
 
 const createRouter = (name: string) => class TestRouter extends ClearRouter {
     protected static routerStateNamespace = `express-auth-docs:${name}`
 }
 
-describe('Express auth middleware', () => {
+describe('Express auth integration', () => {
     beforeEach(() => {
         process.env.JWT_SECRET = authSecret
     })
@@ -89,29 +89,21 @@ describe('Express auth middleware', () => {
 
             return res.status(200).json({
                 token: personalAccessToken.token,
-                userId: personalAccessToken.user?.id,
+                userId: personalAccessToken.getAttribute('user')?.id,
             })
         })
 
-        await Router.apply(router)
+        Router.apply(router)
         app.use(express.json())
         app.use(router)
-        app.use((err: { message?: string; statusCode?: number }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-            res.status(err.statusCode ?? 500).json({
-                message: err.message,
-                statusCode: err.statusCode,
-            })
-        })
 
         const response = await request(app)
             .post('/auth/login')
-            .set('User-Agent', '')
             .send({
                 email: user.email,
                 password,
             })
-
-        expect(response.status).toBe(200)
+            .expect(200)
 
         expect(response.body.token).toEqual(expect.any(String))
         expect(String(response.body.userId)).toBe(String(user.id))
@@ -130,11 +122,11 @@ describe('Express auth middleware', () => {
         Router.get('/account', ({ req, res }) => {
             return res.status(200).json({
                 authToken: req.authToken,
-                userId: req.authUser?.id,
+                userId: req.user?.id,
             })
         }, [auth])
 
-        await Router.apply(router)
+        Router.apply(router)
         app.use(router)
 
         const response = await request(app)
@@ -159,7 +151,7 @@ describe('Express auth middleware', () => {
         await Router.group('/account', async () => {
             Router.get('/profile', ({ req, res }) => {
                 return res.status(200).json({
-                    userId: req.authUser?.id,
+                    userId: req.user?.id,
                 })
             })
 
@@ -175,7 +167,7 @@ describe('Express auth middleware', () => {
             })
         }, [auth])
 
-        await Router.apply(router)
+        Router.apply(router)
         app.use(router)
 
         const profile = await request(app)

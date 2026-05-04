@@ -2,14 +2,14 @@ import { H3 } from 'h3'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { Router as ClearRouter } from 'clear-router/h3'
 
-import { auth, type AuthenticatedH3Context } from '@arkstack/driver-h3/middlewares'
+import { auth, type AuthenticatedH3Context } from '../../packages/driver-h3/src/middlewares/auth'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../packages/auth/tests/fixtures/auth'
 
 const createRouter = (name: string) => class TestRouter extends ClearRouter {
     protected static routerStateNamespace = `h3-auth-docs:${name}`
 }
 
-describe('H3 auth middleware', () => {
+describe('H3 auth integration', () => {
     beforeEach(() => {
         process.env.JWT_SECRET = authSecret
     })

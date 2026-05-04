@@ -249,7 +249,7 @@ export class Auth extends AuthContract {
 
         const pat = await this.upsertDeviceToken(user, token, deviceInfo)
 
-        await pat.load(['user'])
+        pat.setLoadedRelation('user', user)
 
         return pat
     }
