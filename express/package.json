@@ -9,6 +9,8 @@
     "precmd": "pnpm -w run build:packages --log-level silent",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dev": "tsdown --log-level silent",
     "build": "NODE_ENV=production tsdown",
     "cmd": "NODE_OPTIONS=--enable-source-maps tsx ./node_modules/@arkstack/console/dist/index.js"
