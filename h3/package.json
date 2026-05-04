@@ -2,7 +2,7 @@
   "name": "h3-app",
   "description": "Simple H3 project created with Toneflix's Node.js starter kit.",
   "type": "module",
-  "version": "0.3.15",
+  "version": "0.3.16",
   "base": true,
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
