@@ -71,6 +71,21 @@ jobs:
         with:
           node-version: 22.x
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@arkstack'
+
+      - name: Configure NPM auth
+        shell: bash
+        run: |
+          if [[ -z "$NODE_AUTH_TOKEN" ]]; then
+            echo "NPM_TOKEN secret is not configured." >&2
+            exit 1
+          fi
+
+          npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
+          npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
