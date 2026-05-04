@@ -44,6 +44,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Checkout publish branch
+        if: github.event_name == 'release' || github.ref_type == 'tag'
+        shell: bash
+        run: |
+          TARGET_BRANCH="${{ github.event.release.target_commitish || github.event.repository.default_branch }}"
+
+          if [[ -z "$TARGET_BRANCH" || "$TARGET_BRANCH" == refs/tags/* || "$TARGET_BRANCH" =~ ^[0-9a-f]{40}$ ]]; then
+            TARGET_BRANCH="${{ github.event.repository.default_branch }}"
+          fi
+
+          git fetch origin "$TARGET_BRANCH"
+          git checkout "$TARGET_BRANCH"
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -59,6 +74,43 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Resolve release version
+        id: release_version
+        shell: bash
+        run: |
+          VERSION="${{ github.event.inputs.version || github.event.release.tag_name || github.ref_name }}"
+          VERSION="${VERSION#v}"
+
+          if [[ -z "$VERSION" ]]; then
+            echo "Unable to resolve a release version. Provide workflow_dispatch input 'version' or run from a release/tag." >&2
+            exit 1
+          fi
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid semver version: $VERSION" >&2
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Set package versions
+        run: pnpm prepare:release-version ${{ steps.release_version.outputs.version }}
+
+      - name: Commit release version changes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json packages/*/package.json express/package.json h3/package.json create-arkstack/package.json create-arkstack/src/data.ts
+
+          if git diff --cached --quiet; then
+            echo "Release version files are already up to date."
+            exit 0
+          fi
+
+          git commit -m "chore: prepare release v${{ steps.release_version.outputs.version }}"
+          git push
 
       - name: Run linter
         run: pnpm lint

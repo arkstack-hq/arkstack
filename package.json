@@ -1,7 +1,7 @@
 {
   "name": "arkstack",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.3.15",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
@@ -10,8 +10,8 @@
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run tests/integration",
     "build:packages": "pnpm -r --filter \"@arkstack/*\" build",
-    "version:packages": "pnpm -r --filter \"@arkstack/*\" version:patch && git add . && git commit -m \"chore: bump package versions\"",
-    "publish:packages": "pnpm version:packages && pnpm -r --filter \"@arkstack/*\" publish --access public",
+    "prepare:release-version": "node scripts/prepare-release-version.mjs",
+    "publish:packages": "pnpm -r --filter \"@arkstack/*\" --filter create-arkstack publish --access public",
     "dev": "tsdown --silent",
     "build": "NODE_ENV=production pnpm -r --filter \"@arkstack/*\" --filter \"h3\" --filter \"express\" build",
     "cmd": "tsx src/core/commands/index.ts",
