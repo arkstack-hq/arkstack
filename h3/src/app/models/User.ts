@@ -1,5 +1,6 @@
 import { User as BaseUser } from '@arkstack/auth'
 import PersonalAccessToken from './PersonalAccessToken'
+import UserTwoFactor from './UserTwoFactor'
 
 export default class User extends BaseUser {
     declare email: string
@@ -15,5 +16,9 @@ export default class User extends BaseUser {
 
     personalAccessTokens () {
         return this.hasMany(PersonalAccessToken, 'userId')
+    }
+
+    twoFactor () {
+        return this.hasOne(UserTwoFactor, 'userId')
     }
 }
