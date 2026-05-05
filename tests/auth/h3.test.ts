@@ -1,4 +1,5 @@
 import { H3 } from 'h3'
+import request from 'parasito'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { Router as ClearRouter } from 'clear-router/h3'
 
@@ -35,18 +36,15 @@ describe('H3 auth integration', () => {
             }
         })
 
-        const response = await app.fetch(new Request('http://localhost/test', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'GET',
-        }))
-        const body = await response.json()
+        const response = await request(app)
+            .get('/test')
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200)
 
         expect(response.status).toBe(200)
-        expect(String(body.userId)).toBe(String(user.id))
-        expect(String(body.authUserId)).toBe(String(user.id))
-        expect(body.authToken).toBe(token)
+        expect(String(response.body.userId)).toBe(String(user.id))
+        expect(String(response.body.authUserId)).toBe(String(user.id))
+        expect(response.body.authToken).toBe(token)
     })
 
     it('returns an authentication error when the bearer token is missing', async () => {
@@ -65,10 +63,10 @@ describe('H3 auth integration', () => {
         app.use(auth)
         app.use('/test', () => ({ ok: true }))
 
-        const response = await app.fetch(new Request('http://localhost/test', {
-            method: 'GET',
-        }))
-        const body = await response.json()
+        const response = await request(app)
+            .get('/test')
+            .expect(401)
+        const body = response.body
 
         expect(response.status).toBe(401)
         expect(body).toEqual({
@@ -97,17 +95,14 @@ describe('H3 auth integration', () => {
 
         Router.apply(app)
 
-        const response = await app.fetch(new Request('http://localhost/account', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'GET',
-        }))
-        const body = await response.json()
+        const response = await request(app)
+            .get('/account')
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200)
 
         expect(response.status).toBe(200)
-        expect(body.authToken).toBe(token)
-        expect(String(body.userId)).toBe(String(user.id))
+        expect(response.body.authToken).toBe(token)
+        expect(String(response.body.userId)).toBe(String(user.id))
     })
 
     it('supports the documented Clear Router group middleware pattern', async () => {
@@ -139,24 +134,19 @@ describe('H3 auth integration', () => {
 
         Router.apply(app)
 
-        const profileResponse = await app.fetch(new Request('http://localhost/account/profile', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'GET',
-        }))
-        const profile = await profileResponse.json()
-        const sessionResponse = await app.fetch(new Request('http://localhost/account/sessions', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            method: 'GET',
-        }))
-        const session = await sessionResponse.json()
+        const profileResponse = await request(app)
+            .get('/account/profile')
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200)
+
+        const sessionResponse = await request(app)
+            .get('/account/sessions')
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200)
 
         expect(profileResponse.status).toBe(200)
         expect(sessionResponse.status).toBe(200)
-        expect(String(profile.userId)).toBe(String(user.id))
-        expect(session.authToken).toBe(token)
+        expect(String(profileResponse.body.userId)).toBe(String(user.id))
+        expect(sessionResponse.body.authToken).toBe(token)
     })
 })

@@ -1,5 +1,5 @@
 import express from 'express'
-import request from 'supertest'
+import request from 'parasito'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { Router as ClearRouter } from 'clear-router/express'
 
@@ -174,6 +174,7 @@ describe('Express auth integration', () => {
             .get('/account/profile')
             .set('Authorization', `Bearer ${token}`)
             .expect(200)
+
         const sessions = await request(app)
             .get('/account/sessions')
             .set('Authorization', `Bearer ${token}`)

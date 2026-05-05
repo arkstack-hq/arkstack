@@ -3,6 +3,8 @@
     "module": "es2022",
     "target": "es2022",
     "lib": ["es2022", "DOM"],
+    "declaration": true,
+    "declarationMap": true,
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
