@@ -42,4 +42,5 @@ export const depsList: Record<string, string> = {
     '@arkstack/driver-h3': '^0.3.16',
     '@arkstack/filesystem': '^0.3.16',
     '@arkstack/driver-express': '^0.3.16',
+    '@arkstack/notifications': '^0.3.16',
 }

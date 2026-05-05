@@ -1,5 +1,6 @@
 import { UserTwoFactor as BaseUserTwoFactor } from '../../packages/auth/src'
 import User from './User'
+import { BelongsToRelation } from 'arkormx/relationship'
 
 export default class UserTwoFactor extends BaseUserTwoFactor {
     protected static override table = 'user_two_factors'
@@ -13,7 +14,7 @@ export default class UserTwoFactor extends BaseUserTwoFactor {
         recoveryCodeHashes: 'recovery_code_hashes',
     }
 
-    user () {
-        return this.belongsTo(User, 'userId', 'id')
+    user (): BelongsToRelation<this, User> {
+        return this.belongsTo(User, 'userId', 'id') as never
     }
 }

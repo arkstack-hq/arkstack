@@ -1,27 +1,22 @@
 {
-    "name": "@arkstack/auth",
+    "name": "@arkstack/notifications",
     "version": "0.3.16",
     "type": "module",
-    "description": "Authentication package for Arkstack applications, providing utilities for user authentication, password hashing, and two-factor authentication.",
+    "description": "Notification package for Arkstack applications, providing mail, SMS, and database notification drivers.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/auth"
+        "directory": "packages/notifications"
     },
     "keywords": [
-        "authentication",
-        "password",
-        "hashing",
-        "two-factor",
-        "2fa",
-        "auth",
-        "utilities",
-        "helpers",
-        "logging",
-        "configuration",
-        "error-handling",
-        "validation",
+        "notifications",
+        "mail",
+        "email",
+        "sms",
+        "twilio",
+        "africastalking",
+        "database",
         "arkstack"
     ],
     "files": [
@@ -29,6 +24,7 @@
     ],
     "scripts": {
         "build": "tsdown --config-loader unconfig",
+        "test": "vitest",
         "version:patch": "pnpm version patch",
         "prepublishOnly": "pnpm build"
     },
@@ -41,12 +37,14 @@
     },
     "dependencies": {
         "@arkstack/common": "workspace:^",
-        "@arkstack/http": "workspace:^",
-        "jose": "^6.2.3",
-        "ua-parser-js": "^2.0.9"
+        "africastalking": "^0.8.0",
+        "nodemailer": "^8.0.7",
+        "twilio": "^6.0.0"
     },
     "peerDependencies": {
-        "@h3ravel/support": "^0.15.11",
         "arkormx": "^2.0.7"
+    },
+    "devDependencies": {
+        "@types/nodemailer": "^7.0.11"
     }
 }

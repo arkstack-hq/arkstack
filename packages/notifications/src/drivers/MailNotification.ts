@@ -1,0 +1,134 @@
+import { env } from '@arkstack/common'
+import nodemailer, { type Transporter } from 'nodemailer'
+
+import { NotificationContract } from '../Contracts/NotificationContract'
+import { interpolate } from '../utils/template'
+import { notificationConfig } from '../config'
+import type { MailDriverOptions, MailRecipient, MailRecipientAddress, NotificationData } from '../types'
+
+export class MailNotification extends NotificationContract {
+    driver: Transporter
+    private fromAddress?: string
+    private subjectLine?: string
+    private recipients?: MailRecipient
+    static defaultHtmlTemplate = [
+        '<!doctype html>',
+        '<html>',
+        '<body style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">',
+        '<h2>{subject}</h2>',
+        '<div>{message}</div>',
+        '<p style="color:#6b7280;font-size:12px">&copy; {year} {app_name}</p>',
+        '</body>',
+        '</html>',
+    ].join('')
+
+    constructor(options: MailDriverOptions = {}) {
+        super()
+
+        const driverConfig = notificationConfig<Record<string, any>>('drivers.mail', {})
+        const transport = options.transport ?? driverConfig.transport ?? 'smtp'
+        const transportConfig = notificationConfig<Record<string, any>>(`transports.${transport}`, {})
+        const legacyMailConfig = notificationConfig<Record<string, any>>('mail', {})
+        const legacySmtpConfig = notificationConfig<Record<string, any>>('smtp', {})
+        const smtpConfig = {
+            ...legacySmtpConfig,
+            ...(legacyMailConfig.smtp ?? {}),
+            ...transportConfig,
+        }
+        const host = options.host ?? smtpConfig.host ?? env('SMTP_HOST', 'localhost')
+        const port = options.port ?? smtpConfig.port ?? env('SMTP_PORT', 1025)
+        const secure = options.secure ?? smtpConfig.secure ?? env('SMTP_SECURE', false)
+        const user = options.user ?? smtpConfig.auth?.user ?? smtpConfig.user ?? env('SMTP_USERNAME', '')
+        const pass = options.pass ?? smtpConfig.auth?.pass ?? smtpConfig.pass ?? env('SMTP_PASSWORD', '')
+
+        this.fromAddress = options.from ?? driverConfig.from ?? legacyMailConfig.from ?? smtpConfig.from ?? env('SMTP_FROM_ADDRESS', 'no-reply@example.com')
+        this.driver = nodemailer.createTransport({
+            host,
+            port: Number(port),
+            secure: Boolean(secure),
+            auth: user || pass ? { user, pass } : undefined,
+        })
+    }
+
+    from (from: string): this {
+        this.fromAddress = from
+
+        return this
+    }
+
+    subject (subject: string): this {
+        this.subjectLine = subject
+
+        return this
+    }
+
+    recipient (recipient: MailRecipient): this {
+        this.recipients = recipient
+
+        return this
+    }
+
+    async send (
+        message: string,
+        subject?: string,
+        recipient?: MailRecipient,
+        data?: NotificationData
+    ) {
+        const mergedData = {
+            app_name: env('APP_NAME', 'Arkstack'),
+            ...this.mergeData(data),
+        }
+        const resolvedSubject = interpolate(subject ?? this.subjectLine ?? '', mergedData)
+        const resolvedMessage = interpolate(message, mergedData)
+        const to = this.resolveRecipients(recipient)
+
+        if (to.length < 1) {
+            throw new Error('No recipient provided for mail notification')
+        }
+
+        return await this.driver.sendMail({
+            to: to as never,
+            subject: resolvedSubject,
+            from: this.fromAddress,
+            text: resolvedMessage.replace(/<\/?[^>]+(>|$)/g, ''),
+            html: interpolate(MailNotification.defaultHtmlTemplate, {
+                ...mergedData,
+                message: resolvedMessage,
+                subject: resolvedSubject,
+            }),
+        })
+    }
+
+    private resolveRecipients (recipient?: MailRecipient) {
+        const recipients = recipient ?? this.recipients
+        const resolved = (Array.isArray(recipients)
+            ? [...recipients]
+            : recipients
+                ? [recipients]
+                : []
+        ).flatMap(recipient => this.normalizeRecipient(recipient) as unknown)
+
+        const driverConfig = notificationConfig<Record<string, any>>('drivers.mail', {})
+        const transport = driverConfig.transport ?? 'smtp'
+        const transportConfig = notificationConfig<Record<string, any>>(`transports.${transport}`, {})
+        const testAddress = driverConfig.testAddress
+            ?? driverConfig.test_address
+            ?? transportConfig.testAddress
+            ?? transportConfig.test_address
+            ?? env<string | undefined>('SMTP_TEST_ADDRESS')
+
+        if (env('NODE_ENV') !== 'production' && testAddress) {
+            resolved.push(testAddress)
+        }
+
+        return resolved
+    }
+
+    private normalizeRecipient (recipient: string | MailRecipientAddress) {
+        if (typeof recipient === 'string') {
+            return [recipient]
+        }
+
+        return Object.entries(recipient).map(([address, name]) => ({ address, name }))
+    }
+}

@@ -1,5 +1,6 @@
 import { User as BaseUser } from '../../packages/auth/src'
 import PersonalAccessToken from './PersonalAccessToken'
+import UserNotification from './UserNotification'
 import UserTwoFactor from './UserTwoFactor'
 
 export default class User extends BaseUser {
@@ -11,5 +12,9 @@ export default class User extends BaseUser {
 
     twoFactor () {
         return this.hasOne(UserTwoFactor, 'userId')
+    }
+
+    notifications () {
+        return this.hasMany(UserNotification, 'userId')
     }
 }
