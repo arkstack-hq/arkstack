@@ -425,6 +425,9 @@ importers:
       '@arkstack/http':
         specifier: workspace:^
         version: link:../http
+      '@arkstack/notifications':
+        specifier: workspace:^
+        version: link:../notifications
       '@h3ravel/support':
         specifier: ^0.15.11
         version: 0.15.11
