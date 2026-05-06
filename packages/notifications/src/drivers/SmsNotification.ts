@@ -20,11 +20,10 @@ export class SmsNotification extends NotificationContract {
         const transport = options.transport ?? driverConfig.transport ?? 'twilio'
         const transportConfig = notificationConfig<Record<string, any>>(`transports.${transport}`, {})
         const legacySmsConfig = notificationConfig<SmsDriverOptions>('sms', {})
-        const driver = transport
         const from = options.from ?? driverConfig.from ?? legacySmsConfig.from
 
         this.fromValue = from
-        this.driver = driver === 'twilio'
+        this.driver = transport === 'twilio'
             ? new TwilioSmsDriver({
                 ...legacySmsConfig.twilio,
                 ...transportConfig,

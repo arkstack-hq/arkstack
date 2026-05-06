@@ -1,12 +1,12 @@
-import express from 'express'
-import request from 'parasito'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
-import { Router as ClearRouter } from 'clear-router/express'
+import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../packages/auth/tests/fixtures/auth'
 
 import { Auth } from '../../packages/auth/src'
+import { Router as ClearRouter } from 'clear-router/express'
 import { Hash } from '../../packages/common/src'
-import { auth, type AuthenticatedExpressRequest } from '../../packages/driver-express/src/middlewares/auth'
-import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../packages/auth/tests/fixtures/auth'
+import { auth } from '../../packages/driver-express/src/middlewares/auth'
+import express from 'express'
+import request from 'parasito'
 
 const createRouter = (name: string) => class TestRouter extends ClearRouter {
     protected static routerStateNamespace = `express-auth-docs:${name}`
@@ -29,7 +29,7 @@ describe('Express auth integration', () => {
 
         app.use(auth)
         app.get('/test', (req, res) => {
-            const authReq = req as AuthenticatedExpressRequest
+            const authReq = req
 
             res.status(200).json({
                 authToken: authReq.authToken,
@@ -84,7 +84,7 @@ describe('Express auth integration', () => {
         Router.post('/auth/login', async ({ req, res }) => {
             const { email, password } = req.body
             const personalAccessToken = await Auth.make()
-                .setRequest(req)
+                .setRequest(req as never)
                 .login(email, password)
 
             return res.status(200).json({
@@ -157,7 +157,7 @@ describe('Express auth integration', () => {
 
             Router.get('/sessions', async ({ req, res }) => {
                 const session = await Auth.make()
-                    .setRequest(req)
+                    .setRequest(req as never)
                     .currentSession()
                     .token()
 

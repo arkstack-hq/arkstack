@@ -1,8 +1,8 @@
-import type { H3Event } from 'h3'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { auth, type AuthenticatedH3Context } from '../src/middlewares/auth'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../auth/tests/fixtures/auth'
+
+import type { H3Event } from 'h3'
+import { auth } from '../src/middlewares/auth'
 
 describe('H3 auth middleware', () => {
     beforeEach(() => {
@@ -27,9 +27,7 @@ describe('H3 auth middleware', () => {
                 method: 'GET',
                 url: 'https://example.test/account',
             },
-        } as unknown as H3Event & {
-            context: AuthenticatedH3Context;
-        }
+        } as unknown as H3Event
         const next = vi.fn().mockResolvedValue('ok')
 
         const result = await auth(event, next)

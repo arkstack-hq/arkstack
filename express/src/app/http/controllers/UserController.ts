@@ -1,9 +1,6 @@
 import { Resource, ResourceCollection } from 'resora'
 
 import { BaseController } from '@controllers/BaseController'
-import { HttpContext } from 'clear-router/types/express'
-
-// import { Storage } from '@arkstack/filesystem'
 
 /**
  * UserController
@@ -13,7 +10,6 @@ export default class UserController extends BaseController {
    * Get all resources
    *
    * @param req
-   * @param res
    */
   index = async () => {
     return new ResourceCollection({ data: [] })
@@ -31,8 +27,8 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  show = async ({ res }: HttpContext) => {
-    return new Resource({ data: {} }, res)
+  show = async () => {
+    return new Resource({ data: {} })
       .additional({
         status: 'success',
         message: 'OK',
@@ -47,8 +43,8 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  create = async ({ res }: HttpContext) => {
-    return new Resource({ data: {} }, res)
+  create = async () => {
+    return new Resource({ data: {} })
       .additional({
         status: 'success',
         message: 'New User created successfully',
@@ -67,10 +63,7 @@ export default class UserController extends BaseController {
     const data = await this.validate({
       name: 'string|required',
       age: 'numeric|required|min:30',
-      // image: 'required|image|mimes:jpg,png|max:2048',
     })
-
-    // Storage.disk('public').saveFile(data.image)
 
     return new Resource({ data })
       .additional({
@@ -87,8 +80,8 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  destroy = async ({ res }: HttpContext) => {
-    return new Resource({ data: {} }, res)
+  destroy = async () => {
+    return new Resource({ data: {} })
       .additional({
         status: 'success',
         message: 'User deleted successfully',

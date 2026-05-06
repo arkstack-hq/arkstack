@@ -1,14 +1,13 @@
-import type { Handler, Request as ExpressRequest } from 'express'
-import { Auth, AuthenticationException, type User } from '@arkstack/auth'
+import { Auth, AuthenticationException } from '@arkstack/auth'
 
-export type AuthenticatedExpressRequest<TUser extends User = User> = ExpressRequest & {
-    user?: TUser;
-    authUser?: TUser;
-    authToken?: string;
-}
+import type { Handler } from 'express'
+import { Hook } from '@arkstack/common'
 
-export const auth: Handler = async (req, _res, next) => {
+export const auth: Handler = async (req, res, next) => {
     try {
+        if (Hook.has('middleware:auth', 'before'))
+            Hook.get('middleware:auth', 'before')?.({ req, res })
+
         const token = readBearerToken(req.headers.authorization)
 
         if (!token) {
@@ -16,14 +15,19 @@ export const auth: Handler = async (req, _res, next) => {
         }
 
         const user = await Auth.make().setRequest(req).authorizeToken(token)
-        const request = req as AuthenticatedExpressRequest
 
-        request.user = user
-        request.authUser = user
-        request.authToken = token
+        req.user = user
+        req.authUser = user
+        req.authToken = token
+
+        if (Hook.has('middleware:auth', 'after'))
+            Hook.get('middleware:auth', 'after')?.({ req, res })
 
         next()
     } catch (error) {
+        if (Hook.has('middleware:auth', 'error'))
+            Hook.get('middleware:auth', 'error')?.(error, { req, res })
+
         next(error)
     }
 }

@@ -39,6 +39,8 @@ export default defineConfig({
           { text: 'CLI', link: '/guide/cli' },
           { text: 'Middleware', link: '/guide/middleware' },
           { text: 'Authentication', link: '/guide/authentication' },
+          { text: 'Notifications', link: '/guide/notifications' },
+          { text: 'Hooks', link: '/guide/hooks' },
           { text: 'HTTP', link: '/guide/http' },
           { text: 'Database & Modeling', link: '/guide/database-modeling' },
           { text: 'API Reference', link: '/api' },

@@ -143,6 +143,7 @@ Core shared packages:
 - `@arkstack/console`
 - `@arkstack/http`
 - `@arkstack/auth`
+- `@arkstack/notifications`
 
 Driver packages:
 
@@ -167,6 +168,20 @@ Driver packages:
 - `logout(token?)` — delete a specific token or the current user's tokens.
 - `currentSession()` — create a `CurrentSession` helper for the current request.
 
+### `TwoFactor`
+
+- `createSetup(user, secret?)` — create an authenticator secret and `otpauthUrl`.
+- `verifyCode(user, secret, code)` — verify an authenticator app code.
+- `setSecret(userId, secret)` / `getSecret(userId)` / `clearSecret(userId)` — manage encrypted authenticator secrets.
+- `setMethod(userId, method)` / `getMethod(userId)` — manage the active 2FA method.
+- `setEnabledAt(userId, enabledAt?)` / `getEnabledAt(userId)` — manage enabled state.
+- `generateBackupCodes(count?)` — create printable recovery codes.
+- `hashBackupCodes(codes)` / `writeRecoveryCodeHashes(userId, hashes)` — store recovery codes.
+- `consumeRecoveryCode(userId, recoveryCode)` — verify and remove one recovery code.
+- `issueSmsCode(user, purpose)` — create, hash, and store an SMS challenge code.
+- `verifySmsCode(userId, code, purpose)` — verify and consume an SMS challenge code.
+- `readStatus(userId)` — return enabled state, method, timestamp, and remaining recovery codes.
+
 ### Driver Auth Middleware
 
 Express:
@@ -182,6 +197,39 @@ import { auth } from '@arkstack/driver-h3/middlewares';
 ```
 
 Both middlewares expect an `Authorization: Bearer <token>` header.
+
+## Notifications
+
+`@arkstack/notifications` exposes framework-neutral notification drivers.
+
+### `Notification`
+
+- `Notification.mail(options?)` / `Notification.email(options?)` — create a mail notification driver.
+- `Notification.sms(options?)` — create an SMS notification driver.
+- `Notification.db()` — create a database notification driver.
+- `Notification.channel(channel?, options?)` — create a driver from a channel or `notifications.default_driver`.
+- `new Notification(channel, options?).prepare(recipient, data?)` — prepare a driver using a user-like recipient or direct address.
+
+Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'Name' }`, and arrays of named address objects.
+
+### Notification Config
+
+- `notifications.default_driver` — default channel for `Notification.channel()`.
+- `notifications.drivers.mail.transport` — mail transport name, usually `smtp`.
+- `notifications.drivers.sms.transport` — SMS transport name, `africastalking` or `twilio`.
+- `notifications.drivers.db.table` — database notifications table name.
+- `notifications.transports.smtp` — SMTP connection options.
+- `notifications.transports.africastalking` — AfricasTalking credentials.
+- `notifications.transports.twilio` — Twilio credentials.
+
+### `UserNotificationCenter`
+
+- `create(user, payload)` — store a database notification.
+- `forUser(user)` — list stored notifications for a user.
+- `unreadForUser(user)` — list unread notifications for a user.
+- `markAllRead(user)` — mark every unread notification for a user as read.
+- `markRead(notification)` — mark a notification as read.
+- `delete(notification)` — delete a notification.
 
 ## HTTP
 
@@ -204,5 +252,6 @@ Both middlewares expect an `Authorization: Bearer <token>` header.
 - `Exception`, `AppException`, `RequestException` — shared exception classes.
 - `Hash` — password hashing and verification helper.
 - `Encryption` — encryption/decryption helper.
+- `Hook` — process-local hook registry with `set`, `has`, `get`, `getAll`, `unset`, and `clear`.
 - `getModel(name)` — typed app model resolver.
 - `perPage(query)` — pagination limit helper.

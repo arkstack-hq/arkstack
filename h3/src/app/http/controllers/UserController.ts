@@ -1,9 +1,6 @@
 import { BaseController } from '@controllers/BaseController'
-import { HttpContext } from 'clear-router/types/h3'
 import UserCollection from '../resources/UserCollection'
 import UserResource from '../resources/UserResource'
-
-// import { Storage } from '@arkstack/filesystem'
 
 /**
  * UserController
@@ -15,14 +12,14 @@ export default class UserController extends BaseController {
    * @param req
    * @param res
    */
-  index = async ({ req }: HttpContext) => {
+  index = async () => {
     return await new UserCollection([])
       .additional({
         status: 'success',
         message: 'OK',
         code: 200,
       })
-      .response(req)
+      .response()
       .setStatusCode(200)
   }
 
@@ -32,14 +29,14 @@ export default class UserController extends BaseController {
    * @param req
    * @param res
    */
-  show = async ({ req }: HttpContext) => {
+  show = async () => {
     return new UserResource({ data: {} })
       .additional({
         status: 'success',
         message: 'OK',
         code: 200,
       })
-      .response(req)
+      .response()
       .setStatusCode(200)
   }
 
@@ -49,14 +46,14 @@ export default class UserController extends BaseController {
    * @param req
    * @param res
    */
-  create = async ({ req }: HttpContext) => {
+  create = async () => {
     return new UserResource({ data: {} })
       .additional({
         status: 'success',
         message: 'New User created successfully',
         code: 201,
       })
-      .response(req)
+      .response()
       .setStatusCode(201)
   }
 
@@ -66,14 +63,11 @@ export default class UserController extends BaseController {
    * @param req
    * @param res
    */
-  update = async ({ req }: HttpContext) => {
+  update = async () => {
     const data = await this.validate({
       name: 'string|required',
       age: 'numeric|required|min:22',
-      // image: 'required|image|mimes:jpg,png|max:2048',
     })
-
-    // Storage.disk('public').saveFile(data.image)
 
     return new UserResource({ data })
       .additional({
@@ -81,7 +75,7 @@ export default class UserController extends BaseController {
         message: 'User updated successfully',
         code: 202,
       })
-      .response(req)
+      .response()
       .setStatusCode(202)
   }
 
@@ -91,14 +85,14 @@ export default class UserController extends BaseController {
    * @param req
    * @param res
    */
-  destroy = async ({ req }: HttpContext) => {
+  destroy = async () => {
     return new UserResource({ data: {} })
       .additional({
         status: 'success',
         message: 'User deleted successfully',
         code: 202,
       })
-      .response(req)
+      .response()
       .setStatusCode(202)
   }
 }

@@ -1,41 +1,52 @@
-import type { H3Event } from 'h3'
-import { Auth, AuthenticationException, type User } from '@arkstack/auth'
+import { Auth, AuthenticationException } from '@arkstack/auth'
 
-export type AuthenticatedH3Context<TUser extends User = User> = {
-    user?: TUser;
-    authUser?: TUser;
-    authToken?: string;
-}
+import type { H3Event } from 'h3'
+import { Hook } from '@arkstack/common'
 
 export const auth = async (event: H3Event, next: () => unknown | Promise<unknown>) => {
-    const token = readBearerToken(event.req.headers.get('authorization'))
+    try {
+        const token = readBearerToken(event.req.headers.get('authorization'))
 
-    if (!token) {
-        throw new AuthenticationException('Unauthenticated', {
-            req: {
-                headers: event.req.headers,
-                method: event.req.method,
-                url: event.req.url,
-                path: getEventPath(event),
-            },
-            status: 401,
-        })
+        if (!token) {
+            throw new AuthenticationException('Unauthenticated', {
+                req: {
+                    headers: event.req.headers,
+                    method: event.req.method,
+                    url: event.req.url,
+                    path: getEventPath(event),
+                },
+                status: 401,
+            })
+        }
+
+        if (Hook.has('middleware:auth', 'before'))
+            Hook.get('middleware:auth', 'before')?.(event)
+
+        const requestSource = {
+            headers: event.req.headers,
+            method: event.req.method,
+            url: event.req.url,
+            path: getEventPath(event),
+        }
+        const user = await Auth.make().setRequest(requestSource).authorizeToken(token)
+
+        event.context.user = user
+        event.context.authUser = user
+        event.context.authToken = token;
+        (event.req as any).user = user;
+        (event.req as any).authUser = user;
+        (event.req as any).authToken = token
+
+        if (Hook.has('middleware:auth', 'after'))
+            Hook.get('middleware:auth', 'after')?.(event)
+
+        return await next()
+    } catch (error) {
+        if (Hook.has('middleware:auth', 'error'))
+            Hook.get('middleware:auth', 'error')?.(error, event)
+
+        throw error
     }
-
-    const requestSource = {
-        headers: event.req.headers,
-        method: event.req.method,
-        url: event.req.url,
-        path: getEventPath(event),
-    }
-    const user = await Auth.make().setRequest(requestSource).authorizeToken(token)
-    const context = event.context as AuthenticatedH3Context
-
-    context.user = user
-    context.authUser = user
-    context.authToken = token
-
-    return await next()
 }
 
 const readBearerToken = (authorization: string | null) => {

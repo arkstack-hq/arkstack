@@ -2,6 +2,7 @@ import { Model } from 'arkormx'
 
 import type { SmsCodePurpose, TwoFactorMethod } from '../types/TwoFactor'
 import type { User } from './User'
+import { BelongsToRelation } from 'arkormx/relationship'
 
 export abstract class UserTwoFactor extends Model {
     declare id: number | string
@@ -21,4 +22,6 @@ export abstract class UserTwoFactor extends Model {
     protected casts = {
         recoveryCodeHashes: 'json',
     } as const
+
+    abstract user (): BelongsToRelation<this, User>
 }

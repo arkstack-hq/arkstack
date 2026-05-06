@@ -6,18 +6,16 @@ H3 driver package for Arkstack providing H3-specific implementations of core Ark
 
 ```ts
 import { H3 } from 'h3';
-import { auth, type AuthenticatedH3Context } from '@arkstack/driver-h3/middlewares';
+import { auth } from '@arkstack/driver-h3/middlewares';
 
 const app = new H3();
 
 app.use(auth);
-app.use('/account', (event) => {
-  const context = event.context as AuthenticatedH3Context;
-
+app.use('/account', ({ req }) => {
   return {
-    user: context.authUser,
+    user: req.authUser,
   };
 });
 ```
 
-The middleware expects `Authorization: Bearer <token>` and attaches `user`, `authUser`, and `authToken` to `event.context`.
+The middleware expects `Authorization: Bearer <token>` and attaches `user`, `authUser`, and `authToken` to `event.context` and `event.req`.

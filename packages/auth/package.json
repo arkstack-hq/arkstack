@@ -46,6 +46,7 @@
         "ua-parser-js": "^2.0.9"
     },
     "peerDependencies": {
+        "@arkstack/notifications": "workspace:^",
         "@h3ravel/support": "^0.15.11",
         "arkormx": "^2.0.7"
     }

@@ -139,6 +139,38 @@ Send the token as a bearer token:
 Authorization: Bearer <token>
 ```
 
+## Auth Middleware Hooks
+
+The auth middleware exposes a framework-agnostic `middleware:auth` hook through `Hook` from `@arkstack/common`. Register hooks during application boot (preferable in `src/core/bootstrap.ts`) so they are available before protected routes run.
+
+The hook contract is the same across runtime drivers: middleware context is passed as `{ req, res }`, and error hooks receive the error first.
+
+```ts
+import { Hook } from '@arkstack/common';
+
+Hook.set('middleware:auth', {
+  before: ({ req, res }) => {
+    console.log('auth middleware starting');
+  },
+  after: ({ req, res }) => {
+    console.log('auth middleware passed', {
+      userId: req.authUser?.id,
+    });
+  },
+  error: (error, { req, res }) => {
+    console.error('auth middleware failed', { error });
+  },
+});
+```
+
+Hook positions receive:
+
+- `before({ req, res })` before the bearer token is read.
+- `after({ req, res })` after the token is authorized and `req.user`, `req.authUser`, and `req.authToken` are attached.
+- `error(error, { req, res })` when authentication throws before the error is passed back to the active runtime.
+
+Calling `Hook.set('middleware:auth', ...)` again merges the supplied positions with existing ones, so packages can add an `error` hook without replacing an existing `before` hook.
+
 ## Protect Route Groups
 
 Use a Clear Router group when several routes share the same auth gate:
@@ -220,3 +252,108 @@ const verifiedUser = await Auth.make().authorizeTemporaryToken(
 ```
 
 Temporary tokens are JWTs and are not stored as personal access tokens.
+
+## Two-Factor Authentication
+
+Arkstack supports authenticator app and SMS two-factor flows through `TwoFactor`.
+
+Apps that persist two-factor state should provide a `UserTwoFactor` model backed by a `user_two_factors` table. Full templates include the model and migration. Set `TWO_FACTOR_ENCRYPTION_KEY` before storing authenticator secrets.
+
+```env
+TWO_FACTOR_ENCRYPTION_KEY="replace-this-with-a-long-random-secret"
+TWO_FACTOR_SMS_TTL_MINUTES="10"
+```
+
+### Authenticator Apps
+
+Create a setup secret, show the returned `otpauthUrl` as a QR code, then persist the secret after the user confirms a valid code.
+
+```ts
+import { TwoFactor } from '@arkstack/auth';
+
+const setup = TwoFactor.createSetup(user);
+
+await TwoFactor.setSecret(user.id, setup.secret);
+
+if (TwoFactor.verifyCode(user, setup.secret, code)) {
+  const recoveryCodes = TwoFactor.generateBackupCodes();
+
+  await TwoFactor.setMethod(user.id, 'authenticator');
+  await TwoFactor.setEnabledAt(user.id);
+  await TwoFactor.writeRecoveryCodeHashes(
+    user.id,
+    await TwoFactor.hashBackupCodes(recoveryCodes),
+  );
+}
+```
+
+### SMS Codes
+
+`TwoFactor.issueSmsCode()` creates and stores a hashed challenge. Deliver the returned code with `@arkstack/notifications`.
+
+```ts
+import { TwoFactor } from '@arkstack/auth';
+import { Notification } from '@arkstack/notifications';
+
+const issued = await TwoFactor.issueSmsCode(user, 'login');
+
+await Notification.sms()
+  .recipient(user.phone)
+  .send('Your {app} login code is {code}.', undefined, undefined, {
+    app: 'Arkstack',
+    code: issued.code,
+  });
+```
+
+Configure the SMS transport in `src/config/notifications.ts`:
+
+```ts
+import { env } from '@arkstack/common';
+
+export default () => ({
+  default_driver: 'mail',
+  drivers: {
+    sms: {
+      transport: 'africastalking',
+      from: 'Arkstack',
+    },
+  },
+  transports: {
+    africastalking: {
+      username: env('AFRICASTALKING_USERNAME', 'sandbox'),
+      apiKey: env('AFRICASTALKING_API_KEY'),
+      senderId: env('AFRICASTALKING_SENDER_ID'),
+    },
+    twilio: {
+      accountSid: env('TWILIO_ACCOUNT_SID'),
+      authToken: env('TWILIO_AUTH_TOKEN'),
+      from: env('TWILIO_FROM'),
+    },
+  },
+});
+```
+
+`drivers.sms.transport` selects the provider transport. Use `SMS_TRANSPORT=twilio` or `SMS_TRANSPORT=africastalking` in template config if you want to choose it from the environment.
+
+Verify and consume the code:
+
+```ts
+const verified = await TwoFactor.verifySmsCode(user.id, code, 'login');
+
+if (!verified) {
+  throw new Error('Invalid or expired two-factor code');
+}
+```
+
+Recovery codes can be generated for either two-factor method:
+
+```ts
+const recoveryCodes = TwoFactor.generateBackupCodes();
+
+await TwoFactor.writeRecoveryCodeHashes(
+  user.id,
+  await TwoFactor.hashBackupCodes(recoveryCodes),
+);
+
+const consumed = await TwoFactor.consumeRecoveryCode(user.id, recoveryCode);
+```

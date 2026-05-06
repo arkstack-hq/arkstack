@@ -12,3 +12,5 @@ docs/architecture/unification-roadmap.md
 # ArkStack specific files and directories
 .arkstack
 .arkormx
+docs/.vitepress/.temp
+docs/.vitepress/cache

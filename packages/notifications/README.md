@@ -34,6 +34,7 @@ export default () => ({
     },
     sms: {
       transport: 'africastalking',
+      from: env('SMS_FROM'),
     },
     db: {
       table: 'user_notifications',
@@ -56,3 +57,5 @@ export default () => ({
   },
 });
 ```
+
+`default_driver` selects the notification channel used by `Notification.channel()`. `drivers.sms.transport` selects the SMS provider transport, either `africastalking` or `twilio`.

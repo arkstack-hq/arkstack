@@ -35,12 +35,21 @@ if (TwoFactor.verifyCode(user, setup.secret, code)) {
 
 Apps that use persisted 2FA state should provide a `UserTwoFactor` model backed by a `user_two_factors` table. Starter templates include this model and migration. Set `TWO_FACTOR_ENCRYPTION_KEY` before storing authenticator secrets.
 
-SMS 2FA is delivery-agnostic:
+SMS 2FA issues and stores the challenge in `@arkstack/auth`, then delivers the code through `@arkstack/notifications`:
 
 ```ts
+import { Notification } from '@arkstack/notifications';
+
 const issued = await TwoFactor.issueSmsCode(user, 'login');
-await sms.send(user.phone, `Your login code is ${issued.code}`);
+
+await Notification.sms()
+  .recipient(user.phone)
+  .send('Your login code is {code}', undefined, undefined, {
+    code: issued.code,
+  });
 ```
+
+Configure the SMS provider with `notifications.drivers.sms.transport` and transport credentials in `notifications.transports.twilio` or `notifications.transports.africastalking`.
 
 Driver middleware lives in the runtime packages:
 

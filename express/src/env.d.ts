@@ -11,15 +11,4 @@ declare module 'resora' {
   }
 }
 
-declare global {
-  namespace Express {
-    // interface User extends IUser { }
-
-    interface Request {
-      user?: User | undefined;
-      authToken?: string | undefined;
-    }
-  }
-}
-
 export { }

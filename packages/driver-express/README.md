@@ -5,10 +5,10 @@ Express driver package for Arkstack, providing Express-specific implementations 
 ## Auth Middleware
 
 ```ts
-import { auth, type AuthenticatedExpressRequest } from '@arkstack/driver-express/middlewares';
+import { auth } from '@arkstack/driver-express/middlewares';
 
 app.use('/account', auth, (req, res) => {
-  const request = req as AuthenticatedExpressRequest;
+  const request = req;
 
   res.json({
     user: request.authUser,

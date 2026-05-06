@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { auth, type AuthenticatedExpressRequest } from '../src/middlewares/auth'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../auth/tests/fixtures/auth'
+
+import { auth } from '../src/middlewares/auth'
 
 describe('Express auth middleware', () => {
     beforeEach(() => {
@@ -19,7 +19,7 @@ describe('Express auth middleware', () => {
             headers: {
                 authorization: `Bearer ${token}`,
             },
-        } as Request & AuthenticatedExpressRequest
+        } as Request
         const res = {} as Response
         const next = vi.fn() as NextFunction
 

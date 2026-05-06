@@ -1,10 +1,10 @@
-import { H3 } from 'h3'
-import request from 'parasito'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
-import { Router as ClearRouter } from 'clear-router/h3'
-
-import { auth, type AuthenticatedH3Context } from '../../packages/driver-h3/src/middlewares/auth'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../packages/auth/tests/fixtures/auth'
+
+import { Router as ClearRouter } from 'clear-router/h3'
+import { H3 } from 'h3'
+import { auth } from '../../packages/driver-h3/src/middlewares/auth'
+import request from 'parasito'
 
 const createRouter = (name: string) => class TestRouter extends ClearRouter {
     protected static routerStateNamespace = `h3-auth-docs:${name}`
@@ -27,7 +27,7 @@ describe('H3 auth integration', () => {
 
         app.use(auth)
         app.use('/test', (event) => {
-            const context = event.context as AuthenticatedH3Context
+            const context = event.context
 
             return {
                 authToken: context.authToken,
@@ -84,9 +84,7 @@ describe('H3 auth integration', () => {
         const app = new H3()
         const Router = createRouter('route-middleware')
 
-        Router.get('/account', (event) => {
-            const context = event.context as AuthenticatedH3Context
-
+        Router.get('/account', ({ context }) => {
             return {
                 authToken: context.authToken,
                 userId: context.authUser?.id,
@@ -115,17 +113,14 @@ describe('H3 auth integration', () => {
         const Router = createRouter('group-middleware')
 
         await Router.group('/account', async () => {
-            Router.get('/profile', (event) => {
-                const context = event.context as AuthenticatedH3Context
+            Router.get('/profile', ({ context }) => {
 
                 return {
                     userId: context.authUser?.id,
                 }
             })
 
-            Router.get('/sessions', (event) => {
-                const context = event.context as AuthenticatedH3Context
-
+            Router.get('/sessions', ({ context }) => {
                 return {
                     authToken: context.authToken,
                 }
