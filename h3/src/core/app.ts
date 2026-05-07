@@ -1,4 +1,4 @@
-import { bindGracefulShutdown } from '@arkstack/common'
+import { bindGracefulShutdown, Hook } from '@arkstack/common'
 
 import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
@@ -75,6 +75,8 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
    * @param port 
    */
   public async boot (port: number) {
+    if (Hook.has('boot', 'before')) Hook.get('boot', 'before')?.(port, this.app)
+
     // Load public assets
     await this.driver.mountPublicAssets(this.app, 'public')
 
@@ -86,6 +88,8 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
 
     // Start the server
     await this.driver.start(this.app, port)
+
+    if (Hook.has('boot', 'after')) Hook.get('boot', 'after')?.(port, this.app)
 
     // Handle graceful shutdown
     bindGracefulShutdown(async () => await this.shutdown())

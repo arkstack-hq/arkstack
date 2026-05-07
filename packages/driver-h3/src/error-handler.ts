@@ -1,8 +1,8 @@
-import { H3Event, HTTPError, HTTPResponse } from 'h3'
 import {
-    buildHtmlErrorResponse,
     ErrorHandler,
+    renderError,
 } from '@arkstack/common'
+import { H3Event, HTTPError, HTTPResponse } from 'h3'
 
 export const defaultErrorHandler = (err: HTTPError | Error | string, event: H3Event) => {
     const responseBody = ErrorHandler.createErrorPayload(err)
@@ -31,7 +31,7 @@ export const defaultErrorHandler = (err: HTTPError | Error | string, event: H3Ev
         }
     }
 
-    return new HTTPResponse(buildHtmlErrorResponse({
+    return new HTTPResponse(renderError({
         message: String(responseBody.message),
         stack: typeof responseBody.stack === 'string' ? responseBody.stack : undefined,
         code,

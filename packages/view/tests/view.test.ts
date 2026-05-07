@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -81,5 +81,50 @@ describe('View', () => {
         await writeFile(join(viewsPath, 'plain.edge'), '{{ message }}')
 
         await expect(factory.make('plain').with({ message: 'Hi' })).resolves.toBe('Hi')
+    })
+
+    it('renders unscoped package views with tilde notation', async () => {
+        const root = await mkdtemp(join(tmpdir(), 'arkstack-package-view-'))
+        const previous = process.cwd()
+
+        process.chdir(root)
+
+        try {
+            const packageViews = join(root, 'node_modules', 'billing-kit', 'resources', 'views')
+            await mkdir(packageViews, { recursive: true })
+            await writeFile(join(packageViews, 'mail.edge'), 'Invoice {{ number }}')
+
+            const factory = new ViewFactory({ viewsPath })
+
+            expect(factory.exists('~billing-kit.mail')).toBe(true)
+            await expect(factory.make('~billing-kit.mail', { number: 'A-100' })).resolves.toBe('Invoice A-100')
+        } finally {
+            process.chdir(previous)
+            await rm(root, { recursive: true, force: true })
+        }
+    })
+
+    it('renders scoped package views with tilde notation', async () => {
+        const root = await mkdtemp(join(tmpdir(), 'arkstack-scoped-package-view-'))
+        const previous = process.cwd()
+
+        process.chdir(root)
+
+        try {
+            const packageViews = join(root, 'node_modules', '@toneflix', 'mail-kit', 'resources', 'views')
+            await mkdir(packageViews, { recursive: true })
+            await writeFile(join(packageViews, 'mail.edge'), 'Welcome {{ name }} from {{ source }}')
+
+            const factory = new ViewFactory({ viewsPath })
+            factory.composer('~toneflix/mail-kit.mail', renderedView => {
+                renderedView.with('source', renderedView.name)
+            })
+
+            expect(factory.exists('~toneflix/mail-kit.mail')).toBe(true)
+            await expect(factory.make('~toneflix/mail-kit.mail', { name: 'Ada' })).resolves.toBe('Welcome Ada from ~toneflix/mail-kit.mail')
+        } finally {
+            process.chdir(previous)
+            await rm(root, { recursive: true, force: true })
+        }
     })
 })

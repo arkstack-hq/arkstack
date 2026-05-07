@@ -19,7 +19,7 @@ export const bootWithDetectedPort = async (
 }
 
 
-export const buildHtmlErrorResponse = ({
+export const renderError = ({
   message = 'An unexpected error occurred.',
   stack,
   title,
@@ -43,40 +43,10 @@ export const buildHtmlErrorResponse = ({
 
   title = titleMap[code] || title || 'Error'
 
-  return `
-    <html>
-      <head>
-        <title>${code} | ${title}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f8f8;
-            color: #333;
-            padding: 20px;
-          }
-          h1 {
-            color: #e74c3c;
-          }
-          h3 {
-            color: #3498db;
-          }
-          p {
-            color: #555;
-          }
-          pre {
-            background-color: #eee;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-          }
-        </style>
-      </head>
-      <body>
-        <h1>${code}</h1>
-        <h3>${title}</h3>
-        <p>${message}</p>
-        ${stack ? `<h2>Stack Trace:</h2><pre>${stack}</pre>` : ''}
-      </body>
-    </html>
-  `
+  return globalThis.view('~arkstack/common.error', {
+    code,
+    title,
+    stack,
+    message,
+  }).renderSync()
 }

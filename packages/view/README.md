@@ -23,6 +23,9 @@ View.composer('welcome', WelcomeComposer);
 const html = await view('welcome').with('name', 'Ada');
 
 const dashboard = await View.make('dashboard').with({ user }).render();
+
+const email = await view('~org/package-name.mail', { user });
 ```
 
-Views are resolved from `resources/views` by default. Use `View.mount()` to add or replace mounted view directories.
+Views are resolved from `src/resources/views` by default. Use `View.mount()` to add or replace mounted view directories.
+Package views resolve from `node_modules/<package>/resources/views`.

@@ -15,6 +15,7 @@ export class ViewInstance implements PromiseLike<string> {
         },
         private runComposers: ComposerRunner,
         private runComposersSync: SyncComposerRunner,
+        private renderName = name,
     ) {
         this.payload = { ...data }
     }
@@ -34,13 +35,13 @@ export class ViewInstance implements PromiseLike<string> {
     async render () {
         await this.compose()
 
-        return await this.renderer.render(this.name, this.payload)
+        return await this.renderer.render(this.renderName, this.payload)
     }
 
     renderSync () {
         this.composeSync()
 
-        return this.renderer.renderSync(this.name, this.payload)
+        return this.renderer.renderSync(this.renderName, this.payload)
     }
 
     then<TResult1 = string, TResult2 = never> (

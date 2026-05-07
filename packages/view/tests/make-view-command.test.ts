@@ -35,7 +35,7 @@ describe('MakeViewCommand', () => {
 
             await command.handle()
 
-            expect(path).toBe(join(root, 'resources', 'views', 'admin', 'users', 'index.edge'))
+            expect(path).toBe(join(root, 'src', 'resources', 'views', 'admin', 'users', 'index.edge'))
             await expect(readFile(path, 'utf8')).resolves.toContain('index view')
             expect(command.stub('admin.users.index')).toContain('index view')
             expect(messages[0]).toContain('View admin.users.index created successfully')

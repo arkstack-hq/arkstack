@@ -251,6 +251,7 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 - `View.composer(names, callbackOrComposer)` — register a view composer function, class, or instance with `compose()`.
 - `View.mount(path)` / `View.mount(name, path)` — mount view directories.
 - `View.raw(name, contents)` — register an in-memory Edge template.
+- Package scoped names use `~package-name.view` and `~org/package-name.view`.
 
 ## HTTP
 

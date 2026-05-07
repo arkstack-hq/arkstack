@@ -22,7 +22,7 @@ yarn add @arkstack/view
 
 :::
 
-Views are loaded from `resources/views` by default and use the `.edge` extension.
+Views are loaded from `src/resources/views` by default and use the `.edge` extension.
 
 ## Render Views
 
@@ -74,10 +74,9 @@ const html = await View.make('dashboard', {
 `View.first()` renders the first existing view from a list:
 
 ```ts
-const html = await View.first([
-  'themes.custom.dashboard',
-  'dashboard',
-], { user });
+const html = await View.first(['themes.custom.dashboard', 'dashboard'], {
+  user,
+});
 ```
 
 Check for a view before rendering:
@@ -155,6 +154,32 @@ View.mount('admin', '/absolute/path/to/admin/views');
 await View.make('admin::dashboard').render();
 ```
 
+## Package Views
+
+Packages can expose Edge templates from their own `resources/views` directory. Render them with tilde notation:
+
+```ts
+await view('~package-name.mail', {
+  user,
+});
+
+await view('~org/package-name.mail', {
+  user,
+});
+```
+
+`~package-name.mail` resolves to `node_modules/package-name/resources/views/mail.edge`.
+
+`~org/package-name.mail` resolves to `node_modules/@org/package-name/resources/views/mail.edge`.
+
+The public view name remains the tilde name inside composers:
+
+```ts
+View.composer('~org/package-name.mail', (view) => {
+  view.with('subject', 'Welcome');
+});
+```
+
 ## Make Views
 
 The view package exposes a `make:view` command that is auto-discovered by the Arkstack console after the package is installed and built.
@@ -164,8 +189,8 @@ pnpm cmd make:view welcome
 pnpm cmd make:view emails.welcome
 ```
 
-Dot notation maps to nested files under `resources/views`:
+Dot notation maps to nested files under `src/resources/views`:
 
 ```txt
-emails.welcome -> resources/views/emails/welcome.edge
+emails.welcome -> src/resources/views/emails/welcome.edge
 ```

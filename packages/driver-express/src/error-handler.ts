@@ -1,6 +1,6 @@
 import {
-    buildHtmlErrorResponse,
     ErrorHandler,
+    renderError,
 } from '@arkstack/common'
 
 import type { ErrorRequestHandler } from 'express'
@@ -34,7 +34,7 @@ export const defaultErrorHandler: ErrorRequestHandler = (err, req, res, next) =>
         return
     }
 
-    res.status(code).setHeader('Content-Type', 'text/html').send(buildHtmlErrorResponse({
+    res.status(code).setHeader('Content-Type', 'text/html').send(renderError({
         message: String(responseBody.message),
         stack: typeof responseBody.stack === 'string' ? responseBody.stack : undefined,
         code,

@@ -144,8 +144,9 @@ describe('Notification', () => {
             text: 'Hello Ada',
             to: ['ada@example.com', 'grace@example.com'],
         }))
-        expect(mocks.sendMail.mock.calls[0][0].html).toContain('<h2>Welcome, Ada</h2>')
-        expect(mocks.sendMail.mock.calls[0][0].html).toContain('<div><strong>Hello Ada</strong></div>')
+        const content = String(mocks.sendMail.mock.calls[0][0].html)
+        expect(content).toContain('<h2>Welcome, Ada</h2>')
+        expect(content).toContain('<div><strong>Hello Ada</strong></div>')
     })
 
     it('delivers mail to named address recipients', async () => {

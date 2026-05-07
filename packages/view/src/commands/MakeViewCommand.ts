@@ -1,6 +1,7 @@
-import { Command } from '@h3ravel/musket'
 import { dirname, resolve } from 'node:path'
 import { mkdir, writeFile } from 'node:fs/promises'
+
+import { Command } from '@h3ravel/musket'
 
 export class MakeViewCommand extends Command {
     protected signature = `make:view
@@ -31,7 +32,7 @@ export class MakeViewCommand extends Command {
             .replace(/\./g, '/')
             .replace(/\.edge$/i, '')
 
-        return resolve(process.cwd(), 'resources', 'views', `${viewPath}.edge`)
+        return resolve(process.cwd(), 'src', 'resources', 'views', `${viewPath}.edge`)
     }
 
     stub (name: string) {

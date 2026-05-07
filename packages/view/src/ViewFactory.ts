@@ -1,5 +1,6 @@
 import type { ViewComposer, ViewComposerName, ViewData, ViewFactoryOptions, ViewName } from './types'
 import { mergeData, runComposer, runComposerSync } from './helpers'
+import { parsePackageViewName, resolvePackageViewsPath } from './packageViews'
 
 import { Edge } from 'edge.js'
 import { ViewInstance } from './ViewInstance'
@@ -10,19 +11,25 @@ export class ViewFactory {
     readonly edge: Edge
     private sharedData: ViewData = {}
     private composers = new Map<ViewName, ViewComposer[]>()
+    private mountedPackages = new Set<string>()
+    private packageViewsPath: string
 
     constructor(options: ViewFactoryOptions = {}) {
         this.edge = options.edge ?? Edge.create({ cache: options.cache })
-        this.mount(options.viewsPath ?? resolve(process.cwd(), 'resources', 'views'))
+        this.packageViewsPath = options.packageViewsPath ?? 'resources/views'
+        this.mount(options.viewsPath ?? resolve(process.cwd(), 'src', 'resources', 'views'))
     }
 
     make (name: ViewName, data: ViewData = {}) {
+        const edgeName = this.resolveName(name)
+
         return new ViewInstance(
             name,
             { ...this.sharedData, ...data },
             this.edge,
-            async view => await this.runComposers(view),
-            view => this.runComposersSync(view),
+            async view => await this.runComposers(name, view),
+            view => this.runComposersSync(name, view),
+            edgeName,
         )
     }
 
@@ -37,12 +44,14 @@ export class ViewFactory {
     }
 
     exists (name: ViewName) {
-        if (this.edge.loader.templates[name]) {
+        const edgeName = this.resolveName(name)
+
+        if (this.edge.loader.templates[edgeName]) {
             return true
         }
 
         try {
-            return existsSync(this.edge.loader.makePath(name))
+            return existsSync(this.edge.loader.makePath(edgeName))
         } catch {
             return false
         }
@@ -100,21 +109,42 @@ export class ViewFactory {
     }
 
     private getComposers (name: ViewName) {
+        const edgeName = this.resolveName(name)
+
         return [
             ...(this.composers.get('*') ?? []),
+            ...(this.composers.get(edgeName) ?? []),
             ...(this.composers.get(name) ?? []),
         ]
     }
 
-    private async runComposers (view: ViewInstance) {
-        for (const composer of this.getComposers(view.name)) {
+    private async runComposers (name: ViewName, view: ViewInstance) {
+        for (const composer of this.getComposers(name)) {
             await runComposer(composer, view)
         }
     }
 
-    private runComposersSync (view: ViewInstance) {
-        for (const composer of this.getComposers(view.name)) {
+    private runComposersSync (name: ViewName, view: ViewInstance) {
+        for (const composer of this.getComposers(name)) {
             runComposerSync(composer, view)
         }
+    }
+
+    private resolveName (name: ViewName) {
+        const packageView = parsePackageViewName(name)
+
+        if (!packageView) {
+            return name
+        }
+
+        if (!this.mountedPackages.has(packageView.diskName)) {
+            this.mount(
+                packageView.diskName,
+                resolvePackageViewsPath(packageView.nodePackageName, this.packageViewsPath),
+            )
+            this.mountedPackages.add(packageView.diskName)
+        }
+
+        return packageView.edgeName
     }
 }

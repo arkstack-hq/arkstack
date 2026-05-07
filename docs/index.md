@@ -1,6 +1,16 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
-layout: home
+layout: landing
+sidebar: false
+navbar: false
+footer: false
+pageClass: landing-layout
+titleTemplate: Runtime agnostic Nodejs framework
+hideHero: false
+heroTitle: null
+heroLink: null
+heroLinkTitle: null
+hideHeroGitLink: false
 
 hero:
   name: 'Arkstack'

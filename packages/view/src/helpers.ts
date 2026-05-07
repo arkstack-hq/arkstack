@@ -20,8 +20,6 @@ Object.defineProperty(globalThis, 'view', {
     writable: true,
 })
 
-
-
 export const isClass = <T = unknown> (
     target: unknown
 ): target is new (...args: any[]) => T => {

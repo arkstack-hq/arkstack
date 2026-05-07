@@ -41,12 +41,14 @@
         "arkstack"
     ],
     "files": [
-        "dist"
+        "dist",
+        "resources"
     ],
     "dependencies": {
         "edge.js": "^6.5.0"
     },
     "peerDependencies": {
+        "@arkstack/common": "workspace:^",
         "@h3ravel/musket": "^0.10.1"
     },
     "peerDependenciesMeta": {

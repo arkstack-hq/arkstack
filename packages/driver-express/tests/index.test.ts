@@ -83,7 +83,7 @@ describe('ExpressDriver', () => {
         expect(app.use).toHaveBeenCalledWith(customHandler)
     })
 
-    it('delegates to next when headers were already sent', () => {
+    it('delegates to next when headers were already sent', async () => {
         const err = new Error('Already handled')
         const next = vi.fn() as NextFunction
         const req = {
@@ -100,7 +100,7 @@ describe('ExpressDriver', () => {
             send: vi.fn(),
         } as unknown as Response
 
-        defaultErrorHandler(err, req, res, next)
+        await defaultErrorHandler(err, req, res, next)
 
         expect(next).toHaveBeenCalledWith(err)
         expect(res.status).not.toHaveBeenCalled()

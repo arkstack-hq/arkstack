@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ code }} | {{ title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ── Dark theme (default) ── */
+        :root {
+            --gold-light: #f0c040;
+            --gold-mid: #c9960c;
+            --bg: #0b0c0e;
+            --bg-card: #111317;
+            --bg-stack: #0d0f12;
+            --border: rgba(201, 150, 12, 0.18);
+            --border-err: rgba(220, 60, 60, 0.22);
+            --text: #f5f0e8;
+            --muted: #7a7567;
+            --red: #e05252;
+            --radius: 10px;
+            --pre-color: #c0a888;
+        }
+
+        /* ── Light theme ── */
+        [data-theme="light"] {
+            --gold-light: #a06800;
+            --gold-mid: #8a5a00;
+            --bg: #f5f3ef;
+            --bg-card: #ffffff;
+            --bg-stack: #faf8f5;
+            --border: rgba(160, 104, 0, 0.16);
+            --border-err: rgba(180, 40, 40, 0.18);
+            --text: #1a1714;
+            --muted: #9a9080;
+            --red: #c0392b;
+            --pre-color: #6a5040;
+        }
+
+        /* ── OS preference fallback (no JS) ── */
+        @media (prefers-color-scheme: light) {
+            :root:not([data-theme="dark"]) {
+                --gold-light: #a06800;
+                --gold-mid: #8a5a00;
+                --bg: #f5f3ef;
+                --bg-card: #ffffff;
+                --bg-stack: #faf8f5;
+                --border: rgba(160, 104, 0, 0.16);
+                --border-err: rgba(180, 40, 40, 0.18);
+                --text: #1a1714;
+                --muted: #9a9080;
+                --red: #c0392b;
+                --pre-color: #6a5040;
+            }
+        }
+
+        html,
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            transition: background 0.25s, color 0.25s;
+        }
+
+        .page {
+            max-width: 620px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+        }
+
+        /* ── Error heading ── */
+        .error-code {
+            font-family: 'Syne', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.04em;
+            color: var(--red);
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .error-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.6rem;
+        }
+
+        .error-message {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border-err), transparent);
+            margin-bottom: 2rem;
+        }
+
+        /* ── Stack trace ── */
+        .stack-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.65rem;
+        }
+
+        .stack-block {
+            width: 100%;
+            background: var(--bg-stack);
+            border: 1px solid var(--border-err);
+            border-radius: var(--radius);
+            padding: 1.1rem 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.25s, border-color 0.25s;
+        }
+
+        .stack-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--red), transparent);
+        }
+
+        .stack-block pre {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--pre-color);
+            line-height: 1.85;
+            overflow-x: auto;
+            white-space: pre;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="error-code">{{ code }}</div>
+        <div class="error-title">{{ title }}</div>
+        <p class="error-message">{{ message }}</p>
+
+        <div class="divider"></div>
+
+        @if(stack)
+        <div class="stack-label">Stack Trace</div>
+        <div class="stack-block">
+            <pre>{{ stack }}</pre>
+        </div>
+        @end
+
+    </div>
+
+    <script>
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    </script>
+</body>
+
+</html>

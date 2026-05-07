@@ -1,4 +1,4 @@
-import { bindGracefulShutdown } from '@arkstack/common'
+import { bindGracefulShutdown, Hook } from '@arkstack/common'
 import { Router } from '@arkstack/driver-express'
 import path from 'path'
 import { ExpressDriver } from '@arkstack/driver-express'
@@ -76,6 +76,8 @@ export default class Application implements ArkstackRouterAwareCore<Express, unk
    * @param port 
    */
   public async boot (port: number) {
+    if (Hook.has('boot', 'before')) Hook.get('boot', 'before')?.(port, this.app)
+
     // Load public assets
     await this.driver.mountPublicAssets(this.app, path.join(process.cwd(), 'public'))
 
@@ -91,6 +93,8 @@ export default class Application implements ArkstackRouterAwareCore<Express, unk
     // Start the server
     await this.driver.start(this.app, port)
 
+    if (Hook.has('boot', 'after')) Hook.get('boot', 'after')?.(port, this.app)
+
     // Handle graceful shutdown
     bindGracefulShutdown(async () => await this.shutdown())
   }
@@ -99,6 +103,7 @@ export default class Application implements ArkstackRouterAwareCore<Express, unk
    * Shuts down the application by disconnecting from the database and exiting the process.
    */
   async shutdown () {
+    if (Hook.has('shutdown', 'before')) Hook.get('shutdown', 'after')?.()
     process.exit(0)
   }
 }

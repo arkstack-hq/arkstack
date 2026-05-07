@@ -42,6 +42,7 @@
         "twilio": "^6.0.0"
     },
     "peerDependencies": {
+        "@arkstack/view": "workspace:^",
         "arkormx": "^2.0.7"
     },
     "devDependencies": {

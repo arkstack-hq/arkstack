@@ -24,5 +24,6 @@ export type ViewComposerName = ViewName | ViewName[]
 export type ViewFactoryOptions = {
     cache?: boolean
     viewsPath?: string | URL
+    packageViewsPath?: string
     edge?: Edge
 }

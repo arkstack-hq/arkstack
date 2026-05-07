@@ -7,4 +7,5 @@ export default defineConfig({
     format: 'esm',
     sourcemap: true,
     outDir: 'dist',
+    copy: [{ from: 'src/resources', to: 'src/../' }]
 })

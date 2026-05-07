@@ -1,5 +1,5 @@
-import { defineConfig } from 'tsdown'
 import { baseConfig } from '../../tsdown.config'
+import { defineConfig } from 'tsdown'
 
 export default defineConfig({
     ...baseConfig,
@@ -8,4 +8,5 @@ export default defineConfig({
     sourcemap: true,
     shims: false,
     outDir: 'dist',
+    copy: [{ from: 'src/resources', to: 'src/../' }]
 })
