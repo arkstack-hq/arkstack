@@ -1,9 +1,9 @@
+import { View, ViewFactory, ViewInstance, view } from '../src'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 
-import { View, ViewFactory, view } from '../src'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 
 let viewsPath: string
 
@@ -54,13 +54,13 @@ describe('View', () => {
         await writeFile(join(viewsPath, 'profile.edge'), '{{ title }}: {{ name }}{{ suffix }}')
 
         class ProfileComposer {
-            compose (renderedView: Parameters<Parameters<typeof View.composer>[1]>[0]) {
+            compose (renderedView: ViewInstance) {
                 renderedView.with('name', 'Ada')
             }
         }
 
         class ProfileSuffixComposer {
-            compose (renderedView: Parameters<Parameters<typeof View.composer>[1]>[0]) {
+            compose (renderedView: ViewInstance) {
                 renderedView.with('suffix', '!')
             }
         }

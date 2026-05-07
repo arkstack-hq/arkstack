@@ -35,6 +35,7 @@ export const leanDependencies = {
 
 export const depsList: Record<string, string> = {
     '@arkstack/http': '^0.3.17',
+    '@arkstack/view': '^0.3.17',
     '@arkstack/auth': '^0.3.17',
     '@arkstack/common': '^0.3.17',
     '@arkstack/console': '^0.3.17',
