@@ -8,25 +8,64 @@ The format follows semantic versioning principles.
 
 ### Added
 
-- Added `@arkstack/auth` with JWT-based login, personal access tokens, current-session helpers, temporary tokens, and auth exceptions.
-- Added `@arkstack/http` with framework-neutral request and response wrappers.
-- Added Express and H3 auth middleware through `@arkstack/driver-express/middlewares` and `@arkstack/driver-h3/middlewares`.
-- Added `User` and `PersonalAccessToken` app models to the Express and H3 templates.
-- Added auth and HTTP tests across shared packages, runtime drivers, and full templates.
-- Added `migrate:fresh` command support to console packages.
-
 ### Changed
-
-- Replaced common `error-handling` utilities with the class-based `ErrorHandler` while preserving named helper exports.
-- Updated `getModel()` to support typed model registries, explicit model constructor typing, and abstract constructors.
-- Updated Express and H3 error handling to use shared error payload utilities.
-- Updated lean scaffolding to remove Arkorm/database model files and dependencies more completely.
-- Updated CI, docs deploy, and publish workflows to install with `pnpm install --frozen-lockfile`.
 
 ### Docs
 
-- Added authentication and HTTP guides.
-- Documented auth middleware, shared auth APIs, HTTP wrappers, `ErrorHandler`, and typed `getModel()`.
+### Fixed
+
+## [0.4.0] - 2026-05-07
+
+### Added
+
+- Added `@arkstack/view`, powered by Edge.js, with `view()`, `View.make()`, `View.first()`, `View.exists()`, `View.share()`, local view `with()`, view composers, class-based composers, package-scoped views, and the auto-discovered `make:view` command.
+- Added `@arkstack/notifications` with mail, SMS, and database notification drivers.
+- Added SMS transports for AfricasTalking and Twilio.
+- Added database-backed in-app notifications through `UserNotification` and `UserNotificationCenter`.
+- Added two-factor authentication helpers to `@arkstack/auth`, including authenticator setup, SMS codes, recovery codes, and 2FA status helpers.
+- Added `UserTwoFactor` and `UserNotification` contracts, starter models, and migrations.
+- Added `Hook` to `@arkstack/common` and documented the `middleware:auth` hook.
+- Added `notifications.ts` config to Express and H3 templates.
+- Added `welcome.edge` views and rendered them from the default `/` web routes.
+- Added Vitest setup and basic assertions for Express and H3 templates.
+- Added real notification delivery assertions for mail, SMS, and database notifications.
+
+### Changed
+
+- Updated auth tests to use `parasito` instead of `supertest`.
+- Updated Express and H3 auth middleware to support the shared `middleware:auth` hook contract.
+- Updated `@arkstack/notifications` config to use `default_driver`, `drivers`, and `transports`.
+- Updated mail recipients to support named address maps like `{ 'person@example.com': 'Person Name' }`.
+- Renamed the in-app notification driver to `db`.
+- Updated SMS notification transport selection to use `transport` for the provider and keep `driver` as the notification channel concept.
+- Updated `clear-router` to `2.3.5`.
+- Updated `arkormx` to `2.0.7`.
+- Updated `@resora/plugin-clear-router` to `0.1.6`.
+- Updated docs styling and the landing page to match the Arkstack welcome page visual system.
+- Updated the Architecture Overview to reflect the current package architecture and extension points.
+
+### Docs
+
+- Added notifications guide.
+- Added views guide.
+- Added hooks guide.
+- Expanded authentication docs for 2FA and auth middleware hooks.
+- Expanded API reference for notifications, views, hooks, and two-factor authentication.
+- Documented package-scoped views like `~package-name.mail` and `~org/package-name.mail`.
+- Documented class-based view composers.
+- Updated the docs landing page with interactive runtime tabs, feature selection, package chips, and a consistent Arkstack theme.
+- Added Discord and npm social links to the docs config.
+
+### CI / Release
+
+- Added release version preparation automation.
+- Updated publish workflow npm authentication.
+- Updated prepublish workflow coverage with PostgreSQL-backed testing.
+
+### Fixed
+
+- Downgraded `@types/express` to `5.0.6` for compatibility.
+- Removed stale generated VitePress cache files from the tracked docs tree.
 
 ## [0.2.1] - 2026-04-28
 

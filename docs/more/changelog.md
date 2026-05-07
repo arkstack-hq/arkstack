@@ -8,6 +8,16 @@ The format follows semantic versioning principles.
 
 ### Added
 
+### Changed
+
+### Docs
+
+### Fixed
+
+## [0.4.0] - 2026-05-07
+
+### Added
+
 - Added `@arkstack/view`, powered by Edge.js, with `view()`, `View.make()`, `View.first()`, `View.exists()`, `View.share()`, local view `with()`, view composers, class-based composers, package-scoped views, and the auto-discovered `make:view` command.
 - Added `@arkstack/notifications` with mail, SMS, and database notification drivers.
 - Added SMS transports for AfricasTalking and Twilio.
