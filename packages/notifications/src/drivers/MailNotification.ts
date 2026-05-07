@@ -5,7 +5,6 @@ import { NotificationContract } from '../Contracts/NotificationContract'
 import { interpolate } from '../utils/template'
 import { notificationConfig } from '../config'
 import type { MailDriverOptions, MailRecipient, MailRecipientAddress, NotificationData } from '../types'
-import { view } from '@arkstack/view'
 
 export class MailNotification extends NotificationContract {
     driver: Transporter
@@ -92,7 +91,7 @@ export class MailNotification extends NotificationContract {
             subject: resolvedSubject,
             from: this.fromAddress,
             text: resolvedMessage.replace(/<\/?[^>]+(>|$)/g, ''),
-            html: interpolate(await view('~arkstack/notifications.mail', {
+            html: interpolate(await globalThis.view('~arkstack/notifications.mail', {
                 ...mergedData,
                 message: resolvedMessage,
                 subject: resolvedSubject,

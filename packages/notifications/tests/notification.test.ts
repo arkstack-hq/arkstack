@@ -1,3 +1,5 @@
+import '@arkstack/view'
+
 import { DbNotification, MailNotification, Notification, SmsNotification, interpolate } from '../src'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

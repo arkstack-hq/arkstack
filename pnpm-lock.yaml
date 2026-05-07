@@ -617,9 +617,6 @@ importers:
       '@arkstack/common':
         specifier: workspace:^
         version: link:../common
-      '@arkstack/view':
-        specifier: workspace:^
-        version: link:../view
       africastalking:
         specifier: ^0.8.0
         version: 0.8.0
