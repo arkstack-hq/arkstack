@@ -52,35 +52,6 @@ describe('makeLeanProfile', () => {
         )
 
         await writeFile(
-            join(location, 'src/core/router.ts'),
-            [
-                'import { Router as ClearRouter } from \'clear-router/express\'',
-                'import { importFile } from \'@arkstack/common\'',
-                '',
-                'export class Router extends ClearRouter {',
-                '  static async bind () {',
-                '    const router = ClearRouter.express.Router()',
-                '',
-                '    // Register API routes',
-                '    await ClearRouter.group(\'/api\', async () => {',
-                '      await importFile(join(process.cwd(), \'src/routes/api.ts\'))',
-                '    })',
-                '',
-                '    // Register web routes',
-                '    await ClearRouter.group(\'/\', async () => {',
-                '      await importFile(join(process.cwd(), \'src/routes/web.ts\'))',
-                '    })',
-                '',
-                '    // Apply the registered routes to the Express application',
-                '    ClearRouter.apply(router)',
-                '',
-                '    return router',
-                '  }',
-                '}',
-            ].join('\n'),
-        )
-
-        await writeFile(
             join(location, 'src/routes/api.ts'),
             'Router.get(\'/stale\', () => [])\n',
         )
@@ -129,8 +100,5 @@ describe('makeLeanProfile', () => {
 
         const appContent = await readFile(join(location, 'src/core/app.ts'), 'utf-8')
         expect(appContent).not.toContain('import { ModelNotFoundException } from \'arkormx\'')
-
-        const routerContent = await readFile(join(location, 'src/core/router.ts'), 'utf-8')
-        expect(routerContent).not.toContain('await ClearRouter.group(\'/api\'')
     })
 })

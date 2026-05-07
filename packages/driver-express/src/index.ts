@@ -127,3 +127,4 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
 }
 
 export * from './error-handler'
+export * from './Router'

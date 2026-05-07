@@ -144,6 +144,7 @@ Core shared packages:
 - `@arkstack/http`
 - `@arkstack/auth`
 - `@arkstack/notifications`
+- `@arkstack/view`
 
 Driver packages:
 
@@ -230,6 +231,26 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 - `markAllRead(user)` — mark every unread notification for a user as read.
 - `markRead(notification)` — mark a notification as read.
 - `delete(notification)` — delete a notification.
+
+## Views
+
+`@arkstack/view` exposes Edge.js powered rendering.
+
+### `view`
+
+- `view(name, data?)` — create a renderable view instance. The result can be awaited or rendered with `.render()`.
+- `view()` — return the shared view factory.
+- `view().share(key, value)` / `view().share(data)` — share data with every view rendered by the shared factory.
+
+### `View`
+
+- `View.make(name, data?)` — create a renderable view instance.
+- `View.first(names, data?)` — create the first existing view from a list.
+- `View.exists(name)` — check if a view exists.
+- `View.share(key, value)` / `View.share(data)` — share data globally.
+- `View.composer(names, callbackOrComposer)` — register a view composer function, class, or instance with `compose()`.
+- `View.mount(path)` / `View.mount(name, path)` — mount view directories.
+- `View.raw(name, contents)` — register an in-memory Edge template.
 
 ## HTTP
 

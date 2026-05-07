@@ -137,3 +137,4 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
 }
 
 export * from './error-handler'
+export * from './Router'

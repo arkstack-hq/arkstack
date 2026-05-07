@@ -131,7 +131,7 @@ For a full auth flow, see [Authentication](/guide/authentication).
 Example from Express route registration:
 
 ```ts
-import { Router } from 'src/core/router';
+import { Router } from '@arkstack/driver-express';
 
 Router.get(
   '/',

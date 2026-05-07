@@ -1,8 +1,8 @@
-import { Router } from 'src/core/router'
+import { Router } from '@arkstack/driver-express'
 import UserController from 'src/app/http/controllers/UserController'
 
-Router.get('/hello', ({ res }) => {
-  return res.send('Hello World').status(200)
+Router.get('/', () => {
+  return { status: 'OK' }
 })
 
 Router.apiResource('/users', UserController)

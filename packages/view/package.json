@@ -1,0 +1,57 @@
+{
+    "name": "@arkstack/view",
+    "version": "0.3.16",
+    "type": "module",
+    "description": "View rendering package for Arkstack applications.",
+    "homepage": "https://arkstack.toneflix.net",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/view"
+    },
+    "scripts": {
+        "build": "tsdown --config-loader unconfig",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "pnpm build"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "types": "./dist/index.d.ts",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        },
+        "./commands/MakeViewCommand": {
+            "import": "./dist/commands/MakeViewCommand.js",
+            "require": "./dist/commands/MakeViewCommand.cjs"
+        },
+        "./package.json": "./package.json"
+    },
+    "keywords": [
+        "view",
+        "views",
+        "templates",
+        "edge",
+        "edge.js",
+        "arkstack"
+    ],
+    "files": [
+        "dist"
+    ],
+    "dependencies": {
+        "edge.js": "^6.5.0"
+    },
+    "peerDependencies": {
+        "@h3ravel/musket": "^0.10.1"
+    },
+    "peerDependenciesMeta": {
+        "@h3ravel/musket": {
+            "optional": true
+        }
+    }
+}

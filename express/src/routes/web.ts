@@ -1,8 +1,9 @@
-import { Router } from 'src/core/router'
+import { Router } from '@arkstack/driver-express'
+import { view } from '@arkstack/view'
 
-Router.get('/', ({ res }) => {
-  res
-    .setHeader('Content-Type', 'text/html')
-    .send('Welcome to the Express application!')
-    .status(200)
+Router.get('/', async () => {
+  return await view('welcome', {
+    title: 'Welcome to Arkstack',
+    message: 'Server running — ready for requests',
+  })
 })

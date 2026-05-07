@@ -1,5 +1,5 @@
 import { bindGracefulShutdown } from '@arkstack/common'
-import { Router } from 'src/core/router'
+import { Router } from '@arkstack/driver-express'
 import path from 'path'
 import { ExpressDriver } from '@arkstack/driver-express'
 import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'

@@ -41,8 +41,10 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
+        "clear-router": "^2.5.4",
         "@arkstack/contract": "workspace:^",
-        "express-rate-limit": "^8.4.1"
+        "express-rate-limit": "^8.4.1",
+        "@resora/plugin-clear-router": "^1.0.3"
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",

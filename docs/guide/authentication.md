@@ -96,7 +96,7 @@ Use `Auth` inside a Clear Router route to verify credentials and create a person
 
 ```ts
 import { Auth } from '@arkstack/auth';
-import { Router } from 'src/core/router';
+import { Router } from '@arkstack/driver-express';
 
 Router.post('/auth/login', async ({ req, res }) => {
   const { email, password } = req.body;
@@ -118,7 +118,7 @@ Clear Router accepts middleware as the final argument on a route. Use the auth m
 
 ```ts
 import { auth } from '@arkstack/driver-express/middlewares';
-import { Router } from 'src/core/router';
+import { Router } from '@arkstack/driver-express';
 
 Router.get(
   '/account',
@@ -178,7 +178,7 @@ Use a Clear Router group when several routes share the same auth gate:
 ```ts
 import { auth } from '@arkstack/driver-express/middlewares';
 import { Auth } from '@arkstack/auth';
-import { Router } from 'src/core/router';
+import { Router } from '@arkstack/driver-express';
 
 await Router.group(
   '/account',
@@ -222,7 +222,7 @@ Use `currentSession()` when you need the database record for the current bearer 
 ```ts
 import { Auth } from '@arkstack/auth';
 import { auth } from '@arkstack/driver-express/middlewares';
-import { Router } from 'src/core/router';
+import { Router } from '@arkstack/driver-express';
 
 Router.get(
   '/account/session',

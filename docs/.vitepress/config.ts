@@ -40,6 +40,7 @@ export default defineConfig({
           { text: 'Middleware', link: '/guide/middleware' },
           { text: 'Authentication', link: '/guide/authentication' },
           { text: 'Notifications', link: '/guide/notifications' },
+          { text: 'Views', link: '/guide/views' },
           { text: 'Hooks', link: '/guide/hooks' },
           { text: 'HTTP', link: '/guide/http' },
           { text: 'Database & Modeling', link: '/guide/database-modeling' },

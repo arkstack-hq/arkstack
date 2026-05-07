@@ -3,7 +3,7 @@ import { bindGracefulShutdown } from '@arkstack/common'
 import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
 import { H3 } from 'h3'
-import { Router } from 'src/core/router'
+import { Router } from '@arkstack/driver-h3'
 
 export default class Application implements ArkstackRouterAwareCore<H3, unknown> {
   private app: H3

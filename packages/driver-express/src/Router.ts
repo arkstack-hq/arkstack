@@ -1,16 +1,18 @@
 import { RequestException, importFile } from '@arkstack/common'
+import express, { Router as ExpressRouter } from 'express'
 
 import { ArkstackRouteListOptions } from '@arkstack/contract'
 import { Router as ClearRouter } from 'clear-router/express'
+import { type Route } from 'clear-router'
 import { clearRouterExpressPlugin } from '@resora/plugin-clear-router'
-import express from 'express'
 import { join } from 'node:path'
 import { registerPlugin } from 'resora'
+import type { Handler, HttpContext, Middleware } from 'clear-router/types/express'
 
 registerPlugin(clearRouterExpressPlugin)
 
 export class Router extends ClearRouter {
-  static async bind () {
+  static async bind (): Promise<ExpressRouter> {
     const router = express.Router()
 
     // Register API routes
@@ -35,7 +37,9 @@ export class Router extends ClearRouter {
     return router
   }
 
-  static async list (_options: ArkstackRouteListOptions = {}) {
+  static async list (
+    _options: ArkstackRouteListOptions = {}
+  ): Promise<Array<Route<HttpContext, Middleware, Handler>>> {
     await this.bind()
 
     return this.allRoutes()
