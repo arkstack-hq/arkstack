@@ -14,9 +14,11 @@ export const auth: Handler = async (req, res, next) => {
             throw new AuthenticationException('Unauthenticated', { req, status: 401 })
         }
 
+        const auth = Auth.make().setRequest(req)
         const user = await Auth.make().setRequest(req).authorizeToken(token)
 
         req.user = user
+        req.auth = auth
         req.authUser = user
         req.authToken = token
 

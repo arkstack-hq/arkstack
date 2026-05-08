@@ -1,4 +1,5 @@
 import type { User } from '.'
+import type { Auth } from '.'
 
 declare module 'clear-router/types/h3' {
   interface HttpRequest {
@@ -11,6 +12,7 @@ declare module 'clear-router/types/h3' {
 declare module 'clear-router' {
   interface HttpRequests {
     user?: User | undefined;
+    auth?: CurrentSession | undefined;
     authUser?: User | undefined;
     authToken?: string | undefined;
   }
@@ -19,6 +21,7 @@ declare module 'clear-router' {
 declare module 'h3' {
   interface H3EventContext {
     user?: User | undefined;
+    auth?: Auth | undefined;
     authUser?: User | undefined;
     authToken?: string | undefined;
   }
@@ -28,6 +31,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: User | undefined;
+      auth?: Auth | undefined;
       authUser?: User | undefined;
       authToken?: string | undefined;
     }

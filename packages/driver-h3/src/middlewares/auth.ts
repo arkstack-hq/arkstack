@@ -28,12 +28,15 @@ export const auth = async (event: H3Event, next: () => unknown | Promise<unknown
             url: event.req.url,
             path: getEventPath(event),
         }
-        const user = await Auth.make().setRequest(requestSource).authorizeToken(token)
+        const auth = Auth.make().setRequest(requestSource)
+        const user = await auth.authorizeToken(token)
 
         event.context.user = user
+        event.context.auth = auth
         event.context.authUser = user
         event.context.authToken = token;
         (event.req as any).user = user;
+        (event.req as any).auth = auth;
         (event.req as any).authUser = user;
         (event.req as any).authToken = token
 
