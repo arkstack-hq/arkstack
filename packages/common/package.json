@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/common",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "type": "module",
     "description": "Common package for Arkstack providing common implementations of core Arkstack features such as routing, middleware, and database integration.",
     "homepage": "https://arkstack.toneflix.net",
