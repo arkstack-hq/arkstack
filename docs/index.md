@@ -29,45 +29,72 @@ features:
   - icon:
       src: /icons/survey-fill.svg
       alt: Backend Framework
+    banner:
+      src: /features/structure.png
+      light: /features/structure-light.png
     title: Backend Framework
     details: Build production-ready TypeScript apps with shared conventions, packages, and practical defaults.
   - icon:
       src: /icons/archive-stack-fill.svg
+      alt: Multi Runtime
+    banner:
+      src: /features/multi-runtime.png
       alt: Multi Runtime
     title: Multi Runtime
     details: Run Arkstack on Express or H3 today through a shared contract and driver architecture.
   - icon:
       src: /icons/terminal-box-fill.svg
       alt: Unified Console
+    banner:
+      src: /features/console.png
+      alt: Unified Console
     title: Unified Console
     details: Run shared developer commands across kits through one console runtime.
   - icon:
       src: /icons/puzzle-fill.svg
+      alt: Modular Packages
+    banner:
+      src: /features/packages.png
       alt: Modular Packages
     title: Modular Packages
     details: Build on reusable packages for auth, notifications, views, contracts, console, and database.
   - icon:
       src: /icons/temp-cold-fill.svg
       alt: Lean or Full
+    banner:
+      src: /features/multi-runtime.png
+      alt: Lean or Full
     title: Lean or Full
     details: Choose lean templates without database features or full templates with Arkormˣ included.
   - icon:
       src: /icons/plug-2-fill.svg
+      alt: Extensible Drivers
+    banner:
+      src: /features/drivers.png
       alt: Extensible Drivers
     title: Extensible Drivers
     details: Add new runtime drivers without rewriting your application architecture.
   - icon:
       src: /icons/compass-2-fill.svg
       alt: Runtime Agnostic
+    banner:
+      src: /features/runtime-agnostic.png
+      alt: Runtime Agnostic
     title: Runtime Agnostic
     details: Write your app logic without coupling to a specific HTTP runtime.
   - icon:
       src: /icons/service-fill.svg
       alt: Open Source
+    banner:
+      src: /features/open-source.png
+      alt: Open Source
     title: Open Source
     details: Built in the open with a welcoming community and inclusive governance.
   - icon:
       src: /icons/rocket-fill.svg
+      alt: Future-Proof
+    banner:
+      src: /features/future-proof.png
       alt: Future-Proof
     title: Future-Proof
     details: Designed for long-term maintenance and adaptability to new runtimes and tools.

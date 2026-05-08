@@ -22,6 +22,7 @@ export default {
       if (typeof name === 'object' && name.src) {
         return h('img', {
           src: name.src,
+          alt: name.alt,
         });
       }
 
