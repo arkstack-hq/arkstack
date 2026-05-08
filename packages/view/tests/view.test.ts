@@ -34,7 +34,7 @@ describe('View', () => {
         view().share({ greeting: 'Hello' }).share('name', 'Ada')
 
         await expect(view('home')).resolves.toBe('Hello, Ada')
-        expect(globalThis.view).toBe(view)
+        expect(globalThis.view()).toBe(view())
     })
 
     it('supports local data through view instance with calls', async () => {
