@@ -7,6 +7,7 @@ export default defineConfig({
     format: 'esm',
     dts: true,
     clean: true,
+    skipNodeModulesBundle: true,
     outDir: 'dist',
     outExtensions (ctx) {
         return {

@@ -553,6 +553,9 @@ importers:
       express-rate-limit:
         specifier: ^8.4.1
         version: 8.4.1(express@5.2.1)
+      resora:
+        specifier: ^1.2.0
+        version: 1.2.0(@types/node@25.2.3)
     devDependencies:
       '@types/express':
         specifier: ^5.0.6
@@ -578,6 +581,9 @@ importers:
       h3:
         specifier: 2.0.1-rc.16
         version: 2.0.1-rc.16
+      resora:
+        specifier: ^1.2.0
+        version: 1.2.0(@types/node@25.2.3)
 
   packages/filesystem:
     dependencies:

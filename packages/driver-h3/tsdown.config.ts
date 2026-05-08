@@ -7,6 +7,7 @@ export default defineConfig({
     sourcemap: true,
     dts: true,
     clean: true,
+    skipNodeModulesBundle: true,
     outDir: 'dist',
     outExtensions (ctx) {
         return {
