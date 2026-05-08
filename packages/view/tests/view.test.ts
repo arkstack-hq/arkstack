@@ -52,6 +52,38 @@ describe('View', () => {
         await expect(View.first(['missing', 'fallback'], { name: 'Ada' })).resolves.toBe('Fallback Ada')
     })
 
+    it('throws when none of the fallback views exist', () => {
+        expect(() => View.first(['missing', 'also-missing'])).toThrow('None of the given views exist: missing, also-missing')
+    })
+
+    it('renders raw views synchronously with composer data', () => {
+        View.raw('inline', '{{ greeting }}, {{ name }}')
+        View.composer('inline', renderedView => {
+            renderedView.with('greeting', 'Hello')
+        })
+
+        const renderedView = View.make('inline').with('name', 'Ada')
+
+        expect(renderedView.renderSync()).toBe('Hello, Ada')
+    })
+
+    it('flushes shared data and composers independently', async () => {
+        await writeFile(join(viewsPath, 'flush.edge'), '{{ greeting || "No greeting" }} {{ name || "No name" }}')
+
+        View.share('greeting', 'Hello')
+        View.composer('flush', renderedView => {
+            renderedView.with('name', 'Ada')
+        })
+
+        await expect(View.make('flush')).resolves.toBe('Hello Ada')
+
+        View.factoryInstance().flushShared()
+        await expect(View.make('flush')).resolves.toBe('No greeting Ada')
+
+        View.factoryInstance().flushComposers()
+        await expect(View.make('flush')).resolves.toBe('No greeting No name')
+    })
+
     it('runs wildcard and named view composers before rendering', async () => {
         await writeFile(join(viewsPath, 'profile.edge'), '{{ title }}: {{ name }}{{ suffix }}')
 

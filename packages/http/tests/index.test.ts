@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Request, Response } from '../src'
+import { Request, Response, normalizeHeaderValue, normalizeHeaders, unwrapRequestSource } from '../src'
 
 describe('HTTP primitives', () => {
     it('normalizes request headers and reads bearer tokens consistently', () => {
@@ -53,5 +53,53 @@ describe('HTTP primitives', () => {
         expect(source.status).toHaveBeenCalledWith(201)
         expect(source.setHeader).toHaveBeenCalledWith('X-Test', 'yes')
         expect(source.json).toHaveBeenCalledWith({ ok: 'true' })
+    })
+
+    it('returns existing request and response wrappers unchanged', () => {
+        const request = new Request({ method: 'POST' })
+        const response = new Response({ statusCode: 202 })
+
+        expect(Request.from(request)).toBe(request)
+        expect(Response.from(response)).toBe(response)
+        expect(Request.from()).toBeUndefined()
+        expect(Response.from()).toBeUndefined()
+    })
+
+    it('unwraps nested request sources from req and request properties', () => {
+        const req = { headers: { authorization: 'Bearer req-token' }, method: 'GET' }
+        const request = { headers: { authorization: 'Bearer request-token' }, method: 'POST' }
+
+        expect(unwrapRequestSource({ req })).toBe(req)
+        expect(unwrapRequestSource({ request })).toBe(request)
+        expect(Request.from({ request })?.bearerToken()).toBe('request-token')
+    })
+
+    it('normalizes Headers objects and primitive header values', () => {
+        const headers = new Headers()
+        headers.set('X-Enabled', 'yes')
+
+        expect(normalizeHeaders(headers)).toEqual({ 'x-enabled': 'yes' })
+        expect(normalizeHeaderValue(12)).toBe('12')
+        expect(normalizeHeaderValue(false)).toBe('false')
+        expect(normalizeHeaderValue(null)).toBeUndefined()
+    })
+
+    it('falls back to local response state when source helpers are missing', () => {
+        const source = {
+            headers: {
+                'X-Initial': 'yes',
+            },
+            statusCode: 204,
+        }
+        const response = Response.from<{ ok: boolean }>(source)!
+
+        expect(response.statusCode).toBe(204)
+        expect(response.headers['x-initial']).toBe('yes')
+
+        expect(response.status(418).header('X-Test', 'yes').send({ ok: true })).toEqual({ ok: true })
+        expect(response.statusCode).toBe(418)
+        expect(response.headers['x-test']).toBe('yes')
+        expect(source.statusCode).toBe(418)
+        expect(response.json({ ok: false })).toEqual({ ok: false })
     })
 })

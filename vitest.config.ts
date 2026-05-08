@@ -4,6 +4,18 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
     plugins: [tsconfigPaths()],
+    resolve: {
+        alias: [
+            {
+                find: /^@arkstack\/([^/]+)\/(.+)$/,
+                replacement: path.resolve(__dirname, 'packages') + '/$1/src/$2',
+            },
+            {
+                find: /^@arkstack\/([^/]+)$/,
+                replacement: path.resolve(__dirname, 'packages') + '/$1/src/index.ts',
+            },
+        ],
+    },
     test: {
         // setup file is at the root of the project, so we need to resolve it not from the current package, but from the root
         setupFiles: path.resolve(__dirname, 'tests/setup.ts'),

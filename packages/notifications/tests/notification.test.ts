@@ -1,9 +1,11 @@
-import { DbNotification, MailNotification, Notification, SmsNotification, interpolate } from '../src'
+import { DbNotification, MailNotification, Notification, SmsNotification, UserNotification as UserNotificationAbs, UserNotificationCenter, interpolate, notificationConfig } from '../src'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { View } from '@arkstack/view'
 
 View.boot()
+
+class UserNotification extends UserNotificationAbs { }
 
 const mocks = vi.hoisted(() => {
     const sendMail = vi.fn(async payload => ({
@@ -14,6 +16,14 @@ const mocks = vi.hoisted(() => {
         id: 1,
         readAt: null,
         ...payload,
+    }))
+    const deleteQuery = vi.fn(async () => undefined)
+    const get = vi.fn(async () => [])
+    const update = vi.fn(async () => undefined)
+    const where = vi.fn(() => ({
+        delete: deleteQuery,
+        get,
+        update,
     }))
     const africasTalkingSend = vi.fn(async payload => ({
         provider: 'africastalking',
@@ -28,6 +38,7 @@ const mocks = vi.hoisted(() => {
     const getModel = vi.fn(async () => ({
         query: () => ({
             create,
+            where,
         }),
     }))
     const twilioCreate = vi.fn(async payload => ({
@@ -45,6 +56,10 @@ const mocks = vi.hoisted(() => {
         getModel,
         sendMail,
         twilioCreate,
+        deleteQuery,
+        get,
+        update,
+        where,
     }
 })
 
@@ -99,6 +114,10 @@ describe('Notification', () => {
         expect(Notification.db()).toBeInstanceOf(DbNotification)
     })
 
+    it('throws for unsupported notification drivers', () => {
+        expect(() => Notification.channel('push' as never)).toThrow('Unsupported notification driver: push')
+    })
+
     it('creates the configured default driver', () => {
         mocks.config.mockImplementation((key: string, defaultValue?: unknown) => {
             if (key === 'notifications.default_driver') {
@@ -121,6 +140,11 @@ describe('Notification', () => {
         expect(new Notification('mail').prepare(user)).toBeInstanceOf(MailNotification)
         expect(new Notification('sms').prepare(user)).toBeInstanceOf(SmsNotification)
         expect(new Notification('db').prepare(user)).toBeInstanceOf(DbNotification)
+    })
+
+    it('leaves user recipients unset when channel-specific address fields are missing', async () => {
+        await expect(new Notification('mail').prepare({ id: 1 }).send('Hello')).rejects.toThrow('No recipient provided for mail notification')
+        await expect(new Notification('sms').prepare({ id: 1 }).send('Hello')).rejects.toThrow('No recipient provided for SMS notification')
     })
 
     it('delivers mail with interpolated subject, body, sender, and recipients', async () => {
@@ -176,6 +200,30 @@ describe('Notification', () => {
         expect(mocks.sendMail).toHaveBeenCalledWith(expect.objectContaining({
             to: nodemailerRecipients,
         }))
+    })
+
+    it('adds a configured test mail recipient outside production', async () => {
+        mocks.config.mockImplementation((key: string, defaultValue?: unknown) => {
+            if (key === 'notifications.drivers.mail') {
+                return {
+                    test_address: 'mailbox@arkstack.test',
+                }
+            }
+
+            return defaultValue
+        })
+
+        await Notification.mail({ from: 'noreply@arkstack.test' })
+            .recipient('ada@example.com')
+            .send('Hello')
+
+        expect(mocks.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+            to: ['ada@example.com', 'mailbox@arkstack.test'],
+        }))
+    })
+
+    it('throws when mail recipients are missing', async () => {
+        await expect(Notification.mail().send('Hello')).rejects.toThrow('No recipient provided for mail notification')
     })
 
     it('uses mail config defaults when constructor options are omitted', async () => {
@@ -302,6 +350,32 @@ describe('Notification', () => {
         })
     })
 
+    it('delivers single-recipient SMS through AfricasTalking send', async () => {
+        await Notification.sms({
+            africastalking: {
+                apiKey: 'key',
+                senderId: 'ARK',
+                username: 'sandbox',
+            },
+            transport: 'africastalking',
+        })
+            .from('IGNORED_BY_DRIVER_INSTANCE')
+            .subject('Noop subject')
+            .recipient('+2348012345678')
+            .send('Hi {name}', undefined, undefined, { name: 'Ada' })
+
+        expect(mocks.africasTalkingSendBulk).not.toHaveBeenCalled()
+        expect(mocks.africasTalkingSend).toHaveBeenCalledWith({
+            from: 'ARK',
+            message: 'Hi Ada',
+            to: '+2348012345678',
+        })
+    })
+
+    it('throws when SMS recipients are missing', async () => {
+        await expect(Notification.sms().send('Hello')).rejects.toThrow('No recipient provided for SMS notification')
+    })
+
     it('delivers database notifications through the UserNotification model', async () => {
         const user = {
             id: 7,
@@ -339,5 +413,56 @@ describe('Notification', () => {
             type: 'security',
             userId: 7,
         })
+    })
+
+    it('rejects non-user recipients for database notifications', () => {
+        expect(() => Notification.db().recipient('ada@example.com')).toThrow('Database notifications require a user recipient')
+    })
+
+    it('throws when database notification user is missing', async () => {
+        await expect(Notification.db().send('Hello')).rejects.toThrow('No user recipient provided for database notification')
+    })
+
+    it('returns notification config defaults when config lookup throws', () => {
+        mocks.config.mockImplementation(() => {
+            throw new Error('config unavailable')
+        })
+
+        expect(notificationConfig('drivers.mail', { transport: 'smtp' })).toEqual({ transport: 'smtp' })
+    })
+
+    it('queries and mutates user notifications through the center', async () => {
+        const user = { id: 12 }
+        const notification = new UserNotification()
+        notification.id = 99
+        notification.readAt = null
+
+        await expect(UserNotificationCenter.forUser(user)).resolves.toEqual([])
+        expect(mocks.where).toHaveBeenLastCalledWith({ userId: 12 })
+        expect(mocks.get).toHaveBeenCalledTimes(1)
+
+        await expect(UserNotificationCenter.unreadForUser(user)).resolves.toEqual([])
+        expect(mocks.where).toHaveBeenLastCalledWith({ userId: 12, readAt: null })
+        expect(mocks.get).toHaveBeenCalledTimes(2)
+
+        await UserNotificationCenter.markRead(notification)
+        expect(mocks.where).toHaveBeenLastCalledWith({ id: 99 })
+        expect(mocks.update).toHaveBeenLastCalledWith({ readAt: expect.any(Date) })
+        expect(notification.readAt).toBeInstanceOf(Date)
+
+        await UserNotificationCenter.markRead(100)
+        expect(mocks.where).toHaveBeenLastCalledWith({ id: 100 })
+
+        await UserNotificationCenter.markAllRead(user)
+        expect(mocks.where).toHaveBeenLastCalledWith({ userId: 12, readAt: null })
+        expect(mocks.update).toHaveBeenLastCalledWith({ readAt: expect.any(Date) })
+
+        await UserNotificationCenter.delete(notification)
+        expect(mocks.where).toHaveBeenLastCalledWith({ id: 99 })
+        expect(mocks.deleteQuery).toHaveBeenCalledTimes(1)
+
+        await UserNotificationCenter.delete(101)
+        expect(mocks.where).toHaveBeenLastCalledWith({ id: 101 })
+        expect(mocks.deleteQuery).toHaveBeenCalledTimes(2)
     })
 })
