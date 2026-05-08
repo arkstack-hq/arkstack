@@ -11,7 +11,13 @@ export class View {
      */
     static boot () {
         Object.defineProperty(globalThis, 'view', {
-            value: view,
+            value: (name?: ViewName, data: ViewData = {}) => {
+                if (name === undefined) {
+                    return View.factoryInstance()
+                }
+
+                return View.make(name, data)
+            },
             configurable: true,
             writable: true,
         })
