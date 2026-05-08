@@ -1,9 +1,21 @@
-import { ViewFactory } from './ViewFactory'
 import type { ViewComposer, ViewComposerName, ViewData, ViewFactoryOptions, ViewName } from './types'
+
+import { ViewFactory } from './ViewFactory'
 import type { ViewInstance } from './ViewInstance'
 
 export class View {
     private static factory = new ViewFactory()
+
+    /**
+     * Bootstrap the view service
+     */
+    static boot () {
+        Object.defineProperty(globalThis, 'view', {
+            value: view,
+            configurable: true,
+            writable: true,
+        })
+    }
 
     static configure (options: ViewFactoryOptions = {}) {
         this.factory = new ViewFactory(options)

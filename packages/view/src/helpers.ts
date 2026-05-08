@@ -14,12 +14,6 @@ export function view (name?: ViewName, data: ViewData = {}) {
     return View.make(name, data)
 }
 
-Object.defineProperty(globalThis, 'view', {
-    value: view,
-    configurable: true,
-    writable: true,
-})
-
 export const isClass = <T = unknown> (
     target: unknown
 ): target is new (...args: any[]) => T => {
