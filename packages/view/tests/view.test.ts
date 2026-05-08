@@ -7,6 +7,8 @@ import { tmpdir } from 'node:os'
 
 let viewsPath: string
 
+View.boot()
+
 describe('View', () => {
     beforeEach(async () => {
         viewsPath = await mkdtemp(join(tmpdir(), 'arkstack-view-'))

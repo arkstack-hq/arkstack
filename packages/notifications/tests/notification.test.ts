@@ -1,7 +1,9 @@
-import '@arkstack/view'
-
 import { DbNotification, MailNotification, Notification, SmsNotification, interpolate } from '../src'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { View } from '@arkstack/view'
+
+View.boot()
 
 const mocks = vi.hoisted(() => {
     const sendMail = vi.fn(async payload => ({
