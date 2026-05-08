@@ -57,7 +57,7 @@
     "unlink": "npm unlink -g create-arkstack",
     "release": "pnpm build && pnpm changeset version && pnpm changeset publish",
     "publish-it": "pnpm build && pnpm publish --tag latest",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "node ../scripts/prepublish-only.mjs"
   },
   "files": [
     "bin",

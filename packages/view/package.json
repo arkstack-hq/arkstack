@@ -13,7 +13,7 @@
         "build": "tsdown --config-loader unconfig",
         "test": "vitest",
         "version:patch": "pnpm version patch",
-        "prepublishOnly": "pnpm build"
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
     },
     "publishConfig": {
         "access": "public"
