@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/http",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "type": "module",
     "description": "Framework-agnostic HTTP request and response primitives for Arkstack.",
     "homepage": "https://arkstack.toneflix.net",
