@@ -13,29 +13,29 @@ import { Template } from './types'
  */
 export const templates: Template[] = [
   {
-    name: 'Express Starter Kit',
+    name: 'Express Runtime Template',
     alias: 'express',
-    hint: 'An Express application starter kit',
+    hint: 'An Arkstack application running on Express',
     source: 'github:arkstack-hq/arkstack',
   },
   {
-    name: 'Express Lean Starter Kit',
+    name: 'Express Lean Runtime Template',
     alias: 'express-lean',
-    hint: 'A minimal Express application starter kit',
+    hint: 'A minimal Arkstack application running on Express',
     source: 'github:arkstack-hq/arkstack',
     lean: true,
     baseAlias: 'express',
   },
   {
-    name: 'H3 Starter Kit',
+    name: 'H3 Runtime Template',
     alias: 'h3',
-    hint: 'A H3 application starter kit',
+    hint: 'An Arkstack application running on H3',
     source: 'github:arkstack-hq/arkstack',
   },
   {
-    name: 'H3 Lean Starter Kit',
+    name: 'H3 Lean Runtime Template',
     alias: 'h3-lean',
-    hint: 'A minimal H3 application starter kit',
+    hint: 'A minimal Arkstack application running on H3',
     source: 'github:arkstack-hq/arkstack',
     lean: true,
     baseAlias: 'h3',

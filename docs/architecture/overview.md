@@ -2,7 +2,7 @@
 
 Arkstack is organized around one idea: application structure should stay stable even when the HTTP runtime changes.
 
-The framework-specific pieces live in driver packages. Shared behavior lives in focused packages. App code sits above both and uses the same conventions whether the template runs on Express, H3, or a future runtime.
+Runtime-specific pieces live in driver packages. Shared behavior lives in focused packages. App code sits above both and uses the same conventions whether the application runs on Express, H3, or a future runtime.
 
 ## Architecture Layers
 
@@ -20,20 +20,20 @@ Underlying runtime
 Express, H3
 ```
 
-This split lets Arkstack keep Laravel-like project ergonomics without binding business logic to one framework's request, response, middleware, or route implementation.
+This split lets Arkstack keep Laravel-like project ergonomics without binding business logic to one runtime's request, response, middleware, or route implementation.
 
 ## Core Principles
 
 - **Runtime details stay in drivers.** Express and H3 integrations are implemented by their driver packages.
-- **Shared packages avoid framework imports.** Packages like auth, notifications, views, and common utilities are designed to work without importing Express or H3 directly.
-- **Templates keep the same app shape.** Routes, models, resources, config files, and commands live in predictable places across templates.
+- **Shared packages avoid runtime imports.** Packages like auth, notifications, views, and common utilities are designed to work without importing Express or H3 directly.
+- **Runtime templates keep the same app shape.** Routes, models, resources, config files, and commands live in predictable places across generated applications.
 - **Extension points are explicit.** Commands, hooks, view composers, package views, and driver middleware expose the places where packages and apps can plug in.
 
 ## Package Map
 
 ### Contracts
 
-`@arkstack/contract` defines the framework-agnostic contracts used by runtime kits and drivers. It describes the integration boundary between the Arkstack app shell and each runtime driver.
+`@arkstack/contract` defines the runtime-agnostic contracts used by Arkstack apps and drivers. It describes the integration boundary between the Arkstack app shell and each runtime driver.
 
 Use it when building or reviewing driver-level behavior.
 
@@ -113,7 +113,7 @@ Driver packages own runtime-specific concerns:
 - static asset handling
 - error handling adapters
 - auth middleware state attachment
-- framework-specific stubs
+- runtime-specific stubs
 
 This keeps application files consistent while letting each runtime use its native mechanics.
 
@@ -138,7 +138,7 @@ For example, an authenticated route uses driver middleware to validate the beare
 
 `Hook` from `@arkstack/common` provides named callback positions.
 
-The auth middleware exposes `middleware:auth`, with a framework-agnostic context shape:
+The auth middleware exposes `middleware:auth`, with a runtime-agnostic context shape:
 
 ```ts
 Hook.set('middleware:auth', {
@@ -204,7 +204,7 @@ They keep the same runtime and console architecture where it still applies.
 Arkstack's architecture gives you:
 
 - a stable project shape across runtimes
-- less duplicated framework glue
+- less duplicated runtime glue
 - shared auth, notifications, views, hooks, and console commands
 - room for future runtime drivers without rewriting app code
 - package-level extension points that can grow without centralizing everything in one package

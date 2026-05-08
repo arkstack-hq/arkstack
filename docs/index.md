@@ -5,7 +5,7 @@ sidebar: false
 navbar: false
 footer: false
 pageClass: landing-layout
-titleTemplate: Runtime agnostic Nodejs framework
+titleTemplate: Runtime-agnostic TypeScript backend framework
 hideHero: false
 heroTitle: null
 heroLink: null
@@ -14,7 +14,7 @@ hideHeroGitLink: false
 
 hero:
   name: 'Arkstack'
-  tagline: Framework-agnostic TypeScript backend starter kits.
+  tagline: Runtime-agnostic TypeScript backend framework.
   image:
     src: /logo.jpg
     alt: Arkstack logo
@@ -28,14 +28,14 @@ hero:
 features:
   - icon:
       src: /icons/survey-fill.svg
-      alt: Starter Kits
-    title: Starter Kits
-    details: Scaffold production-ready backend apps with shared conventions and practical defaults.
+      alt: Backend Framework
+    title: Backend Framework
+    details: Build production-ready TypeScript apps with shared conventions, packages, and practical defaults.
   - icon:
       src: /icons/archive-stack-fill.svg
       alt: Multi Runtime
     title: Multi Runtime
-    details: Use Express or H3 today with a shared contract and driver architecture.
+    details: Run Arkstack on Express or H3 today through a shared contract and driver architecture.
   - icon:
       src: /icons/terminal-box-fill.svg
       alt: Unified Console
@@ -45,7 +45,7 @@ features:
       src: /icons/puzzle-fill.svg
       alt: Modular Packages
     title: Modular Packages
-    details: Build on reusable packages like contract, common, console, and database.
+    details: Build on reusable packages for auth, notifications, views, contracts, console, and database.
   - icon:
       src: /icons/temp-cold-fill.svg
       alt: Lean or Full
@@ -60,7 +60,7 @@ features:
       src: /icons/compass-2-fill.svg
       alt: Runtime Agnostic
     title: Runtime Agnostic
-    details: Write your app logic without coupling to a specific runtime or framework.
+    details: Write your app logic without coupling to a specific HTTP runtime.
   - icon:
       src: /icons/service-fill.svg
       alt: Open Source

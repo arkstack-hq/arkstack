@@ -68,7 +68,7 @@ await driver.applyMiddleware(runtime, () => {});
 
 ### 5. Router contract interaction: `app.getRouter()`
 
-Use the framework-agnostic router contract.
+Use the runtime-agnostic router contract.
 
 ```ts
 import { app } from 'src/core/bootstrap';
@@ -123,5 +123,5 @@ this.driver = new H3Driver({
 - `app.boot(port)` mounts public assets, binds router, applies middleware, starts the server, and attaches graceful shutdown.
 - Static asset mounting happens before configured middleware is applied.
 - For middleware layering and recommended usage, see [Middleware Guide](/guide/middleware).
-- Use the router contract (`getRouter`) for framework-agnostic behavior where possible.
+- Use the router contract (`getRouter`) for runtime-agnostic behavior where possible.
 - Prefer `h3App` only when you specifically need native H3 APIs.

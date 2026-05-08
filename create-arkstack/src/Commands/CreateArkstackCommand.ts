@@ -17,7 +17,7 @@ export class CreateArkstackCommand extends Command {
         {--i|install: Install node_modules right away}
         {--t|token?: Kit repo authentication token.}
         {--d|desc?: Project Description.}
-        {--k|kit?: Starter template kit.}
+        {--k|kit?: Runtime template.}
         {--p|pre: Download prerelease version if available.}
         {--o|overwrite: Overwrite the installation directory if it is not empty.}
     `
@@ -35,7 +35,7 @@ export class CreateArkstackCommand extends Command {
         {
           type: 'list',
           name: 'template',
-          message: 'Choose starter template kit:',
+          message: 'Choose runtime template:',
           choices: <never>templates.map((e) => ({
             name: e.name,
             value: e.alias,
@@ -47,7 +47,7 @@ export class CreateArkstackCommand extends Command {
       ])
       .catch((err) => {
         if (err instanceof AbortPromptError || err instanceof ExitPromptError) {
-          this.info('Thanks for trying out our starter kit.')
+          this.info('Thanks for trying out Arkstack.')
           process.exit(0)
         }
 
@@ -74,7 +74,7 @@ export class CreateArkstackCommand extends Command {
       ])
       .catch((err) => {
         if (err instanceof AbortPromptError || err instanceof ExitPromptError) {
-          this.info('Thanks for trying out our starter kit.')
+          this.info('Thanks for trying out Arkstack.')
           process.exit(0)
         }
 
@@ -93,7 +93,7 @@ export class CreateArkstackCommand extends Command {
       ])
       .catch((err) => {
         if (err instanceof AbortPromptError || err instanceof ExitPromptError) {
-          this.info('Thanks for trying out our starter kit.')
+          this.info('Thanks for trying out Arkstack.')
           process.exit(0)
         }
 
@@ -110,7 +110,7 @@ export class CreateArkstackCommand extends Command {
         {
           type: 'confirm',
           name: 'pre',
-          message: `An alpha version of the ${kit.name.replace(/\s*kit$/i, '').trim()} kit is available. Would you like to use it instead?`,
+          message: `An alpha version of the ${kit.name.replace(/\s*template$/i, '').trim()} template is available. Would you like to use it instead?`,
           default: false,
           when: () => kit.prereleaseSource && !options.pre,
         } as never,
@@ -130,7 +130,7 @@ export class CreateArkstackCommand extends Command {
       ])
       .catch((err) => {
         if (err instanceof AbortPromptError || err instanceof ExitPromptError) {
-          this.info('Thanks for trying out our starter kit.')
+          this.info('Thanks for trying out Arkstack.')
           process.exit(0)
         }
 

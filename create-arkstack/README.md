@@ -3,14 +3,14 @@
 
 # About Create Arkstack
 
-Scaffold new applications using any of the Arkstack templates and starter kits.
+Create new Arkstack framework applications using an official runtime template.
 
-## Starter kits
+## Runtime Templates
 
-You can choose between one of the following official starter kits
+You can choose between one of the following official runtime templates:
 
-- `express` : An Express.js app scaffolded with Tonelix's Arkstack
-- `h3` : An H3.js app scaffolded with Tonelix's Arkstack
+- `express` : An Arkstack app running on the Express driver
+- `h3` : An Arkstack app running on the H3 driver
 - More coming soon...
 
 ## Usage

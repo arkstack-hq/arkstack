@@ -14,26 +14,27 @@
 [![CI](https://github.com/arkstack-hq/arkstack/actions/workflows/ci.yml/badge.svg)](https://github.com/arkstack-hq/arkstack/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/arkstack-hq/arkstack/graph/badge.svg?token=vaccg5iudz)](https://codecov.io/gh/arkstack-hq/arkstack)
 
-Arkstack is a framework-agnostic backend starter kit for modern TypeScript servers that helps you scaffold backend apps with a consistent architecture across frameworks.
+Arkstack is a runtime-agnostic TypeScript backend framework for building structured, production-ready server applications.
 
-Arkstack is mature enough to be called a framework, but it’s really a collection of starter kits built on shared contracts, utilities and runtime drivers, we simply chose not to call it a framework.
+It gives you a complete application layer with routing conventions, console commands, authentication, notifications, views, hooks, shared contracts, and runtime drivers for Express, H3, and future transports.
 
-Arkstack provides a structured foundation for building APIs with Express, H3, and future runtimes — without locking your application to a single framework.
+Arkstack is opinionated about application architecture while staying flexible about the HTTP runtime beneath it.
 
-It prioritizes architecture first, framework second.
+It prioritizes the Arkstack application model first, runtime adapters second.
 
 ---
 
 ## Why Arkstack?
 
-Most starter kits are tightly coupled to one framework. Arkstack is designed around clean architecture and transport-layer abstraction.
+Most backend frameworks are tightly coupled to one HTTP runtime. Arkstack is designed around a stable application model, clean architecture, and transport-layer abstraction.
 
-- Multi-framework support (Express, H3 — more coming)
-- Opinionated but not restrictive
-- Clean and scalable folder structure
+- Runtime driver support (Express, H3 — more coming)
+- Opinionated framework conventions without runtime lock-in
+- Clean and scalable application structure
 - TypeScript native
 - Structured error handling
 - Standardized API responses
+- First-party auth, notifications, views, hooks, and console packages
 - Easy to extend
 
 Your business logic remains independent of the HTTP runtime.
@@ -55,7 +56,7 @@ To learn how to use Arkstack, see the [Guide](https://arkstack.toneflix.net/guid
 
 ---
 
-## Project Structure
+## Application Structure
 
 ```txt
 src/
@@ -68,15 +69,26 @@ src/
  │   │   ├── controllers/
  │   │   └── resources/
  │   │
+ │   ├── models/
+ │   │
  │   └── services/
  │
  ├── config/
  │
  ├── core/
  │   ├── utils/
+ │   │   ├── helpers.ts
+ │   │   └── drivers/
  │   ├── app.ts
- │   ├── bootstrap.ts
- │   └── router.ts
+ │   └── bootstrap.ts
+ │
+ ├── database/
+ │   ├── factories/
+ │   ├── migrations/
+ │   └── seeders/
+ │
+ ├── resources/
+ │   └── views/
  │
  ├── routes/
  │   ├── api/

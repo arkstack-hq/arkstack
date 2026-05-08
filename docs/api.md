@@ -1,10 +1,10 @@
 # API Reference
 
-This page documents Arkstack’s stable public surface across starter kits.
+This page documents Arkstack’s stable public surface across runtime drivers and generated applications.
 
 ## Runtime Contracts
 
-Arkstack defines framework-agnostic boundaries in `@arkstack/contract`.
+Arkstack defines runtime-agnostic boundaries in `@arkstack/contract`.
 
 ### `ArkstackKitDriver<TApp, TMiddleware>`
 

@@ -141,7 +141,7 @@ Authorization: Bearer <token>
 
 ## Auth Middleware Hooks
 
-The auth middleware exposes a framework-agnostic `middleware:auth` hook through `Hook` from `@arkstack/common`. Register hooks during application boot (preferable in `src/core/bootstrap.ts`) so they are available before protected routes run.
+The auth middleware exposes a runtime-agnostic `middleware:auth` hook through `Hook` from `@arkstack/common`. Register hooks during application boot (preferable in `src/core/bootstrap.ts`) so they are available before protected routes run.
 
 The hook contract is the same across runtime drivers: middleware context is passed as `{ req, res }`, and error hooks receive the error first.
 
