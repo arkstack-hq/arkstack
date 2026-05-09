@@ -3,7 +3,7 @@
     "version": "0.4.1",
     "type": "module",
     "description": "Console package for Arkstack providing console-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
-    "homepage": "https://arkstack.toneflix.net",
+    "homepage": "https://arkstack.toneflix.net/guide/cli",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/arkstack-hq/arkstack.git",

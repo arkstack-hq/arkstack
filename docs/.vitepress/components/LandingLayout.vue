@@ -149,20 +149,14 @@ Router.<span class="fn">get</span>(<span class="str">'/'</span>, <span class="kw
 
     <section class="package-section">
       <div class="section-heading">
-        <span>Packages</span>
-        <h2>Composed as focused modules.</h2>
+        <span>Ecosystem and Packages</span>
+        <h2>
+          Arcstack is not just a framework, our ecosystem powers your stack
+        </h2>
       </div>
 
       <div class="package-grid">
-        <a
-          :href="pkg.href"
-          :key="pkg.name"
-          class="package-chip"
-          v-for="pkg in packages"
-        >
-          <span>{{ pkg.name }}</span>
-          <small>{{ pkg.detail }}</small>
-        </a>
+        <PackageCard :key="pkg.name" :pkg="pkg" v-for="pkg in packages" />
       </div>
     </section>
 
@@ -190,6 +184,8 @@ import '../theme/landing.scss';
 import { computed, ref } from 'vue';
 import { useData } from 'vitepress';
 import DarkToggle from './DarkToggle.vue';
+import PackageCard from './PackageCard.vue';
+import { abbreviateNumber, fitText, getTotalDownloads } from '../data';
 
 const { theme, site, frontmatter } = useData();
 
@@ -219,32 +215,34 @@ const activeRuntime = computed(
     runtimeTabs[0],
 );
 
-const packages = [
+const packages = ref<
   {
-    name: '@arkstack/auth',
-    detail: 'Sessions, tokens, 2FA',
-    href: '/guide/authentication',
-  },
-  {
-    name: '@arkstack/view',
-    detail: 'Edge views and composers',
-    href: '/guide/views',
-  },
-  {
-    name: '@arkstack/notifications',
-    detail: 'Mail, SMS, database',
-    href: '/guide/notifications',
-  },
-  {
-    name: '@arkstack/common',
-    detail: 'Hooks and utilities',
-    href: '/guide/hooks',
-  },
-  {
-    name: '@arkstack/http',
-    detail: 'Request and response',
-    href: '/guide/http',
-  },
-  { name: '@arkstack/console', detail: 'Shared commands', href: '/guide/cli' },
-];
+    name: string;
+    links: { homepage: string; npm: string; repository: string };
+    detail: string;
+    downloads: string;
+  }[]
+>([]);
+
+fetch('https://registry.npmjs.org/-/v1/search?text=@arkstack')
+  .then((e) => e.json())
+  .then(({ objects }) => {
+    return Promise.all(
+      objects.map(async ({ package: pkg, downloads }: any) => {
+        downloads =
+          downloads.monthly > 0 ? downloads.monthly : downloads.weekly;
+        const dls = downloads;
+        // const dls = (await getTotalDownloads(pkg.sanitized_name)) || downloads;
+        return {
+          name: pkg.sanitized_name,
+          detail: fitText(pkg.description),
+          links: pkg.links,
+          downloads: abbreviateNumber(dls),
+        };
+      }),
+    );
+  })
+  .then((e) => {
+    packages.value = e;
+  });
 </script>

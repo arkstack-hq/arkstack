@@ -3,7 +3,7 @@
     "version": "0.4.1",
     "type": "module",
     "description": "Notification package for Arkstack applications, providing mail, SMS, and database notification drivers.",
-    "homepage": "https://arkstack.toneflix.net",
+    "homepage": "https://arkstack.toneflix.net/guide/notifications",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/arkstack-hq/arkstack.git",
