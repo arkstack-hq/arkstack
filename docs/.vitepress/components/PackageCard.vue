@@ -12,7 +12,7 @@
       <div class="links">
         <a
           :href="pkg.links.homepage"
-          target="_blank"
+          target="_self"
           rel="noreferrer"
           @click.prevent="() => goto(pkg.links.homepage)"
         >
