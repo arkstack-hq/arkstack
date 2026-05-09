@@ -67,6 +67,14 @@ const goto = (link: string): void => {
 </script>
 
 <style lang="scss">
+.dark .package-card {
+  p {
+    color: rgba(244, 244, 245, 0.85);
+  }
+  .downloads .label {
+    color: rgba(244, 244, 245, 0.45);
+  }
+}
 .package-card {
   padding: 15px;
   min-height: 90px;
@@ -105,7 +113,7 @@ const goto = (link: string): void => {
 
   p {
     margin: 0;
-    color: rgba(244, 244, 245, 0.52);
+    color: rgba(58, 58, 58, 0.849);
     font-size: 0.72rem;
     letter-spacing: 0.04em;
     line-height: 1.5;
@@ -116,6 +124,7 @@ const goto = (link: string): void => {
     gap: 12px;
     margin-top: 5px;
     justify-content: flex-end;
+    height: 25px;
   }
 
   .links a {
@@ -132,6 +141,12 @@ const goto = (link: string): void => {
   .links a:hover {
     color: #c9960c;
     border-color: rgba(201, 150, 12, 0.48);
+    opacity: 0.7;
+    .feature-icon {
+      width: 23.5px;
+      height: 23.5px;
+      transition: linear 0.07s;
+    }
   }
 
   .downloads {
@@ -144,14 +159,14 @@ const goto = (link: string): void => {
       font-size: 0.72rem;
       font-weight: 700;
     }
-  }
 
-  .label {
-    display: block;
-    color: rgba(244, 244, 245, 0.45);
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    .label {
+      display: block;
+      color: rgba(25, 25, 25, 0.705);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
   }
 }
 </style>

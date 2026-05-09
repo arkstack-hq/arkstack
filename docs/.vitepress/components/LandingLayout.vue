@@ -138,9 +138,9 @@ Router.<span class="fn">get</span>(<span class="str">'/'</span>, <span class="kw
           </div>
           <h3>{{ selectedFeature.title }}</h3>
           <p>{{ selectedFeature.details }}</p>
-          <img
-            v-if="selectedFeature?.banner?.src"
-            :src="selectedFeature.banner.src"
+          <FeatureCards
+            style="margin-top: 15px"
+            :src="selectedFeature?.banner?.src"
             :alt="selectedFeature.banner.alt ?? selectedFeature.title"
           />
         </article>
@@ -185,7 +185,8 @@ import { computed, ref } from 'vue';
 import { useData } from 'vitepress';
 import DarkToggle from './DarkToggle.vue';
 import PackageCard from './PackageCard.vue';
-import { abbreviateNumber, fitText, getTotalDownloads } from '../data';
+import { abbreviateNumber, fitText } from '../data';
+import FeatureCards from './features/FeatureCards.vue';
 
 const { theme, site, frontmatter } = useData();
 
