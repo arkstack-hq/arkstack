@@ -17,7 +17,7 @@
           @click.prevent="() => goto(pkg.links.homepage)"
         >
           <span class="feature-icon">
-            <icon :name="{ src: '/icons/link.svg' }" />
+            <icon :name="{ src: '/icons/link.svg', alt: 'link.svg' }" />
           </span>
         </a>
 
@@ -28,7 +28,9 @@
           @click.prevent="() => goto(pkg.links.npm)"
         >
           <span class="feature-icon">
-            <icon :name="{ src: '/icons/npmjs-fill.svg' }" />
+            <icon
+              :name="{ src: '/icons/npmjs-fill.svg', alt: 'npmjs-fill.svg' }"
+            />
           </span>
         </a>
 
@@ -39,7 +41,9 @@
           @click.prevent="() => goto(pkg.links.repository)"
         >
           <span class="feature-icon">
-            <icon :name="{ src: '/icons/github-fill.svg' }" />
+            <icon
+              :name="{ src: '/icons/github-fill.svg', alt: 'github-fill.svg' }"
+            />
           </span>
         </a>
       </div>
