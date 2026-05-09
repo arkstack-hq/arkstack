@@ -20,7 +20,6 @@ export default {
     const icon = icons[name] ?? undefined;
     return () => {
       if (typeof name === 'object' && name.src) {
-        console.log(name);
         return h('img', {
           src: name.src,
           alt: name.alt,
