@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/notifications",
-    "version": "0.4.1",
+    "version": "0.4.3",
     "type": "module",
     "description": "Notification package for Arkstack applications, providing mail, SMS, and database notification drivers.",
     "homepage": "https://arkstack.toneflix.net/guide/notifications",
