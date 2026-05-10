@@ -1,10 +1,10 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
-import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../packages/auth/tests/fixtures/auth'
+import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from './fixtures/auth'
 
-import { Auth } from '../../packages/auth/src'
+import { Auth } from '../src'
 import { Router as ClearRouter } from 'clear-router/express'
-import { Hash } from '../../packages/common/src'
-import { auth } from '../../packages/driver-express/src/middlewares/auth'
+import { Hash } from '../../common/src'
+import { auth } from '../../driver-express/src/middlewares/auth'
 import express from 'express'
 import request from 'parasito'
 

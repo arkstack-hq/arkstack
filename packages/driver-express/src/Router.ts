@@ -10,6 +10,9 @@ import { registerPlugin } from 'resora'
 import type { Handler, HttpContext, Middleware } from 'clear-router/types/express'
 
 registerPlugin(clearRouterExpressPlugin)
+ClearRouter.configure({
+  inferParamName: true
+})
 
 export class Router extends ClearRouter {
   static async bind (): Promise<ExpressRouter> {
@@ -42,6 +45,6 @@ export class Router extends ClearRouter {
   ): Promise<Array<Route<HttpContext, Middleware, Handler>>> {
     await this.bind()
 
-    return this.allRoutes()
+    return this.allRoutes() as never
   }
 }

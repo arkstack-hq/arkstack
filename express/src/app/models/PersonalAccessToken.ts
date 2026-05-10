@@ -1,7 +1,7 @@
 import { PersonalAccessToken as BasePersonalAccessToken } from '@arkstack/auth'
-import User from './User'
+import { User } from './User'
 
-export default class PersonalAccessToken extends BasePersonalAccessToken {
+export class PersonalAccessToken extends BasePersonalAccessToken {
     declare name: string
     declare token: string
     declare abilities: string[]

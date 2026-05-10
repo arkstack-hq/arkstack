@@ -1,8 +1,7 @@
 import { UserNotification as BaseUserNotification } from '@arkstack/notifications'
+import { User } from './User'
 
-import User from './User'
-
-export default class UserNotification extends BaseUserNotification {
+export class UserNotification extends BaseUserNotification {
     protected static columns = {
         userId: 'user_id',
         actionText: 'action_text',

@@ -12,7 +12,7 @@ vi.mock('node:child_process', () => {
 describe('DevCommand', () => {
     it('spawns tsdown with silent log level', async () => {
         const { spawn } = await import('node:child_process')
-        const { DevCommand } = await import('../../packages/console/src/commands/DevCommand')
+        const { DevCommand } = await import('../src/commands/DevCommand')
 
         const child = new EventEmitter() as EventEmitter & {
             on: (event: string, listener: (...args: any[]) => void) => EventEmitter;
@@ -41,7 +41,7 @@ describe('DevCommand', () => {
 
     it('rejects when tsdown exits with a non-zero code', async () => {
         const { spawn } = await import('node:child_process')
-        const { DevCommand } = await import('../../packages/console/src/commands/DevCommand')
+        const { DevCommand } = await import('../src/commands/DevCommand')
 
         const child = new EventEmitter() as EventEmitter & {
             on: (event: string, listener: (...args: any[]) => void) => EventEmitter;

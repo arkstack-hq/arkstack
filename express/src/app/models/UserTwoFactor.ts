@@ -1,8 +1,7 @@
 import { UserTwoFactor as BaseUserTwoFactor } from '@arkstack/auth'
+import { User } from './User'
 
-import User from './User'
-
-export default class UserTwoFactor extends BaseUserTwoFactor {
+export class UserTwoFactor extends BaseUserTwoFactor {
     protected static columns = {
         userId: 'user_id',
         secretCiphertext: 'secret_ciphertext',

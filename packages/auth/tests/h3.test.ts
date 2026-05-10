@@ -1,9 +1,9 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
-import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from '../../packages/auth/tests/fixtures/auth'
+import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from './fixtures/auth'
 
 import { Router as ClearRouter } from 'clear-router/h3'
 import { H3 } from 'h3'
-import { auth } from '../../packages/driver-h3/src/middlewares/auth'
+import { auth } from '../../driver-h3/src/middlewares/auth'
 import request from 'parasito'
 
 const createRouter = (name: string) => class TestRouter extends ClearRouter {

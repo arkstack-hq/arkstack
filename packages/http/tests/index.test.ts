@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { Request, Response, normalizeHeaderValue, normalizeHeaders, unwrapRequestSource } from '../src'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('HTTP primitives', () => {
     it('normalizes request headers and reads bearer tokens consistently', () => {
@@ -48,7 +48,7 @@ describe('HTTP primitives', () => {
         response.status(201).header('X-Test', 'yes').json({ ok: 'true' })
 
         expect(response.statusCode).toBe(201)
-        expect(response.headers['x-test']).toBe('yes')
+        expect(response.getHeaders()['x-test']).toBe('yes')
         expect(response.body).toEqual({ ok: 'true' })
         expect(source.status).toHaveBeenCalledWith(201)
         expect(source.setHeader).toHaveBeenCalledWith('X-Test', 'yes')
@@ -94,11 +94,11 @@ describe('HTTP primitives', () => {
         const response = Response.from<{ ok: boolean }>(source)!
 
         expect(response.statusCode).toBe(204)
-        expect(response.headers['x-initial']).toBe('yes')
+        expect(response.getHeaders()['x-initial']).toBe('yes')
 
         expect(response.status(418).header('X-Test', 'yes').send({ ok: true })).toEqual({ ok: true })
         expect(response.statusCode).toBe(418)
-        expect(response.headers['x-test']).toBe('yes')
+        expect(response.getHeaders()['x-test']).toBe('yes')
         expect(source.statusCode).toBe(418)
         expect(response.json({ ok: false })).toEqual({ ok: false })
     })

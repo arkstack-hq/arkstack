@@ -1,9 +1,4 @@
-import { HasManyRelation, HasOneRelation } from 'arkormx/relationship'
-
-import { Model } from 'arkormx'
-import { PersonalAccessToken } from './PersonalAccessToken'
-import { UserNotification } from '@arkstack/notifications'
-import { UserTwoFactor } from './UserTwoFactor'
+import { Model } from '@arkstack/database'
 
 export abstract class User extends Model {
     declare id: number
@@ -14,10 +9,4 @@ export abstract class User extends Model {
     declare updatedAt: Date
 
     protected static table?: string | undefined = 'users'
-
-    abstract personalAccessTokens (): HasManyRelation<this, PersonalAccessToken>
-
-    abstract twoFactor (): HasOneRelation<this, UserTwoFactor>
-
-    abstract notifications (): HasManyRelation<this, UserNotification>
 }

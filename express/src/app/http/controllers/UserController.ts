@@ -1,6 +1,8 @@
 import { Resource, ResourceCollection } from 'resora'
 
 import { BaseController } from '@controllers/BaseController'
+import { Bind } from 'clear-router/decorators'
+import { User } from 'src/app/models/User'
 
 /**
  * UserController
@@ -11,8 +13,10 @@ export default class UserController extends BaseController {
    *
    * @param req
    */
-  index = async () => {
-    return new ResourceCollection({ data: [] })
+  async index () {
+    const users = await User.query().paginate(5)
+
+    return new ResourceCollection(users)
       .additional({
         status: 'success',
         message: 'OK',
@@ -27,8 +31,9 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  show = async () => {
-    return new Resource({ data: {} })
+  @Bind()
+  async show (user: User) {
+    return new Resource(user)
       .additional({
         status: 'success',
         message: 'OK',
@@ -43,7 +48,7 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  create = async () => {
+  async create () {
     return new Resource({ data: {} })
       .additional({
         status: 'success',
@@ -59,7 +64,7 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  update = async () => {
+  async update () {
     const data = await this.validate({
       name: 'string|required',
       age: 'numeric|required|min:30',
@@ -80,7 +85,7 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  destroy = async () => {
+  async destroy () {
     return new Resource({ data: {} })
       .additional({
         status: 'success',

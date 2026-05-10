@@ -1,4 +1,5 @@
 import '@arkstack/database/setup'
+import '@arkstack/http/setup'
 
 import Application from 'src/core/app'
 import { Validator } from 'kanun'

@@ -29,9 +29,10 @@
     },
     "exports": {
         ".": "./dist/index.js",
+        "./setup": "./dist/setup.js",
         "./package.json": "./package.json"
     },
     "dependencies": {
-        "clear-router": "^2.6.0"
+        "clear-router": "^2.6.4"
     }
 }

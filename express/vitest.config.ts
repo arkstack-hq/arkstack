@@ -1,9 +1,26 @@
+import { URL, fileURLToPath } from 'node:url'
+
 import { defineConfig } from 'vitest/config'
-import { fileURLToPath, URL } from 'node:url'
+import swc from 'unplugin-swc'
 
 const resolvePath = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 export default defineConfig({
+    plugins: [
+        swc.vite({
+            jsc: {
+                parser: {
+                    syntax: 'typescript',
+                    decorators: true,
+                },
+                transform: {
+                    decoratorMetadata: true,
+                    legacyDecorator: true,
+                },
+                target: 'es2021',
+            },
+        }) as never,
+    ],
     resolve: {
         alias: {
             '@': resolvePath('./src'),

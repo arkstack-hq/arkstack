@@ -8,7 +8,7 @@ export default class CreatePersonAccessTokensTableMigration extends Migration {
                 .foreign().references('users', 'id').onDelete('cascade').as('user').inverseAlias('personalAccessTokens')
             table.string('name')
             table.text('token').unique()
-            table.json('abilities')
+            table.json('abilities').nullable()
             table.json('deviceInfo').nullable().map('device_info')
             table.date('lastUsedAt').nullable().map('last_used_at')
             table.date('expiresAt').nullable().map('expires_at')

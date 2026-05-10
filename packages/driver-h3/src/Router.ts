@@ -9,6 +9,9 @@ import { join } from 'node:path'
 import { registerPlugin } from 'resora'
 
 registerPlugin(clearRouterH3Plugin)
+ClearRouter.configure({
+  inferParamName: true
+})
 
 export class Router extends ClearRouter {
   static async bind (app: H3): Promise<H3App> {
@@ -33,6 +36,6 @@ export class Router extends ClearRouter {
   ): Promise<Route<HttpContext, Middleware, Handler>[]> {
     await this.bind(app)
 
-    return this.allRoutes()
+    return this.allRoutes() as never
   }
 }

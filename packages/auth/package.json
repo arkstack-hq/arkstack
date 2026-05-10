@@ -46,9 +46,9 @@
         "ua-parser-js": "^2.0.9"
     },
     "peerDependencies": {
+        "@arkstack/database": "workspace:^",
         "@arkstack/notifications": "workspace:^",
-        "@h3ravel/support": "^0.15.11",
-        "arkormx": "^2.0.9"
+        "@h3ravel/support": "^0.15.11"
     },
     "inlinedDependencies": {
         "otpauth": "9.5.1"

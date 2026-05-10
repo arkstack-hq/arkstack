@@ -31,9 +31,10 @@ export default defineConfig([
             execArgv: ['-r', 'source-map-support/register', '-r', 'tsconfig-paths/register'],
             allowRestarts: false,
             input: path.join(process.cwd(), 'src/server.ts'),
-          }),
+          })
         ]
-        : [],
+        : [
+        ],
     outExtensions: (e) => {
       return {
         js: e.format === 'es' ? '.js' : '.cjs',

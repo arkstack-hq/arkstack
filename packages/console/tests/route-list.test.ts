@@ -1,7 +1,7 @@
 // oxlint-disable typescript/no-explicit-any
 import { describe, expect, it } from 'vitest'
 
-import { RouteList } from '../../packages/console/src/commands/RouteList'
+import { RouteList } from '../src/commands/RouteList'
 
 describe('RouteList formatter', () => {
     it('includes method, path and handler columns', () => {
