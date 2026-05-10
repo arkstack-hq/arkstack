@@ -1,26 +1,30 @@
 import { HeaderMap, RequestOptions, RequestSource } from './types/Http'
 import { isRecord, normalizeHeaders, unwrapRequestSource } from './helpers'
 
+import { Request as BaseRequest } from 'clear-router'
+
 /**
  * Represents an HTTP request, providing a consistent interface for accessing request data.
  * 
  * @author 3m1n3nc3
  */
-export class Request<TUser = unknown> {
+export class Request<TUser = unknown> extends BaseRequest {
     readonly headers: HeaderMap
-    readonly method?: string
-    readonly url?: string
-    readonly path?: string
     readonly ip: string | null
     readonly source?: unknown
     user?: TUser
     authToken?: string
 
     constructor(options: RequestOptions<TUser> = {}) {
+        super(options)
+
         this.headers = normalizeHeaders(options.headers)
-        this.method = options.method
-        this.url = options.url
-        this.path = options.path
+        if (this.method)
+            this.method = options.method!
+        if (this.url)
+            this.url = options.url!
+        if (this.path)
+            this.path = options.path!
         this.ip = options.ip ?? null
         this.user = options.user
         this.authToken = options.authToken
@@ -52,7 +56,7 @@ export class Request<TUser = unknown> {
         })
     }
 
-    header (name: string): string | undefined {
+    header (name: string): string {
         return this.headers[name.toLowerCase()]
     }
 

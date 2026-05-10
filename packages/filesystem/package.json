@@ -2,7 +2,7 @@
     "name": "@arkstack/filesystem",
     "version": "0.4.3",
     "type": "module",
-    "description": "Shared Filesystem utilities for ArkStack.",
+    "description": "Filesystem module for Arkstack, providing shared file storage and filesystem utitlities for the framework.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",

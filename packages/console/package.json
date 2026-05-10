@@ -2,7 +2,7 @@
     "name": "@arkstack/console",
     "version": "0.4.3",
     "type": "module",
-    "description": "Console package for Arkstack providing console-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
+    "description": "Console module for Arkstack, providing the command-line runtime and console integration layer.",
     "homepage": "https://arkstack.toneflix.net/guide/cli",
     "repository": {
         "type": "git",
@@ -49,13 +49,14 @@
     },
     "peerDependencies": {
         "clear-router": "^2.6.0",
-        "arkormx": "^2.0.8"
+        "arkormx": "^2.0.9"
     },
     "dependencies": {
         "@arkstack/common": "workspace:^",
         "@arkstack/contract": "workspace:^",
         "@h3ravel/musket": "^0.10.1",
+        "@h3ravel/support": "^0.15.11",
         "chalk": "^5.6.2",
-        "resora": "^1.2.0"
+        "resora": "^1.2.2"
     }
 }

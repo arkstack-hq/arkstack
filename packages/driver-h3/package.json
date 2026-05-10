@@ -2,7 +2,7 @@
     "name": "@arkstack/driver-h3",
     "version": "0.4.3",
     "type": "module",
-    "description": "H3 driver package for Arkstack providing H3-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
+    "description": "H3 driver for Arkstack, providing H3-based runtime integration for the framework.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",
@@ -43,8 +43,8 @@
     "dependencies": {
         "clear-router": "^2.6.0",
         "@arkstack/contract": "workspace:^",
-        "@resora/plugin-clear-router": "^1.0.10",
-        "resora": "^1.2.0"
+        "@resora/plugin-clear-router": "^1.0.11",
+        "resora": "^1.2.2"
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",

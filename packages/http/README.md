@@ -1,8 +1,6 @@
 # @arkstack/http
 
-Framework-neutral HTTP request and response wrappers for Arkstack shared packages.
-
-Use this package when code needs request data but should not import Express, H3, or another runtime directly.
+HTTP module for Arkstack, providing framework-agnostic request and response primitives.
 
 ```ts
 import { Request, Response } from '@arkstack/http';

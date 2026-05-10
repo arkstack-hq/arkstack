@@ -18,6 +18,10 @@ export const unwrapRequestSource = <TUser> (
     return source
 }
 
+export const makeHeaders = (headers?: HeaderSource) => {
+    return new Headers(normalizeHeaders(headers))
+}
+
 export const normalizeHeaders = (headers?: HeaderSource): HeaderMap => {
     const normalized: HeaderMap = {}
 

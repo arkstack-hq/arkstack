@@ -1,3 +1,3 @@
 # @arkstack/database
 
-Database package for Arkstack, providing database and Arkormˣ abstractions.
+Database module for Arkstack, providing core database integration and data layer features.

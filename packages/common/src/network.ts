@@ -1,16 +1,17 @@
 import { config, env } from './system'
 
 import { detect } from 'detect-port'
+import { str } from '@h3ravel/support'
 
 export const bootWithDetectedPort = async (
   boot: (port: number) => Promise<void>,
   preferredPort: number = 3000,
   app?: any
 ) => {
-  if (app && !globalThis.app)
-    globalThis.app = () => app
+  if (app && !globalThis.app) globalThis.app = () => app
   globalThis.env = env
   globalThis.config = config
+  globalThis.str = str
   globalThis.arkctx = {
     runtime: 'HTTP',
   }

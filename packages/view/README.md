@@ -1,6 +1,6 @@
 # @arkstack/view
 
-Views for Arkstack applications.
+View module for Arkstack, providing template rendering and view integration utilities.
 
 ```ts
 import { View, view } from '@arkstack/view';

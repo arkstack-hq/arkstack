@@ -253,7 +253,7 @@ export default class {
       let content = await readFile(filePath, 'utf-8')
 
       content = content
-        .replace('import { ValidatorDBDriver } from \'./utils/drivers/ValidatorDBDriver\'\n', '')
+        .replace('import { ValidatorDBDriver } from \'@arkstack/database\'\n', '')
         .replace('import { ModelNotFoundException } from \'arkormx\'\n', '')
         .replace('import { prisma } from \'src/core/database\'\n', '')
         .replace('import { Prisma } from \'@prisma/client\'\n', '')

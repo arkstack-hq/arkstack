@@ -2,7 +2,7 @@
     "name": "@arkstack/database",
     "version": "0.4.3",
     "type": "module",
-    "description": "Database package for Arkstack, providing database and Arkormˣ abstractions.",
+    "description": "Database module for Arkstack, providing core database integration and data layer features.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",
@@ -34,21 +34,29 @@
     "publishConfig": {
         "access": "public"
     },
-    "bin": {
-        "ark": "./dist/index.js",
-        "prepare": "./dist/prepare.js"
-    },
     "exports": {
         ".": "./dist/index.js",
+        "./MakeFactoryCommand": "./dist/commands/MakeFactoryCommand.js",
+        "./MakeMigrationCommand": "./dist/commands/MakeMigrationCommand.js",
+        "./MakeModelCommand": "./dist/commands/MakeModelCommand.js",
+        "./MakeSeederCommand": "./dist/commands/MakeSeederCommand.js",
+        "./MigrateCommand": "./dist/commands/MigrateCommand.js",
+        "./MigrateFreshCommand": "./dist/commands/MigrateFreshCommand.js",
+        "./MigrateRollbackCommand": "./dist/commands/MigrateRollbackCommand.js",
+        "./MigrationHistoryCommand": "./dist/commands/MigrationHistoryCommand.js",
+        "./ModelsSyncCommand": "./dist/commands/ModelsSyncCommand.js",
+        "./SeedCommand": "./dist/commands/SeedCommand.js",
+        "./setup": "./dist/setup.js",
         "./package.json": "./package.json"
     },
     "peerDependencies": {
-        "clear-router": "^2.6.0",
-        "kanun": "^1.0.13"
+        "kanun": "^1.0.13",
+        "clear-router": "^2.6.0"
     },
     "dependencies": {
+        "@arkormx/plugin-clear-router": "^0.1.3",
         "@arkstack/common": "workspace:^",
         "@arkstack/contract": "workspace:^",
-        "@h3ravel/musket": "^0.10.1"
+        "arkormx": "^2.0.9"
     }
 }

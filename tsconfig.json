@@ -4,7 +4,7 @@
     "target": "es2022",
     "lib": ["es2022", "DOM"],
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -16,6 +16,8 @@
     "strictBindCallApply": true,
     "noImplicitAny": true,
     "removeComments": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       // "@h3ravel/filesystem": ["./packages/filesystem/src/index.ts"]
     }

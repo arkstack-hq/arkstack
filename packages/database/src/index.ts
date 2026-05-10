@@ -1,1 +1,7 @@
+export * from './extensions/DB'
+export * from './extensions/Factory'
+export * from './extensions/Migration'
+export * from './extensions/Model'
+export * from './extensions/SchemaBuilder'
+export * from './extensions/Seeder'
 export * from './ValidatorDBDriver'

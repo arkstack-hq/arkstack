@@ -1,5 +1,5 @@
 # @arkstack/contract
 
-Framework-agnostic contracts used by Arkstack runtime kits.
+Contract module for Arkstack, providing shared interfaces and type contracts used across the framework.
 
 This package defines the shared shape each framework driver must implement.

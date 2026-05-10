@@ -1,12 +1,12 @@
 # @arkstack/common
 
-Common utilities and helpers shared across Arkstack kits, including:
+Shared foundations and core utilities for Arkstack applications and packages providing:
 
 - Logging utilities
 - Configuration management
 - `ErrorHandler` and shared exception classes
 - Hashing and encryption helpers
-- Typed model resolution with `getModel()`
+- Typed model resolution
 - Pagination helpers
 
 ## Model Resolution

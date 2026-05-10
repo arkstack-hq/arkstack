@@ -2,7 +2,7 @@
     "name": "@arkstack/common",
     "version": "0.4.3",
     "type": "module",
-    "description": "Common package for Arkstack providing common implementations of core Arkstack features such as routing, middleware, and database integration.",
+    "description": "Shared foundations and core utilities for Arkstack applications and packages.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",
@@ -44,6 +44,6 @@
     },
     "peerDependencies": {
         "@h3ravel/support": "^0.15.11",
-        "arkormx": "^2.0.8"
+        "arkormx": "^2.0.9"
     }
 }

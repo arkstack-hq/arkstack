@@ -17,19 +17,20 @@
   },
   "dependencies": {
     "@arkstack/auth": "workspace:^",
+    "@arkstack/http": "workspace:^",
+    "@arkstack/view": "workspace:^",
     "@arkstack/common": "workspace:^",
     "@arkstack/console": "workspace:^",
     "@arkstack/contract": "workspace:^",
+    "@arkstack/database": "workspace:^",
     "@arkstack/driver-express": "workspace:^",
     "@arkstack/filesystem": "workspace:^",
-    "@arkstack/http": "workspace:^",
     "@arkstack/notifications": "workspace:^",
-    "@arkstack/view": "workspace:^",
     "@h3ravel/musket": "^0.10.1",
     "@h3ravel/support": "^0.15.11",
     "@kanun-hq/plugin-file": "^0.1.9",
     "argon2": "^0.44.0",
-    "arkormx": "^2.0.8",
+    "arkormx": "^2.0.9",
     "chalk": "^5.6.2",
     "clear-router": "^2.6.0",
     "commander": "^14.0.3",
@@ -42,7 +43,7 @@
     "kysely": "^0.28.15",
     "multer": "^2.1.1",
     "pg": "^8.20.0",
-    "resora": "^1.2.0"
+    "resora": "^1.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

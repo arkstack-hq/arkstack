@@ -10,21 +10,12 @@ import { DevCommand } from './commands/DevCommand'
 import { Kernel } from '@h3ravel/musket'
 import { MakeCommand } from './commands/MakeCommand'
 import { MakeController } from './commands/MakeController'
-import { MakeFactoryCommand } from '../../database/src/commands/MakeFactoryCommand'
 import { MakeFullResource } from './commands/MakeFullResource'
-import { MakeMigrationCommand } from '../../database/src/commands/MakeMigrationCommand'
-import { MakeModelCommand } from '../../database/src/commands/MakeModelCommand'
 import { MakeResource } from './commands/MakeResource'
-import { MakeSeederCommand } from '../../database/src/commands/MakeSeederCommand'
-import { MigrateCommand } from '../../database/src/commands/MigrateCommand'
-import { MigrateFreshCommand } from '../../database/src/commands/MigrateFreshCommand'
-import { MigrateRollbackCommand } from '../../database/src/commands/MigrateRollbackCommand'
-import { MigrationHistoryCommand } from '../../database/src/commands/MigrationHistoryCommand'
-import { ModelsSyncCommand } from '../../database/src/commands/ModelsSyncCommand'
 import { RouteList } from './commands/RouteList'
-import { SeedCommand } from '../../database/src/commands/SeedCommand'
 import logo from './logo'
 import { realpathSync } from 'node:fs'
+import { str } from '@h3ravel/support'
 
 export interface RunConsoleOptions {
     logo?: string;
@@ -59,6 +50,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
     globalThis.app = () => app as never
     globalThis.env = env
     globalThis.config = config
+    globalThis.str = str
     globalThis.arkctx = {
         runtime: 'CLI',
     }
@@ -73,17 +65,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             MakeFullResource,
             DevCommand,
             BuildCommand,
-            MakeFactoryCommand,
-            MakeMigrationCommand,
-            MakeModelCommand,
-            MakeSeederCommand,
-            MigrateCommand,
-            ModelsSyncCommand,
-            SeedCommand,
             MakeCommand,
-            MigrateFreshCommand,
-            MigrateRollbackCommand,
-            MigrationHistoryCommand,
         ],
         discoveryPaths: [
             join(process.cwd(), 'src', 'app', 'console', 'commands/*.ts'),

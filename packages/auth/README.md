@@ -1,6 +1,6 @@
 # @arkstack/auth
 
-Authentication package for Arkstack applications.
+Authentication module for Arkstack, providing core authentication and identity features.
 
 `@arkstack/auth` provides the framework-neutral auth service used by Arkstack runtime drivers. It supports credential verification, JWT-backed personal access tokens, temporary purpose-bound tokens, current-session lookup, two-factor authentication helpers, and auth-specific exceptions.
 
@@ -29,7 +29,10 @@ if (TwoFactor.verifyCode(user, setup.secret, code)) {
 
   await TwoFactor.setMethod(user.id, 'authenticator');
   await TwoFactor.setEnabledAt(user.id);
-  await TwoFactor.writeRecoveryCodeHashes(user.id, await TwoFactor.hashBackupCodes(recoveryCodes));
+  await TwoFactor.writeRecoveryCodeHashes(
+    user.id,
+    await TwoFactor.hashBackupCodes(recoveryCodes),
+  );
 }
 ```
 

@@ -2,7 +2,7 @@
     "name": "@arkstack/driver-express",
     "version": "0.4.3",
     "type": "module",
-    "description": "Express driver package for Arkstack providing Express-specific implementations of core Arkstack features such as routing, middleware, and database integration.",
+    "description": "Express driver for Arkstack, providing Express-based runtime integration for the framework.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",
@@ -44,8 +44,8 @@
         "clear-router": "^2.6.0",
         "@arkstack/contract": "workspace:^",
         "express-rate-limit": "^8.4.1",
-        "@resora/plugin-clear-router": "^1.0.10",
-        "resora": "^1.2.0"
+        "@resora/plugin-clear-router": "^1.0.11",
+        "resora": "^1.2.2"
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",

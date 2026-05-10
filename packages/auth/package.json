@@ -2,7 +2,7 @@
     "name": "@arkstack/auth",
     "version": "0.4.3",
     "type": "module",
-    "description": "Authentication package for Arkstack applications, providing utilities for user authentication, password hashing, and two-factor authentication.",
+    "description": "Authentication module for Arkstack, providing core authentication and identity features.",
     "homepage": "https://arkstack.toneflix.net/guide/auth",
     "repository": {
         "type": "git",
@@ -48,7 +48,7 @@
     "peerDependencies": {
         "@arkstack/notifications": "workspace:^",
         "@h3ravel/support": "^0.15.11",
-        "arkormx": "^2.0.8"
+        "arkormx": "^2.0.9"
     },
     "inlinedDependencies": {
         "otpauth": "9.5.1"

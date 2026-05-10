@@ -1,6 +1,6 @@
 # @arkstack/notifications
 
-Framework-neutral notifications for Arkstack applications.
+Framework-agnostic notification module for Arkstack and Nodejs, providing support for multi-channel notification delivery.
 
 ```ts
 import { Notification } from '@arkstack/notifications';

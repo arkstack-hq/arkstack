@@ -2,7 +2,7 @@
     "name": "@arkstack/view",
     "version": "0.4.3",
     "type": "module",
-    "description": "View rendering package for Arkstack applications.",
+    "description": "View module for Arkstack, providing template rendering and view integration utilities.",
     "homepage": "https://arkstack.toneflix.net/guide/views",
     "repository": {
         "type": "git",
@@ -19,17 +19,9 @@
         "access": "public"
     },
     "types": "./dist/index.d.ts",
-    "main": "./dist/index.cjs",
-    "module": "./dist/index.js",
     "exports": {
-        ".": {
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs"
-        },
-        "./commands/MakeViewCommand": {
-            "import": "./dist/commands/MakeViewCommand.js",
-            "require": "./dist/commands/MakeViewCommand.cjs"
-        },
+        ".": "./dist/index.js",
+        "./MakeViewCommand": "./dist/commands/MakeViewCommand.js",
         "./package.json": "./package.json"
     },
     "keywords": [

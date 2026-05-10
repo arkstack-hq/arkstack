@@ -1,15 +1,16 @@
-import { HeaderMap, HeaderSource, ResponseSource } from './types/Http'
-import { isRecord, normalizeHeaders } from './helpers'
+import { HeaderSource, ResponseSource } from './types/Http'
+import { isRecord, makeHeaders, normalizeHeaders } from './helpers'
+
+import { Response as BaseResponse } from 'clear-router'
+import { RequestData } from 'clear-router/types/basic'
 
 /**
  * Represents an HTTP response, providing a consistent interface for accessing response data.
  * 
  * @author 3m1n3nc3
  */
-export class Response<TBody = unknown> {
-    statusCode: number
-    readonly headers: HeaderMap
-    body?: TBody
+export class Response<TBody = unknown> extends BaseResponse {
+    override body: TBody
     readonly source?: unknown
 
     constructor(options: {
@@ -18,13 +19,17 @@ export class Response<TBody = unknown> {
         body?: TBody;
         source?: unknown;
     } = {}) {
-        this.statusCode = options.statusCode ?? 200
-        this.headers = normalizeHeaders(options.headers)
-        this.body = options.body
+        super({
+            body: options.body,
+            headers: makeHeaders(options.headers),
+            statusCode: options.statusCode ?? 200,
+        })
+
+        this.body = options.body ?? {} as TBody
         this.source = options.source
     }
 
-    static from<TBody = unknown> (
+    static from<TBody extends RequestData = RequestData> (
         source?: Response<TBody> | ResponseSource
     ): Response<TBody> | undefined {
         if (!source) {
@@ -57,13 +62,17 @@ export class Response<TBody = unknown> {
     }
 
     header (name: string, value: string) {
-        this.headers[name.toLowerCase()] = value
+        this.headers.set(name.toLowerCase(), value)
 
         if (isRecord(this.source) && typeof this.source.setHeader === 'function') {
             this.source.setHeader(name, value)
         }
 
         return this
+    }
+
+    getHeaders () {
+        return normalizeHeaders(this.headers)
     }
 
     json (body: TBody) {
