@@ -1,5 +1,3 @@
-import { IUser } from './models/interfaces'
-
 declare module 'resora' {
   interface Config {
     stubs: {

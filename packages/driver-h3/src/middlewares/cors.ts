@@ -1,7 +1,6 @@
-// oxlint-disable typescript/no-explicit-any
 import { H3Event } from 'h3'
 import { NextFunction } from 'clear-router/types/h3'
-import { vary } from 'src/core/utils/vary'
+import { vary } from '../utils/vary'
 
 const isString = (s: any) => {
   return typeof s === 'string' || s instanceof String

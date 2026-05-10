@@ -1,6 +1,8 @@
+import { Resource, ResourceCollection } from 'resora'
+
 import { BaseController } from '@controllers/BaseController'
-import UserCollection from '../resources/UserCollection'
-import UserResource from '../resources/UserResource'
+import { Bind } from 'clear-router/decorators'
+import { User } from 'src/app/models/User'
 
 /**
  * UserController
@@ -10,10 +12,11 @@ export default class UserController extends BaseController {
    * Get all resources
    *
    * @param req
-   * @param res
    */
-  index = async () => {
-    return await new UserCollection([])
+  async index () {
+    const users = await User.query().paginate(5)
+
+    return new ResourceCollection(users)
       .additional({
         status: 'success',
         message: 'OK',
@@ -26,11 +29,11 @@ export default class UserController extends BaseController {
   /**
    * Get a specific resource
    *
-   * @param req
    * @param res
    */
-  show = async () => {
-    return new UserResource({ data: {} })
+  @Bind()
+  async show (user: User) {
+    return new Resource(user)
       .additional({
         status: 'success',
         message: 'OK',
@@ -43,11 +46,10 @@ export default class UserController extends BaseController {
   /**
    * Create a resource
    *
-   * @param req
    * @param res
    */
-  create = async () => {
-    return new UserResource({ data: {} })
+  async create () {
+    return new Resource({ data: {} })
       .additional({
         status: 'success',
         message: 'New User created successfully',
@@ -60,16 +62,15 @@ export default class UserController extends BaseController {
   /**
    * Update a specific resource
    *
-   * @param req
    * @param res
    */
-  update = async () => {
+  async update () {
     const data = await this.validate({
       name: 'string|required',
-      age: 'numeric|required|min:22',
+      age: 'numeric|required|min:30',
     })
 
-    return new UserResource({ data })
+    return new Resource({ data })
       .additional({
         status: 'success',
         message: 'User updated successfully',
@@ -82,11 +83,10 @@ export default class UserController extends BaseController {
   /**
    * Delete a specific resource
    *
-   * @param req
    * @param res
    */
-  destroy = async () => {
-    return new UserResource({ data: {} })
+  async destroy () {
+    return new Resource({ data: {} })
       .additional({
         status: 'success',
         message: 'User deleted successfully',
