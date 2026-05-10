@@ -20,7 +20,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsdown --config-loader unconfig",
+        "build": "tsdown --config-loader unrun",
         "version:patch": "pnpm version patch",
         "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
     },

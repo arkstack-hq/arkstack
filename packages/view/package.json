@@ -10,7 +10,7 @@
         "directory": "packages/view"
     },
     "scripts": {
-        "build": "tsdown --config-loader unconfig",
+        "build": "tsdown --config-loader unrun",
         "test": "vitest",
         "version:patch": "pnpm version patch",
         "prepublishOnly": "node ../../scripts/prepublish-only.mjs"

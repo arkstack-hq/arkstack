@@ -61,24 +61,28 @@ export const baseConfig: UserConfig = {
             } catch { /** */ }
         })
     },
-    external: [
-        'fs',
-        'os',
-        'tsx',
-        'path',
-        'tsdown',
-        'dotenv',
-        'crypto',
-        'rollup',
-        'esbuild',
-        'edge.js',
-        'nodemailer',
-        'typescript',
-        /^@arkstack\/.*/gi,
-        /^node:.*/gi,
-        /.*\/promises$/gi,
-        'fs-readdir-recursive',
-    ],
+    deps: {
+        neverBundle: [
+            'fs',
+            'os',
+            'tsx',
+            'path',
+            'tsdown',
+            'dotenv',
+            'crypto',
+            'rollup',
+            'esbuild',
+            'edge.js',
+            'arkormx',
+            'nodemailer',
+            'typescript',
+            /^@h3ravel\/.*/gi,
+            /^@arkstack\/.*/gi,
+            /^node:.*/gi,
+            /.*\/promises$/gi,
+            'fs-readdir-recursive',
+        ]
+    },
 }
 
 export default defineConfig(baseConfig) 

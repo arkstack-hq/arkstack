@@ -1,0 +1,54 @@
+{
+    "name": "@arkstack/database",
+    "version": "0.4.3",
+    "type": "module",
+    "description": "Database package for Arkstack, providing database and Arkormˣ abstractions.",
+    "homepage": "https://arkstack.toneflix.net",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/database"
+    },
+    "keywords": [
+        "database",
+        "arkorm",
+        "models",
+        "eloquent",
+        "prisma",
+        "kysely",
+        "mysql",
+        "mariadb",
+        "sql",
+        "postgresql",
+        "h3ravel"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsdown --config-loader unrun",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "bin": {
+        "ark": "./dist/index.js",
+        "prepare": "./dist/prepare.js"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./package.json": "./package.json"
+    },
+    "peerDependencies": {
+        "clear-router": "^2.6.0",
+        "kanun": "^1.0.13"
+    },
+    "dependencies": {
+        "@arkstack/common": "workspace:^",
+        "@arkstack/contract": "workspace:^",
+        "@h3ravel/musket": "^0.10.1"
+    }
+}

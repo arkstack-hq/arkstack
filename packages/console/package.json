@@ -48,8 +48,8 @@
         }
     },
     "peerDependencies": {
-        "clear-router": "^2.5.4",
-        "arkormx": "^2.0.7"
+        "clear-router": "^2.6.0",
+        "arkormx": "^2.0.8"
     },
     "dependencies": {
         "@arkstack/common": "workspace:^",

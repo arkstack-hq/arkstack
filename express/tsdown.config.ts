@@ -17,6 +17,9 @@ export default defineConfig([
     format: 'esm',
     sourcemap: true,
     logLevel: 'silent',
+    deps: {
+      skipNodeModulesBundle: true,
+    },
     watch: env === 'dev' && process.env.CLI_BUILD !== 'true' ? ['.env', '.env.*', 'src', 'tsconfig.json'] : false,
     plugins:
       env === 'dev' && process.env.CLI_BUILD !== 'true'
@@ -37,7 +40,6 @@ export default defineConfig([
         dts: '.d.ts',
       }
     },
-    skipNodeModulesBundle: true,
     hooks (e) {
       e.hook('build:done', async (e) => {
         for (let i = 0; i < e.chunks.length; i++) {

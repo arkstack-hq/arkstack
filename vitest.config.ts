@@ -1,9 +1,8 @@
-import { defineConfig } from 'vitest/config'
+import { ViteUserConfig, defineConfig } from 'vitest/config'
+
 import path from 'node:path'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-    plugins: [tsconfigPaths()],
     resolve: {
         alias: [
             {
@@ -15,7 +14,8 @@ export default defineConfig({
                 replacement: path.resolve(__dirname, 'packages') + '/$1/src/index.ts',
             },
         ],
-    },
+        tsconfigPaths: true,
+    } as ViteUserConfig['resolve'],
     test: {
         // setup file is at the root of the project, so we need to resolve it not from the current package, but from the root
         setupFiles: path.resolve(__dirname, 'tests/setup.ts'),

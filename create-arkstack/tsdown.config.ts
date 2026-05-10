@@ -6,11 +6,13 @@ export default defineConfig({
     outDir: 'bin',
     dts: true,
     sourcemap: true,
-    external: [
-        'fs',
-        'path',
-        'os',
-        'dotenv'
-    ],
+    deps: {
+        neverBundle: [
+            'fs',
+            'path',
+            'os',
+            'dotenv'
+        ]
+    },
     clean: true
 }) 

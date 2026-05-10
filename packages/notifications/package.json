@@ -23,7 +23,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsdown --config-loader unconfig",
+        "build": "tsdown --config-loader unrun",
         "test": "vitest",
         "version:patch": "pnpm version patch",
         "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
@@ -42,7 +42,7 @@
         "twilio": "^6.0.0"
     },
     "peerDependencies": {
-        "arkormx": "^2.0.7"
+        "arkormx": "^2.0.8"
     },
     "devDependencies": {
         "@types/nodemailer": "^7.0.11"

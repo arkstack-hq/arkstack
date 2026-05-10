@@ -1,8 +1,7 @@
 import { DotPath, Obj } from '@h3ravel/support'
 import { GlobalConfig, GlobalEnv } from './types'
 
-// TODO: @rexxars/jiti has to be replaced with jiti once a new release is available. See https://github.com/unjs/jiti/pull/427
-import { createJiti } from '@rexxars/jiti'
+import { createJiti } from 'jiti'
 import { createRequire } from 'module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'

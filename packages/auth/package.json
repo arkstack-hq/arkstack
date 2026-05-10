@@ -28,7 +28,7 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsdown --config-loader unconfig",
+        "build": "tsdown --config-loader unrun",
         "version:patch": "pnpm version patch",
         "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
     },
@@ -48,6 +48,9 @@
     "peerDependencies": {
         "@arkstack/notifications": "workspace:^",
         "@h3ravel/support": "^0.15.11",
-        "arkormx": "^2.0.7"
+        "arkormx": "^2.0.8"
+    },
+    "inlinedDependencies": {
+        "otpauth": "9.5.1"
     }
 }

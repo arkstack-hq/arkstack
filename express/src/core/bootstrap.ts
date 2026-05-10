@@ -1,6 +1,6 @@
 import Application from 'src/core/app'
 import { Validator } from 'kanun'
-import { ValidatorDBDriver } from './utils/drivers/ValidatorDBDriver'
+import { ValidatorDBDriver } from '../../../packages/database/src/ValidatorDBDriver'
 import { View } from '@arkstack/view'
 import express from 'express'
 import { fileValidatorPlugin } from '@kanun-hq/plugin-file'
