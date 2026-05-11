@@ -44,6 +44,6 @@
     },
     "peerDependencies": {
         "@h3ravel/support": "^0.15.11",
-        "arkormx": "^2.0.10"
+        "arkormx": "^2.0.11"
     }
 }

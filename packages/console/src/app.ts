@@ -50,7 +50,6 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
     makeController = (name: string, opts: any) => {
         this.mergeConfig()
         const normalized = (name.endsWith('Controller') ? name.replace(/controller/i, '') : name)
-
         let controllerName = normalized.endsWith('Controller') ? normalized : `${normalized}Controller`
         const controllersDir = path.resolve(process.cwd(), 'src', 'app/http/controllers')
         const fileName = `${controllerName}.${opts?.ext ?? 'ts'}`
@@ -77,7 +76,6 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
         }
 
         controllerName = controllerName.split('/').pop() as string
-
         this.generateFile(
             stubPath,
             outputPath,
@@ -85,6 +83,7 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
                 // If class name contains / or ., take only the last part for the class name
                 ControllerName: controllerName,
                 Model: opts.model?.pascalCase(),
+                Param: opts.model?.toLowerCase(),
                 ModelName: opts.model?.camelCase(),
                 Name: controllerName.replace(/controller/i, ''),
             },

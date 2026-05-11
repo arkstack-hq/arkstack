@@ -1,18 +1,18 @@
 import { BaseController } from '@controllers/BaseController'
 import { Bind } from 'clear-router/decorators'
 import { Resource, ResourceCollection } from 'resora'
-import { {{Model}} } from '@app/models/{{Model}}'
+import { Jssd } from '@app/models/Jssd'
 import { Request } from '@arkstack/http'
 
 /**
- * {{ControllerName}}
+ * JssdController
  */
-export default class {{ControllerName}} extends BaseController {
+export default class JssdController extends BaseController {
     /**
      * Get all resource from the database
      */
     async index () {
-        return new ResourceCollection(await {{Model}}.query().orderBy({ id: 'asc' }).get()).additional({
+        return new ResourceCollection(await Jssd.query().orderBy({ id: 'asc' }).get()).additional({
             status: 'success',
             message: 'OK',
             code: 200,
@@ -22,11 +22,11 @@ export default class {{ControllerName}} extends BaseController {
     /**
      * Get a specific resource from the database
      * 
-     * @param {{Param}}  
+     * @param jssd  
      */
      @Bind()
-    async show ({{Param}}: {{Model}}) {
-        return new Resource({{Param}}).additional({
+    async show (jssd: Jssd) {
+        return new Resource(jssd).additional({
             status: 'success',
             message: 'OK',
             code: 200,
@@ -38,19 +38,19 @@ export default class {{ControllerName}} extends BaseController {
      * 
      * The calling route must recieve a multer.RequestHandler instance
      * 
-     * @example router.post('/{{ModelName}}s', upload.none(), new AdminController().create)
+     * @example router.post('/jssds', upload.none(), new AdminController().create)
      * 
      * @param req 
      */
     @Bind()
     async create (req: Request) {
-        const data = await {{Model}}.query().create({
+        const data = await Jssd.query().create({
             data: req.body,
         })
 
         return new Resource({ data }).additional({
             status: 'success',
-            message: 'New {{ModelName}} created successfully',
+            message: 'New jssd created successfully',
             code: 201,
         }).response().setStatusCode(201)
     }
@@ -58,18 +58,18 @@ export default class {{ControllerName}} extends BaseController {
     /**
      * Update a specific resource in the database
      * 
-     * @param {{Param}} 
+     * @param jssd 
      * @param req 
      */
     @Bind()
-    async update ({{Param}}: {{Model}}, req: Request) {
-        await {{Param}}.update({
+    async update (jssd: Jssd, req: Request) {
+        await jssd.update({
             data: req.body,
         })
 
-        return new Resource({{Param}}).additional({
+        return new Resource(jssd).additional({
             status: 'success',
-            message: '{{ModelName}} updated successfully',
+            message: 'jssd updated successfully',
             code: 202,
         }).response().setStatusCode(202)
     }
@@ -77,14 +77,14 @@ export default class {{ControllerName}} extends BaseController {
     /**
      * Delete a specific resource from the database
      * 
-     * @param {{Param}}  
+     * @param jssd  
      */
-    async destroy ({{Param}}: {{Model}}) {
-        await {{Param}}.delete()
+    async destroy (jssd: Jssd) {
+        await jssd.delete()
 
         return new Resource({ data: {} }).additional({
             status: 'success',
-            message: '{{ModelName}} deleted successfully',
+            message: 'jssd deleted successfully',
             code: 202,
         }).response().setStatusCode(202)
     }

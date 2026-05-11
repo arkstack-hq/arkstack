@@ -50,13 +50,13 @@
         "./package.json": "./package.json"
     },
     "peerDependencies": {
-        "kanun": "^1.0.13",
+        "kanun": "^1.1.0",
         "clear-router": "^2.6.4"
     },
     "dependencies": {
-        "@arkormx/plugin-clear-router": "^0.1.8",
+        "@arkormx/plugin-clear-router": "^0.1.9",
         "@arkstack/common": "workspace:^",
         "@arkstack/contract": "workspace:^",
-        "arkormx": "^2.0.10"
+        "arkormx": "^2.0.11"
     }
 }

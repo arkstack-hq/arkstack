@@ -1,8 +1,12 @@
 # Arkstack
 
 [![Create Arkstack][i1]][l1]
-[![Downloads][d1]][l1]
+[![Installations][d1]][l1]
 [![Arkormˣ Downloads](https://img.shields.io/npm/dt/arkormx?style=flat-square&label=Arkormˣ&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Farkormx)](https://www.npmjs.com/package/arkormx)
+[![Resora Downloads](https://img.shields.io/npm/dt/resora?style=flat-square&label=Resora&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fresora)](https://www.npmjs.com/package/resora)
+[![Parasito](https://img.shields.io/npm/dt/parasito?style=flat-square&label=Parasito&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fparasito)](https://www.npmjs.com/package/parasito)
+[![Clear Router](https://img.shields.io/npm/dt/clear-router?style=flat-square&label=Clear+Router&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fclear-router)](https://www.npmjs.com/package/clear-router)
+[![Kanun](https://img.shields.io/npm/dt/kanun?style=flat-square&label=Kanun&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fkanun)](https://www.npmjs.com/package/kanun)
 [![Contract Downloads](https://img.shields.io/npm/dt/@arkstack/contract?style=flat-square&label=@arkstack/contract&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/contract)](https://www.npmjs.com/package/@arkstack/contract)
 [![Common Downloads](https://img.shields.io/npm/dt/@arkstack/common?style=flat-square&label=@arkstack/common&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/common)](https://www.npmjs.com/package/@arkstack/common)
 [![Console Downloads](https://img.shields.io/npm/dt/@arkstack/console?style=flat-square&label=@arkstack/console&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/console)](https://www.npmjs.com/package/@arkstack/console)
@@ -10,6 +14,11 @@
 [![Console Slim Downloads](https://img.shields.io/npm/dt/@arkstack/filesystem?style=flat-square&label=@arkstack/filesystem&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/filesystem)](https://www.npmjs.com/package/@arkstack/filesystem)
 [![Driver Express Downloads](https://img.shields.io/npm/dt/@arkstack/driver-express?style=flat-square&label=@arkstack/driver-express&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/driver-express)](https://www.npmjs.com/package/@arkstack/driver-express)
 [![Driver H3 Downloads](https://img.shields.io/npm/dt/@arkstack/driver-h3?style=flat-square&label=@arkstack/driver-h3&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/driver-h3)](https://www.npmjs.com/package/@arkstack/driver-h3)
+[![Auth Downloads](https://img.shields.io/npm/dt/@arkstack/auth?style=flat-square&label=@arkstack/auth&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/auth)](https://www.npmjs.com/package/@arkstack/auth)
+[![HTTP Downloads](https://img.shields.io/npm/dt/@arkstack/http?style=flat-square&label=@arkstack/http&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/http)](https://www.npmjs.com/package/@arkstack/http)
+[![View Downloads](https://img.shields.io/npm/dt/@arkstack/view?style=flat-square&label=@arkstack/view&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/view)](https://www.npmjs.com/package/@arkstack/view)
+[![Notifications Downloads](https://img.shields.io/npm/dt/@arkstack/notifications?style=flat-square&label=@arkstack/notifications&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/notifications)](https://www.npmjs.com/package/@arkstack/notifications)
+[![Database Downloads](https://img.shields.io/npm/dt/@arkstack/database?style=flat-square&label=@arkstack/database&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/database)](https://www.npmjs.com/package/@arkstack/database)
 [![Deploy Documentation](https://github.com/arkstack-hq/arkstack/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/arkstack-hq/arkstack/actions/workflows/deploy-docs.yml)
 [![CI](https://github.com/arkstack-hq/arkstack/actions/workflows/ci.yml/badge.svg)](https://github.com/arkstack-hq/arkstack/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/arkstack-hq/arkstack/graph/badge.svg?token=vaccg5iudz)](https://codecov.io/gh/arkstack-hq/arkstack)
@@ -229,4 +238,4 @@ MIT
 
 [i1]: https://img.shields.io/npm/v/create-arkstack?style=flat-square&label=create-arkstack&color=%230970ce
 [l1]: https://www.npmjs.com/package/create-arkstack
-[d1]: https://img.shields.io/npm/dt/create-arkstack?style=flat-square&label=Downloads&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fcreate-arkstack
+[d1]: https://img.shields.io/npm/dt/create-arkstack?style=flat-square&label=Installations&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fcreate-arkstack
