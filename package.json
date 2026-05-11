@@ -1,7 +1,7 @@
 {
   "name": "arkstack",
   "type": "module",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
