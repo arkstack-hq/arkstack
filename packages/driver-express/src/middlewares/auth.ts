@@ -6,7 +6,7 @@ import { Hook } from '@arkstack/common'
 export const auth: Handler = async (req, res, next) => {
     try {
         if (Hook.has('middleware:auth', 'before'))
-            Hook.get('middleware:auth', 'before')?.({ req, res })
+            await Promise.resolve(Hook.get('middleware:auth', 'before')?.({ req, res }))
 
         const token = readBearerToken(req.headers.authorization)
 
@@ -23,12 +23,15 @@ export const auth: Handler = async (req, res, next) => {
         req.authToken = token
 
         if (Hook.has('middleware:auth', 'after'))
-            Hook.get('middleware:auth', 'after')?.({ req, res })
+            await Promise.resolve(Hook.get('middleware:auth', 'after')?.({ req, res }))
 
         next()
     } catch (error) {
         if (Hook.has('middleware:auth', 'error'))
-            Hook.get('middleware:auth', 'error')?.(error, { req, res })
+            await Promise.resolve(Hook.get('middleware:auth', 'error')?.(error, {
+                req,
+                res
+            }))
 
         next(error)
     }
