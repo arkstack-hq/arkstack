@@ -20,7 +20,6 @@ export const fitText = (text: string) => {
   const fixed = parse2.at(1) ?? parse2.at(0)?.trim() ?? ''
 
   const out = uppercaseFirst(truncate(fixed, 100, '').trim())
-  console.log(out.length)
   return out.length >= 90 ? out + '…' : out + '.'
 }
 
