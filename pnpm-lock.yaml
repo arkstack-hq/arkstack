@@ -176,6 +176,9 @@ importers:
       '@inquirer/core':
         specifier: ^10.2.2
         version: 10.3.2(@types/node@25.6.2)
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       giget:
         specifier: ^2.0.0
         version: 2.0.0
@@ -198,6 +201,9 @@ importers:
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.15.33)(@types/node@25.6.2)(typescript@6.0.3)
+      typescript:
+        specifier: ^6.0.0
+        version: 6.0.3
 
   express:
     dependencies:
@@ -3397,6 +3403,10 @@ packages:
 
   dotenv@17.3.1:
     resolution: {integrity: sha512-IO8C/dzEb6O3F9/twg6ZLXz164a2fhTnEWb95H23Dm4OuN+92NmEAlTrupP9VW6Jm3sO26tQlqyvyi4CsnY9GA==}
+    engines: {node: '>=12'}
+
+  dotenv@17.4.2:
+    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
   dts-resolver@3.0.0:
@@ -8799,6 +8809,8 @@ snapshots:
       path-type: 4.0.0
 
   dotenv@17.3.1: {}
+
+  dotenv@17.4.2: {}
 
   dts-resolver@3.0.0: {}
 
