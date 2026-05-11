@@ -76,7 +76,7 @@ const goto = (link: string): void => {
   }
 }
 .package-card {
-  padding: 15px;
+  padding: 12px;
   min-height: 90px;
   height: 100%;
   color: inherit;
@@ -91,7 +91,7 @@ const goto = (link: string): void => {
 
   align-items: center;
   justify-content: space-between;
-  gap: 32px;
+  gap: 8px;
   transition:
     transform 0.2s,
     border-color 0.2s,

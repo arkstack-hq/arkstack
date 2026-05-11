@@ -19,9 +19,9 @@ export const fitText = (text: string) => {
   const parse2 = (parse1.at(1) ?? parse1.at(0))?.split('providing') ?? []
   const fixed = parse2.at(1) ?? parse2.at(0)?.trim() ?? ''
 
-  const out = uppercaseFirst(truncate(fixed, 70, '').trim())
-
-  return out.length >= 70 ? out : out + '…'
+  const out = uppercaseFirst(truncate(fixed, 100, '').trim())
+  console.log(out.length)
+  return out.length >= 90 ? out + '…' : out + '.'
 }
 
 export const uppercaseFirst = (value = '') => {
