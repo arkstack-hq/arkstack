@@ -84,8 +84,7 @@
             {{ runtime.name }}
           </button>
         </div>
-        <pre><code><span class="cm">// src/routes/web.ts</span>
-<span class="kw">import</span> { Router } <span class="kw">from</span> <span class="str">'@arkstack/driver-{{ activeRuntime.id }}'</span>
+        <pre><code><span class="kw">import</span> { Router } <span class="kw">from</span> <span class="str">'@arkstack/driver-{{ activeRuntime.id }}'</span>
 <span class="kw">import</span> { view } <span class="kw">from</span> <span class="str">'@arkstack/view'</span>
 
 Router.<span class="fn">get</span>(<span class="str">'/'</span>, <span class="kw">async</span> () =&gt; {
