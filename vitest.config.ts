@@ -1,8 +1,24 @@
 import { ViteUserConfig, defineConfig } from 'vitest/config'
 
 import path from 'node:path'
+import swc from 'unplugin-swc'
 
 export default defineConfig({
+    plugins: [
+        swc.vite({
+            jsc: {
+                parser: {
+                    syntax: 'typescript',
+                    decorators: true,
+                },
+                transform: {
+                    decoratorMetadata: true,
+                    legacyDecorator: true,
+                },
+                target: 'es2021',
+            },
+        }) as never,
+    ],
     resolve: {
         alias: [
             {

@@ -216,6 +216,20 @@ export default class {
     }
   }
 
+  async makeFullProfile (_kit: KitName) {
+    const pkgPath = join(this.location!, 'package.json')
+    if (existsSync(pkgPath)) {
+      const pkg = await readFile(pkgPath, 'utf-8').then(JSON.parse)
+
+      for (const dep of leanDependencies) {
+        delete pkg.dependencies?.[dep]
+        delete pkg.devDependencies?.[dep]
+      }
+
+      await writeFile(pkgPath, JSON.stringify(pkg, null, 2))
+    }
+  }
+
   async makeLeanProfile (_kit: KitName) {
     await Promise.allSettled(
       filesToRemove.map((file) => rm(join(this.location!, file), { force: true, recursive: true })),
@@ -228,10 +242,6 @@ export default class {
       for (const dep of fullDependencies) {
         delete pkg.dependencies?.[dep]
         delete pkg.devDependencies?.[dep]
-      }
-
-      for (const [name, version] of Object.entries(leanDependencies)) {
-        pkg.dependencies[name] = version
       }
 
       await writeFile(pkgPath, JSON.stringify(pkg, null, 2))

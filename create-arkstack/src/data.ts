@@ -7,6 +7,8 @@ export const filesToRemove = [
     'src/routes/api.ts',
     'src/database',
     'src/core/database.ts',
+    'src/config/filesystem.ts',
+    'src/config/notifications.ts',
     'prisma',
     'prisma.config.ts',
     'arkorm.config.ts',
@@ -22,25 +24,31 @@ export const fullDependencies = [
     '@arkstack/console',
     '@prisma/client',
     '@types/pg',
+    '@arkstack/auth',
+    '@arkstack/database',
+    '@arkstack/filesystem',
+    '@arkstack/notifications',
     'pg',
     'kysely',
     'prisma',
     'arkormx',
 ]
 
-export const leanDependencies = {
-    '@arkstack/console-slim': '^0.4.3',
-}
+export const leanDependencies = [
+    '@arkstack/console-slim',
+]
 
 export const depsList: Record<string, string> = {
-    '@arkstack/http': '^0.4.3',
-    '@arkstack/view': '^0.4.3',
     '@arkstack/auth': '^0.4.3',
     '@arkstack/common': '^0.4.3',
     '@arkstack/console': '^0.4.3',
+    '@arkstack/console-slim': '^0.4.3',
     '@arkstack/contract': '^0.4.3',
+    '@arkstack/database': '^0.4.3',
+    '@arkstack/driver-express': '^0.4.3',
     '@arkstack/driver-h3': '^0.4.3',
     '@arkstack/filesystem': '^0.4.3',
-    '@arkstack/driver-express': '^0.4.3',
+    '@arkstack/http': '^0.4.3',
+    '@arkstack/view': '^0.4.3',
     '@arkstack/notifications': '^0.4.3',
 }

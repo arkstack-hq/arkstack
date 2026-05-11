@@ -1,12 +1,11 @@
 import 'clear-router/decorators/setup'
 
+import { Controller as BaseController, Request } from 'clear-router'
 import { beforeEach, describe, it } from 'vitest'
 import express, { Router as ExRouter } from 'express'
 
-import { BaseController } from 'src/app/http/controllers/BaseController'
 import { Bind } from 'clear-router/decorators'
 import { Container } from 'clear-router/decorators'
-import { Request } from 'clear-router'
 import { Router } from 'clear-router/express'
 import { request } from 'parasito'
 

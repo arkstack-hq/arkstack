@@ -171,6 +171,8 @@ export class CreateArkstackCommand extends Command {
         'green',
       ]], '', false)).start()
       await actions.makeLeanProfile(kitName)
+    } else {
+      await actions.makeFullProfile(kitName)
     }
 
     spinner.info(Logger.parse([['Cleaning Up...', 'green']], '', false)).start()
