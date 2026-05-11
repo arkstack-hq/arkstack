@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import ArkTerm from './ArkTerm.vue';
+import CreateArkstack from './CreateArkstack.vue';
 import ProjectStructure from './ProjectStructure.vue';
 import UnifiedConsole from './UnifiedConsole.vue';
 import ArkDependencies from './ArkDependencies.vue';
@@ -24,8 +24,12 @@ const feature = computed(
   <div>
     <UnifiedConsole v-if="feature === 'console'" />
     <ProjectStructure v-else-if="feature === 'structure'" />
-    <ArkTerm selected="h3" v-else-if="feature === 'multi-runtime'" />
-    <ArkTerm selected="lean" group="scopes" v-else-if="feature === 'scope'" />
+    <CreateArkstack selected="h3" v-else-if="feature === 'multi-runtime'" />
+    <CreateArkstack
+      selected="lean"
+      group="scopes"
+      v-else-if="feature === 'scope'"
+    />
     <ArkDependencies v-else-if="feature === 'packages'" />
     <ExtensibleDrivers v-else-if="feature === 'drivers'" />
     <RuntimeAgnostic v-else-if="feature === 'runtime-agnostic'" />
