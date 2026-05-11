@@ -21,23 +21,15 @@
 | | | | | | (__\__ \ || (_| | (__|   < 
 \_| |_/_|  \___|___/\__\__,_|\___|_|\_\</pre
       >
-      <div class="question">
-        <span class="mark">?</span>Choose runtime template:
-      </div>
+      <div class="question"><span class="mark">?</span>Choose Runtime:</div>
 
       <ul class="choices">
-        <li :class="selected === 'ex' ? 'selected' : ''">
-          <span class="indicator">›</span><span>Express Runtime Template</span>
-        </li>
-        <li :class="selected === 'exm' ? 'selected' : ''">
-          <span class="indicator">›</span
-          ><span>Express Lean Runtime Template</span>
-        </li>
-        <li :class="selected === 'h3' ? 'selected' : ''">
-          <span class="indicator">›</span><span>H3 Runtime Template</span>
-        </li>
-        <li :class="selected === 'h3m' ? 'selected' : ''">
-          <span class="indicator">›</span><span>H3 Lean Runtime Template</span>
+        <li
+          :class="selected === option.key ? 'selected' : ''"
+          :key="option.key"
+          v-for="option in options"
+        >
+          <span class="indicator">›</span><span>{{ option.val }}</span>
         </li>
       </ul>
 
@@ -50,9 +42,31 @@
   </div>
 </template>
 <script setup lang="ts">
-const { selected = 'ex' } = defineProps<{
-  selected?: 'h3' | 'ex' | 'h3m' | 'exm';
+const { selected = 'ex', group = 'stacks' } = defineProps<{
+  selected?: 'h3' | 'ex' | 'lean' | 'full';
+  group?: 'stacks' | 'scopes';
 }>();
+const stacks = [
+  {
+    key: 'ex',
+    val: 'Express - Arkstack application running on Express',
+  },
+  {
+    key: 'h3',
+    val: 'H3 - Arkstack application running on H3',
+  },
+];
+const scopes = [
+  {
+    key: 'lean',
+    val: 'Lean - A minimal Arkstack application running on H3',
+  },
+  {
+    key: 'full',
+    val: 'Full - Full Arkstack experience on H3',
+  },
+];
+const options = { stacks, scopes }[group];
 </script>
 <style scoped lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');

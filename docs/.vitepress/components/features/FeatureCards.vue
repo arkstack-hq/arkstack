@@ -24,7 +24,8 @@ const feature = computed(
   <div>
     <UnifiedConsole v-if="feature === 'console'" />
     <ProjectStructure v-else-if="feature === 'structure'" />
-    <ArkTerm selected="h3m" v-else-if="feature === 'multi-runtime'" />
+    <ArkTerm selected="h3" v-else-if="feature === 'multi-runtime'" />
+    <ArkTerm selected="lean" group="scopes" v-else-if="feature === 'scope'" />
     <ArkDependencies v-else-if="feature === 'packages'" />
     <ExtensibleDrivers v-else-if="feature === 'drivers'" />
     <RuntimeAgnostic v-else-if="feature === 'runtime-agnostic'" />

@@ -62,7 +62,7 @@ features:
       src: /icons/temp-cold-fill.svg
       alt: Lean or Full
     banner:
-      src: /features/multi-runtime.png
+      src: /features/scope.png
       alt: Lean or Full
     title: Lean or Full
     details: Choose lean templates without database features or full templates with Arkormˣ included.
