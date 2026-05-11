@@ -1,10 +1,10 @@
-import { Model } from 'arkormx'
-
 import type { DbNotificationType, NotificationData } from '../types'
 
+import { Model } from 'arkormx'
+
 export abstract class UserNotification extends Model {
-    declare id: number | string
-    declare userId: number | string
+    declare id: never
+    declare userId: never
     declare type: DbNotificationType | null
     declare title: string
     declare description: string

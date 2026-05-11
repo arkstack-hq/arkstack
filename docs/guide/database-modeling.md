@@ -26,7 +26,7 @@ Create an Arkormˣ model entry in `src/app/models` (example `User.ts`):
 import { Model } from 'arkormx';
 
 export class User extends Model {
-  declare id: number;
+  declare id: string;
   declare name: string;
   declare email: string;
   declare createdAt: Date;

@@ -1,7 +1,7 @@
 import { Model } from '@arkstack/database'
 
 export abstract class User extends Model {
-    declare id: number
+    declare id: never
     declare email: string
     declare name: string
     declare password: string

@@ -1,11 +1,11 @@
 import { Model } from '@arkstack/database'
 
 export abstract class PersonalAccessToken extends Model {
-    declare id: number
+    declare id: never
     declare name: string
     declare token: string
     declare abilities: string[]
-    declare userId: number
+    declare userId: never
     declare createdAt: Date
     declare expiresAt: Date | null
     declare lastUsedAt: Date | null
