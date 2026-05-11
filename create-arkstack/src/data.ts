@@ -20,11 +20,11 @@ export const filesToRemove = [
 ]
 
 export const fullDependencies = [
-    '@prisma/adapter-pg',
-    '@arkstack/console',
-    '@prisma/client',
     '@types/pg',
+    '@prisma/client',
+    '@prisma/adapter-pg',
     '@arkstack/auth',
+    '@arkstack/console',
     '@arkstack/database',
     '@arkstack/filesystem',
     '@arkstack/notifications',
@@ -51,4 +51,16 @@ export const depsList: Record<string, string> = {
     '@arkstack/http': '^0.4.3',
     '@arkstack/view': '^0.4.3',
     '@arkstack/notifications': '^0.4.3',
+}
+
+export const environment = {
+    min: [
+        'APP_URL',
+        'APP_PORT',
+    ],
+    max: [
+        'JWT_SECRET',
+        'JWT_EXPIRES_IN',
+        'DATABASE_URL',
+    ],
 }

@@ -276,9 +276,6 @@ importers:
       kysely:
         specifier: ^0.28.15
         version: 0.28.16
-      multer:
-        specifier: ^2.1.1
-        version: 2.1.1
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -304,9 +301,6 @@ importers:
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
-      '@types/multer':
-        specifier: ^2.1.0
-        version: 2.1.0
       '@types/node':
         specifier: ^25.6.2
         version: 25.6.2
@@ -613,6 +607,9 @@ importers:
       express-rate-limit:
         specifier: ^8.4.1
         version: 8.4.1(express@5.2.1)
+      multer:
+        specifier: ^2.1.1
+        version: 2.1.1
       resora:
         specifier: ^1.2.2
         version: 1.2.2(@types/node@25.6.2)
@@ -620,6 +617,9 @@ importers:
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
+      '@types/multer':
+        specifier: ^2.1.0
+        version: 2.1.0
 
   packages/driver-h3:
     dependencies:

@@ -1,10 +1,9 @@
 import { GenericResource, Resource, ResourceCollection } from 'resora'
 import express, { Express } from 'express'
+import { formdata, requestLogger } from '@arkstack/driver-express/middlewares'
 
 import { MiddlewareConfig } from 'src/types/config'
 import cors from 'cors'
-import { formdata } from 'src/app/http/middlewares/formdata'
-import { requestLogger } from '@arkstack/driver-express/middlewares'
 import { useExpressUploadContext } from '@kanun-hq/plugin-file'
 
 const config = (_app: Express): MiddlewareConfig => {

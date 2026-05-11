@@ -14,6 +14,8 @@ import { spawnSync } from 'node:child_process'
 
 export default class {
   skipInstallation?: boolean
+  packageJson: { [key: string]: any } = {}
+  pkgPath?: string
 
   constructor(
     private location?: string,
@@ -144,50 +146,13 @@ export default class {
     console.log('')
 
     Logger.parse([['Have any questions', 'white']])
-    // Logger.parse([
-    //   ["Join our Discord server -", "white"],
-    //   ["https://discord.gg/hsG2A8PuGb", "yellow"],
-    // ]);
+    Logger.parse([
+      ['Join our Discord server -', 'white'],
+      ['https://discord.gg/jmQybxKQ7R', 'yellow'],
+    ])
     Logger.parse([
       ['Checkout our other projects -', 'white'],
       ['https://toneflix.net/open-source', 'yellow'],
-    ])
-  }
-
-  async cleanup (kit: KitName) {
-    const pkgPath = join(this.location!, 'package.json')
-    const pkg = await readFile(pkgPath!, 'utf-8').then(JSON.parse)
-
-    delete pkg.packageManager
-    delete pkg.scripts.predev
-    delete pkg.scripts.prebuild
-    delete pkg.scripts.precmd
-    delete pkg.scripts.cmd
-
-    pkg.scripts.dev = 'ark dev'
-    pkg.scripts.build = 'ark build'
-    pkg.scripts.postinstall = 'prepare'
-
-    pkg.name = Str.slugify(
-      this.appName ?? basename(this.location!).replace('.', ''), '-'
-    )
-
-    if (this.description) {
-      pkg.description = this.description
-    }
-
-    for (const [name, version] of Object.entries(depsList)) {
-      if (name.includes('@arkstack/driver')) continue
-      pkg.dependencies[name] = version
-    }
-
-    pkg.dependencies['@arkstack/driver-' + kit] = depsList[('@arkstack/driver-' + kit)]
-
-    await Promise.allSettled([
-      writeFile(pkgPath, JSON.stringify(pkg, null, 2)),
-      this.removeLockFile(),
-      rm(join(this.location!, 'pnpm-workspace.yaml'), { force: true }),
-      rm(join(this.location!, '.github'), { force: true, recursive: true }),
     ])
   }
 
@@ -216,17 +181,37 @@ export default class {
     }
   }
 
-  async makeFullProfile (_kit: KitName) {
+  async saveProfile () {
+    if (this.pkgPath)
+      await writeFile(this.pkgPath, JSON.stringify(this.packageJson, null, 2))
+  }
+
+  async makeProfile () {
     const pkgPath = join(this.location!, 'package.json')
     if (existsSync(pkgPath)) {
-      const pkg = await readFile(pkgPath, 'utf-8').then(JSON.parse)
+      this.pkgPath = pkgPath
+      this.packageJson = await readFile(pkgPath, 'utf-8').then(JSON.parse)
 
-      for (const dep of leanDependencies) {
-        delete pkg.dependencies?.[dep]
-        delete pkg.devDependencies?.[dep]
+      for (const [name] of Object.entries(this.packageJson.dependencies)) {
+        if (name.includes('@arkstack/')) delete this.packageJson.dependencies[name]
       }
 
-      await writeFile(pkgPath, JSON.stringify(pkg, null, 2))
+      const deps = Object.fromEntries([
+        ...Object.entries(depsList),
+        ...Object.entries(this.packageJson.dependencies)
+      ])
+
+      this.packageJson.dependencies = deps
+    } else this.packageJson = {}
+  }
+
+  async makeFullProfile (_kit: KitName) {
+    await this.makeProfile()
+    if (!this.pkgPath) return
+
+    for (const dep of leanDependencies) {
+      delete this.packageJson.dependencies?.[dep]
+      delete this.packageJson.devDependencies?.[dep]
     }
   }
 
@@ -235,16 +220,13 @@ export default class {
       filesToRemove.map((file) => rm(join(this.location!, file), { force: true, recursive: true })),
     )
 
-    const pkgPath = join(this.location!, 'package.json')
-    if (existsSync(pkgPath)) {
-      const pkg = await readFile(pkgPath, 'utf-8').then(JSON.parse)
+    await this.makeProfile()
 
+    if (this.pkgPath) {
       for (const dep of fullDependencies) {
-        delete pkg.dependencies?.[dep]
-        delete pkg.devDependencies?.[dep]
+        delete this.packageJson.dependencies?.[dep]
+        delete this.packageJson.devDependencies?.[dep]
       }
-
-      await writeFile(pkgPath, JSON.stringify(pkg, null, 2))
     }
 
     const filesToPatch = [
@@ -292,6 +274,41 @@ export default class {
 
       await writeFile(filePath, content, 'utf-8')
     }
+  }
 
+  async cleanup (kit: KitName) {
+    const pkg = this.packageJson
+
+    delete pkg.packageManager
+    delete pkg.scripts.predev
+    delete pkg.scripts.prebuild
+    delete pkg.scripts.precmd
+    delete pkg.scripts.cmd
+
+    pkg.scripts.dev = 'ark dev'
+    pkg.scripts.build = 'ark build'
+    pkg.scripts.postinstall = 'prepare'
+
+    pkg.name = Str.slugify(
+      this.appName ?? basename(this.location!).replace('.', ''), '-'
+    )
+
+    if (this.description) {
+      pkg.description = this.description
+    }
+
+    for (const name of Object.keys(pkg.dependencies)) {
+      if (name.includes('@arkstack/driver') && name !== '@arkstack/driver-' + kit)
+        delete pkg.dependencies[name]
+    }
+
+    this.packageJson = pkg
+
+    await Promise.allSettled([
+      this.saveProfile(),
+      this.removeLockFile(),
+      rm(join(this.location!, 'pnpm-workspace.yaml'), { force: true }),
+      rm(join(this.location!, '.github'), { force: true, recursive: true }),
+    ])
   }
 }
