@@ -79,6 +79,7 @@ describe('makeLeanProfile', () => {
 
         const actions = new Actions(location)
         await actions.makeLeanProfile('express')
+        await actions.saveProfile()
 
         expect(existsSync(join(location, 'src/app/http/controllers'))).toBe(false)
         expect(existsSync(join(location, 'src/app/http/resources'))).toBe(false)

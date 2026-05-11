@@ -181,7 +181,7 @@ export class CreateArkstackCommand extends Command {
 
     spinner.info(Logger.parse([['Initializing Project...', 'green']], '', false)).start()
 
-    await actions.copyExampleEnv()
+    await actions.createDotEnv(kit.lean ? 'min' : 'max')
 
     await actions.complete(install)
 

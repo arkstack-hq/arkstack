@@ -2,10 +2,10 @@ import { defineConfig } from 'tsdown'
 
 export default defineConfig({
     entry: ['src/run.ts'],
-    format: ['esm', 'cjs'],
+    format: 'esm',
     outDir: 'bin',
-    dts: true,
-    sourcemap: true,
+    dts: false,
+    sourcemap: false,
     deps: {
         neverBundle: [
             'fs',

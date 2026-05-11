@@ -73,13 +73,15 @@
     "@inquirer/core": "^10.2.2",
     "giget": "^2.0.0",
     "inquirer": "^12.9.6",
+    "dotenv": "^17.4.2",
     "tsdown": "^0.22.0",
     "unrun": "^0.3.0"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
     "eslint": "^9.32.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.0"
   },
   "packageManager": "pnpm@10.14.0"
 }

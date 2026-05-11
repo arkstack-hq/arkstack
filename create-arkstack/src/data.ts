@@ -1,4 +1,5 @@
 export const filesToRemove = [
+    'src/app',
     'src/app/http/controllers',
     'src/app/http/resources',
     'src/models',
@@ -24,7 +25,6 @@ export const fullDependencies = [
     '@prisma/client',
     '@prisma/adapter-pg',
     '@arkstack/auth',
-    '@arkstack/console',
     '@arkstack/database',
     '@arkstack/filesystem',
     '@arkstack/notifications',
@@ -35,14 +35,14 @@ export const fullDependencies = [
 ]
 
 export const leanDependencies = [
-    '@arkstack/console-slim',
+    // '@arkstack/console-slim', Depracated
 ]
 
 export const depsList: Record<string, string> = {
     '@arkstack/auth': '^0.4.3',
     '@arkstack/common': '^0.4.3',
     '@arkstack/console': '^0.4.3',
-    '@arkstack/console-slim': '^0.4.3',
+    // '@arkstack/console-slim': '^0.4.3', Depracated
     '@arkstack/contract': '^0.4.3',
     '@arkstack/database': '^0.4.3',
     '@arkstack/driver-express': '^0.4.3',

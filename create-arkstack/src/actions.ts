@@ -1,6 +1,6 @@
 import { Logger, Resolver } from '@h3ravel/shared'
 import { copyFile, readFile, readdir, rm, unlink, writeFile } from 'node:fs/promises'
-import { filesToRemove, fullDependencies, leanDependencies } from './data'
+import { environment, filesToRemove, fullDependencies, leanDependencies } from './data'
 import path, { basename, join, relative } from 'node:path'
 
 import type { KitName } from './types'
@@ -172,11 +172,26 @@ export default class {
     return await readFile(join(process.cwd(), './logo.txt'), 'utf-8')
   }
 
-  async copyExampleEnv () {
+  async createDotEnv (scope: 'min' | 'max' = 'max') {
     const envPath = join(this.location!, '.env')
     const exampleEnvPath = join(this.location!, '.env.example')
 
+    const allowed = scope === 'max'
+      ? [...environment.max, ...environment.min]
+      : environment.min
+
     if (existsSync(exampleEnvPath)) {
+      const env = await readFile(exampleEnvPath, 'utf-8')
+      let lines = env.split(/\r?\n/)
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
+        const key = line.split('=').at(0) ?? ''
+        if (key === '' || line === '' || line.trim().startsWith('#')) continue
+        if (!allowed.includes(key)) delete lines[i]
+      }
+      lines = lines.slice(lines.findIndex(v => v), lines.findLastIndex(v => v) + 1)
+
+      await writeFile(exampleEnvPath, lines.join('\n'))
       await copyFile(exampleEnvPath, envPath)
     }
   }

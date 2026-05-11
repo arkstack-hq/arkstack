@@ -15,15 +15,18 @@ ClearRouter.configure({
 
 export class Router extends ClearRouter {
   static async bind (app: H3): Promise<H3App> {
-    // Register API routes
-    await ClearRouter.group('/api', async () => {
-      await importFile(join(process.cwd(), 'src/routes/api.ts'))
-    })
+    try {
+      // Register API routes
+      await ClearRouter.group('/api', async () => {
+        await importFile(join(process.cwd(), 'src/routes/api.ts'))
+      })
 
-    // Register web routes
-    await ClearRouter.group('/', async () => {
-      await importFile(join(process.cwd(), 'src/routes/web.ts'))
-    })
+      // Register web routes
+      await ClearRouter.group('/', async () => {
+        await importFile(join(process.cwd(), 'src/routes/web.ts'))
+      })
+
+    } catch { /** */ }
 
     // Apply the registered routes to the H3 application
     const router = ClearRouter.apply(app)
