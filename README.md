@@ -70,15 +70,12 @@ src/
  │   │   └── resources/
  │   │
  │   ├── models/
- │   │
  │   └── services/
  │
  ├── config/
  │
  ├── core/
  │   ├── utils/
- │   │   ├── helpers.ts
- │   │   └── drivers/
  │   ├── app.ts
  │   └── bootstrap.ts
  │
