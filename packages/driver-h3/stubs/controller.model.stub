@@ -1,8 +1,8 @@
 import { BaseController } from '@controllers/BaseController'
-import { HttpContext } from 'clear-router/types/h3'
-import { Resource } from 'resora'
-import { {{Model}} } from 'src/models/{{Model}}'
-import { readBody } from 'h3'
+import { Bind } from 'clear-router/decorators'
+import { Resource, ResourceCollection } from 'resora'
+import { {{Model}} } from '@app/models/{{Model}}'
+import { Request } from '@arkstack/http'
 
 /**
  * {{ControllerName}}
@@ -10,106 +10,78 @@ import { readBody } from 'h3'
 export default class {{ControllerName}} extends BaseController {
     /**
      * Get all resource from the database
-     * 
-     * @param req 
-     * @param res 
      */
-    index = async ({ res }: HttpContext) => {
-        const data = await {{Model}}.query().orderBy({ id: 'asc' }).get()
-
-        return await new Resource({ data })
-        .additional({
+    async index () {
+        return new ResourceCollection(await {{Model}}.query().orderBy({ id: 'asc' }).get()).additional({
             status: 'success',
             message: 'OK',
             code: 200,
-        })
-        .response(res)
-        .setStatusCode(200)
+        }).response().setStatusCode(200)
     }
 
     /**
      * Get a specific resource from the database
      * 
-     * @param req 
-     * @param res 
+     * @param {{Param}}  
      */
-    show = async ({ res, context }: HttpContext) => {
-        const data = await {{Model}}.query().where({ id: String(context.params?.id) }).firstOrFail()
-
-        return await new Resource({ data })
-        .additional({
+     @Bind()
+    async show ({{Param}}: {{Model}}) {
+        return new Resource({{Param}}).additional({
             status: 'success',
             message: 'OK',
             code: 200,
-        })
-        .response(res)
-        .setStatusCode(200)
+        }).response().setStatusCode(200)
     }
 
     /**
      * Create a new resource in the database
      * 
-     * The calling route must recieve a multer.RequestHandler instance
-     * 
-     * @example router.post('/{{ModelName}}s', upload.none(), new AdminController().create)
-     * 
      * @param req 
-     * @param res 
      */
-    create = async (evt: HttpContext) => {
+    @Bind()
+    async create (req: Request) {
         const data = await {{Model}}.query().create({
-            data: readBody(evt) as any,
+            data: req.body,
         })
 
-        return await new Resource({ data })
-        .additional({
+        return new Resource({ data }).additional({
             status: 'success',
             message: 'New {{ModelName}} created successfully',
             code: 201,
-        })
-        .response(evt.res)
-        .setStatusCode(201)
+        }).response().setStatusCode(201)
     }
 
     /**
      * Update a specific resource in the database
      * 
+     * @param {{Param}} 
      * @param req 
-     * @param res 
      */
-    update = async (evt: HttpContext) => {
-        const data = await {{Model}}.query()
-            .where({ id: String(evt.context.params?.id) })
-            .update({
-                data: readBody(evt) as any,
-            })
+    @Bind()
+    async update (req: Request, {{Param}}: {{Model}}) {
+        await {{Param}}.update({
+            data: req.body,
+        })
 
-        return await new Resource({ data })
-        .additional({
+        return new Resource({{Param}}).additional({
             status: 'success',
             message: '{{ModelName}} updated successfully',
             code: 202,
-        })
-        .response(evt.res)
-        .setStatusCode(202)
+        }).response().setStatusCode(202)
     }
 
     /**
      * Delete a specific resource from the database
      * 
-     * @param req 
-     * @param res 
+     * @param {{Param}}  
      */
-    destroy = async ({ res, context }: HttpContext) => {
-        await {{Model}}.query().where({ id: String(context.params?.id) }).delete()
+    async destroy ({{Param}}: {{Model}}) {
+        await {{Param}}.delete()
 
-        return await new Resource({ data: null })
-        .additional({
+        return new Resource({ data: {} }).additional({
             status: 'success',
             message: '{{ModelName}} deleted successfully',
             code: 202,
-        })
-        .response(res)
-        .setStatusCode(202)
+        }).response().setStatusCode(202)
     }
 }

@@ -36,10 +36,6 @@ export default class {{ControllerName}} extends BaseController {
     /**
      * Create a new resource in the database
      * 
-     * The calling route must recieve a multer.RequestHandler instance
-     * 
-     * @example router.post('/{{ModelName}}s', upload.none(), new AdminController().create)
-     * 
      * @param req 
      */
     @Bind()
@@ -62,7 +58,7 @@ export default class {{ControllerName}} extends BaseController {
      * @param req 
      */
     @Bind()
-    async update ({{Param}}: {{Model}}, req: Request) {
+    async update (req: Request, {{Param}}: {{Model}}) {
         await {{Param}}.update({
             data: req.body,
         })

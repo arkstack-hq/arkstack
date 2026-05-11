@@ -1,5 +1,4 @@
 import { BaseController } from '@controllers/BaseController'
-import { HttpContext } from 'clear-router/types/express'
 import {{ResourceName}} from '@app/http/resources/{{ResourceName}}'
 import {{CollectionResourceName}} from '@app/http/resources/{{CollectionResourceName}}'
 

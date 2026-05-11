@@ -1,7 +1,5 @@
 import { BaseController } from '@controllers/BaseController'
-import { HttpContext } from 'clear-router/types/h3'
-
-import { Resource } from 'resora'
+import { Resource, ResourceCollection } from 'resora'
 
 /**
  * {{ControllerName}}
@@ -9,86 +7,56 @@ import { Resource } from 'resora'
 export default class {{ControllerName}} extends BaseController {
     /**
      * Get all resources
-     * 
-     * @param req 
-     * @param res 
      */
-    index = async ({ res }: HttpContext) => {
-        return await new Resource({ data: [] })
-        .additional({
+    async index () {
+        return new ResourceCollection({ data: [] }).additional({
             status: 'success',
             message: 'OK',
             code: 200,
-        })
-        .response(res)
-        .setStatusCode(200)
+        }).response().setStatusCode(200)
     }
 
     /**
      * Get a specific resource
-     * 
-     * @param req 
-     * @param res 
      */
-    show = async ({ res }: HttpContext) => {
-        return await new Resource({ data: {} })
-        .additional({
+    async show () {
+        return new Resource({ data: {} }).additional({
             status: 'success',
             message: 'OK',
             code: 200,
-        })
-        .response(res)
-        .setStatusCode(200)
+        }).response().setStatusCode(200)
     }
 
     /**
      * Create a resource
-     * 
-     * @param req 
-     * @param res 
      */
-    create = async ({ res }: HttpContext) => {
-        return await new Resource({ data: {} })
-        .additional({
+    async create () {
+        return new Resource({ data: {} }).additional({
             status: 'success',
             message: 'New {{Name}} created successfully',
             code: 201,
-        })
-        .response(res)
-        .setStatusCode(201)
+        }).response().setStatusCode(201)
     }
 
     /**
      * Update a specific resource
-     * 
-     * @param req 
-     * @param res 
      */
-    update = async ({ res }: HttpContext) => {
-        return await new Resource({ data: {} })
-        .additional({
+    async update () {
+        return new Resource({ data: {} }).additional({
             status: 'success',
             message: '{{Name}} updated successfully',
             code: 202,
-        })
-        .response(res)
-        .setStatusCode(202)
+        }).response().setStatusCode(202)
     }
 
     /**
      * Delete a specific resource
-     * 
-     * @param req 
-     * @param res 
      */
-    destroy = async ({ res }: HttpContext) => {
-        return await new Resource({ data: {} })
-        .additional({
+    async destroy () {
+        return new Resource({ data: {}} ).additional({
             status: 'success',
             message: '{{Name}} deleted successfully',
             code: 202,
-        })
-        .response(res)
-        .setStatusCode(202)
+        }).response().setStatusCode(202)
     }
 }

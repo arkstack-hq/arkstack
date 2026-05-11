@@ -24,9 +24,10 @@ export class MakeController extends Command<ArkstackConsoleApp<any>> {
         const name = this.app.makeController(this.argument('name'), this.options())
 
         const app = new CliApp()
+        app.command = this
 
         const model = this.option('model')
-            ? app.makeModel(this.option('model'), { ...this.options(), force: false })
+            ? app.makeModel(this.option('model'), this.options())
             : null
 
         this.success('Controller created successfully!');
