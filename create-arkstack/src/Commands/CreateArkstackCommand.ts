@@ -1,14 +1,15 @@
-import { Command } from '@h3ravel/musket'
-import { altLogo } from 'src/logo'
-import inquirer from 'inquirer'
 import { AbortPromptError, ExitPromptError } from '@inquirer/core'
 import { basename, join } from 'node:path'
-import { templates } from 'src/templates'
-import { Str } from '@h3ravel/support'
-import Actions from 'src/actions'
-import { Logger } from '@h3ravel/shared'
 import { cleanDirectoryExcept, hoistDirectoryContents } from 'src/utils'
+import { projectScopes, templates } from 'src/templates'
+
+import Actions from 'src/actions'
+import { Command } from '@h3ravel/musket'
 import type { KitName } from 'src/types'
+import { Logger } from '@h3ravel/shared'
+import { Str } from '@h3ravel/support'
+import { altLogo } from 'src/logo'
+import inquirer from 'inquirer'
 
 export class CreateArkstackCommand extends Command {
   protected signature = `create-arkstack
@@ -35,9 +36,9 @@ export class CreateArkstackCommand extends Command {
         {
           type: 'list',
           name: 'template',
-          message: 'Choose runtime template:',
-          choices: <never>templates.map((e) => ({
-            name: e.name,
+          message: 'Choose Runtime:',
+          choices: templates.map((e) => ({
+            name: `${e.name} - ${e.hint}`,
             value: e.alias,
             disabled: !e.source ? '(Unavailable at this time)' : false,
           })),
@@ -54,8 +55,20 @@ export class CreateArkstackCommand extends Command {
         return err
       })
 
-    let { appName, description } = await inquirer
+    // eslint-disable-next-line prefer-const
+    let { lean, appName, description } = await inquirer
       .prompt([
+        {
+          type: 'list',
+          name: 'lean',
+          message: 'Project Scope:',
+          choices: projectScopes.map((e) => ({
+            name: `${e.name} - ${e.hint.replace('{template}', Str.title(template))}`,
+            value: e.lean,
+          })),
+          default: 'full',
+          when: () => !options.kit,
+        },
         {
           type: 'input',
           name: 'appName',
@@ -104,6 +117,7 @@ export class CreateArkstackCommand extends Command {
      * Find selected template kit
      */
     const kit = templates.find((e) => e.alias === template)!
+    kit.lean = lean ?? false
 
     let { install, token, pre } = await inquirer
       .prompt([

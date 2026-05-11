@@ -13,31 +13,45 @@ import { Template } from './types'
  */
 export const templates: Template[] = [
   {
-    name: 'Express Runtime Template',
+    name: 'Express',
     alias: 'express',
-    hint: 'An Arkstack application running on Express',
+    hint: 'Arkstack application running on Express',
     source: 'github:arkstack-hq/arkstack',
   },
+  // {
+  //   name: 'Express Lean Runtime Template',
+  //   alias: 'express-lean',
+  //   hint: 'A minimal Arkstack application running on Express',
+  //   source: 'github:arkstack-hq/arkstack',
+  //   lean: true,
+  //   baseAlias: 'express',
+  // },
   {
-    name: 'Express Lean Runtime Template',
-    alias: 'express-lean',
-    hint: 'A minimal Arkstack application running on Express',
-    source: 'github:arkstack-hq/arkstack',
-    lean: true,
-    baseAlias: 'express',
-  },
-  {
-    name: 'H3 Runtime Template',
+    name: 'H3',
     alias: 'h3',
-    hint: 'An Arkstack application running on H3',
+    hint: 'Arkstack application running on H3',
     source: 'github:arkstack-hq/arkstack',
   },
+  // {
+  //   name: 'H3 Lean Runtime Template',
+  //   alias: 'h3-lean',
+  //   hint: 'A minimal Arkstack application running on H3',
+  //   source: 'github:arkstack-hq/arkstack',
+  //   lean: true,
+  //   baseAlias: 'h3',
+  // },
+]
+
+
+export const projectScopes = [
   {
-    name: 'H3 Lean Runtime Template',
-    alias: 'h3-lean',
-    hint: 'A minimal Arkstack application running on H3',
-    source: 'github:arkstack-hq/arkstack',
+    name: 'Lean',
+    hint: 'A minimal Arkstack application running on {template}',
     lean: true,
-    baseAlias: 'h3',
+  },
+  {
+    name: 'Full',
+    hint: 'Full Arkstack experience on {template}',
+    lean: false,
   },
 ]
