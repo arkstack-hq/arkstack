@@ -1,6 +1,6 @@
 # Arkstack
 
-[![Create Arkstack][i1]][l1]
+[![Latest Version][i1]][l1]
 [![Installations][d1]][l1]
 [![Arkormˣ Downloads](https://img.shields.io/npm/dt/arkormx?style=flat-square&label=Arkormˣ&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Farkormx)](https://www.npmjs.com/package/arkormx)
 [![Resora Downloads](https://img.shields.io/npm/dt/resora?style=flat-square&label=Resora&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fresora)](https://www.npmjs.com/package/resora)
@@ -236,6 +236,6 @@ When adding framework adapters:
 
 MIT
 
-[i1]: https://img.shields.io/npm/v/create-arkstack?style=flat-square&label=create-arkstack&color=%230970ce
+[i1]: https://img.shields.io/npm/v/create-arkstack?style=flat-square&label=Latest+Version&color=%230970ce
 [l1]: https://www.npmjs.com/package/create-arkstack
 [d1]: https://img.shields.io/npm/dt/create-arkstack?style=flat-square&label=Installations&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2Fcreate-arkstack
