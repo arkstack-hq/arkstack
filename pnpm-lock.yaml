@@ -488,6 +488,9 @@ importers:
       jose:
         specifier: ^6.2.3
         version: 6.2.3
+      otpauth:
+        specifier: ^9.5.1
+        version: 9.5.1
       ua-parser-js:
         specifier: ^2.0.9
         version: 2.0.9

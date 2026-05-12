@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/auth",
-    "version": "0.5.4",
+    "version": "0.5.5",
     "type": "module",
     "description": "Authentication module for Arkstack, providing core authentication and identity features.",
     "homepage": "https://arkstack.toneflix.net/guide/auth",
@@ -43,6 +43,7 @@
         "@arkstack/common": "workspace:^",
         "@arkstack/http": "workspace:^",
         "jose": "^6.2.3",
+        "otpauth": "^9.5.1",
         "ua-parser-js": "^2.0.9"
     },
     "peerDependencies": {
