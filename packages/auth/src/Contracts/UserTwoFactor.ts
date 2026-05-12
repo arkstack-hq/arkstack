@@ -4,7 +4,7 @@ import type { SmsCodePurpose, TwoFactorMethod } from '../types/TwoFactor'
 import type { User } from './User'
 
 export abstract class UserTwoFactor extends Model {
-    declare id: never
+    [key: string]: any
     declare userId: User['id']
     declare method: TwoFactorMethod | null
     declare secretCiphertext: string | null

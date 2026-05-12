@@ -1,7 +1,7 @@
 import { Model } from '@arkstack/database'
 
 export abstract class PersonalAccessToken extends Model {
-    declare id: never
+    [key: string]: any
     declare name: string
     declare token: string
     declare abilities: string[]
