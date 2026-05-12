@@ -2,6 +2,10 @@
   "name": "arkstack",
   "type": "module",
   "version": "0.5.4",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "private": "true",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
