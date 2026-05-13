@@ -1,6 +1,28 @@
-import { readdir, rename, rm } from 'node:fs/promises'
+import { cp, readdir, rename, rm } from 'node:fs/promises'
 
 import path from 'node:path'
+
+/**
+ * Move all files from `${dirPath}/templates` directory to `${dirPath}` and delete
+ * everything else that didn't come from it.
+ *
+ * @param dirPath
+ */
+export async function mountTemplatesDir (dirPath: string) {
+  const templatesDir = path.join(dirPath, 'templates')
+
+  const existingEntries = await readdir(dirPath)
+
+  await cp(templatesDir, dirPath, { recursive: true })
+
+  await Promise.all(
+    existingEntries
+      .filter(entry => entry !== 'templates')
+      .map(entry => rm(path.join(dirPath, entry), { recursive: true, force: true }))
+  )
+
+  await rm(templatesDir, { recursive: true, force: true })
+}
 
 /**
  * Removes all files in dirPath except the one specified by keepFileName

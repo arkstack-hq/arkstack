@@ -1,6 +1,6 @@
 import { AbortPromptError, ExitPromptError } from '@inquirer/core'
 import { basename, join } from 'node:path'
-import { cleanDirectoryExcept, hoistDirectoryContents } from 'src/utils'
+import { cleanDirectoryExcept, hoistDirectoryContents, mountTemplatesDir } from 'src/utils'
 import { projectScopes, templates } from 'src/templates'
 
 import Actions from 'src/actions'
@@ -175,6 +175,7 @@ export class CreateArkstackCommand extends Command {
     const result = await actions.download(source, install, token, options.overwrite)
 
     if (result.dir && kitName) {
+      await mountTemplatesDir(result.dir)
       await cleanDirectoryExcept(result.dir, kitName)
       await hoistDirectoryContents(result.dir, join(result.dir, kitName))
     }
