@@ -1,4 +1,5 @@
-import { readdir, readFile, writeFile } from 'node:fs/promises'
+import { readFile, readdir, writeFile } from 'node:fs/promises'
+
 import { join } from 'node:path'
 
 const versionArg = process.argv[2]
@@ -7,8 +8,8 @@ const version = normalizeVersion(versionArg)
 const packageJsonPaths = [
   'package.json',
   'create-arkstack/package.json',
-  'express/package.json',
-  'h3/package.json',
+  'templates/express/package.json',
+  'templates/h3/package.json',
   ...(await packagePaths('packages')),
 ]
 
@@ -29,13 +30,13 @@ await writeFile(
 
 console.log(`Prepared Arkstack packages for ${version}`)
 
-async function packagePaths(directory) {
+async function packagePaths (directory) {
   return (await readdir(directory, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory())
     .map((entry) => join(directory, entry.name, 'package.json'))
 }
 
-function normalizeVersion(rawVersion) {
+function normalizeVersion (rawVersion) {
   const normalized = rawVersion?.trim().replace(/^v/, '')
 
   if (!normalized) {
