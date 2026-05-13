@@ -63,6 +63,10 @@ npm run dev
 
 To learn how to use Arkstack, see the [Guide](https://arkstack.toneflix.net/guide/getting-started).
 
+## AI Agent Support
+
+Arkstack ships with `SKILLS.md` and `AGENTS.md` for project-aware AI assistance. Feed these files to Claude, Codex, Cursor, or similar agents so they understand Arkstack CLI commands, file conventions, and common workflows before editing scaffolded projects.
+
 ---
 
 ## Application Structure

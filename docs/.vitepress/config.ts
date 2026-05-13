@@ -64,6 +64,7 @@ export default defineConfig({
       {
         text: 'More',
         items: [
+          { text: 'AI Agents', link: '/more/agents' },
           { text: 'Roadmap', link: '/more/roadmap' },
           { text: 'Contributing', link: '/more/contributing' },
           { text: 'Changelog', link: '/more/changelog' },

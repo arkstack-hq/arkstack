@@ -1,7 +1,6 @@
 packages:
   - packages/*
-  - h3
-  - express
+  - templates/*
   - create-arkstack
 
 onlyBuiltDependencies:

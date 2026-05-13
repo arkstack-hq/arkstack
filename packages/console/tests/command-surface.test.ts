@@ -27,7 +27,7 @@ describe('CLI integration surface', () => {
 
     for (const dir of wds) {
         it('exposes shared base commands in ' + dir, { timeout: 30000 }, () => {
-            const cwd = path.join(process.cwd(), dir)
+            const cwd = path.join(process.cwd(), 'templates', dir)
             ensurePrepared(cwd)
             const output = run(cwd, 'pnpm ark --help')
 
