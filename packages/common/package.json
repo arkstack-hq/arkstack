@@ -20,7 +20,8 @@
         "arkstack"
     ],
     "files": [
-        "dist"
+        "dist",
+        "resources"
     ],
     "scripts": {
         "build": "tsdown --config-loader unrun",
