@@ -37,16 +37,16 @@
     "productivity",
     "arkstack"
   ],
-  "main": "build/index.js",
   "private": false,
   "publishConfig": {
     "access": "public"
   },
   "bin": {
-    "create-arkstack": "bin/run.js"
+    "create-arkstack": "./bin/run.js"
   },
   "exports": {
-    ".": "./bin/run.js"
+    ".": "./bin/run.js",
+    "./package.json": "./package.json"
   },
   "scripts": {
     "test": "vitest run",

@@ -5,6 +5,8 @@ export default defineConfig({
     format: 'esm',
     outDir: 'bin',
     dts: false,
+    minify: true,
+    exports: true,
     sourcemap: false,
     deps: {
         neverBundle: [
@@ -14,5 +16,11 @@ export default defineConfig({
             'dotenv'
         ]
     },
-    clean: true
+    clean: true,
+    outExtensions: (e) => {
+        return ({
+            js: e.format === 'es' ? '.js' : '.cjs',
+            dts: '.d.ts'
+        })
+    },
 }) 
