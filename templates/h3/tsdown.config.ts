@@ -29,8 +29,8 @@ export default defineConfig([
             env: Object.assign({}, process.env, {
               NODE_ENV: env,
             }),
-            execArgv: ['-r', 'source-map-support/register', '-r', 'tsconfig-paths/register'],
-            allowRestarts: false,
+            execArgv: ['-r', 'source-map-support/register'],
+            allowRestarts: true,
             input: path.join(process.cwd(), 'src/server.ts'),
           }),
         ]
