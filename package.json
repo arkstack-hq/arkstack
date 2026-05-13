@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run tests/integration",
+    "build:templates": "pnpm -r --filter \"*-app\" build",
     "build:packages": "pnpm -r --filter \"@arkstack/*\" build",
     "prepare:release-version": "node scripts/prepare-release-version.mjs",
     "publish:packages": "pnpm -r --filter \"@arkstack/*\" --filter create-arkstack publish --access public",

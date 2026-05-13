@@ -1,52 +1,145 @@
-# Arkstack Agent Skills
+# Arkstack Scaffold Agent Skills
 
-This file describes discrete capabilities an AI agent can call when working inside an Arkstack project. It is intended to be provided as project context to tools such as Claude, Codex, Cursor, and other coding agents.
+This file is for AI agents working inside an application created with `pnpm create arkstack`, `npm init arkstack`, `yarn create arkstack`, or `npx create-arkstack`.
 
-Agents should prefer the project's package manager scripts and the `ark` CLI over hand-written file scaffolding when a first-party command exists.
+Assume the agent is in a scaffolded Arkstack project, not in the Arkstack framework monorepo. The project normally contains one runtime template, either Express or H3, plus any files the user has added.
 
-## Environment Discovery
+## First Checks
 
-- Identify the package manager from lockfiles: prefer `pnpm` when `pnpm-lock.yaml` is present.
-- Inspect `package.json` scripts before running commands.
-- Detect the runtime driver from dependencies: `@arkstack/driver-h3` for H3, `@arkstack/driver-express` for Express.
-- Detect full vs lean templates by checking for database files, Arkormx dependencies, and `src/app` structure.
-- Read `.env`, `.env.example`, `arkormx.config.ts`, `tsdown.config.ts`, and route files only as needed for the task.
+Before changing code:
 
-## Project Commands
+- Read the local `package.json`.
+- Detect the package manager from lockfiles:
+  - `pnpm-lock.yaml`: use `pnpm`.
+  - `package-lock.json`: use `npm`.
+  - `yarn.lock`: use `yarn`.
+  - `bun.lock` or `bun.lockb`: use Bun only if the project already uses Bun.
+- Detect the runtime driver from dependencies and imports:
+  - `@arkstack/driver-express`: Express runtime.
+  - `@arkstack/driver-h3`: H3 runtime.
+- Detect project scope:
+  - Full project: has `src/app`, `src/database`, `src/routes/api.ts`, `arkormx.config.ts`, and database/auth dependencies.
+  - Lean project: usually lacks `src/app`, `src/database`, `src/routes/api.ts`, `arkormx.config.ts`, and database/auth dependencies.
+- Inspect nearby files before introducing a new pattern.
 
-Use these commands from the Arkstack project root when available:
+## Package Scripts
 
-- `pnpm dev` or `pnpm ark dev`: run the development server through `tsdown` in development mode.
-- `pnpm build` or `pnpm ark build`: build the application for production.
-- `pnpm test`: run the Vitest test suite.
-- `pnpm test:watch`: run Vitest in watch mode.
-- `pnpm lint`: run ESLint checks.
-- `pnpm lint:fix`: apply ESLint fixes.
-- `pnpm ark --help`: list available console commands.
-- `pnpm ark <command> --help`: inspect command options before generating or mutating files.
+Use the package manager already used by the project.
 
-In this monorepo, additional root commands exist:
+Common scripts in scaffolded apps:
 
-- `pnpm build:packages`: build all `@arkstack/*` packages.
-- `pnpm test:coverage`: run tests with coverage.
-- `pnpm docs:dev`: run VitePress documentation locally.
-- `pnpm docs:build`: build the documentation site.
-- `pnpm docs:preview`: preview the built documentation.
+- `dev`: runs `ark dev`.
+- `build`: runs `ark build`.
+- `lint`: runs ESLint.
+- `lint:fix`: runs ESLint with fixes.
+- `test`: runs Vitest.
+- `test:watch`: runs Vitest in watch mode.
+- `postinstall`: runs `prepare`.
+
+Examples:
+
+```sh
+pnpm dev
+pnpm build
+pnpm test
+pnpm lint
+```
+
+With npm:
+
+```sh
+npm run dev
+npm run build
+npm run test
+npm run lint
+```
+
+## Ark CLI
+
+The Arkstack CLI is exposed by the installed `ark` binary from `@arkstack/console`.
+
+Use whichever form works for the local package manager:
+
+```sh
+pnpm ark --help
+pnpm ark <command> --help
+pnpm ark route:list
+```
+
+With npm:
+
+```sh
+npm exec ark -- --help
+npm exec ark -- <command> --help
+npm exec ark -- route:list
+```
+
+If local project documentation already uses `npx ark`, that is also acceptable.
+
+## Scaffolded Files
+
+Common files in generated apps:
+
+- `src/server.ts`: server entrypoint.
+- `src/core/bootstrap.ts`: framework setup, validation plugins, views, and application instance.
+- `src/core/app.ts`: runtime driver, middleware application, route binding, error handling, and shutdown.
+- `src/routes/web.ts`: web routes.
+- `src/routes/api.ts`: API routes in full templates.
+- `src/config/middleware.ts`: middleware registration.
+- `src/resources/views`: Edge view templates.
+- `src/types/config.ts`: typed configuration helpers.
+
+Full templates also include:
+
+- `src/app/http/controllers`: controllers.
+- `src/app/http/resources`: API resources and collections.
+- `src/app/http/middlewares`: app middleware.
+- `src/app/models`: application models.
+- `src/app/console/commands`: custom console commands.
+- `src/database/migrations`: migrations.
+- `src/database/factories`: factories.
+- `src/database/seeders`: seeders.
+- `src/config/filesystem.ts`: filesystem configuration.
+- `src/config/notifications.ts`: notification configuration.
+- `arkormx.config.ts`: Arkormx configuration.
+
+Lean templates intentionally omit most full-stack application and database files. Do not assume full-template directories exist.
 
 ## Route Inspection
 
-Use `pnpm ark route:list` to list registered routes.
+Use `ark route:list` to inspect registered routes when the app can boot.
 
 Useful options:
 
 - `--path <value>` or `-p <value>`: filter by route path.
 - `--method <value>` or `-m <value>`: filter by HTTP method.
 
-Use this before changing controllers, middleware, or route definitions so the agent can verify the effective route table.
+Run route inspection after changing route files, controllers, or route-related middleware.
+
+## Route Editing
+
+Use the runtime-specific router import already present in the project:
+
+- Express apps import `Router` from `@arkstack/driver-express`.
+- H3 apps import `Router` from `@arkstack/driver-h3`.
+
+Default route locations:
+
+- `src/routes/web.ts` for web/view routes.
+- `src/routes/api.ts` for API routes in full templates.
+
+In full templates, API routes commonly map to controllers, for example `Router.apiResource('/users', UserController)`.
+
+In lean templates, add routes to `src/routes/web.ts` unless the user asks you to introduce a fuller API structure.
 
 ## Controller Generation
 
-Use `pnpm ark make:controller <Name>` to create a controller in `src/app/http/controllers`.
+Full templates can generate controllers:
+
+```sh
+pnpm ark make:controller User
+pnpm ark make:controller User --api
+```
 
 Useful options:
 
@@ -57,122 +150,143 @@ Useful options:
 - `--migration` or `-x`: create a linked migration when using `--model`.
 - `--force`: overwrite an existing generated controller.
 
-Prefer this command over manually copying controller stubs. Generated controllers use driver-specific stubs from `node_modules/@arkstack/driver-<driver>/stubs` or the local `stubs` directory.
+Use this only when `src/app/http/controllers` exists or when the user explicitly wants to add the full app structure.
 
 ## Resource Generation
 
-Use `pnpm ark make:resource <type> <Name>` to generate response resources through Resora.
+Full templates can generate Resora resources in `src/app/http/resources`:
 
-Common forms:
+```sh
+pnpm ark make:resource resource User
+pnpm ark make:resource collection UserCollection
+pnpm ark make:resource all User
+```
 
-- `pnpm ark make:resource resource User`
-- `pnpm ark make:resource collection UserCollection`
-- `pnpm ark make:resource all User`
+Use `make:full-resource` to create a resource, collection, and API controller together:
 
-Use `pnpm ark make:full-resource <Prefix>` to create a resource, collection, and API controller together.
+```sh
+pnpm ark make:full-resource User --model User
+```
 
-Useful options for `make:full-resource`:
+Useful options:
 
 - `--model <Name>` or `-m <Name>`: attach model context.
 - `--factory` or `-f`: create a linked factory.
 - `--seeder` or `-s`: create a linked seeder.
 - `--migration` or `-x`: create a linked migration.
-- `--force`: overwrite generated resource/controller files.
+- `--force`: overwrite generated files.
+
+Before using resource generators, confirm `resora.config.js` exists and points to the expected stubs and resources directory.
 
 ## Database and Modeling
 
-Full Arkstack templates use Arkormx through the Arkstack CLI.
+Use database commands only in full templates with `@arkstack/database`, `arkormx`, and `arkormx.config.ts`.
 
-Available database skills:
+Common commands:
 
-- `pnpm ark make:model <Name>`: create a model.
-- `pnpm ark make:migration <name>`: create a migration.
-- `pnpm ark make:factory <Name>`: create a model factory.
-- `pnpm ark make:seeder <Name>`: create a seeder.
-- `pnpm ark migrate`: run pending migrations.
-- `pnpm ark migrate:fresh`: rebuild the database from scratch. Ask for explicit user approval before running because it is destructive.
-- `pnpm ark migrate:rollback`: roll back migrations. Ask for approval before running against non-local data.
-- `pnpm ark migrate:history`: inspect migration history.
-- `pnpm ark models:sync`: sync model files with the database schema.
-- `pnpm ark seed`: run seeders.
+```sh
+pnpm ark make:model User
+pnpm ark make:migration create_posts_table
+pnpm ark make:factory User
+pnpm ark make:seeder User
+pnpm ark migrate
+pnpm ark models:sync
+pnpm ark seed
+```
+
+Potentially destructive commands require explicit user approval:
+
+```sh
+pnpm ark migrate:fresh
+pnpm ark migrate:rollback
+```
 
 Conventions:
 
-- Models belong in `src/app/models` in scaffolded apps.
-- Migrations belong in `src/database/migrations`.
-- Factories belong in `src/database/factories`.
-- Seeders belong in `src/database/seeders`.
-- Use `arkormx.config.ts` for database build output and schema configuration.
+- Models live in `src/app/models`.
+- Migrations live in `src/database/migrations`.
+- Factories live in `src/database/factories`.
+- Seeders live in `src/database/seeders`.
+- Database connection settings come from `.env`, usually `DATABASE_URL`.
 
 ## View Generation
 
-Use `pnpm ark make:view <name>` to create an Edge view in `src/resources/views`.
+If `@arkstack/view` is installed, generate Edge views with:
 
-Conventions:
+```sh
+pnpm ark make:view dashboard
+pnpm ark make:view admin/users/index
+```
 
-- Dots and slashes become nested view paths.
-- `.edge` is appended automatically.
-- Use `--force` only when intentionally replacing an existing view.
+Views live in `src/resources/views` and use the `.edge` extension. Dots and slashes in the view name may create nested paths.
 
-## Storage Links
-
-Use `pnpm ark storage:link` when the filesystem package is installed and the app defines `filesystem.links`.
-
-Useful option:
-
-- `--force`: remove existing links before creating new ones. Ask for confirmation before using this on an existing project.
+Use `--force` only when intentionally replacing an existing view.
 
 ## Custom Console Commands
 
-Use `pnpm ark make:command <Name>` to create a command class in `src/app/console/commands`.
+Full templates include `src/app/console/commands`.
 
-Conventions:
+Generate a command with:
 
-- Generated command class names end with `Command`.
-- Generated command signatures default to `app:<lowercase-command-name>`.
-- Custom commands are auto-discovered by the console kernel.
+```sh
+pnpm ark make:command SendReport
+```
 
-## File Editing Skills
+Then edit the generated command class, signature, description, and `handle` method.
 
-Agents can safely edit these common Arkstack areas when the task calls for it:
+Do not assume custom commands exist in lean templates unless the user has added the directory.
 
-- `src/routes`: route registration.
-- `src/app/http/controllers`: HTTP controllers.
-- `src/app/http/middlewares`: middleware.
-- `src/app/http/resources`: resource and collection response shaping.
-- `src/app/models`: application models.
-- `src/app/services`: business logic.
-- `src/app/console/commands`: custom commands.
-- `src/database/migrations`: database migrations.
-- `src/database/factories`: test or seed factories.
-- `src/database/seeders`: seed data.
-- `src/resources/views`: Edge templates.
-- `src/config` or `config`: configuration files.
-- `tests`: Vitest tests.
-- `docs`: VitePress documentation.
+## Middleware
 
-Rules:
+Middleware is configured through `src/config/middleware.ts`.
 
-- Prefer generated files for new Arkstack primitives, then edit the generated result.
-- Keep runtime-specific code inside driver, middleware, or bootstrap boundaries.
-- Keep business logic in services or framework-neutral modules when practical.
-- Do not edit generated build output such as `dist`, `.arkstack/build`, or coverage artifacts.
+Runtime-specific middleware imports differ:
 
-## Testing and Verification
+- Express apps use `@arkstack/driver-express/middlewares`.
+- H3 apps use `@arkstack/driver-h3/middlewares`.
 
-Pick the smallest useful verification for the change:
+Add app-specific middleware under `src/app/http/middlewares` in full templates. In lean templates, keep middleware small inside config or create a local directory only if the task justifies it.
 
-- Run `pnpm test` after behavior changes.
-- Run targeted Vitest files when the project supports them.
-- Run `pnpm lint` after broad TypeScript or formatting changes.
-- Run `pnpm build` after package exports, runtime entrypoints, CLI commands, or build config changes.
-- Run `pnpm docs:build` after VitePress docs or sidebar changes.
-- Run `pnpm ark route:list` after route/controller/middleware changes.
+## Filesystem and Notifications
 
-## Safety Rules
+Full templates may include:
 
-- Ask before running destructive database commands such as `migrate:fresh`, broad rollback commands, or forced storage links.
-- Ask before deleting user files or replacing existing generated files with `--force`.
-- Do not commit, publish, or release unless explicitly requested.
-- Do not assume a database is disposable unless the user says it is local/test data.
-- Preserve project conventions and inspect nearby files before introducing a new pattern.
+- `src/config/filesystem.ts`
+- `src/config/notifications.ts`
+- `@arkstack/filesystem`
+- `@arkstack/notifications`
+
+Use these only when the dependencies and config files exist.
+
+If filesystem links are configured, the CLI may expose:
+
+```sh
+pnpm ark storage:link
+```
+
+Ask before using:
+
+```sh
+pnpm ark storage:link --force
+```
+
+## File Editing Rules
+
+- Prefer CLI generators for new Arkstack primitives when the relevant template structure exists.
+- Edit generated files after generation rather than recreating stubs by hand.
+- Keep runtime-specific code near `src/core`, `src/config/middleware.ts`, route files, or driver-specific middleware.
+- Keep business logic out of route closures once it grows; use services or focused modules.
+- Do not edit generated output directories such as `dist`, `.arkstack/build`, coverage folders, or `node_modules`.
+- Keep `.env.example` updated when adding required environment variables.
+
+## Verification
+
+Choose the smallest useful verification:
+
+- Route changes: run `ark route:list` if the app can boot.
+- Behavior changes: run `test`.
+- Type/build-sensitive changes: run `build`.
+- Formatting/lint-sensitive changes: run `lint`.
+- Database changes: inspect migration files, then run migrations only after confirming the target database is safe.
+
+Use the local package manager for scripts and the local `ark` binary for CLI commands.

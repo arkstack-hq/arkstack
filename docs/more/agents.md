@@ -1,11 +1,11 @@
 # AI Agent Support
 
-Arkstack includes two agent-facing reference files at the repository root:
+Arkstack publishes two agent-facing reference files at the repository root:
 
 - `SKILLS.md` documents discrete capabilities an agent can call, including CLI commands, file operations, generation commands, and verification steps.
-- `AGENTS.md` documents higher-order workflows that compose those capabilities, such as adding endpoints, database-backed features, views, middleware, and documentation.
+- `AGENTS.md` documents higher-order workflows that compose those capabilities, such as adding endpoints, database-backed features, views, middleware, storage, notifications, and debugging.
 
-These files are written for AI coding tools such as Claude, Codex, Cursor, and other agents that accept project knowledge, rules, or context. They help an agent work with Arkstack conventions instead of guessing folder names or hand-writing files that the CLI can generate.
+These files are written for AI coding tools such as Claude, Codex, Cursor, and other agents that accept project knowledge, rules, or context. They are designed to be used while the agent is inside a generated Arkstack app, not inside the Arkstack framework monorepo. They help an agent work with the files and commands available in Express, H3, full, and lean scaffolded projects instead of guessing folder names or hand-writing files that the CLI can generate.
 
 ## Raw URLs
 
@@ -56,15 +56,15 @@ The most important rule is to make the agent inspect local files first, then use
 With these files, an agent can usually perform these tasks out of the box:
 
 - Inspect the app runtime and package manager.
-- Run development, build, lint, test, and docs commands.
+- Run development, build, lint, and test commands.
 - List registered routes with `pnpm ark route:list`.
-- Generate controllers, resources, and full API resource sets.
-- Generate models, migrations, factories, and seeders in full templates.
+- Generate controllers, resources, and full API resource sets in full templates.
+- Generate models, migrations, factories, and seeders when database support exists.
 - Run safe database workflows after confirming the target environment.
 - Generate Edge views.
-- Create custom console commands.
+- Create custom console commands when the app has the console command directory.
 - Add middleware, services, resources, and tests using Arkstack conventions.
-- Update VitePress documentation and sidebar entries.
+- Work within lean templates without assuming full-template directories exist.
 
 ## Agent-Friendly Conventions
 

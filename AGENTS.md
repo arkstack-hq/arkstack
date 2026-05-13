@@ -1,126 +1,157 @@
-# Arkstack Agent Workflows
+# Arkstack Scaffold Agent Workflows
 
-This file describes higher-order workflows for AI agents working inside Arkstack projects. It composes the lower-level capabilities documented in `SKILLS.md`.
+This file is for AI agents working inside applications scaffolded by Arkstack. It assumes the agent has access to the generated project only, not to the Arkstack framework monorepo.
 
-Agents should read `SKILLS.md` first, then use this file to plan multi-step work.
+Read `SKILLS.md` first, then use these workflows to combine the available skills safely.
 
-## Operating Principles
+## Operating Rules
 
-- Work from the project root.
-- Inspect `package.json`, lockfiles, runtime dependencies, route files, and nearby source before changing code.
-- Prefer Arkstack CLI generators for controllers, resources, models, migrations, views, and commands.
-- Keep application logic runtime-agnostic unless the task is specifically about Express, H3, or another driver.
-- Verify with the narrowest command that gives useful confidence.
-- Ask before destructive operations.
+- Start from the scaffolded app root.
+- Inspect the local `package.json` before running commands.
+- Use the package manager indicated by the lockfile.
+- Detect whether the app is Express or H3 before editing routes, middleware, or runtime code.
+- Detect whether the app is full or lean before using database, auth, resource, or controller workflows.
+- Prefer `ark` generators when the project structure supports them.
+- Ask before destructive database, storage, overwrite, delete, publish, or release operations.
 
-## Add an API Endpoint
+## Understand the App
 
-1. Inspect existing routes under `src/routes`.
-2. Run `pnpm ark route:list` if the app can boot.
-3. Generate missing pieces:
-   - `pnpm ark make:controller <Name> --api`
-   - `pnpm ark make:resource resource <Name>` when shaping a single response.
-   - `pnpm ark make:resource collection <Name>Collection` when returning lists.
-   - `pnpm ark make:full-resource <Name> --model <Model>` for a complete CRUD-style surface.
-4. Register or update routes in the appropriate route file.
-5. Put business logic in services or framework-neutral modules when the endpoint is not trivial.
+1. Read `package.json`.
+2. Check for `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`, or Bun lockfiles.
+3. Identify the runtime:
+   - Express: `@arkstack/driver-express`.
+   - H3: `@arkstack/driver-h3`.
+4. Identify the scope:
+   - Full: has `src/app`, `src/database`, `src/routes/api.ts`, and `arkormx.config.ts`.
+   - Lean: lacks those full-template files.
+5. Read `src/routes/web.ts`, and read `src/routes/api.ts` if it exists.
+6. Read `src/core/app.ts`, `src/core/bootstrap.ts`, and `src/config/middleware.ts` only when runtime behavior matters.
+
+## Add a Simple Web Route
+
+1. Inspect `src/routes/web.ts`.
+2. Use the existing runtime driver import for `Router`.
+3. Add the route closure or controller mapping.
+4. If rendering HTML, use `view()` from `@arkstack/view` and keep templates in `src/resources/views`.
+5. Generate a view with `ark make:view <name>` when useful.
+6. Verify with the dev server, `ark route:list`, or the existing test suite.
+
+## Add an API Route in a Full Template
+
+1. Confirm `src/routes/api.ts` and `src/app/http/controllers` exist.
+2. Inspect nearby controllers and resources.
+3. Generate missing primitives:
+   - `ark make:controller <Name> --api`
+   - `ark make:resource resource <Name>`
+   - `ark make:resource collection <Name>Collection`
+   - `ark make:full-resource <Name> --model <Model>` for a model-backed resource set.
+4. Register the route in `src/routes/api.ts`.
+5. Move business logic into a service or focused helper when the controller action becomes more than request orchestration.
 6. Add or update tests.
-7. Verify with `pnpm test` and `pnpm ark route:list`.
+7. Verify with `ark route:list` and the local test command.
+
+## Add an API Route in a Lean Template
+
+1. Confirm the app lacks `src/app` and `src/routes/api.ts`.
+2. Do not use controller/resource/model generators unless the user wants to expand the project structure.
+3. Add lightweight routes to `src/routes/web.ts`, or create `src/routes/api.ts` only if you also update bootstrap/app route loading as needed.
+4. Keep handlers small. Extract reusable behavior into local modules if it grows.
+5. Verify with the dev server, `ark route:list`, or tests.
 
 ## Add a Database-Backed Feature
 
-1. Confirm the project is a full template with Arkormx/database support.
-2. Generate model and persistence files:
-   - `pnpm ark make:model <Name>`
-   - `pnpm ark make:migration <migration_name>`
-   - `pnpm ark make:factory <Name>` when tests or seed data need it.
-   - `pnpm ark make:seeder <Name>` when reusable seed data is needed.
-3. Edit the migration and model fields.
-4. Add controllers, resources, services, or routes as needed.
-5. Run migrations only after confirming the target database is safe.
-6. Run `pnpm ark models:sync` when schema-derived model typing should be refreshed.
-7. Verify with tests and route inspection.
+Use this only in full templates.
 
-## Add a View-Rendered Page
+1. Confirm `@arkstack/database`, `arkormx`, `src/database`, and `arkormx.config.ts` exist.
+2. Generate persistence files:
+   - `ark make:model <Name>`
+   - `ark make:migration <migration_name>`
+   - `ark make:factory <Name>` when tests or seed data need it.
+   - `ark make:seeder <Name>` when reusable seed data is needed.
+3. Edit the model, migration, factory, and seeder files.
+4. Add controllers, resources, routes, or services as needed.
+5. Update `.env.example` when adding database-related configuration.
+6. Ask before running migrations against any database that may contain user data.
+7. Run `ark models:sync` when schema-derived model types should be refreshed.
+8. Verify with tests and route inspection.
 
-1. Inspect existing routes and view naming conventions.
-2. Generate the view with `pnpm ark make:view <path-or-name>`.
-3. Add or update the controller action that renders the view.
-4. Register the route.
-5. Keep reusable view data preparation in services or helpers when it grows beyond a simple action.
-6. Verify the route list and run tests if the project has HTTP coverage.
+## Add Authentication Behavior
+
+Use this only when `@arkstack/auth` and auth models exist.
+
+1. Inspect `src/app/models/User.ts`, `PersonalAccessToken.ts`, and `UserTwoFactor.ts` if present.
+2. Inspect auth middleware, route protection, and existing tests.
+3. Keep auth persistence changes synchronized across models and migrations.
+4. Use environment variables for secrets such as `JWT_SECRET` and keep `.env.example` current.
+5. Add tests for login, logout, protected routes, token/session behavior, and error responses.
+
+## Add Notifications
+
+Use this only when `@arkstack/notifications` and `src/config/notifications.ts` exist.
+
+1. Inspect notification config and existing templates.
+2. Use configured mail, SMS, or database channels rather than hard-coding providers.
+3. Keep provider credentials in environment variables.
+4. Update `.env.example` for new required provider settings.
+5. Add tests around message formatting and dispatch boundaries.
+
+## Add File Storage
+
+Use this only when `@arkstack/filesystem` and `src/config/filesystem.ts` exist.
+
+1. Inspect filesystem disks and links.
+2. Use Arkstack filesystem abstractions instead of direct provider SDK calls when possible.
+3. Keep credentials in environment variables.
+4. Run `ark storage:link` only when public/local links are required.
+5. Ask before running `ark storage:link --force`.
+6. Test upload, URL generation, download, and cleanup behavior without assuming remote services are available.
 
 ## Add Middleware
 
-1. Inspect existing middleware in `src/app/http/middlewares`.
-2. Decide whether the middleware is runtime-agnostic or driver-specific.
-3. Implement the middleware using the existing driver conventions.
-4. Register it where routes or runtime bootstrap expect middleware.
-5. Run `pnpm ark route:list` when route-level middleware changes route behavior.
-6. Add tests for auth, request mutation, error handling, or response behavior.
+1. Inspect `src/config/middleware.ts`.
+2. Identify the runtime driver.
+3. In a full template, place app-specific middleware under `src/app/http/middlewares` when appropriate.
+4. In a lean template, keep middleware local and minimal unless the user wants more structure.
+5. Register middleware through the existing middleware config pattern.
+6. Add tests when middleware changes auth, request parsing, headers, errors, or response behavior.
 
-## Work on Authentication
+## Add a View-Rendered Page
 
-1. Inspect the app models for `User`, `PersonalAccessToken`, and two-factor models if present.
-2. Inspect auth config, middleware, and existing tests before changing behavior.
-3. Keep session/device behavior aligned with `@arkstack/auth` conventions.
-4. Update database migrations and models together when auth persistence changes.
-5. Add tests for login, logout, protected routes, token/session behavior, and error responses.
+1. Inspect `src/routes/web.ts`.
+2. Inspect existing views under `src/resources/views`.
+3. Generate the view with `ark make:view <name>` if the command is available.
+4. Add or update the route that returns `view('<name>', data)`.
+5. Keep reusable data preparation outside the route closure when it grows.
+6. Verify in dev mode or with route tests.
 
-## Work on Notifications
+## Add a Custom Console Command
 
-1. Inspect notification classes, drivers, and templates.
-2. Use the notification module's channel abstractions for mail, SMS, or database notifications.
-3. Keep mail templates under the existing view/resource convention.
-4. Use config/env values for provider credentials rather than hard-coding secrets.
-5. Add tests around notification formatting and driver dispatch boundaries.
+Use this in full templates or projects that already have `src/app/console/commands`.
 
-## Work on Filesystem Features
-
-1. Inspect filesystem configuration before writing storage code.
-2. Use the `@arkstack/filesystem` API instead of direct provider SDK calls when possible.
-3. Run `pnpm ark storage:link` only when links are required.
-4. Ask before using `pnpm ark storage:link --force`.
-5. Test upload, download, URL, and cleanup behavior without assuming a remote provider is available.
-
-## Add a Custom CLI Command
-
-1. Generate the command with `pnpm ark make:command <Name>`.
+1. Generate the command with `ark make:command <Name>`.
 2. Edit the generated signature, description, and `handle` method.
 3. Keep command output concise and script-friendly.
-4. Add tests when the command mutates files, invokes app services, or orchestrates database work.
-5. Verify with `pnpm ark --help` or `pnpm ark <signature> --help`.
+4. Add tests when the command mutates files, invokes services, or orchestrates database work.
+5. Verify with `ark --help` or `ark <signature> --help`.
 
-## Update Documentation
+## Debug a Failing Scaffolded App
 
-1. Edit VitePress pages under `docs`.
-2. Add new guide pages to `docs/.vitepress/config.ts` when they should appear in navigation.
-3. Use concise examples that match the current CLI and folder structure.
-4. Run `pnpm docs:build` after sidebar, frontmatter, or markdown changes.
+1. Reproduce the failure with the smallest local script, command, or test.
+2. Check `.env` and `.env.example` for missing values.
+3. Inspect route files and run `ark route:list` for routing issues.
+4. Inspect `src/core/bootstrap.ts` for setup issues.
+5. Inspect `src/config/middleware.ts` for request parsing, CORS, logging, or auth issues.
+6. For database issues, inspect `arkormx.config.ts`, migration files, and model files before running any migration command.
+7. Fix the smallest owning layer.
+8. Re-run the failing command and one adjacent verification.
 
-## Upgrade or Refactor a Package
+## Keep the Project Agent-Friendly
 
-1. Inspect package exports in the relevant `packages/*/package.json`.
-2. Inspect local tests for the package.
-3. Keep public exports backward-compatible unless a breaking change is requested.
-4. Update package README files when public behavior changes.
-5. Run package tests, then root tests or builds when shared contracts are touched.
-
-## Debug a Failing App
-
-1. Reproduce with the failing script or the smallest relevant test.
-2. Check recent changes, route registration, environment variables, and generated build output paths.
-3. Use `pnpm ark route:list` for HTTP routing issues.
-4. Use migration history and model sync commands for database shape issues.
-5. Fix the smallest layer that owns the behavior.
-6. Re-run the failing command and one adjacent verification.
-
-## Keep Projects Agent-Friendly
-
-- Keep `package.json` scripts accurate and runnable.
-- Keep generated Arkstack primitives in their conventional directories.
+- Keep `package.json` scripts accurate.
+- Keep `.env.example` current.
+- Keep generated Arkstack files in conventional directories.
+- Document custom route loading, custom stubs, or unusual bootstrap logic.
 - Add tests near the behavior they verify.
-- Document custom commands, non-standard stubs, and unusual environment requirements.
-- Keep `.env.example` current when adding config.
-- Avoid mixing runtime-specific logic into services or models.
-- Prefer small, named services over large controller methods when behavior grows.
+- Keep runtime-specific logic near routes, middleware, driver setup, or bootstrap.
+- Move growing business logic out of route closures and controller methods.
+- Avoid committing generated output, local logs, credentials, or dependency folders.
