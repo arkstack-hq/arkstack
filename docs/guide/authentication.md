@@ -190,10 +190,7 @@ await Router.group(
     });
 
     Router.get('/sessions', async ({ req, res }) => {
-      const session = await Auth.make()
-        .setRequest(req)
-        .currentSession()
-        .token();
+      const session = await Auth.make().setRequest(req).session().token();
 
       return res.status(200).json({
         session,
@@ -217,7 +214,7 @@ For most application code, prefer using those values from the Clear Router handl
 
 ## Current Session Route
 
-Use `currentSession()` when you need the database record for the current bearer token:
+Use `session()` when you need the database record for the current bearer token:
 
 ```ts
 import { Auth } from '@arkstack/auth';
@@ -227,7 +224,7 @@ import { Router } from '@arkstack/driver-express';
 Router.get(
   '/account/session',
   async ({ req, res }) => {
-    const session = await Auth.make().setRequest(req).currentSession().token();
+    const session = await Auth.make().setRequest(req).session().token();
 
     return res.status(200).json({
       session,

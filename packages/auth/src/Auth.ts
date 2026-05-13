@@ -3,7 +3,7 @@ import { JWTPayload, SignJWT, jwtVerify } from 'jose'
 
 import { AuthContract } from './Contracts/AuthContract'
 import { AuthenticationException } from './Exceptions/AuthenticationException'
-import { CurrentSession } from './CurrentSession'
+import { Session } from './Session'
 import { PersonalAccessToken } from './Contracts/PersonalAccessToken'
 import { Request, type RequestSource } from '@arkstack/http'
 import { SessionDevice } from './SessionDevice'
@@ -226,8 +226,8 @@ export class Auth extends AuthContract {
      * 
      * @returns 
      */
-    currentSession () {
-        return new CurrentSession(this)
+    session () {
+        return new Session(this)
     }
 
     /**
@@ -300,21 +300,21 @@ export class Auth extends AuthContract {
             return await TokenModel.query().create(payload)
         }
 
-        const [currentSession, ...duplicateSessions] = matchingSessions
+        const [session, ...duplicateSessions] = matchingSessions
 
         if (duplicateSessions.length > 0) {
             await Promise.all(duplicateSessions.map(async (session) => await session.delete()))
         }
 
-        await TokenModel.query().where({ id: currentSession.id }).update(payload)
+        await TokenModel.query().where({ id: session.id }).update(payload)
 
-        currentSession.token = payload.token
-        currentSession.name = payload.name
-        currentSession.userId = payload.userId
-        currentSession.deviceInfo = payload.deviceInfo
-        currentSession.lastUsedAt = payload.lastUsedAt
+        session.token = payload.token
+        session.name = payload.name
+        session.userId = payload.userId as never
+        session.deviceInfo = payload.deviceInfo
+        session.lastUsedAt = payload.lastUsedAt
 
-        return currentSession
+        return session
     }
 
     /**

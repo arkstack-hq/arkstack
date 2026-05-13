@@ -20,6 +20,7 @@ export const auth: Handler = async (req, res, next) => {
         req.user = user
         req.auth = auth
         req.authUser = user
+        req.session = auth.session()
         req.authToken = token
 
         if (Hook.has('middleware:auth', 'after'))

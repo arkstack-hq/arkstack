@@ -3,7 +3,7 @@ import { PersonalAccessToken } from './Contracts/PersonalAccessToken'
 import { getModel } from '@arkstack/common'
 
 /**
- * The CurrentSession class represents the current authentication session and provides 
+ * The Session class represents the current authentication session and provides 
  * methods to manage it, such as destroying the session (logging out) and retrieving 
  * the current personal access token. It is used internally by the Auth class to 
  * handle session-specific operations.
@@ -13,7 +13,7 @@ import { getModel } from '@arkstack/common'
  * @version 1.0.0
  * @see Auth
  */
-export class CurrentSession {
+export class Session {
     constructor(private auth: AuthContract) { }
 
     /**

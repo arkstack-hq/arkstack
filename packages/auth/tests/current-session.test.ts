@@ -1,10 +1,10 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from './fixtures/auth'
 
-import { CurrentSession } from '../src/CurrentSession'
 import { Request } from '@arkstack/http'
+import { Session } from '../src/Session'
 
-describe('CurrentSession', () => {
+describe('Session', () => {
 
     beforeEach(() => {
         process.env.JWT_SECRET = authSecret
@@ -25,7 +25,7 @@ describe('CurrentSession', () => {
             logout: async () => undefined,
         }
 
-        const session = new CurrentSession(auth as never)
+        const session = new Session(auth as never)
         const resolved = await session.token()
 
         expect(resolved?.id).toBe(pat.id)
@@ -37,7 +37,7 @@ describe('CurrentSession', () => {
             getRequest: () => Request.from({ headers: {} }),
             logout: async () => undefined,
         }
-        const session = new CurrentSession(auth as never)
+        const session = new Session(auth as never)
 
         await expect(session.token()).resolves.toBeNull()
     })

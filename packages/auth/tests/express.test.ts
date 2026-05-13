@@ -158,7 +158,7 @@ describe('Express auth integration', () => {
             Router.get('/sessions', async ({ req, res }) => {
                 const session = await Auth.make()
                     .setRequest(req as never)
-                    .currentSession()
+                    .session()
                     .token()
 
                 return res.status(200).json({

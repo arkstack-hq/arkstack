@@ -167,7 +167,7 @@ Driver packages:
 - `createTemporaryToken(user, purpose, expiresIn?)` — create a short-lived JWT for a specific purpose.
 - `authorizeTemporaryToken(token, purpose)` — validate a temporary token and return its user.
 - `logout(token?)` — delete a specific token or the current user's tokens.
-- `currentSession()` — create a `CurrentSession` helper for the current request.
+- `session()` — create a `Session` helper for the current request.
 
 ### `TwoFactor`
 

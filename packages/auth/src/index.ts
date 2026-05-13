@@ -1,5 +1,5 @@
 export * from './Auth'
-export * from './CurrentSession'
+export * from './Session'
 export * from './SessionDevice'
 export * from './TwoFactor'
 export * from './Contracts/AuthContract'

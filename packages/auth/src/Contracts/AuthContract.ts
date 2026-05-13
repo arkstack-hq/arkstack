@@ -1,4 +1,4 @@
-import { CurrentSession } from '../CurrentSession'
+import { Session } from '../Session'
 import { PersonalAccessToken } from './PersonalAccessToken'
 import { Request, type RequestSource } from '@arkstack/http'
 import { User } from './User'
@@ -101,7 +101,7 @@ export abstract class AuthContract {
      * 
      * @returns 
      */
-    abstract currentSession (): CurrentSession
+    abstract session (): Session
 
     /**
      * Create a personal access token for a user
