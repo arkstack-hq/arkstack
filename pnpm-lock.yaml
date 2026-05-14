@@ -430,6 +430,9 @@ importers:
 
   packages/notifications:
     dependencies:
+      '@arkstack/auth':
+        specifier: workspace:^
+        version: link:../auth
       '@arkstack/common':
         specifier: workspace:^
         version: link:../common
