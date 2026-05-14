@@ -1,10 +1,9 @@
 import type { DbNotificationType, NotificationData } from '../types'
 
-import { Model } from 'arkormx'
+import { Model } from '@arkstack/database'
 
 export abstract class UserNotification extends Model {
-    declare id: never
-    declare userId: never
+    [key: string]: any
     declare type: DbNotificationType | null
     declare title: string
     declare description: string

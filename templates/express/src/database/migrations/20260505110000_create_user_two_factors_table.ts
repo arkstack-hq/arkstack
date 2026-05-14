@@ -3,8 +3,8 @@ import { Migration, SchemaBuilder } from 'arkormx'
 export default class CreateUserTwoFactorsTableMigration extends Migration {
     public async up (schema: SchemaBuilder): Promise<void> {
         schema.createTable('user_two_factors', (table) => {
-            table.id()
-            table.bigInteger('userId').map('user_id')
+            table.id('id', 'uuid').primary()
+            table.uuid('userId').map('user_id')
                 .foreign().references('users', 'id').onDelete('cascade').as('user').inverseAlias('twoFactor')
             table.enum('method', ['authenticator', 'sms']).nullable().enumName('TwoFactorMethod')
             table.string('secretCiphertext').nullable().map('secret_ciphertext')
