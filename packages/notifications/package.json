@@ -42,8 +42,7 @@
         "twilio": "^6.0.0"
     },
     "peerDependencies": {
-        "@arkstack/database": "workspace:^",
-        "@arkstack/auth": "workspace:^"
+        "@arkstack/database": "workspace:^"
     },
     "devDependencies": {
         "@types/nodemailer": "^7.0.11"
