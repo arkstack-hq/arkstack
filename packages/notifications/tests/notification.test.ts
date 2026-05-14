@@ -177,6 +177,43 @@ describe('Notification', () => {
         expect(content).toContain('<div><strong>Hello Ada</strong></div>')
     })
 
+    it('delivers mail with custom html and text templates', async () => {
+        const response = await Notification.mail({
+            from: 'noreply@arkstack.test',
+            host: 'smtp.arkstack.test',
+            port: 2525,
+        })
+            .recipient(['ada@example.com', 'grace@example.com'])
+            .subject('Welcome, {name}')
+            .data({
+                app_name: 'Arkstack',
+                name: 'Ada',
+            })
+            .text('Subject: {subject}\nMessage: {message}')
+            .html(`
+               <html>
+                <head><title>{subject}</title></head>
+                <body>{message}</body>
+               </html>
+            `)
+            .send('<strong>Hello {name}</strong>')
+
+        expect(response).toEqual({
+            accepted: ['ada@example.com', 'grace@example.com'],
+            messageId: 'test-message-id',
+        })
+        expect(mocks.sendMail).toHaveBeenCalledTimes(1)
+        expect(mocks.sendMail).toHaveBeenCalledWith(expect.objectContaining({
+            from: 'noreply@arkstack.test',
+            subject: 'Welcome, Ada',
+            text: 'Subject: Welcome, Ada\nMessage: Hello Ada',
+            to: ['ada@example.com', 'grace@example.com'],
+        }))
+        const content = String(mocks.sendMail.mock.calls[0][0].html)
+        expect(content).toContain('<title>Welcome, Ada</title>')
+        expect(content).toContain('<body><strong>Hello Ada</strong></body>')
+    })
+
     it('delivers mail to named address recipients', async () => {
         const recipients = [
             { 'ada@example.com': 'Ada Lovelace' },

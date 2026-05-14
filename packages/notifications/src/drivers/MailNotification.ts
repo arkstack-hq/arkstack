@@ -12,16 +12,9 @@ export class MailNotification extends NotificationContract {
     private fromAddress?: string
     private subjectLine?: string
     private recipients?: MailRecipient
-    static defaultHtmlTemplate = [
-        '<!doctype html>',
-        '<html>',
-        '<body style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">',
-        '<h2>{subject}</h2>',
-        '<div>{message}</div>',
-        '<p style="color:#6b7280;font-size:12px">&copy; {year} {app_name}</p>',
-        '</body>',
-        '</html>',
-    ].join('')
+    private ViewName: string = '~arkstack/notifications.mail'
+    private htmlTemplate?: string
+    private textTemplate?: string
 
     constructor(options: MailDriverOptions = {}) {
         super()
@@ -57,14 +50,62 @@ export class MailNotification extends NotificationContract {
         return this
     }
 
+    /**
+     * The email subject
+     * 
+     * @param subject 
+     * @returns 
+     */
     subject (subject: string): this {
         this.subjectLine = subject
 
         return this
     }
 
+    /**
+     * Set email the notification recipeint
+     * 
+     * @param recipient string or array of email addresses
+     * @returns 
+     */
     recipient (recipient: MailRecipient): this {
         this.recipients = recipient
+
+        return this
+    }
+
+    /**
+     * Set email the notification view name
+     * 
+     * @param view view name
+     * @returns 
+     */
+    view (view: string): this {
+        this.ViewName = view
+
+        return this
+    }
+
+    /**
+     * Set email the notification html template
+     * 
+     * @param content view name
+     * @returns 
+     */
+    html (content: string): this {
+        this.htmlTemplate = content
+
+        return this
+    }
+
+    /**
+     * Set email the notification text template
+     * 
+     * @param content view name
+     * @returns 
+     */
+    text (content: string): this {
+        this.textTemplate = content
 
         return this
     }
@@ -115,16 +156,25 @@ export class MailNotification extends NotificationContract {
             throw new Error('No recipient provided for mail notification')
         }
 
+        const templateData = {
+            ...mergedData,
+            message: resolvedMessage,
+            subject: resolvedSubject,
+        }
+
+        const textMessage = resolvedMessage.replace(/<\/?[^>]+(>|$)/g, '')
+
         return await this.driver.sendMail({
             to: to as never,
             subject: resolvedSubject,
             from: this.fromAddress,
-            text: resolvedMessage.replace(/<\/?[^>]+(>|$)/g, ''),
-            html: interpolate(await globalThis.view('~arkstack/notifications.mail', {
-                ...mergedData,
-                message: resolvedMessage,
-                subject: resolvedSubject,
-            })),
+            text: interpolate(
+                this.textTemplate ?? textMessage,
+                { ...templateData, message: textMessage }
+            ),
+            html: this.htmlTemplate
+                ? interpolate(this.htmlTemplate, templateData)
+                : await globalThis.view(this.ViewName, templateData),
         })
     }
 
