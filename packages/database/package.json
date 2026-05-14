@@ -54,9 +54,9 @@
         "clear-router": "^2.6.4"
     },
     "dependencies": {
-        "@arkormx/plugin-clear-router": "^0.1.9",
+        "@arkormx/plugin-clear-router": "^0.1.10",
         "@arkstack/common": "workspace:^",
         "@arkstack/contract": "workspace:^",
-        "arkormx": "^2.0.11"
+        "arkormx": "^2.1.0"
     }
 }
