@@ -46,10 +46,5 @@
     },
     "devDependencies": {
         "@types/nodemailer": "^7.0.11"
-    },
-    "peerDependenciesMeta": {
-        "@arkstack/auth": {
-            "optional": true
-        }
     }
 }
