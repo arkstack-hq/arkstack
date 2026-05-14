@@ -1,10 +1,11 @@
-import { env } from '@arkstack/common'
+import { config, env } from '@arkstack/common'
 import nodemailer, { type Transporter } from 'nodemailer'
 
 import { NotificationContract } from '../Contracts/NotificationContract'
 import { interpolate } from '../utils/template'
 import { notificationConfig } from '../config'
 import type { MailDriverOptions, MailRecipient, MailRecipientAddress, NotificationData } from '../types'
+import type { User } from '@arkstack/auth'
 
 export class MailNotification extends NotificationContract {
     driver: Transporter
@@ -68,6 +69,34 @@ export class MailNotification extends NotificationContract {
         return this
     }
 
+    /**
+     * Prepare a notification to be sent.
+     * 
+     * @param user The recipient user(s) for the notification.
+     */
+    prepare (user?: null | string | string[] | User, data: Record<string, any> = {}) {
+        this.data(data)
+
+        if (user && typeof user === 'object' && !Array.isArray(user)) {
+            user = user.email
+        }
+
+        if (user) {
+            this.recipient(user)
+        }
+
+        return this
+    }
+
+    /**
+     * Send a notification to the specified recipient(s) with the given message.
+     * 
+     * @param message The message content to be sent to the recipient(s).
+     * @param subject The message subject to be sent to the recipient(s).
+     * @param recipient An array of recipient identifiers
+     * @param data Additioal context data
+     * @returns 
+     */
     async send (
         message: string,
         subject?: string,
@@ -75,7 +104,7 @@ export class MailNotification extends NotificationContract {
         data?: NotificationData
     ) {
         const mergedData = {
-            app_name: env('APP_NAME', 'Arkstack'),
+            app_name: config('app.name', 'Arkstack'),
             ...this.mergeData(data),
         }
         const resolvedSubject = interpolate(subject ?? this.subjectLine ?? '', mergedData)

@@ -12,7 +12,7 @@ export interface SessionDeviceInfo extends Record<string, unknown> {
     userAgent: string | null
 }
 
-export type AuthAgentPayload = {
+export type DeviceAgentPayload = {
     deviceName?: string
     manufacturer?: string
     model?: string

@@ -1,5 +1,5 @@
 import { type Request } from '@arkstack/http'
-import { AuthAgentPayload, SessionDeviceInfo } from './types/Session'
+import { DeviceAgentPayload, SessionDeviceInfo } from './types/Session'
 import { UAParser } from 'ua-parser-js'
 
 export class SessionDevice {
@@ -23,7 +23,7 @@ export class SessionDevice {
     static fromRequest (req?: Request): SessionDeviceInfo {
         const userAgent = this.readUserAgent(req)
         const ua = new UAParser(userAgent ?? undefined).getResult()
-        const ca = this.readAuthAgent(req)
+        const ca = this.readDeviceAgent(req)
 
         return {
             browser: this.readString(ua.browser.name) ?? this.detectBrowser(userAgent),
@@ -148,15 +148,15 @@ export class SessionDevice {
      * @param headerName 
      * @returns 
      */
-    private static readAuthAgent (req?: Request): AuthAgentPayload | null {
-        const value = req?.header('x-auth-agent')
+    private static readDeviceAgent (req?: Request): DeviceAgentPayload | null {
+        const value = req?.header('x-device-agent')
 
         if (typeof value !== 'string' || value.length < 1) {
             return null
         }
 
         try {
-            const parsed: AuthAgentPayload = JSON.parse(value)
+            const parsed: DeviceAgentPayload = JSON.parse(value)
 
             return {
                 deviceName: this.readString(parsed.deviceName) ?? undefined,
