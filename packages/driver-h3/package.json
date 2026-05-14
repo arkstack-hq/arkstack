@@ -41,7 +41,7 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
-        "clear-router": "^2.6.4",
+        "clear-router": "^2.6.5",
         "@arkstack/contract": "workspace:^",
         "@resora/plugin-clear-router": "^1.0.16",
         "resora": "^1.2.5"
