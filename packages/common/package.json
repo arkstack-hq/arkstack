@@ -1,8 +1,8 @@
 {
     "name": "@arkstack/common",
-    "version": "0.7.6",
+    "version": "0.7.7",
     "type": "module",
-    "description": "Shared foundations and core utilities for Arkstack applications and packages.",
+    "description": "Core utilities, primitives, and shared infrastructure for the Arkstack ecosystem.",
     "homepage": "https://arkstack.toneflix.net",
     "repository": {
         "type": "git",
