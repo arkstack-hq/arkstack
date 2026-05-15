@@ -14,12 +14,12 @@ export default defineConfig({
     ['meta', { name: 'author', content: 'Toneflix' }],
     ['meta', { property: 'og:title', content: 'Arkstack' }],
     ['meta', { property: 'og:description', content: 'Runtime-agnostic TypeScript backend framework for structured server applications' }],
-    ['meta', { property: 'og:image', content: '/logo.jpg' }],
-    ['meta', { property: 'og:url', content: 'https://arkstack.github.io/arkstack/' }],
+    ['meta', { property: 'og:image', content: '/banner.jpg' }],
+    ['meta', { property: 'og:url', content: 'https://arkstack.toneflix.net' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:title', content: 'Arkstack' }],
     ['meta', { name: 'twitter:description', content: 'Runtime-agnostic TypeScript backend framework for structured server applications' }],
-    ['meta', { name: 'twitter:image', content: '/logo.jpg' }]
+    ['meta', { name: 'twitter:image', content: '/banner.jpg' }]
   ],
   themeConfig: {
     logo: '/logo.png',
