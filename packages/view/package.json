@@ -6,7 +6,7 @@
     "homepage": "https://arkstack.toneflix.net/guide/views",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "url": "git+https://github.com/arkstack-tmp/arkstack.git",
         "directory": "packages/view"
     },
     "scripts": {

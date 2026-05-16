@@ -12,8 +12,8 @@ These files are written for AI coding tools such as Claude, Codex, Cursor, and o
 Use the raw GitHub URLs when an agent asks for remote context:
 
 ```txt
-https://raw.githubusercontent.com/arkstack-hq/arkstack/main/SKILLS.md
-https://raw.githubusercontent.com/arkstack-hq/arkstack/main/AGENTS.md
+https://raw.githubusercontent.com/arkstack-tmp/arkstack/main/SKILLS.md
+https://raw.githubusercontent.com/arkstack-tmp/arkstack/main/AGENTS.md
 ```
 
 If you are working from a release branch or fork, replace `main` with the branch, tag, or repository that matches your project.

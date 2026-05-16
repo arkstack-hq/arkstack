@@ -164,7 +164,7 @@ Router.<span class="fn">get</span>(<span class="str">'/'</span>, <span class="kw
     <footer class="footer">
       <p>
         <a href="/guide/getting-started">Docs</a> &middot;
-        <a href="https://github.com/arkstack-hq/arkstack" target="_blank"
+        <a href="https://github.com/arkstack-tmp/arkstack" target="_blank"
           >GitHub</a
         >
         &middot;

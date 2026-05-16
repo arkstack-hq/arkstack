@@ -46,7 +46,7 @@ This argument is optional and the command will prompt you to enter the installat
 
 ## Contributing
 
-Thank you for considering contributing to the Arkstack framework! The [Contribution Guide](https://github.com/arkstack-hq/arkstack/blob/main/CONTRIBUTING.md) can be found in the Arkstack documentation and will provide you with all the information you need to get started.
+Thank you for considering contributing to the Arkstack framework! The [Contribution Guide](https://github.com/arkstack-tmp/arkstack/blob/main/CONTRIBUTING.md) can be found in the Arkstack documentation and will provide you with all the information you need to get started.
 
 ## Security Vulnerabilities
 

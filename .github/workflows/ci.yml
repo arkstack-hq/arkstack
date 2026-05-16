@@ -80,4 +80,4 @@ jobs:
         with:
           directory: ./coverage
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: arkstack-hq/arkstack
+          slug: arkstack-tmp/arkstack
