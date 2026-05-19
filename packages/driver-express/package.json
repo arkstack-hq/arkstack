@@ -42,11 +42,11 @@
     },
     "dependencies": {
         "multer": "^2.1.1",
-        "clear-router": "^2.6.5",
+        "clear-router": "^2.6.7",
         "@arkstack/contract": "workspace:^",
         "express-rate-limit": "^8.4.1",
-        "@resora/plugin-clear-router": "^1.0.16",
-        "resora": "^1.2.5"
+        "@resora/plugin-clear-router": "^1.0.20",
+        "resora": "^1.2.8"
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",

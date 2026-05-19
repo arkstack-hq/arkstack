@@ -33,6 +33,6 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
-        "clear-router": "^2.6.5"
+        "clear-router": "^2.6.7"
     }
 }
