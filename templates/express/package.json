@@ -42,7 +42,7 @@
     "kanun": "^1.1.0",
     "kysely": "^0.28.15",
     "pg": "^8.20.0",
-    "resora": "^1.2.9"
+    "resora": "^1.2.10"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
