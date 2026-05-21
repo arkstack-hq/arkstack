@@ -33,6 +33,7 @@
     },
     "exports": {
         ".": "./dist/index.js",
+        "./utils": "./dist/utils/index.js",
         "./package.json": "./package.json"
     },
     "dependencies": {
