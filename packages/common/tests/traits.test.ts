@@ -72,6 +72,44 @@ describe('Trait System', () => {
         expect(uses(instance, Subtractable)).toBe(false)
     })
 
+    it('should allow a regular class to be used directly', () => {
+        class BaseClass {
+            static label = 'base'
+            value = 1
+
+            increment () {
+                return this.value + 1
+            }
+        }
+
+        class MyClass extends use(BaseClass) { }
+
+        const instance = new MyClass()
+        expect(instance.increment()).toBe(2)
+        expect(instance instanceof BaseClass).toBe(true)
+        expect(MyClass.label).toBe('base')
+    })
+
+    it('should allow a regular class to be used directly and mixed with traits', () => {
+        class BaseClass {
+            static label = 'base'
+            value = 1
+
+            increment () {
+                return this.value + 1
+            }
+        }
+
+        class MyClass extends use(Addable, Subtractable, BaseClass) { }
+
+        const instance = new MyClass()
+        expect(instance.add()).toBe(2)
+        expect(instance.subtract()).toBe(1)
+        expect(instance.increment()).toBe(2)
+        expect(instance instanceof BaseClass).toBe(true)
+        expect(MyClass.label).toBe('base')
+    })
+
     it('expect mixin to be instanceof', () => {
         class MyClass extends use(Addable) {
             value = 0

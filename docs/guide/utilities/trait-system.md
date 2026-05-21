@@ -36,6 +36,8 @@ const Subtractable = trait(
 
 `use()` composes one or more traits into a base class that your class can extend. Traits are applied left to right, and if two traits define the same method, the rightmost one wins. Alongside traits, `use()` also accepts existing classes that already have traits applied, so you can extend a traitful class while adding new behaviour at the same time.
 
+`use()` also accepts a regular class as its **last argument**. When provided, it becomes the root of the composition chain — all traits are applied on top of it, and `instanceof` checks against the base class work as expected. Only one regular class is permitted, and it must always come after all traits.
+
 ```ts
 import { use } from '@arkstack/common/utils';
 
@@ -56,7 +58,33 @@ instance.subtract(); // 0
 // Extend a class that already has traits
 class MySubClass extends use(Addable, MyClass) {}
 new MySubClass().subtract(); // 0 — inherited from MyClass
+
+// Regular class as the base — must be last
+class BaseClass {
+  static label = 'base';
+  value = 1;
+
+  increment() {
+    return this.value + 1;
+  }
+}
+
+class MyClass extends use(BaseClass) {}
+new MyClass().increment(); // 2
+new MyClass() instanceof BaseClass; // true
+MyClass.label; // "base"
+
+// Traits and a regular base class combined
+class MyClass extends use(Addable, Subtractable, BaseClass) {}
+const instance = new MyClass();
+instance.add(); // 2
+instance.subtract(); // 1
+instance.increment(); // 2
+instance instanceof BaseClass; // true
+MyClass.label; // "base"
 ```
+
+> **Note:** The regular base class must always be the last argument to `use()`. Placing it before any trait will result in unexpected behaviour.
 
 ## Verifying Trait Membership
 

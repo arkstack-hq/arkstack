@@ -233,7 +233,9 @@ type DeriveTraitsConsOne<
 type DeriveTraitsConsAll<
     T extends (((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], Cons]) | undefined)
 > =
+    T extends [infer Only extends Cons] ? DeriveTraitsConsCons<Only> :
     T extends [...infer Others extends (Trait | TypeFactory<Trait>)[], infer Last extends Cons] ? (
+        Others extends [] ? DeriveTraitsConsCons<Last> :
         DeriveTraitsConsConsMerge<
             DeriveTraitsConsAll<Others>, /* RECURSION */
             DeriveTraitsConsCons<Last>>
@@ -316,7 +318,9 @@ type DeriveTraitsStatsOne<
 type DeriveTraitsStatsAll<
     T extends (((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], Cons]) | undefined)
 > =
+    T extends [infer Only extends Cons] ? DeriveTraitsStatsCons<Only> :
     T extends [...infer Others extends (Trait | TypeFactory<Trait>)[], infer Last extends Cons] ? (
+        Others extends [] ? DeriveTraitsStatsCons<Last> :
         DeriveTraitsStatsConsMerge<
             DeriveTraitsStatsAll<Others>, /* RECURSION */
             DeriveTraitsStatsCons<Last>>
