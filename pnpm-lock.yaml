@@ -66,8 +66,8 @@ importers:
         specifier: ^4.1.5
         version: 4.1.5(vitest@4.1.5)
       arkormx:
-        specifier: ^2.1.0
-        version: 2.1.0(@types/node@25.6.2)
+        specifier: ^2.2.3
+        version: 2.2.3(@types/node@25.6.2)
       clear-router:
         specifier: ^2.6.7
         version: 2.6.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -235,8 +235,8 @@ importers:
         specifier: ^0.15.11
         version: 0.15.11
       arkormx:
-        specifier: ^2.1.0
-        version: 2.1.0(@types/node@25.6.2)
+        specifier: ^2.2.3
+        version: 2.2.3(@types/node@25.6.2)
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
@@ -271,8 +271,8 @@ importers:
         specifier: ^0.15.11
         version: 0.15.11
       arkormx:
-        specifier: ^2.1.0
-        version: 2.1.0(@types/node@25.6.2)
+        specifier: ^2.2.3
+        version: 2.2.3(@types/node@25.6.2)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -318,8 +318,8 @@ importers:
         specifier: workspace:^
         version: link:../contract
       arkormx:
-        specifier: ^2.1.0
-        version: 2.1.0(@types/node@25.6.2)
+        specifier: ^2.2.3
+        version: 2.2.3(@types/node@25.6.2)
       clear-router:
         specifier: ^2.6.7
         version: 2.6.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -504,8 +504,8 @@ importers:
         specifier: ^0.44.0
         version: 0.44.0
       arkormx:
-        specifier: ^2.1.0
-        version: 2.1.0(@types/node@25.6.2)
+        specifier: ^2.2.3
+        version: 2.2.3(@types/node@25.6.2)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -640,8 +640,8 @@ importers:
         specifier: ^0.44.0
         version: 0.44.0
       arkormx:
-        specifier: ^2.1.0
-        version: 2.1.0(@types/node@25.6.2)
+        specifier: ^2.2.3
+        version: 2.2.3(@types/node@25.6.2)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -2693,11 +2693,6 @@ packages:
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
-
-  arkormx@2.1.0:
-    resolution: {integrity: sha512-wuRUI1z3qj5h66pk65/k/ruUnRH1pJ5345jY8z7Z1ZZJwSFKeyqYKHas86r/IzuklzGFBE7y2FYBCsxdjS4o5g==}
-    engines: {node: '>=20.0.0'}
-    hasBin: true
 
   arkormx@2.2.3:
     resolution: {integrity: sha512-jt4iXpX/oppweufdmSl7xuXfCvoLtbdxFZQ24lnGj9Imd6cQQCl1LOXWwHFUebPXNNHkLnhnOJhfw20Mu/x6GA==}
@@ -7685,21 +7680,6 @@ snapshots:
       sprintf-js: 1.0.3
 
   argparse@2.0.1: {}
-
-  arkormx@2.1.0(@types/node@25.6.2):
-    dependencies:
-      '@h3ravel/collect.js': 5.3.6
-      '@h3ravel/musket': 0.10.1(@types/node@25.6.2)
-      '@h3ravel/shared': 0.27.13(@types/node@25.6.2)
-      '@h3ravel/support': 0.15.11
-      dotenv: 17.4.2
-      jiti: 2.7.0
-      kysely: 0.28.16
-      pg: 8.20.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - crossws
-      - pg-native
 
   arkormx@2.2.3(@types/node@25.6.2):
     dependencies:
