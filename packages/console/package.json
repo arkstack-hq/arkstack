@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/console",
-    "version": "0.7.12",
+    "version": "0.7.13",
     "type": "module",
     "description": "Console module for Arkstack, providing the command-line runtime and console integration layer.",
     "homepage": "https://arkstack.toneflix.net/guide/cli",
