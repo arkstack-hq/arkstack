@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { trait, use, uses } from '../src/utils/traits'
 
+import { Model } from 'arkormx'
+
 const Addable = trait((Base) => class Addable extends Base {
     build = true
 
@@ -108,6 +110,53 @@ describe('Trait System', () => {
         expect(instance.increment()).toBe(2)
         expect(instance instanceof BaseClass).toBe(true)
         expect(MyClass.label).toBe('base')
+    })
+
+    const ModelAddable = trait(Base => class ModelAddable extends Base {
+        add () {
+            const value = Number(this.getAttribute('value') ?? 0) + 1
+            this.setAttribute('value', value)
+
+            return value
+        }
+    })
+
+    it('should accept an Arkorm model to be used directly and mixed with traits', () => {
+        class MyModel extends use(ModelAddable, Model) {
+            static table = 'my_model'
+
+            constructor() {
+                super({ value: 1 })
+            }
+
+            increment () {
+                return this.value + 1
+            }
+        }
+
+        const instance = new MyModel()
+        const value = Number(instance.getAttribute('value'))
+        const added = instance.add()
+        expect(added).toBeGreaterThan(value)
+        expect(instance.increment()).toBeGreaterThan(added)
+        expect(instance instanceof Model).toBe(true)
+        expect(MyModel.table).toBe('my_model')
+    })
+
+    it('should accept an Arkorm model instance as a direct base', () => {
+        class BaseModel extends Model {
+            static table = 'base_model'
+        }
+
+        const base = new BaseModel({ value: 1 })
+
+        class MyModel extends use(ModelAddable, base) { }
+
+        const instance = new MyModel({ value: 1 })
+        const value = Number(instance.getAttribute('value'))
+        expect(instance.add()).toBeGreaterThan(value)
+        expect(instance instanceof BaseModel).toBe(true)
+        expect((MyModel as any).table).toBe('base_model')
     })
 
     it('expect mixin to be instanceof', () => {

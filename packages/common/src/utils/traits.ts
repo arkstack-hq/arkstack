@@ -4,6 +4,8 @@
 **  Licensed under MIT license <https://spdx.org/licenses/MIT>
 */
 
+import type { Model as ArkormModel } from 'arkormx'
+
 /**
  * CRC32 implementation in TypeScript, adapted from https://stackoverflow.com/a/18639999
  * Note: This implementation is not cryptographically secure and is only used for generating 
@@ -60,6 +62,23 @@ const isCons =
     <T = any>
         (fn: unknown): fn is Cons<T> =>
         typeof fn === 'function' && !!fn.prototype && !!fn.prototype.constructor
+
+type ArkormModelCons<T extends ArkormModel = ArkormModel> =
+    abstract new (...args: any[]) => T
+
+type DirectCons<T = any> =
+    Cons<T> | ArkormModelCons<ArkormModel>
+
+type DirectBase =
+    DirectCons | ArkormModel
+
+const isArkormModelInstance =
+    (value: unknown): value is ArkormModel =>
+        typeof value === 'object' &&
+        value !== null &&
+        typeof (value as { constructor?: unknown }).constructor === 'function' &&
+        typeof (value as { getAttribute?: unknown }).getAttribute === 'function' &&
+        typeof (value as { setAttribute?: unknown }).setAttribute === 'function'
 
 /**
  * utility type and function: constructor factory (function)
@@ -190,9 +209,16 @@ type DeriveTraitsConsConsMerge<
  * utility type: derive type constructor: extract plain constructor
  */
 type DeriveTraitsConsCons<
-    T extends Cons
+    T extends DirectCons
 > =
     new (...args: ConstructorParameters<T>) => InstanceType<T>
+
+type DeriveTraitsConsDirectBase<
+    T extends DirectBase
+> =
+    T extends ArkormModel ? new (...args: any[]) => T :
+    T extends DirectCons ? DeriveTraitsConsCons<T> :
+    never
 
 /**
  * utility type: derive type constructor: from trait parts
@@ -231,14 +257,14 @@ type DeriveTraitsConsOne<
  * utility type: derive type constructor: from one or more traits or trait factories
  */
 type DeriveTraitsConsAll<
-    T extends (((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], Cons]) | undefined)
+    T extends (((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], DirectBase]) | undefined)
 > =
-    T extends [infer Only extends Cons] ? DeriveTraitsConsCons<Only> :
-    T extends [...infer Others extends (Trait | TypeFactory<Trait>)[], infer Last extends Cons] ? (
-        Others extends [] ? DeriveTraitsConsCons<Last> :
+    T extends [infer Only extends DirectBase] ? DeriveTraitsConsDirectBase<Only> :
+    T extends [...infer Others extends (Trait | TypeFactory<Trait>)[], infer Last extends DirectBase] ? (
+        Others extends [] ? DeriveTraitsConsDirectBase<Last> :
         DeriveTraitsConsConsMerge<
             DeriveTraitsConsAll<Others>, /* RECURSION */
-            DeriveTraitsConsCons<Last>>
+            DeriveTraitsConsDirectBase<Last>>
     ) :
     T extends (Trait | TypeFactory<Trait>)[] ? (
         T extends [infer First extends (Trait | TypeFactory<Trait>)] ? (
@@ -258,7 +284,7 @@ type DeriveTraitsConsAll<
  * utility type: derive type constructor
  */
 type DeriveTraitsCons<
-    T extends ((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], Cons])
+    T extends ((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], DirectBase])
 > =
     DeriveTraitsConsAll<T>
 
@@ -275,9 +301,16 @@ type DeriveTraitsStatsConsMerge<
  * utility type: derive type statics: extract plain statics
  */
 type DeriveTraitsStatsCons<
-    T extends Cons
+    T extends DirectCons
 > =
     Explode<T>
+
+type DeriveTraitsStatsDirectBase<
+    T extends DirectBase
+> =
+    T extends ArkormModel ? object :
+    T extends DirectCons ? DeriveTraitsStatsCons<T> :
+    never
 
 /**
  * utility type: derive type statics: from trait parts
@@ -316,14 +349,14 @@ type DeriveTraitsStatsOne<
  * utility type: derive type statics: from one or more traits or trait factories
  */
 type DeriveTraitsStatsAll<
-    T extends (((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], Cons]) | undefined)
+    T extends (((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], DirectBase]) | undefined)
 > =
-    T extends [infer Only extends Cons] ? DeriveTraitsStatsCons<Only> :
-    T extends [...infer Others extends (Trait | TypeFactory<Trait>)[], infer Last extends Cons] ? (
-        Others extends [] ? DeriveTraitsStatsCons<Last> :
+    T extends [infer Only extends DirectBase] ? DeriveTraitsStatsDirectBase<Only> :
+    T extends [...infer Others extends (Trait | TypeFactory<Trait>)[], infer Last extends DirectBase] ? (
+        Others extends [] ? DeriveTraitsStatsDirectBase<Last> :
         DeriveTraitsStatsConsMerge<
             DeriveTraitsStatsAll<Others>, /* RECURSION */
-            DeriveTraitsStatsCons<Last>>
+            DeriveTraitsStatsDirectBase<Last>>
     ) :
     T extends (Trait | TypeFactory<Trait>)[] ? (
         T extends [infer First extends (Trait | TypeFactory<Trait>)] ? (
@@ -343,7 +376,7 @@ type DeriveTraitsStatsAll<
  * utility type: derive type statics
  */
 type DeriveTraitsStats<
-    T extends ((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], Cons])
+    T extends ((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], DirectBase])
 > =
     DeriveTraitsStatsAll<T>
 
@@ -351,7 +384,7 @@ type DeriveTraitsStats<
  * utility type: derive type from one or more traits or trait type factories
  */
 type DeriveTraits<
-    T extends ((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], Cons])
+    T extends ((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], DirectBase])
 > =
     DeriveTraitsCons<T> &
     DeriveTraitsStats<T>
@@ -432,7 +465,7 @@ const reverseTraitList = (traits: (Trait | TypeFactory<Trait>)[]) =>
 export function use
     <T extends (
         [Trait | TypeFactory<Trait>, ...(Trait | TypeFactory<Trait>)[]] |
-        [...(Trait | TypeFactory<Trait>)[], Cons]
+        [...(Trait | TypeFactory<Trait>)[], DirectBase]
     )>
     (...traits: T): DeriveTraits<T> {
     /*  run-time sanity check  */
@@ -447,8 +480,12 @@ export function use
         /*  case 1: with trailing regular class  */
         clz = last
         lot = traits.slice(0, -1) as (Trait | TypeFactory<Trait>)[]
+    } else if (isArkormModelInstance(last)) {
+        /*  case 2: with trailing Arkorm model instance  */
+        clz = last.constructor as Cons<any>
+        lot = traits.slice(0, -1) as (Trait | TypeFactory<Trait>)[]
     } else {
-        /*  case 2: just regular traits or trait type factories  */
+        /*  case 3: just regular traits or trait type factories  */
         clz = class ROOT { }
         lot = traits as (Trait | TypeFactory<Trait>)[]
     }
