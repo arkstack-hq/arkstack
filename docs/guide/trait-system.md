@@ -9,7 +9,7 @@ The trait system is built around three primitives: `trait()` to define a behavio
 A trait is created with the `trait()` factory. It receives a `Base` class and returns a new class extending it with the desired methods. This factory pattern is what makes traits stackable — each one builds on whatever base it receives, so they can be combined in any order without conflicts.
 
 ```ts
-import { trait } from '@arkstack/common/utils/traits';
+import { trait } from '@arkstack/common/utils';
 
 const Addable = trait(
   (Base) =>
@@ -37,7 +37,7 @@ const Subtractable = trait(
 `use()` composes one or more traits into a base class that your class can extend. Traits are applied left to right, and if two traits define the same method, the rightmost one wins. Alongside traits, `use()` also accepts existing classes that already have traits applied, so you can extend a traitful class while adding new behaviour at the same time.
 
 ```ts
-import { use } from '@arkstack/common/utils/traits';
+import { use } from '@arkstack/common/utils';
 
 // Single trait
 class MyClass extends use(Subtractable) {
@@ -63,7 +63,7 @@ new MySubClass().subtract(); // 0 — inherited from MyClass
 `uses()` lets you check at runtime whether a given trait was applied anywhere in a class's composition chain. This is useful for conditional logic, guards, or introspection without relying on duck typing.
 
 ```ts
-import { uses } from '@arkstack/common/utils/traits';
+import { uses } from '@arkstack/common/utils';
 
 class MyClass extends use(Addable) {
   value = 0;
