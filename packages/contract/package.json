@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/contract",
-    "version": "0.7.11",
+    "version": "0.7.12",
     "type": "module",
     "description": "Contract module for Arkstack, providing shared interfaces and type contracts used across the framework.",
     "homepage": "https://arkstack.toneflix.net",
