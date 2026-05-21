@@ -15,7 +15,7 @@ const limit2 = perPage({}); // 15 (default)
 
 ## `getModel(modelName)`
 
-Dynamically imports an application model by name from the configured models directory (default: `./src/models`). Supports augmenting `ModelRegistry` for type-safe lookups.
+Dynamically imports an application model by name from the configured models directory (default: `./src/app/models`). Supports augmenting `ModelRegistry` for type-safe lookups.
 
 ```ts
 import { getModel } from '@arkstack/common';
