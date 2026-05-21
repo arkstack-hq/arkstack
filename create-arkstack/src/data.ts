@@ -39,18 +39,18 @@ export const leanDependencies = [
 ]
 
 export const depsList: Record<string, string> = {
-    '@arkstack/auth': '^0.7.13',
-    '@arkstack/common': '^0.7.13',
-    '@arkstack/console': '^0.7.13',
-    // '@arkstack/console-slim': '^0.7.13', Depracated
-    '@arkstack/contract': '^0.7.13',
-    '@arkstack/database': '^0.7.13',
-    '@arkstack/driver-express': '^0.7.13',
-    '@arkstack/driver-h3': '^0.7.13',
-    '@arkstack/filesystem': '^0.7.13',
-    '@arkstack/http': '^0.7.13',
-    '@arkstack/view': '^0.7.13',
-    '@arkstack/notifications': '^0.7.13',
+    '@arkstack/auth': '^0.7.14',
+    '@arkstack/common': '^0.7.14',
+    '@arkstack/console': '^0.7.14',
+    // '@arkstack/console-slim': '^0.7.14', Depracated
+    '@arkstack/contract': '^0.7.14',
+    '@arkstack/database': '^0.7.14',
+    '@arkstack/driver-express': '^0.7.14',
+    '@arkstack/driver-h3': '^0.7.14',
+    '@arkstack/filesystem': '^0.7.14',
+    '@arkstack/http': '^0.7.14',
+    '@arkstack/view': '^0.7.14',
+    '@arkstack/notifications': '^0.7.14',
 }
 
 export const environment = {
