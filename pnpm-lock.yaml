@@ -309,8 +309,8 @@ importers:
   packages/database:
     dependencies:
       '@arkormx/plugin-clear-router':
-        specifier: ^0.1.15
-        version: 0.1.15(@types/node@25.6.2)(clear-router@2.6.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2))
+        specifier: ^0.1.16
+        version: 0.1.16(@types/node@25.6.2)(clear-router@2.6.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2))
       '@arkstack/common':
         specifier: workspace:^
         version: link:../common
@@ -727,8 +727,8 @@ packages:
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
 
-  '@arkormx/plugin-clear-router@0.1.15':
-    resolution: {integrity: sha512-zqKNaRN5uBgnwVTDmpDDIi+MTr9v2r8jhV/jQsyMVolu8bMzuapUf7ds/3+ahmSfGc98ij8qiU0io2qc1Vx1+A==}
+  '@arkormx/plugin-clear-router@0.1.16':
+    resolution: {integrity: sha512-6rc48gQpFVZvS8dscX4XLTvAswMuzu12qZzMbbMC+WwYV7dTpWo3Ta9OVy9f5h3H4BbOggHtjA6WQ8dXh7baHw==}
     peerDependencies:
       clear-router: ^2.6.5
 
@@ -5327,7 +5327,7 @@ snapshots:
       package-manager-detector: 1.6.0
       tinyexec: 1.0.2
 
-  '@arkormx/plugin-clear-router@0.1.15(@types/node@25.6.2)(clear-router@2.6.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2))':
+  '@arkormx/plugin-clear-router@0.1.16(@types/node@25.6.2)(clear-router@2.6.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2))':
     dependencies:
       arkormx: 2.2.3(@types/node@25.6.2)
       clear-router: 2.6.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2)
