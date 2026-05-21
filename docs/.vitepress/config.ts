@@ -36,6 +36,16 @@ export default defineConfig({
         text: 'Guide',
         items: [
           { text: 'Getting Started', link: '/guide/getting-started' },
+          {
+            text: 'Utilities',
+            collapsed: true,
+            items: [
+              { text: 'Helpers', link: '/guide/utilities/helpers' },
+              { text: 'Hashing', link: '/guide/utilities/hashing' },
+              { text: 'Encryption', link: '/guide/utilities/encryption' },
+              { text: 'Trait System', link: '/guide/utilities/trait-system' },
+            ]
+          },
           { text: 'CLI', link: '/guide/cli' },
           { text: 'Middleware', link: '/guide/middleware' },
           { text: 'Authentication', link: '/guide/authentication' },
