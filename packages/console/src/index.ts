@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { config, env, importFile, loadPrototypes, outputDir } from '@arkstack/common'
+import { config, env, importFile, initializeGlobalContext, loadPrototypes, outputDir } from '@arkstack/common'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path, { join } from 'node:path'
 
@@ -43,7 +43,6 @@ const loadCoreApp = async () => {
  */
 export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
     loadPrototypes()
-
     const app = await loadCoreApp()
     const dist = path.relative(process.cwd(), outputDir())
     const stubsDir = process.env.ARKSTACK_STUBS_DIR
@@ -55,6 +54,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
         runtime: 'CLI',
     }
 
+    await initializeGlobalContext()
     await Kernel.init(await new ArkstackConsoleApp(app, { stubsDir }).loadConfig(), {
         logo: options.logo ?? logo,
         name: 'Cmd',

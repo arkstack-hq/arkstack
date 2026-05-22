@@ -1,6 +1,7 @@
 import { config, env } from './system'
 
 import { detect } from 'detect-port'
+import { initializeGlobalContext } from './utils'
 import { str } from '@h3ravel/support'
 
 export const bootWithDetectedPort = async (
@@ -12,13 +13,12 @@ export const bootWithDetectedPort = async (
   globalThis.env = env
   globalThis.config = config
   globalThis.str = str
-  globalThis.request ??= (() => ({})) as never
-  globalThis.response ??= (() => ({})) as never
   globalThis.arkctx = {
     runtime: 'HTTP',
   }
   const port = await detect(preferredPort)
   await boot(port)
+  await initializeGlobalContext()
 }
 
 
