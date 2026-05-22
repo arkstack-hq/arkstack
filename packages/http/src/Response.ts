@@ -27,6 +27,8 @@ export class Response<TBody = unknown> extends BaseResponse {
 
         this.body = options.body ?? {} as TBody
         this.source = options.source
+
+        globalThis.response = () => this
     }
 
     static from<TBody extends RequestData = RequestData> (

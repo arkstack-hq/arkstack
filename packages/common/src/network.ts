@@ -12,6 +12,8 @@ export const bootWithDetectedPort = async (
   globalThis.env = env
   globalThis.config = config
   globalThis.str = str
+  globalThis.request ??= {} as never
+  globalThis.response ??= {} as never
   globalThis.arkctx = {
     runtime: 'HTTP',
   }

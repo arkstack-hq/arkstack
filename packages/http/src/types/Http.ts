@@ -1,3 +1,5 @@
+import type { Request } from '../Request'
+
 export type HeaderValue = string | string[] | number | boolean | null | undefined
 export type HeaderMap = Record<string, string>
 export type HeaderSource = Headers | Record<string, HeaderValue>
@@ -33,4 +35,9 @@ export type RequestOptions<TUser = unknown> = {
     user?: TUser;
     authToken?: string;
     source?: unknown;
+}
+
+export interface RequestHelper<TUser = unknown> {
+    (): Request
+    <X extends string> (key: X): Request<TUser>['body'][X]
 }

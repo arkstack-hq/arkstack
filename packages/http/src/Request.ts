@@ -29,6 +29,8 @@ export class Request<TUser = unknown> extends BaseRequest {
         this.user = options.user
         this.authToken = options.authToken
         this.source = options.source
+
+        globalThis.request = (key?: string) => key ? this.input(key) : this
     }
 
     static from<TUser = unknown> (
