@@ -5,3 +5,7 @@ export { view } from './helpers'
 export { parsePackageViewName, resolvePackageViewsPath } from './packageViews'
 export type * from './types'
 export { Edge, default as edge } from 'edge.js'
+
+export { clearRouterViewPlugin } from './plugins'
+export { ViewErrorBag, normalizeViewErrors } from './ViewErrorBag'
+export { clearViewData, collectViewData, enterViewData, getViewData, runWithViewData } from './viewContext'

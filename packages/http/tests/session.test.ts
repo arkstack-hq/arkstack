@@ -1,7 +1,8 @@
-import { ErrorBag, Request, Response, Session, ensureSession } from '../src'
+import { ErrorBag, Request, Response, Session, ensureSession, kanunSessionPlugin } from '../src'
 import { describe, expect, it } from 'vitest'
 
 import { CoreRouter } from 'clear-router/core'
+import { Validator } from 'kanun'
 
 describe('HTTP Session', () => {
     it('stores regular and validation errors in a view-friendly error bag', () => {
@@ -97,6 +98,65 @@ describe('HTTP Session', () => {
         expect(ctx.session).toBe(existingSession)
         expect(ctx.httpSession).toBe(session)
         expect(ctx.errors).toBe(session.errors)
+    })
+
+    it('normalizes full Kanun validators into field errors', async () => {
+        const validator = Validator.make({ email: '' }, { email: 'required|email' })
+
+        await expect(validator.passes()).resolves.toBe(false)
+
+        const errors = new ErrorBag().validation(validator)
+
+        expect(errors.has('email')).toBe(true)
+        expect(errors.first('email')).toBe('The email field is required.')
+        expect(errors.toJSON()).toEqual({
+            email: ['The email field is required.'],
+        })
+    })
+
+    it('fills the current session when Kanun validation fails', async () => {
+        await import('../src/setup')
+
+        const ctx: any = {
+            clearRequest: new Request(),
+            clearResponse: new Response({ source: { locals: {} } }),
+        }
+
+        await (CoreRouter as any).resolvePluginHttpCtx(ctx)
+
+        const validator = Validator.make({ email: '' }, { email: 'required|email' })
+
+        await expect(validator.passes()).resolves.toBe(false)
+
+        expect(ctx.session.errors.first('email')).toBe('The email field is required.')
+        expect(ctx.errors.first('email')).toBe('The email field is required.')
+        expect(ctx.clearResponse.source.locals.errors.first('email')).toBe('The email field is required.')
+    })
+
+    it('does not fail Kanun validation hooks when no request session exists', async () => {
+        const originalSession = globalThis.session
+        let hook: ((validator: any) => void | Promise<void>) | undefined
+
+        try {
+            delete (globalThis as any).session
+            kanunSessionPlugin.install({
+                onValidationError (callback: any) {
+                    hook = callback
+                },
+            } as any)
+
+            const validator = Validator.make({ email: '' }, { email: 'required|email' })
+            await validator.passes()
+
+            expect(hook).toBeTypeOf('function')
+            await hook!(validator)
+        } finally {
+            if (originalSession) {
+                globalThis.session = originalSession
+            } else {
+                delete (globalThis as any).session
+            }
+        }
     })
 
     it('registers the clear-router session plugin through http setup', async () => {

@@ -105,6 +105,65 @@ View.share('appName', 'Arkstack');
 View.share({ year: new Date().getFullYear() });
 ```
 
+## Validation Errors
+
+Views always receive an `errors` object, so templates can safely ask for validation messages even when the current request has no errors:
+
+```edge
+@if(errors.has('email'))
+  <p>{{ errors.first('email') }}</p>
+@end
+```
+
+You can pass errors directly when rendering:
+
+```ts
+await view('profile.edit', {
+  errors: {
+    email: ['Email is required'],
+  },
+});
+```
+
+Or share them for a group of renders:
+
+```ts
+View.share('errors', {
+  email: ['Email is required'],
+});
+```
+
+The view error bag supports helpers such as `first`, `get`, `has`, `hasAny`, `missing`, `all`, `keys`, `count`, `toArray`, and `getMessages`.
+
+### Session Errors
+
+When using Arkstack HTTP sessions, import both setup entries during application boot:
+
+```ts
+import '@arkstack/http/setup';
+import '@arkstack/view/setup';
+```
+
+The HTTP setup attaches `session` and `errors` to the Clear Router context. The view setup reads those request locals and makes them available to any view rendered inside that request:
+
+```ts
+Router.post('/profile', async ({ session }) => {
+  session.addError('email', 'Email is required');
+
+  return await view('profile.edit');
+});
+```
+
+Inside `profile/edit.edge`:
+
+```edge
+<input name="email" />
+
+@if(errors.has('email'))
+  <p>{{ errors.first('email') }}</p>
+@end
+```
+
 ## View Composers
 
 View composers run before a view renders. Use them to attach common data to one view, many views, or every view.

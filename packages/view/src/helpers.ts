@@ -1,6 +1,7 @@
 import type { ViewComposer, ViewComposerObject, ViewData, ViewName } from './types'
 
 import { View } from './View'
+import { normalizeViewErrors } from './ViewErrorBag'
 import { ViewFactory } from './ViewFactory'
 import { ViewInstance } from './ViewInstance'
 
@@ -21,20 +22,27 @@ export const isClass = <T = unknown> (
         && /^class\s/.test(Function.prototype.toString.call(target))
 }
 
+export const normalizeViewData = (data: ViewData = {}) => {
+    return {
+        ...data,
+        errors: normalizeViewErrors(data.errors),
+    }
+}
+
 export const mergeData = (target: ViewData, data: any[]) => {
     if (data.length === 0) {
         return target
     }
 
     if (typeof data[0] === 'string') {
-        target[data[0]] = data[1]
+        target[data[0]] = data[0] === 'errors' ? normalizeViewErrors(data[1]) : data[1]
 
         return target
     }
 
     for (const value of data) {
         if (value && typeof value === 'object' && !Array.isArray(value)) {
-            Object.assign(target, value)
+            Object.assign(target, normalizeViewData(value))
         }
     }
 

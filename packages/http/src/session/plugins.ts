@@ -2,9 +2,10 @@ import { attachViewState, ensureSession } from './helpers'
 
 import { HttpContext } from '../types/Http'
 import { Session } from './Session'
-import { definePlugin } from 'clear-router/core'
+import { definePlugin as defineClearRouterPlugin } from 'clear-router/core'
+import { definePlugin as defineKanunPlugin } from 'kanun'
 
-export const clearRouterSessionPlugin = definePlugin<any, HttpContext>({
+export const clearRouterSessionPlugin = defineClearRouterPlugin<any, HttpContext>({
     name: 'arkstack-http-session',
     setup: ({ bind, useHttpContext }) => {
         bind(Session, ({ ctx }: { ctx: HttpContext }) => ensureSession(ctx))
@@ -17,6 +18,19 @@ export const clearRouterSessionPlugin = definePlugin<any, HttpContext>({
             }
             context.errors = session.errors
             attachViewState(context, session)
+        })
+    },
+})
+
+export const kanunSessionPlugin = defineKanunPlugin({
+    name: 'kanun-session-plugin',
+    install ({ onValidationError }) {
+        onValidationError((validator) => {
+            const currentSession = globalThis.session?.()
+
+            if (currentSession instanceof Session) {
+                currentSession.addValidationErrors(validator)
+            }
         })
     },
 })

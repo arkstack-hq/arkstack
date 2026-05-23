@@ -50,6 +50,72 @@ response.status(201);
 response.json({ ok: true });
 ```
 
+## Session
+
+The HTTP package includes a small request session container for framework-neutral route handlers. Import the setup entry once during application boot so Clear Router can attach the session to each HTTP context:
+
+```ts
+import '@arkstack/http/setup';
+```
+
+Inside a Clear Router handler, the context receives `session`, `httpSession`, and `errors`:
+
+```ts
+Router.post('/profile', async ({ session }) => {
+  session.put('intended', '/dashboard');
+  session.addError('email', 'Email is required');
+
+  return { ok: false };
+});
+```
+
+Use `httpSession` when another package already owns a `session` property on the context. Arkstack preserves existing non-HTTP sessions and exposes its own container as `httpSession`.
+
+The session API supports the following common bag methods:
+
+```ts
+session.get('intended');
+session.put('notice', 'Saved');
+session.has('notice');
+session.forget('notice');
+session.clear();
+
+session.addError('email', 'Email is required');
+session.addErrors({ password: ['Password is too short'] });
+session.hasErrors('email');
+session.clearErrors('email');
+```
+
+### Validation Errors
+
+Arkstack uses Kanun for validation. Importing `@arkstack/http/setup` registers the Kanun session plugin, so failed validators automatically fill the current HTTP session error bag. You can still pass a Kanun validator message bag, a Kanun validation exception, or a plain keyed error object into the session manually when needed:
+
+```ts
+import { Validator, ValidationException } from 'kanun';
+
+const validator = Validator.make(body, {
+  email: 'required|email',
+});
+
+if (await validator.fails()) {
+  // The Kanun session plugin has already copied validator.errors()
+  // into the current request session.
+  return await view('profile.edit');
+}
+
+try {
+  await validator.validate();
+} catch (error) {
+  if (error instanceof ValidationException) {
+    session.addValidationErrors(error);
+  }
+}
+```
+
+The error bag is available as `session.errors` and as `errors` on the HTTP context. It supports helpers such as `first`, `get`, `has`, `hasAny`, `missing`, `all`, `keys`, `count`, `toArray`, and `getMessages`.
+
+When `@arkstack/view/setup` is also imported, the current session and error bag are available to Edge views rendered during the request.
+
 ## When To Use It
 
 Use `@arkstack/http` inside shared packages, reusable services, and tests.

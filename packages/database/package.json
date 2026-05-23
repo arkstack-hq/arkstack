@@ -50,7 +50,7 @@
         "./package.json": "./package.json"
     },
     "peerDependencies": {
-        "kanun": "^1.1.2",
+        "kanun": "^1.2.0",
         "clear-router": "^2.7.2"
     },
     "dependencies": {

@@ -324,8 +324,8 @@ importers:
         specifier: ^2.7.2
         version: 2.7.2(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2)
       kanun:
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.2.0
+        version: 1.2.0
 
   packages/driver-express:
     dependencies:
@@ -424,10 +424,9 @@ importers:
       clear-router:
         specifier: ^2.7.2
         version: 2.7.2(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2)
-    peerDependencies:
       kanun:
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.2.0
+        version: 1.2.0
 
   packages/notifications:
     dependencies:
@@ -459,6 +458,9 @@ importers:
       '@h3ravel/musket':
         specifier: ^0.10.1
         version: 0.10.1(@types/node@25.6.2)
+      clear-router:
+        specifier: ^2.7.2
+        version: 2.7.2(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2)
       edge.js:
         specifier: ^6.5.0
         version: 6.5.0
@@ -502,8 +504,8 @@ importers:
         specifier: ^0.15.11
         version: 0.15.11
       '@kanun-hq/plugin-file':
-        specifier: ^0.1.9
-        version: 0.1.9(kanun@1.1.2)
+        specifier: ^0.1.12
+        version: 0.1.12(kanun@1.2.0)
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
@@ -535,8 +537,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       kanun:
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.2.0
+        version: 1.2.0
       kysely:
         specifier: ^0.28.15
         version: 0.28.16
@@ -638,8 +640,8 @@ importers:
         specifier: ^0.15.11
         version: 0.15.11
       '@kanun-hq/plugin-file':
-        specifier: ^0.1.9
-        version: 0.1.9(kanun@1.1.2)
+        specifier: ^0.1.12
+        version: 0.1.12(kanun@1.2.0)
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
@@ -668,8 +670,8 @@ importers:
         specifier: 2.0.1-rc.16
         version: 2.0.1-rc.16
       kanun:
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.2.0
+        version: 1.2.0
       kysely:
         specifier: ^0.28.15
         version: 0.28.16
@@ -1513,10 +1515,10 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@kanun-hq/plugin-file@0.1.9':
-    resolution: {integrity: sha512-1eQTuukUm7pEfc5onLkmGFMk3Txrma7OHkQfaKxB6DR0Wj9oUWlDbJj61GlQNbCu9uZreT3mbh+PgJPobhTvMw==}
+  '@kanun-hq/plugin-file@0.1.12':
+    resolution: {integrity: sha512-JMCcB+5UI/89sXTaBsTtd4MjvGOuIl3mBabJMn8aBNYiJqh+NhcJUJh+eA4qffa3nzShkwqUmQmR4cpH77wvBQ==}
     peerDependencies:
-      kanun: ^1.0.12
+      kanun: ^1.2.0
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -3751,8 +3753,8 @@ packages:
   jws@4.0.1:
     resolution: {integrity: sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA==}
 
-  kanun@1.1.2:
-    resolution: {integrity: sha512-re1qvpSChIJPBNraUJ6EXsR6hbNO8mouyKxZlCCxqmbhd8R/rUqpnT+ZDh8M2apBmgNn6zSFLZR6mo3/qNa3xw==}
+  kanun@1.2.0:
+    resolution: {integrity: sha512-NWjQ1cU28t41NeyogLbJVtxEWMQk7aqOI+VrVjwJs/WQMYvY/51u4WpuLnUMe3eoxrHln8/k2mO5lQZjvZIhVw==}
 
   katex@0.16.45:
     resolution: {integrity: sha512-pQpZbdBu7wCTmQUh7ufPmLr0pFoObnGUoL/yhtwJDgmmQpbkg/0HSVti25Fu4rmd1oCR6NGWe9vqTWuWv3GcNA==}
@@ -6476,10 +6478,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kanun-hq/plugin-file@0.1.9(kanun@1.1.2)':
+  '@kanun-hq/plugin-file@0.1.12(kanun@1.2.0)':
     dependencies:
       image-size: 2.0.2
-      kanun: 1.1.2
+      kanun: 1.2.0
 
   '@manypkg/find-root@1.1.0':
     dependencies:
@@ -8769,7 +8771,7 @@ snapshots:
       jwa: 2.0.1
       safe-buffer: 5.2.1
 
-  kanun@1.1.2:
+  kanun@1.2.0:
     dependencies:
       dayjs: 1.11.20
 

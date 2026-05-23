@@ -1,4 +1,4 @@
-import { View, ViewFactory, ViewInstance, view } from '../src'
+import { View, ViewFactory, ViewInstance, clearRouterViewPlugin, clearViewData, runWithViewData, view } from '../src'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 
@@ -16,6 +16,7 @@ describe('View', () => {
     })
 
     afterEach(async () => {
+        clearViewData()
         await rm(viewsPath, { recursive: true, force: true })
     })
 
@@ -82,6 +83,54 @@ describe('View', () => {
 
         View.factoryInstance().flushComposers()
         await expect(View.make('flush')).resolves.toBe('No greeting No name')
+    })
+
+    it('provides a safe error bag to views', async () => {
+        await writeFile(join(viewsPath, 'form.edge'), '{{ errors.has("email") ? errors.first("email") : "No errors" }}')
+
+        await expect(view('form')).resolves.toBe('No errors')
+        await expect(view('form', { errors: { email: ['Email is required'] } })).resolves.toBe('Email is required')
+    })
+
+    it('uses per-request view data from the Clear Router view plugin', async () => {
+        await writeFile(join(viewsPath, 'request.edge'), '{{ session.get("intended") }}:{{ errors.first("email") }}')
+
+        let resolver: (context: any) => void | Promise<void> = () => undefined
+        clearRouterViewPlugin.setup({
+            useHttpContext: callback => {
+                resolver = callback
+            },
+        })
+
+        await resolver({
+            ctx: {
+                res: {
+                    locals: {
+                        session: {
+                            get: (key: string) => key === 'intended' ? '/dashboard' : undefined,
+                        },
+                        errors: {
+                            first: (field: string) => field === 'email' ? 'Email is required' : '',
+                            get: () => ['Email is required'],
+                            has: () => true,
+                            all: () => ['Email is required'],
+                        },
+                    },
+                },
+            },
+        })
+
+        await expect(view('request')).resolves.toBe('/dashboard:Email is required')
+    })
+
+    it('scopes explicit view context data to a render callback', async () => {
+        await writeFile(join(viewsPath, 'scoped.edge'), '{{ errors.first("email") || "empty" }}')
+
+        await expect(runWithViewData(
+            { errors: { email: ['Scoped error'] } },
+            () => view('scoped'),
+        )).resolves.toBe('Scoped error')
+        await expect(view('scoped')).resolves.toBe('empty')
     })
 
     it('runs wildcard and named view composers before rendering', async () => {

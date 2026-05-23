@@ -1,6 +1,6 @@
 import type { ComposerRunner, SyncComposerRunner, ViewData } from './types'
 
-import { mergeData } from './helpers'
+import { mergeData, normalizeViewData } from './helpers'
 
 export class ViewInstance implements PromiseLike<string> {
     private payload: ViewData
@@ -17,7 +17,7 @@ export class ViewInstance implements PromiseLike<string> {
         private runComposersSync: SyncComposerRunner,
         private renderName = name,
     ) {
-        this.payload = { ...data }
+        this.payload = normalizeViewData({ ...data })
     }
 
     get data () {

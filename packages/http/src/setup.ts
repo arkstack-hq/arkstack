@@ -1,9 +1,10 @@
 import type { RequestHelper, SessionHelper } from './types/Http'
+import { clearRouterSessionPlugin, kanunSessionPlugin } from './session'
 
 import { CoreRouter } from 'clear-router'
 import { Request } from './Request'
 import { Response } from './Response'
-import { clearRouterSessionPlugin } from './session'
+import { Validator } from 'kanun'
 
 declare global {
     var session: SessionHelper
@@ -13,4 +14,5 @@ declare global {
 
 CoreRouter.setRequestProvider(Request)
 CoreRouter.setResponseProvider(Response)
+Validator.use(kanunSessionPlugin)
 void CoreRouter.use(clearRouterSessionPlugin as never)

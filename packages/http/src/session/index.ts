@@ -1,5 +1,5 @@
 export * from './ErrorBag'
 export * from './Session'
-export * from './clearRouterSessionPlugin'
+export * from './plugins'
 export * from './helpers'
 export * from './types'

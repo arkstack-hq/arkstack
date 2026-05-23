@@ -42,10 +42,19 @@ export const resolveMessageRecord = (source: unknown): SessionErrorRecord | unde
         }
     }
 
+    if (typeof source.errors === 'function') {
+        const errors = source.errors()
+        const messages = resolveMessageRecord(errors) || asMessageRecord(errors)
+
+        if (messages) {
+            return messages
+        }
+    }
+
     return callRecordMethod(source, 'getMessages')
         || callRecordMethod(source, 'messagesRaw')
         || callRecordMethod(source, 'toArray')
-        || asMessageRecord(typeof source.errors === 'function' ? source.errors() : undefined)
+        || resolveMessageRecord(source.errors)
         || asMessageRecord(source.errors)
 }
 

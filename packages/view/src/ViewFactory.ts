@@ -1,6 +1,7 @@
 import type { ViewComposer, ViewComposerName, ViewData, ViewFactoryOptions, ViewName } from './types'
-import { mergeData, runComposer, runComposerSync } from './helpers'
+import { mergeData, normalizeViewData, runComposer, runComposerSync } from './helpers'
 import { parsePackageViewName, resolvePackageViewsPath } from './packageViews'
+import { getViewData } from './viewContext'
 
 import { Edge } from 'edge.js'
 import { ViewInstance } from './ViewInstance'
@@ -25,7 +26,7 @@ export class ViewFactory {
 
         return new ViewInstance(
             name,
-            { ...this.sharedData, ...data },
+            normalizeViewData({ ...this.sharedData, ...getViewData(), ...data }),
             this.edge,
             async view => await this.runComposers(name, view),
             view => this.runComposersSync(name, view),

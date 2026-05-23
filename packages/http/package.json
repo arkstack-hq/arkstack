@@ -34,5 +34,8 @@
     },
     "dependencies": {
         "clear-router": "^2.7.2"
+    },
+    "peerDependencies": {
+        "kanun": "^1.2.0"
     }
 }
