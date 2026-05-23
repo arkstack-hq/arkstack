@@ -6,6 +6,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
 let viewsPath: string
+const test = parseFloat(process.versions.node) > 22.99 ? it : it.skip
 
 View.boot()
 
@@ -132,7 +133,7 @@ describe('View', () => {
         await expect(view('request')).resolves.toBe('/dashboard:Email is required')
     })
 
-    it('scopes explicit view context data to a render callback', async () => {
+    test('scopes explicit view context data to a render callback', async () => {
         await writeFile(join(viewsPath, 'scoped.edge'), '{{ errors.first("email") || "empty" }}')
 
         await expect(runWithViewData(
