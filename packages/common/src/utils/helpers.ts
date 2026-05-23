@@ -75,16 +75,21 @@ export async function getModel (modelName: string) {
     return model
 }
 
-export const initializeGlobalContext = async (Request?: any, Response?: any) => {
+export const initializeGlobalContext = async (
+    { Request, Response, Session }: { Request?: any, Response?: any, Session?: any }
+) => {
     try {
-        const { Request: Req, Response: Res } = await import('@arkstack/http')
+        const { Request: Req, Response: Res, Session: Ses } = await import('@arkstack/http')
+        Session ??= new Ses()
         Request ??= new Req()
         Response ??= new Res()
     } catch {
+        Session ??= new class { }
         Request ??= new class { }
         Response ??= new class { }
     }
 
+    globalThis.session ??= () => Session
     globalThis.request ??= () => Request
     globalThis.response ??= () => Response
 }

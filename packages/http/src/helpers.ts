@@ -64,6 +64,6 @@ export const isHeaders = (value: unknown): value is Headers => (
     typeof Headers !== 'undefined' && value instanceof Headers
 )
 
-export const isRecord = (value: unknown): value is Record<string, any> => (
-    typeof value === 'object' && value !== null
-)
+export const isRecord = (value: unknown): value is Record<PropertyKey, any> => {
+    return typeof value === 'object' && value !== null
+}

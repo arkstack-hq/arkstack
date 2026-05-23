@@ -1,4 +1,5 @@
 export * from './Request'
 export * from './Response'
+export * from './session'
 export * from './types/Http'
 export * from './helpers'

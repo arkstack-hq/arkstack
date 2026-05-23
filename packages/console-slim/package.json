@@ -48,7 +48,7 @@
         }
     },
     "peerDependencies": {
-        "clear-router": "^2.7.1"
+        "clear-router": "^2.7.2"
     },
     "dependencies": {
         "@arkstack/common": "workspace:^",
