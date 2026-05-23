@@ -9,6 +9,14 @@ let viewsPath: string
 
 View.boot()
 
+const clearTestSession = () => {
+    const session = globalThis.session?.()
+
+    if (session && typeof session === 'object' && 'clear' in session && typeof session.clear === 'function') {
+        session.clear()
+    }
+}
+
 describe('View', () => {
     beforeEach(async () => {
         viewsPath = await mkdtemp(join(tmpdir(), 'arkstack-view-'))
@@ -16,6 +24,7 @@ describe('View', () => {
     })
 
     afterEach(async () => {
+        clearTestSession()
         clearViewData()
         await rm(viewsPath, { recursive: true, force: true })
     })
@@ -97,10 +106,10 @@ describe('View', () => {
 
         let resolver: (context: any) => void | Promise<void> = () => undefined
         clearRouterViewPlugin.setup({
-            useHttpContext: callback => {
+            useHttpContext (callback: any) {
                 resolver = callback
             },
-        })
+        } as never)
 
         await resolver({
             ctx: {
