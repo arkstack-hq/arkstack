@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/view",
-    "version": "0.7.20",
+    "version": "0.8.0",
     "type": "module",
     "description": "View module for Arkstack, providing template rendering and view integration utilities.",
     "homepage": "https://arkstack.toneflix.net/guide/views",
