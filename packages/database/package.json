@@ -51,12 +51,12 @@
     },
     "peerDependencies": {
         "kanun": "^1.1.2",
-        "clear-router": "^2.6.7"
+        "clear-router": "^2.7.1"
     },
     "dependencies": {
-        "@arkormx/plugin-clear-router": "^0.1.19",
+        "@arkormx/plugin-clear-router": "^0.1.20",
         "@arkstack/common": "workspace:^",
         "@arkstack/contract": "workspace:^",
-        "arkormx": "^ 2.4.0"
+        "arkormx": "^ 2.4.1"
     }
 }
