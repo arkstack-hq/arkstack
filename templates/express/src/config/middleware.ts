@@ -1,20 +1,28 @@
 import { GenericResource, Resource, ResourceCollection } from 'resora'
-import express, { Express } from 'express'
 import { formdata, requestLogger } from '@arkstack/driver-express/middlewares'
 
 import { MiddlewareConfig } from 'src/types/config'
 import cors from 'cors'
+import corsConfig from './cors'
+import express from 'express'
 import { useExpressUploadContext } from '@kanun-hq/plugin-file'
 
-const config = (_app: Express): MiddlewareConfig => {
+export default config = (): MiddlewareConfig => {
+  const cConf = corsConfig()
+
   return {
     global: [
       // Parse application/json
-      express.json(),
-      // Parse application/x-www-form-urlencoded (for non-multipart forms)
+      express.json({
+        verify: (req, _res, buffer) => {
+          req.rawBody = Buffer.from(buffer)
+        },
+      }),
       express.urlencoded({ extended: true }),
-      // Enable CORS for all routes
-      cors(),
+      cors({
+        origin: cConf.allowed_origins.length > 0 ? cConf.allowed_origins : true,
+        credentials: true,
+      }),
       formdata.any(),
     ],
     before: [
@@ -22,7 +30,7 @@ const config = (_app: Express): MiddlewareConfig => {
         Resource.setCtx({ req, res })
         GenericResource.setCtx({ req, res })
         ResourceCollection.setCtx({ res, req })
-        useExpressUploadContext(req)
+        useExpressUploadContext(req as never)
         next()
       }
     ],
@@ -30,6 +38,4 @@ const config = (_app: Express): MiddlewareConfig => {
       requestLogger()
     ],
   }
-}
-
-export default config
+} 

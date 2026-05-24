@@ -26,7 +26,7 @@ export const kanunSessionPlugin = defineKanunPlugin({
     name: 'kanun-session-plugin',
     install ({ onValidationError }) {
         onValidationError((validator) => {
-            const currentSession = globalThis.session?.()
+            const currentSession: Session = globalThis.session?.() as never
 
             if (currentSession instanceof Session) {
                 currentSession.addValidationErrors(validator)
