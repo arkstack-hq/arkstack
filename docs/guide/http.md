@@ -86,6 +86,49 @@ session.hasErrors('email');
 session.clearErrors('email');
 ```
 
+### Session Persistence
+
+Sessions are persisted with a signed device cookie. Each browser or device receives its own opaque session id, so session data is isolated per device.
+
+By default, `@arkstack/http/setup` uses `CookieSessionDriver`. `config/session.ts` defaults to the file driver so only the signed id is stored in the browser and session payloads stay server-side.
+
+```ts
+// src/config/session.ts
+export default config = () => ({
+  driver: env('SESSION_DRIVER', 'file'),
+  cookie: env('SESSION_COOKIE', 'arkstack_session'),
+  secret: env('SESSION_SECRET', env('APP_KEY', 'change-me')),
+  ttl: env<number>('SESSION_LIFETIME', 60 * 60 * 24 * 7),
+  file: {
+    directory: env('SESSION_FILE_PATH', 'storage/framework/sessions'),
+  },
+  database: {
+    table: env('SESSION_TABLE', 'sessions'),
+  },
+});
+```
+
+Available drivers:
+
+- `CookieSessionDriver` stores the session payload in the signed cookie. Use it for small, low-sensitivity sessions.
+- `FileSessionDriver` stores payloads on disk and keeps only the signed session id in the cookie.
+- `DatabaseSessionDriver` stores payloads in a database table and keeps only the signed session id in the cookie. Full templates include a `sessions` migration for this driver.
+
+You can also configure sessions programmatically:
+
+```ts
+import { FileSessionDriver, configureSession } from '@arkstack/http';
+
+configureSession(
+  new FileSessionDriver({
+    directory: 'storage/framework/sessions',
+    secret: process.env.SESSION_SECRET,
+  }),
+);
+```
+
+Session mutations are persisted automatically. You may call `await session.save()` when a test or custom integration needs to wait for the write explicitly.
+
 ### Validation Errors
 
 Arkstack uses Kanun for validation. Importing `@arkstack/http/setup` registers the Kanun session plugin, so failed validators automatically fill the current HTTP session error bag. You can still pass a Kanun validator message bag, a Kanun validation exception, or a plain keyed error object into the session manually when needed:

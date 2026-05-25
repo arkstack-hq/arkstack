@@ -1,8 +1,40 @@
-import { ErrorBag, Request, Response, Session, ensureSession, kanunSessionPlugin } from '../src'
+import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FileSessionDriver, Request, Response, Session, ensureSession, kanunSessionPlugin } from '../src'
 import { describe, expect, it } from 'vitest'
+import { mkdtemp, rm } from 'node:fs/promises'
 
 import { CoreRouter } from 'clear-router/core'
+import { DB } from 'arkormx'
 import { Validator } from 'kanun'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+
+const makeCookieContext = (cookie?: string) => {
+    const headers: Record<string, any> = {}
+    const source = {
+        headers,
+        setHeader: (name: string, value: string | string[]) => {
+            headers[name.toLowerCase()] = value
+        },
+        getHeader: (name: string) => headers[name.toLowerCase()],
+    }
+
+    return {
+        ctx: {
+            req: {
+                headers: cookie ? { cookie } : {},
+            },
+            res: source,
+        },
+        response: new Response({ source }),
+        source,
+        get cookie () {
+            const value = headers['set-cookie']
+            const first = Array.isArray(value) ? value[value.length - 1] : value
+
+            return first?.split(';')[0]
+        },
+    }
+}
 
 describe('HTTP Session', () => {
     it('stores regular and validation errors in a view-friendly error bag', () => {
@@ -156,6 +188,74 @@ describe('HTTP Session', () => {
             } else {
                 delete (globalThis as any).session
             }
+        }
+    })
+
+    it('persists cookie sessions across loads and keeps devices isolated', async () => {
+        const driver = new CookieSessionDriver({ secret: 'test-secret', cookie: 'ark_test' })
+        const first = makeCookieContext()
+        const firstState = await driver.start(first)
+        const firstSession = new Session(firstState.state, firstState)
+
+        firstSession.put('notice', 'Saved')
+        firstSession.addError('email', 'Email is required')
+        await firstSession.save()
+
+        const second = makeCookieContext(first.cookie)
+        const secondState = await driver.start(second)
+        const secondSession = new Session(secondState.state, secondState)
+        const otherDevice = makeCookieContext()
+        const otherState = await driver.start(otherDevice)
+        const otherSession = new Session(otherState.state, otherState)
+
+        expect(secondSession.id).toBe(firstSession.id)
+        expect(secondSession.get('notice')).toBe('Saved')
+        expect(secondSession.errors.first('email')).toBe('Email is required')
+        expect(otherSession.id).not.toBe(firstSession.id)
+        expect(otherSession.get('notice')).toBeUndefined()
+    })
+
+    it('persists file sessions server-side with a signed per-device cookie id', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'arkstack-session-'))
+        const driver = new FileSessionDriver({ directory, secret: 'test-secret', cookie: 'ark_file' })
+
+        try {
+            const first = makeCookieContext()
+            const firstState = await driver.start(first)
+            const firstSession = new Session(firstState.state, firstState)
+
+            firstSession.put('theme', 'dark')
+            await firstSession.save()
+
+            const second = makeCookieContext(first.cookie)
+            const secondState = await driver.start(second)
+            const secondSession = new Session(secondState.state, secondState)
+
+            expect(secondSession.id).toBe(firstSession.id)
+            expect(secondSession.get('theme')).toBe('dark')
+        } finally {
+            await rm(directory, { recursive: true, force: true })
+        }
+    })
+
+    it('persists database sessions with an opaque cookie id', async () => {
+        try {
+            const driver = new DatabaseSessionDriver({ secret: 'test-secret', cookie: 'ark_db' })
+            const first = makeCookieContext()
+            const firstState = await driver.start(first)
+            const firstSession = new Session(firstState.state, firstState)
+
+            firstSession.put('cart', ['book'])
+            await firstSession.save()
+
+            const second = makeCookieContext(first.cookie)
+            const secondState = await driver.start(second)
+            const secondSession = new Session(secondState.state, secondState)
+
+            expect(secondSession.id).toBe(firstSession.id)
+            expect(secondSession.get('cart')).toEqual(['book'])
+        } finally {
+            await DB.table('sessions').whereNotNull('id').delete()
         }
     })
 

@@ -3,12 +3,12 @@ import { Resource } from 'resora'
 /**
  * UserResource
  */
-export default class extends Resource {
+export class UserResource extends Resource {
   /**
    * Build the response object
    * @returns this
    */
-  data() {
-    return this.toArray()
+  data () {
+    return this.toObject()
   }
 }

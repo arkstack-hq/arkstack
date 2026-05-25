@@ -56,16 +56,17 @@ export const attachViewState = (target: Record<PropertyKey, any>, session: Sessi
  */
 export const ensureSession = (
     ctx: unknown,
-    initial?: SessionInitialState | Record<string, any>
+    initial?: SessionInitialState | Record<string, any>,
+    persistent?: import('./types').SessionDriverResult
 ): Session => {
     if (!isRecord(ctx)) {
-        return new Session(initial)
+        return new Session(initial, persistent)
     }
 
     const existing = ctx[sessionKey] ?? (ctx.session instanceof Session ? ctx.session : undefined)
     const session = existing instanceof Session
         ? existing
-        : new Session(initial)
+        : new Session(initial, persistent)
 
     ctx[sessionKey] = session
     attachViewState(ctx, session)

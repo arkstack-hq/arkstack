@@ -26,7 +26,8 @@ export type ResponseSource = {
     statusCode?: number;
     status?: number | ((code: number) => unknown);
     headers?: HeaderSource;
-    setHeader?: (name: string, value: string) => unknown;
+    setHeader?: (name: string, value: string | string[]) => unknown;
+    getHeader?: (name: string) => string | string[] | number | undefined;
     json?: (body: unknown) => unknown;
     send?: (body: unknown) => unknown;
 }

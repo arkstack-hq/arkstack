@@ -36,6 +36,7 @@
         "clear-router": "^2.7.2"
     },
     "peerDependencies": {
-        "kanun": "^1.2.0"
+        "kanun": "^1.2.0",
+        "arkormx": "^2.4.1"
     }
 }

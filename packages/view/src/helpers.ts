@@ -1,9 +1,9 @@
-import type { ViewComposer, ViewComposerObject, ViewData, ViewName } from './types'
+import type { ViewComposer, ViewComposerObject, ViewData, ViewErrorRecord, ViewErrorValue, ViewName } from './types'
 
 import { View } from './View'
-import { normalizeViewErrors } from './ViewErrorBag'
 import { ViewFactory } from './ViewFactory'
 import { ViewInstance } from './ViewInstance'
+import { normalizeViewErrors } from './ViewErrorBag'
 
 export function view (): ViewFactory
 export function view (name: ViewName, data?: ViewData): ViewInstance
@@ -67,4 +67,67 @@ export const runComposer = (composer: ViewComposer, view: ViewInstance) => {
     }
 
     return composer.compose(view)
+}
+
+export const isRecord = (value: unknown): value is Record<string, any> => {
+    return !!value && typeof value === 'object' && !Array.isArray(value)
+}
+
+export const toMessages = (value: ViewErrorValue): string[] => {
+    if (Array.isArray(value)) {
+        return value.flatMap(item => toMessages(item))
+    }
+
+    if (value instanceof Error) {
+        return [value.message]
+    }
+
+    if (isRecord(value) && typeof value.message === 'string') {
+        return [value.message]
+    }
+
+    if (value === null || typeof value === 'undefined') {
+        return []
+    }
+
+    return [String(value)]
+}
+
+export const getMessageRecord = (source: unknown): ViewErrorRecord | undefined => {
+    if (!isRecord(source)) {
+        return undefined
+    }
+
+    if (typeof source.getMessageBag === 'function') {
+        const bag = source.getMessageBag()
+
+        if (bag && bag !== source) {
+            const messages = getMessageRecord(bag)
+
+            if (messages) {
+                return messages
+            }
+        }
+    }
+
+    for (const method of ['getMessages', 'messagesRaw', 'toArray']) {
+        if (typeof source[method] === 'function') {
+            const messages = source[method]()
+
+            if (isRecord(messages)) {
+                return messages
+            }
+        }
+    }
+
+    if (typeof source.errors === 'function') {
+        const errors = source.errors()
+        const messages = getMessageRecord(errors) || (isRecord(errors) ? errors : undefined)
+
+        if (messages) {
+            return messages
+        }
+    }
+
+    return getMessageRecord(source.errors) || (isRecord(source.errors) ? source.errors : undefined)
 }

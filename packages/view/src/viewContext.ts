@@ -1,6 +1,6 @@
-import type { ViewData } from './types'
-
 import { AsyncLocalStorage } from 'node:async_hooks'
+import type { ViewData } from './types'
+import { isRecord } from './helpers'
 import { normalizeViewErrors } from './ViewErrorBag'
 
 const store = new AsyncLocalStorage<ViewData>()
@@ -9,10 +9,6 @@ const normalizeContextData = (data: ViewData = {}) => ({
     ...data,
     errors: normalizeViewErrors(data.errors),
 })
-
-const isRecord = (value: unknown): value is Record<string, any> => {
-    return !!value && typeof value === 'object' && !Array.isArray(value)
-}
 
 export const getViewData = () => store.getStore() || {}
 

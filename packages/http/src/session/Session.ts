@@ -1,22 +1,51 @@
-import type { SessionErrorRecord, SessionErrorValue, SessionInitialState } from './types'
+import type { SessionDriverResult, SessionErrorRecord, SessionErrorValue, SessionInitialState, SessionPayload } from './types'
 
 import { ErrorBag } from './ErrorBag'
 
 export class Session {
     public readonly errors: ErrorBag
+    readonly id?: string
     private data: Record<string, any>
+    private persistent?: SessionDriverResult
 
-    constructor(initial?: SessionInitialState | Record<string, any>) {
+    constructor(initial?: SessionInitialState | Record<string, any>, persistent?: SessionDriverResult) {
         const state = initial && ('data' in initial || 'errors' in initial)
             ? initial as SessionInitialState
             : { data: initial as Record<string, any> | undefined }
 
+        this.id = persistent?.id
+        this.persistent = persistent
         this.data = { ...(state.data || {}) }
         this.errors = state.errors instanceof ErrorBag
             ? state.errors
             : new ErrorBag(state.errors)
 
         globalThis.session = (key?: string) => key ? this.get(key) : this
+    }
+
+    private snapshot (): SessionPayload {
+        return {
+            data: this.all(),
+            errors: this.errors.toJSON(),
+        }
+    }
+
+    private queuePersist () {
+        void this.save()
+    }
+
+    async save () {
+        await this.persistent?.save(this.snapshot())
+
+        return this
+    }
+
+    async destroy () {
+        this.data = {}
+        this.errors.clear()
+        await this.persistent?.destroy?.()
+
+        return this
     }
 
     /**
@@ -39,6 +68,7 @@ export class Session {
      */
     put<T = any> (key: string, value: T) {
         this.data[key] = value
+        this.queuePersist()
 
         return this
     }
@@ -72,6 +102,7 @@ export class Session {
      */
     forget (key: string) {
         delete this.data[key]
+        this.queuePersist()
 
         return this
     }
@@ -84,6 +115,7 @@ export class Session {
     clear () {
         this.data = {}
         this.errors.clear()
+        this.queuePersist()
 
         return this
     }
@@ -106,6 +138,7 @@ export class Session {
      */
     addError (field: string, message: SessionErrorValue) {
         this.errors.add(field, message)
+        this.queuePersist()
 
         return this
     }
@@ -118,6 +151,7 @@ export class Session {
      */
     addErrors (errors: SessionErrorRecord | ErrorBag) {
         this.errors.merge(errors)
+        this.queuePersist()
 
         return this
     }
@@ -130,6 +164,7 @@ export class Session {
      */
     addValidationErrors (error: unknown) {
         this.errors.validation(error)
+        this.queuePersist()
 
         return this
     }
@@ -152,6 +187,7 @@ export class Session {
      */
     clearErrors (field?: string) {
         this.errors.clear(field)
+        this.queuePersist()
 
         return this
     }

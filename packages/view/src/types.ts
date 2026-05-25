@@ -1,6 +1,8 @@
 import type { Edge } from 'edge.js'
 import type { ViewInstance } from './ViewInstance'
 
+export type ViewErrorValue = string | string[] | Error | { message?: unknown } | unknown
+export type ViewErrorRecord = Record<string, ViewErrorValue>
 export type ComposerRunner = (view: ViewInstance) => Promise<void>
 
 export type SyncComposerRunner = (view: ViewInstance) => void

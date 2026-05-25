@@ -1,11 +1,9 @@
 import type { SessionErrorRecord, SessionErrorValue } from './types'
 
+import { isRecord } from '../helpers'
+
 export const defaultErrorKey = '_'
 export const sessionKey = Symbol.for('arkstack:http:session')
-
-export const isRecord = (value: unknown): value is Record<string, any> => {
-    return !!value && typeof value === 'object' && !Array.isArray(value)
-}
 
 const asMessageRecord = (value: unknown): SessionErrorRecord | undefined => {
     if (!isRecord(value)) {

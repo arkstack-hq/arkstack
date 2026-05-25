@@ -421,6 +421,9 @@ importers:
 
   packages/http:
     dependencies:
+      arkormx:
+        specifier: ^2.4.1
+        version: 2.4.1(@types/node@25.6.2)
       clear-router:
         specifier: ^2.7.2
         version: 2.7.2(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -542,6 +545,9 @@ importers:
       kysely:
         specifier: ^0.28.15
         version: 0.28.16
+      parasito:
+        specifier: ^0.1.8
+        version: 0.1.8
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -675,6 +681,9 @@ importers:
       kysely:
         specifier: ^0.28.15
         version: 0.28.16
+      parasito:
+        specifier: ^0.1.8
+        version: 0.1.8
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -4274,6 +4283,9 @@ packages:
 
   parasito@0.1.6:
     resolution: {integrity: sha512-0k6xvYDXXn17I8gosAPa2GyaYN57A2ArH8WkTqCNXimY93El2JvHL0SK+ZUiOmaROGxwd/or2c7vsuMI4o5CuA==}
+
+  parasito@0.1.8:
+    resolution: {integrity: sha512-j5WGH/7hz1URpRzi9lYffL/dX5ud91c+U59sS2Je4yHL1NnoZUrlUArGbLxpZuCwNd/Z/kRXdU9eWCa3hFyUdA==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -9434,6 +9446,12 @@ snapshots:
   package-manager-detector@1.6.0: {}
 
   parasito@0.1.6:
+    dependencies:
+      superagent: 10.3.0
+    transitivePeerDependencies:
+      - supports-color
+
+  parasito@0.1.8:
     dependencies:
       superagent: 10.3.0
     transitivePeerDependencies:

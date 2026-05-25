@@ -3,3 +3,11 @@ export * from './Session'
 export * from './plugins'
 export * from './helpers'
 export * from './types'
+
+export * from './config'
+export * from './cookie'
+
+export * from './drivers/BaseSessionDriver'
+export * from './drivers/CookieSessionDriver'
+export * from './drivers/DatabaseSessionDriver'
+export * from './drivers/FileSessionDriver'

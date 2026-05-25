@@ -1,5 +1,7 @@
 import type { SessionErrorRecord, SessionErrorSource, SessionErrorValue } from './types'
-import { defaultErrorKey, getValidationIssueField, isRecord, resolveMessageRecord, toMessages } from './utils'
+import { defaultErrorKey, getValidationIssueField, resolveMessageRecord, toMessages } from './utils'
+
+import { isRecord } from '../helpers'
 
 export class ErrorBag {
     private bag: Record<string, string[]> = {}

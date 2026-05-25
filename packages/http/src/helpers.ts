@@ -65,5 +65,5 @@ export const isHeaders = (value: unknown): value is Headers => (
 )
 
 export const isRecord = (value: unknown): value is Record<PropertyKey, any> => {
-    return typeof value === 'object' && value !== null
+    return !!value && typeof value === 'object' && !Array.isArray(value)
 }

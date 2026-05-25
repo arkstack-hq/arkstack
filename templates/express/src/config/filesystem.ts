@@ -10,6 +10,7 @@ export default () => {
 
         /**
          * Available disks and their configurations. 
+         * 
          * You can configure as many disks as you want, and even have multiple disks 
          * using the same driver.
          * 

@@ -1,70 +1,7 @@
-export type ViewErrorValue = string | string[] | Error | { message?: unknown } | unknown
-export type ViewErrorRecord = Record<string, ViewErrorValue>
+import { ViewErrorRecord, ViewErrorValue } from './types'
+import { getMessageRecord, isRecord, toMessages } from './helpers'
 
 const defaultErrorKey = '_'
-
-const isRecord = (value: unknown): value is Record<string, any> => {
-    return !!value && typeof value === 'object' && !Array.isArray(value)
-}
-
-const toMessages = (value: ViewErrorValue): string[] => {
-    if (Array.isArray(value)) {
-        return value.flatMap(item => toMessages(item))
-    }
-
-    if (value instanceof Error) {
-        return [value.message]
-    }
-
-    if (isRecord(value) && typeof value.message === 'string') {
-        return [value.message]
-    }
-
-    if (value === null || typeof value === 'undefined') {
-        return []
-    }
-
-    return [String(value)]
-}
-
-const getMessageRecord = (source: unknown): ViewErrorRecord | undefined => {
-    if (!isRecord(source)) {
-        return undefined
-    }
-
-    if (typeof source.getMessageBag === 'function') {
-        const bag = source.getMessageBag()
-
-        if (bag && bag !== source) {
-            const messages = getMessageRecord(bag)
-
-            if (messages) {
-                return messages
-            }
-        }
-    }
-
-    for (const method of ['getMessages', 'messagesRaw', 'toArray']) {
-        if (typeof source[method] === 'function') {
-            const messages = source[method]()
-
-            if (isRecord(messages)) {
-                return messages
-            }
-        }
-    }
-
-    if (typeof source.errors === 'function') {
-        const errors = source.errors()
-        const messages = getMessageRecord(errors) || (isRecord(errors) ? errors : undefined)
-
-        if (messages) {
-            return messages
-        }
-    }
-
-    return getMessageRecord(source.errors) || (isRecord(source.errors) ? source.errors : undefined)
-}
 
 export class ViewErrorBag {
     private bag: Record<string, string[]> = {}

@@ -4,15 +4,20 @@ import { HttpContext } from '../types/Http'
 import { Session } from './Session'
 import { definePlugin as defineClearRouterPlugin } from 'clear-router/core'
 import { definePlugin as defineKanunPlugin } from 'kanun'
+import { getSessionDriver } from './config'
 
 export const clearRouterSessionPlugin = defineClearRouterPlugin<any, HttpContext>({
     name: 'arkstack-http-session',
     setup: ({ bind, useHttpContext }) => {
         bind(Session, ({ ctx }: { ctx: HttpContext }) => ensureSession(ctx))
-        useHttpContext((context) => {
-            const session = ensureSession(context.ctx)
+
+        useHttpContext(async (context) => {
+            const persistent = await getSessionDriver().start(context)
+            const session = ensureSession(context.ctx, persistent.state, persistent)
+            await session.save()
 
             context.httpSession = session
+
             if (!('session' in context) || context.session instanceof Session) {
                 context.session = session
             }
