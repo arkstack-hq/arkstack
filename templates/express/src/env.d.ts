@@ -1,3 +1,4 @@
+
 declare module 'resora' {
   interface Config {
     stubs: {

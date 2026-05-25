@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { ChalkInstance } from 'chalk'
-import { DotPath } from '@h3ravel/support'
 import type { Logger } from './Logger'
 
+export interface ConfigRegistry { }
+export interface EnvRegistry { }
+
+export type Primitive = string | number | boolean | null | undefined | ((e: any) => any)
 export type LoggerChalk = keyof ChalkInstance | ChalkInstance | (keyof ChalkInstance)[]
 export type LoggerParseSignature = [string, LoggerChalk][]
 export type DotPathValue<T, P extends string> =
@@ -12,6 +16,18 @@ export type DotPathValue<T, P extends string> =
     : P extends keyof T
     ? T[P]
     : never
+
+export type DotPath<T> = T extends Primitive
+    ? never
+    : T extends any[]
+    ? never
+    : {
+        [K in keyof T & string]: T[K] extends Primitive
+        ? `${K}`
+        : T[K] extends any[]
+        ? `${K}`
+        : `${K}` | `${K}.${DotPath<T[K]>}`
+    }[keyof T & string]
 
 /**
  * Ouput formater object or format the output
@@ -53,13 +69,16 @@ export interface GlobalEnv {
     ): Y extends undefined ? X : Y
 }
 
+export type ConfigShape = keyof ConfigRegistry extends never
+    ? Record<string, any>
+    : ConfigRegistry
 
 export interface GlobalConfig {
-    <X extends Record<string, any>> (): X
-    <X extends Record<string, any>, P extends DotPath<X>> (
+    <X extends ConfigShape> (): X
+    <X extends ConfigShape, P extends DotPath<X>> (
         key: P,
     ): DotPathValue<X, P>
-    <X extends Record<string, any>, P extends DotPath<X>, D> (
+    <X extends ConfigShape, P extends DotPath<X>, D> (
         key: P,
         defaultValue: D,
     ): DotPathValue<X, P> | D

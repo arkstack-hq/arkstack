@@ -38,6 +38,7 @@
     "exports": {
         ".": "./dist/index.js",
         "./middlewares": "./dist/middlewares/index.js",
+        "./types": "./dist/types.js",
         "./package.json": "./package.json"
     },
     "dependencies": {

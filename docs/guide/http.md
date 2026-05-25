@@ -94,7 +94,7 @@ By default, `@arkstack/http/setup` uses `CookieSessionDriver`. `config/session.t
 
 ```ts
 // src/config/session.ts
-export default config = () => ({
+export default () => ({
   driver: env('SESSION_DRIVER', 'file'),
   cookie: env('SESSION_COOKIE', 'arkstack_session'),
   secret: env('SESSION_SECRET', env('APP_KEY', 'change-me')),

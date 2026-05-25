@@ -1,13 +1,13 @@
 import { GenericResource, Resource, ResourceCollection } from 'resora'
 import { formdata, requestLogger } from '@arkstack/driver-express/middlewares'
 
-import { MiddlewareConfig } from 'src/types/config'
+import { MiddlewareConfig } from '@arkstack/driver-express/types'
 import cors from 'cors'
 import corsConfig from './cors'
 import express from 'express'
 import { useExpressUploadContext } from '@kanun-hq/plugin-file'
 
-export default config = (): MiddlewareConfig => {
+export default (): MiddlewareConfig => {
   const cConf = corsConfig()
 
   return {

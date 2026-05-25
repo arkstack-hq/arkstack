@@ -81,15 +81,13 @@ import express, { Express } from 'express';
 import cors from 'cors';
 import { MiddlewareConfig } from 'src/types/config';
 
-const config = (_app: Express): MiddlewareConfig => {
+export default (_app: Express): MiddlewareConfig => {
   return {
     global: [express.json(), express.urlencoded({ extended: true }), cors()],
     before: [],
     after: [],
   };
 };
-
-export default config;
 ```
 
 ## H3 example
@@ -101,15 +99,13 @@ import { H3 } from 'h3';
 import { MiddlewareConfig } from 'src/types/config';
 import { cors } from '@app/http/middlewares/cors';
 
-const config = (_app: H3): MiddlewareConfig => {
+export default (_app: H3): MiddlewareConfig => {
   return {
     global: [cors()],
     before: [],
     after: [],
   };
 };
-
-export default config;
 ```
 
 ## Route-level middleware

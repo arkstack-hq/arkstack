@@ -1,4 +1,4 @@
-export default config = () => {
+export default () => {
     return {
         key: env('APP_KEY', 'change-me'),
         url: env('APP_URL', 'http://localhost'),

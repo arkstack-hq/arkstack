@@ -1,6 +1,6 @@
-import { DotPath, Obj } from '@h3ravel/support'
-import { GlobalConfig, GlobalEnv } from './types'
+import { ConfigRegistry, DotPath, GlobalConfig, GlobalEnv } from './types'
 
+import { Obj } from '@h3ravel/support'
 import { createJiti } from 'jiti'
 import { createRequire } from 'module'
 import path from 'node:path'
@@ -19,13 +19,19 @@ export const env: GlobalEnv = <X = string, Y = undefined | X> (
     env: string,
     defaultValue?: Y,
 ) => {
-    let val: string | number | boolean | undefined | null = process.env[env] ?? ''
+    let val: string | number | boolean | undefined | null =
+        process.env[env] ?? ''
 
     if ([true, 'true', 'on', false, 'false', 'off'].includes(val)) {
         val = [true, 'true', 'on'].includes(val)
     }
 
-    if (!isNaN(Number(val)) && typeof val !== 'boolean' && typeof val !== 'undefined' && val !== '') {
+    if (
+        !isNaN(Number(val)) &&
+        typeof val !== 'boolean' &&
+        typeof val !== 'undefined' &&
+        val !== ''
+    ) {
         val = Number(val)
     }
 
@@ -78,37 +84,53 @@ export const appUrl = (link?: string): string => {
 
 /**
  * Gets the application configuration.
- * 
+ *
  * @param key             The configuration key to retrieve.
  * @param defaultValue    The default value to return if the key is not found.
  * @returns               The configuration value.
  */
-export const config: GlobalConfig = <X extends Record<string, any>, P extends DotPath<X> | undefined = undefined> (
+export const config: GlobalConfig = <
+    X extends ConfigRegistry,
+    P extends DotPath<X> | undefined = undefined,
+> (
     key?: P,
-    defaultValue?: any
+    defaultValue?: any,
 ) => {
+    if (typeof globalThis.env === 'undefined') {
+        globalThis.env = (key?: string, def?: any): any => key
+            ? process.env[key] ?? def
+            : process.env
+    }
+
     const dist = path.relative(process.cwd(), outputDir())
     const require = createRequire(import.meta.url)
 
-    const files = readdirSync(path.join(process.cwd(), `${dist}/config`), { withFileTypes: true })
-        .filter(file => {
-            if (file.name.includes('middleware') && globalThis.arkctx.runtime === 'CLI') return false
+    const files = readdirSync(path.join(process.cwd(), `${dist}/config`), {
+        withFileTypes: true,
+    }).filter((file) => {
+        if (file.name.includes('middleware') && globalThis.arkctx?.runtime === 'CLI')
+            return false
 
-            return file.isFile() && (file.name.endsWith('.js') || file.name.endsWith('.ts'))
-        })
+        return (
+            file.isFile() && (file.name.endsWith('.js') || file.name.endsWith('.ts'))
+        )
+    })
 
-    const config = files.reduce((configs, file) => {
-        const configName = path.basename(file.name, path.extname(file.name))
+    const config = files.reduce(
+        (configs, file) => {
+            const configName = path.basename(file.name, path.extname(file.name))
 
-        configs[configName] = require(path.join(file.parentPath, file.name))
-            .default((globalThis as any).app())
+            configs[configName] = require(
+                path.join(file.parentPath, file.name),
+            ).default(typeof globalThis.app === 'function' ? globalThis.app() : {})
 
-        return configs
-    }, {} as Record<string, any>) as X
-
+            return configs
+        },
+        {} as Record<string, any>,
+    ) as X
 
     if (key) {
-        return Obj.get(config, key, defaultValue)
+        return Obj.get(config, key as never, defaultValue)
     }
 
     return config
@@ -116,8 +138,8 @@ export const config: GlobalConfig = <X extends Record<string, any>, P extends Do
 
 /**
  * Gets the current Node environment (development or production).
- * 
- * @returns 
+ *
+ * @returns
  */
 export const nodeEnv = () => {
     let envValue = env<'development' | 'production'>('NODE_ENV', 'development')
@@ -131,9 +153,9 @@ export const nodeEnv = () => {
 
 /**
  * Gets the output directory for the application based on the current environment.
- * 
+ *
  * @param cwd  The current working directory (optional, defaults to process.cwd()).
- * @returns 
+ * @returns
  */
 export const outputDir = (cwd = process.cwd()) => {
     const NODE_ENV = nodeEnv()
@@ -147,7 +169,6 @@ export const outputDir = (cwd = process.cwd()) => {
         ? (output[NODE_ENV] ?? output.dev)
         : path.join(cwd, output[NODE_ENV] ?? output.dev)
 }
-
 
 export const importFile = async <T = unknown> (filePath: string): Promise<T> => {
     const resolvedPath = resolve(filePath)

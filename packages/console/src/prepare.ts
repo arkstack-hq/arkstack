@@ -1,3 +1,4 @@
+import { BuildInterfaces } from './prepare/BuildInterfaces'
 import chalk from 'chalk'
 import { spawn } from 'node:child_process'
 
@@ -26,3 +27,6 @@ child.on('exit', (code) => {
     throw new Error(`tsdown exited with code ${code}`)
 
 })
+
+BuildInterfaces.configs()
+BuildInterfaces.tsconfig()

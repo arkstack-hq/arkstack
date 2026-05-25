@@ -3,7 +3,7 @@ import { SessionConfig } from '@arkstack/http'
 import { Str } from '@h3ravel/support'
 import appConfig from './app'
 
-export default config = (): SessionConfig => {
+export default (): SessionConfig => {
     const app = appConfig()
 
     return {

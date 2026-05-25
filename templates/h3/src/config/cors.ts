@@ -1,6 +1,6 @@
 import appConfig from './app'
 
-export default config = () => {
+export default () => {
     const app = appConfig()
 
     return {

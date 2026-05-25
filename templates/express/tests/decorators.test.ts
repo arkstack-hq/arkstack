@@ -33,7 +33,7 @@ describe('@Bind() — Controllers', () => {
             return req.url ?? ''
         }
     }
-
+    config()
     it('can setup basic route', async () => {
         Router.get('/test', ({ res }) => res.send('OK'))
         await setupApp()
