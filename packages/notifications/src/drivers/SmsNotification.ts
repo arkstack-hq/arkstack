@@ -3,8 +3,8 @@ import type { NotificationData, NotificationRecipient, SmsDriverOptions } from '
 import { AfricasTalkingSmsDriver } from './sms/AfricasTalkingSmsDriver'
 import { NotificationContract } from '../Contracts/NotificationContract'
 import { TwilioSmsDriver } from './sms/TwilioSmsDriver'
+import { configure } from '../config'
 import { env } from '@arkstack/common'
-import { notificationConfig } from '../config'
 
 type SmsProvider = AfricasTalkingSmsDriver | TwilioSmsDriver
 
@@ -16,10 +16,10 @@ export class SmsNotification extends NotificationContract {
     constructor(options: SmsDriverOptions = {}) {
         super()
 
-        const driverConfig = notificationConfig<SmsDriverOptions>('drivers.sms', {})
+        const driverConfig = configure<SmsDriverOptions>('drivers.sms', {})
         const transport = options.transport ?? driverConfig.transport ?? 'twilio'
-        const transportConfig = notificationConfig<Record<string, any>>(`transports.${transport}`, {})
-        const legacySmsConfig = notificationConfig<SmsDriverOptions>('sms', {})
+        const transportConfig = configure<Record<string, any>>(`transports.${transport}`, {})
+        const legacySmsConfig = configure<SmsDriverOptions>('sms', {})
         const from = options.from ?? driverConfig.from ?? legacySmsConfig.from
 
         this.fromValue = from

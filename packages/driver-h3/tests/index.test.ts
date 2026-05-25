@@ -34,8 +34,8 @@ describe('H3Driver', () => {
         expect(app.use).toHaveBeenCalledWith(expect.any(Function))
     })
 
-    it('returns a structured JSON payload for API requests', () => {
-        const response = defaultErrorHandler(new Error('Boom'), {
+    it('returns a structured JSON payload for API requests', async () => {
+        const response = await defaultErrorHandler(new Error('Boom'), {
             req: {
                 _url: { pathname: '/api/test' },
                 headers: new Headers({ accept: 'application/json' }),

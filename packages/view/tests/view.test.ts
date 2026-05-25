@@ -1,4 +1,5 @@
 import { View, ViewFactory, ViewInstance, clearRouterViewPlugin, clearViewData, runWithViewData, view } from '../src'
+import { Session } from '../../http/src'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 
@@ -16,6 +17,8 @@ const clearTestSession = () => {
     if (session && typeof session === 'object' && 'clear' in session && typeof session.clear === 'function') {
         session.clear()
     }
+
+    delete (globalThis as any).session
 }
 
 describe('View', () => {
@@ -100,6 +103,18 @@ describe('View', () => {
 
         await expect(view('form')).resolves.toBe('No errors')
         await expect(view('form', { errors: { email: ['Email is required'] } })).resolves.toBe('Email is required')
+    })
+
+    it('falls back to the active HTTP session errors for views', async () => {
+        await writeFile(join(viewsPath, 'session-errors.edge'), '{{ errors.first("email") }}')
+
+        new Session({
+            errors: {
+                email: ['Email is required'],
+            },
+        })
+
+        await expect(view('session-errors')).resolves.toBe('Email is required')
     })
 
     it('uses per-request view data from the Clear Router view plugin', async () => {

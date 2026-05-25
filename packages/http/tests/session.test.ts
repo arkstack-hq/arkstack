@@ -1,4 +1,4 @@
-import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FileSessionDriver, Request, Response, Session, ensureSession, kanunSessionPlugin } from '../src'
+import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FlashBag, FileSessionDriver, Request, Response, Session, ensureSession, kanunSessionPlugin, old, redirect, registerResponseFlashSweep } from '../src'
 import { describe, expect, it } from 'vitest'
 import { mkdtemp, rm } from 'node:fs/promises'
 
@@ -16,6 +16,7 @@ const makeCookieContext = (cookie?: string) => {
             headers[name.toLowerCase()] = value
         },
         getHeader: (name: string) => headers[name.toLowerCase()],
+        end: () => undefined,
     }
 
     return {
@@ -86,6 +87,27 @@ describe('HTTP Session', () => {
         expect(errors.hasAny(['missing', 'password'])).toBe(true)
         expect(errors.missing('missing')).toBe(true)
         expect(errors.toArray()).toEqual(errors.getMessages())
+    })
+
+    it('sweeps loaded flash data while keeping new flash data for the next request', async () => {
+        const session = new Session({
+            flash: { notice: 'Saved' },
+            errors: { email: ['Email is required'] },
+        })
+
+        expect(session.getFlash('notice')).toBe('Saved')
+        expect(session.errors.first('email')).toBe('Email is required')
+
+        session.flash('next', 'Queued')
+        session.addError('password', 'Password is required')
+        await session.sweepFlash()
+
+        expect(session.getFlash('notice')).toBeUndefined()
+        expect(session.getFlash('next')).toBe('Queued')
+        expect(session.errors.first('email')).toBe('')
+        expect(session.errors.first('password')).toBe('Password is required')
+        expect(session.flashBag).toBeInstanceOf(FlashBag)
+        expect(session.errors).toBeInstanceOf(FlashBag)
     })
 
     it('keeps session data and validation errors together', () => {
@@ -191,6 +213,32 @@ describe('HTTP Session', () => {
         }
     })
 
+    it('clears flashed cookie errors when the response ends', async () => {
+        const driver = new CookieSessionDriver({ secret: 'test-secret', cookie: 'ark_test' })
+        const first = makeCookieContext()
+        const firstState = await driver.start(first)
+        const firstSession = new Session(firstState.state, firstState)
+
+        firstSession.addError('email', 'Email is required')
+        await firstSession.save()
+
+        const second = makeCookieContext(first.cookie)
+        const secondState = await driver.start(second)
+        const secondSession = new Session(secondState.state, secondState)
+
+        expect(secondSession.errors.first('email')).toBe('Email is required')
+
+        registerResponseFlashSweep(second, secondSession)
+        second.source.end()
+        await new Promise(resolve => setTimeout(resolve, 0))
+
+        const third = makeCookieContext(second.cookie)
+        const thirdState = await driver.start(third)
+        const thirdSession = new Session(thirdState.state, thirdState)
+
+        expect(thirdSession.errors.toJSON()).toEqual({})
+    })
+
     it('persists cookie sessions across loads and keeps devices isolated', async () => {
         const driver = new CookieSessionDriver({ secret: 'test-secret', cookie: 'ark_test' })
         const first = makeCookieContext()
@@ -273,4 +321,38 @@ describe('HTTP Session', () => {
         expect(ctx.errors).toBe(ctx.session.errors)
         expect(ctx.clearResponse.source.locals.session).toBe(ctx.session)
     })
+    it('reads old input directly from the current request input', () => {
+        new Request({
+            body: {
+                email: 'ada@example.com',
+                profile: { name: 'Ada' },
+            },
+        })
+
+        expect(old('email')).toBe('ada@example.com')
+        expect(old('profile.name')).toBe('Ada')
+        expect(old('missing', 'fallback')).toBe('fallback')
+        expect(old()).toEqual({
+            email: 'ada@example.com',
+            profile: { name: 'Ada' },
+        })
+    })
+
+    it('creates redirect responses using the current request as the back target', () => {
+        new Request({
+            headers: {
+                referer: '/contact',
+            },
+        })
+        const response = new Response()
+
+        globalThis.response = () => response
+
+        const redirected = redirect()
+
+        expect(redirected.statusCode).toBe(302)
+        expect(redirected.getHeaders().location).toBe('/contact')
+        expect(redirected.body).toBeNull()
+    })
+
 })

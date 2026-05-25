@@ -1,37 +1,39 @@
 import { AuthContract } from './Contracts/AuthContract'
 import { PersonalAccessToken } from './Contracts/PersonalAccessToken'
+import { Session as HttpSession } from '@arkstack/http'
 import { getModel } from '@arkstack/common'
 
 /**
- * The Session class represents the current authentication session and provides 
- * methods to manage it, such as destroying the session (logging out) and retrieving 
- * the current personal access token. It is used internally by the Auth class to 
- * handle session-specific operations.
- * 
- * @author Legacy (3m1n3nc3)
- * @since 1.0.0
- * @version 1.0.0
- * @see Auth
+ * Represents an authenticated user session.
+ *
+ * @author 3m1n3nc3
  */
-export class Session {
-    constructor(private auth: AuthContract) { }
+export class Session extends HttpSession {
+    constructor(private auth: AuthContract, current: HttpSession | undefined = (globalThis as any).session?.()) {
+        super(current instanceof HttpSession ? current : undefined)
+    }
 
     /**
-     * Destroy the current session's personal access token, effectively 
-     * logging out the user from this session.
+     * Destroy the current session
+     * 
+     * @returns
      */
-    async destroy () {
+    override async destroy () {
         const pat = await this.token()
 
         if (pat) {
             await this.auth.logout(pat)
         }
+
+        await super.destroy()
+
+        return this
     }
 
     /**
-     * Get the current session's personal access token
+     * Get the current auth session token
      * 
-     * @returns 
+     * @returns
      */
     async token (): Promise<PersonalAccessToken | null> {
         if (!this.auth.getRequest()) {
@@ -45,8 +47,7 @@ export class Session {
         }
 
         const Model = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
-        const pat = await Model.query().where({ token }).first()
 
-        return pat
+        return await Model.query().where({ token }).first()
     }
 }

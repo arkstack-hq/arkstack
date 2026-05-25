@@ -89,38 +89,60 @@ export const serializeCookie = (
     return parts.join('; ')
 }
 
-const appendHeaderValue = (target: any, name: string, value: string) => {
+const splitSetCookieHeader = (value: string) => {
+    return value.split(/,\s*(?=[^;,\s]+=)/).filter(Boolean)
+}
+
+const withoutCookie = (current: unknown, cookieName: string) => {
+    const entries = Array.isArray(current)
+        ? current.flatMap((item) => splitSetCookieHeader(String(item)))
+        : typeof current === 'string'
+            ? splitSetCookieHeader(current)
+            : []
+
+    return entries.filter(
+        (cookie) => !cookie.trim().startsWith(`${cookieName}=`),
+    )
+}
+
+const upsertHeaderValue = (
+    target: any,
+    headerName: string,
+    cookieName: string,
+    value: string,
+) => {
     if (!target) return false
-    if (typeof target.append === 'function') {
-        target.append(name, value)
 
-        return true
-    }
-    if (typeof target.appendHeader === 'function') {
-        target.appendHeader(name, value)
-
-        return true
-    }
     if (typeof target.setHeader === 'function') {
         const current =
             typeof target.getHeader === 'function'
-                ? target.getHeader(name)
+                ? target.getHeader(headerName)
                 : undefined
-        const next = current
-            ? [...(Array.isArray(current) ? current : [current]), value]
-            : value
-        target.setHeader(name, next)
+        const next = [...withoutCookie(current, cookieName), value]
+
+        target.setHeader(headerName, next)
 
         return true
     }
-    if (target.headers && typeof target.headers.append === 'function') {
-        target.headers.append(name, value)
 
-        return true
-    }
     if (target.headers && typeof target.headers.set === 'function') {
-        const current = target.headers.get(name)
-        target.headers.set(name, current ? `${current}, ${value}` : value)
+        const current = target.headers.get(headerName)
+        const next = [...withoutCookie(current, cookieName), value]
+
+        target.headers.set(headerName, next.join(', '))
+
+        return true
+    }
+
+    if (typeof target.appendHeader === 'function') {
+        target.appendHeader(headerName, value)
+
+        return true
+    }
+
+
+    if (typeof target.append === 'function') {
+        target.append(headerName, value)
 
         return true
     }
@@ -137,15 +159,19 @@ export const setCookie = (
     const ctx = isRecord(context.ctx) ? context.ctx : context
     const cookie = serializeCookie(name, value, options)
     const response = context.response || ctx.clearResponse
-    if (response?.headers && typeof response.headers.append === 'function')
-        response.headers.append('set-cookie', cookie)
+    if (response?.headers && typeof response.headers.set === 'function') {
+        const current = response.headers.get('set-cookie')
+        const next = [...withoutCookie(current, name), cookie]
+
+        response.headers.set('set-cookie', next.join(', '))
+    }
 
     const assigned =
-        appendHeaderValue(response?.source, 'Set-Cookie', cookie) ||
-        appendHeaderValue(ctx.res, 'Set-Cookie', cookie) ||
-        appendHeaderValue(ctx.response, 'Set-Cookie', cookie) ||
-        appendHeaderValue(ctx.response?.source, 'Set-Cookie', cookie) ||
-        appendHeaderValue(ctx.event?.res, 'Set-Cookie', cookie)
+        upsertHeaderValue(response?.source, 'Set-Cookie', name, cookie) ||
+        upsertHeaderValue(ctx.res, 'Set-Cookie', name, cookie) ||
+        upsertHeaderValue(ctx.response, 'Set-Cookie', name, cookie) ||
+        upsertHeaderValue(ctx.response?.source, 'Set-Cookie', name, cookie) ||
+        upsertHeaderValue(ctx.event?.res, 'Set-Cookie', name, cookie)
 
     void assigned
 

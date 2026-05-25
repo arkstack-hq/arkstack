@@ -1,4 +1,4 @@
-import { DbNotification, MailNotification, Notification, SmsNotification, UserNotification as UserNotificationAbs, UserNotificationCenter, interpolate, notificationConfig } from '../src'
+import { DbNotification, MailNotification, Notification, SmsNotification, UserNotification as UserNotificationAbs, UserNotificationCenter, configure, interpolate } from '../src'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { View } from '@arkstack/view'
@@ -465,7 +465,7 @@ describe('Notification', () => {
             throw new Error('config unavailable')
         })
 
-        expect(notificationConfig('drivers.mail', { transport: 'smtp' })).toEqual({ transport: 'smtp' })
+        expect(configure('drivers.mail', { transport: 'smtp' })).toEqual({ transport: 'smtp' })
     })
 
     it('queries and mutates user notifications through the center', async () => {

@@ -1,4 +1,5 @@
 import type { ErrorBag } from './ErrorBag'
+import type { FlashBag } from './FlashBag'
 
 export type SessionDriverType = 'file' | 'cookie' | 'database' | SessionDriver
 export type SessionErrorValue = string | string[] | Error | unknown
@@ -18,11 +19,13 @@ export type SessionErrorSource = SessionErrorRecord | ErrorBag | SessionMessageP
 export interface SessionInitialState {
     data?: Record<string, any>
     errors?: SessionErrorSource
+    flash?: Record<string, any> | FlashBag
 }
 
 export type SessionPayload = {
     data?: Record<string, any>
     errors?: SessionErrorRecord
+    flash?: Record<string, any>
 }
 
 export type cookie_options = {

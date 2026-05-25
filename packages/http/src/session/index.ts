@@ -1,3 +1,4 @@
+export * from './FlashBag'
 export * from './ErrorBag'
 export * from './Session'
 export * from './plugins'

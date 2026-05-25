@@ -3,8 +3,8 @@ import nodemailer, { type Transporter } from 'nodemailer'
 
 import { NotificationContract } from '../Contracts/NotificationContract'
 import { interpolate } from '../utils/template'
-import { notificationConfig } from '../config'
-import type { MailDriverOptions, MailRecipient, MailRecipientAddress, NotificationData } from '../types'
+import { configure } from '../config'
+import type { MailDriverOptions, MailRecipient, MailRecipientAddress, MergedTransportConfig, NotificationData } from '../types'
 import type { User } from '@arkstack/auth'
 
 export class MailNotification extends NotificationContract {
@@ -19,23 +19,32 @@ export class MailNotification extends NotificationContract {
     constructor(options: MailDriverOptions = {}) {
         super()
 
-        const driverConfig = notificationConfig<Record<string, any>>('drivers.mail', {})
-        const transport = options.transport ?? driverConfig.transport ?? 'smtp'
-        const transportConfig = notificationConfig<Record<string, any>>(`transports.${transport}`, {})
-        const legacyMailConfig = notificationConfig<Record<string, any>>('mail', {})
-        const legacySmtpConfig = notificationConfig<Record<string, any>>('smtp', {})
-        const smtpConfig = {
-            ...legacySmtpConfig,
-            ...(legacyMailConfig.smtp ?? {}),
-            ...transportConfig,
-        }
-        const host = options.host ?? smtpConfig.host ?? env('SMTP_HOST', 'localhost')
-        const port = options.port ?? smtpConfig.port ?? env('SMTP_PORT', 1025)
-        const secure = options.secure ?? smtpConfig.secure ?? env('SMTP_SECURE', false)
-        const user = options.user ?? smtpConfig.auth?.user ?? smtpConfig.user ?? env('SMTP_USERNAME', '')
-        const pass = options.pass ?? smtpConfig.auth?.pass ?? smtpConfig.pass ?? env('SMTP_PASSWORD', '')
+        const driver = configure('drivers.mail', {})
+        const trpt = driver.transport ?? 'smtp'
+        const transport = configure(`transports.${trpt}`, {}) as MergedTransportConfig
 
-        this.fromAddress = options.from ?? driverConfig.from ?? legacyMailConfig.from ?? smtpConfig.from ?? env('SMTP_FROM_ADDRESS', 'no-reply@example.com')
+        const host = options.host ?? transport.host ?? env('SMTP_HOST', 'localhost')
+        const port = options.port ?? transport.port ?? env('SMTP_PORT', 1025)
+        const secure = options.secure ?? transport.secure ?? env('SMTP_SECURE', false)
+
+        const user =
+            options.user ??
+            transport.auth?.user ??
+            transport.user ??
+            env('SMTP_USERNAME', '')
+
+        const pass =
+            options.pass ??
+            transport.auth?.pass ??
+            transport.pass ??
+            env('SMTP_PASSWORD', '')
+
+        this.fromAddress =
+            options.from ??
+            driver.from ??
+            transport.from ??
+            env('SMTP_FROM_ADDRESS', 'no-reply@example.com')
+
         this.driver = nodemailer.createTransport({
             host,
             port: Number(port),
@@ -187,13 +196,14 @@ export class MailNotification extends NotificationContract {
                 : []
         ).flatMap(recipient => this.normalizeRecipient(recipient) as unknown)
 
-        const driverConfig = notificationConfig<Record<string, any>>('drivers.mail', {})
-        const transport = driverConfig.transport ?? 'smtp'
-        const transportConfig = notificationConfig<Record<string, any>>(`transports.${transport}`, {})
-        const testAddress = driverConfig.testAddress
-            ?? driverConfig.test_address
-            ?? transportConfig.testAddress
-            ?? transportConfig.test_address
+        const driver = configure('drivers.mail', {})
+        const trpt = driver.transport ?? 'smtp'
+        const transport = configure(`transports.${trpt}`, {}) as MergedTransportConfig
+
+        const testAddress = driver.test_address
+            ?? driver.test_address
+            ?? transport.test_address
+            ?? transport.test_address
             ?? env<string | undefined>('SMTP_TEST_ADDRESS')
 
         if (env('NODE_ENV') !== 'production' && testAddress) {

@@ -81,12 +81,10 @@ export default class UserController extends BaseController {
   }
 
   /**
-   * Delete a specific resource
-   *
-   * @param res
+   * Delete a specific resource 
    */
   async destroy () {
-    return new Resource({ data: {} })
+    return new Resource({})
       .additional({
         status: 'success',
         message: 'User deleted successfully',

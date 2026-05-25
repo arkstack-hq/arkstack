@@ -1,14 +1,16 @@
 import type { SessionErrorRecord, SessionErrorSource, SessionErrorValue } from './types'
 import { defaultErrorKey, getValidationIssueField, resolveMessageRecord, toMessages } from './utils'
 
+import { FlashBag } from './FlashBag'
 import { isRecord } from '../helpers'
 
-export class ErrorBag {
-    private bag: Record<string, string[]> = {}
-
+export class ErrorBag extends FlashBag<string[]> {
     constructor(errors?: SessionErrorSource) {
+        super()
+
         if (errors) {
             this.merge(errors)
+            this.markForSweep()
         }
     }
 
@@ -20,10 +22,10 @@ export class ErrorBag {
             return this
         }
 
-        this.bag[key] = [
+        this.put(key, [
             ...(this.bag[key] || []),
             ...messages,
-        ]
+        ])
 
         return this
     }
@@ -161,7 +163,7 @@ export class ErrorBag {
     }
 
     all () {
-        return Object.values(this.bag).flat()
+        return Object.values(this.bag).flat() as never
     }
 
     unique () {
@@ -169,21 +171,7 @@ export class ErrorBag {
     }
 
     clear (field?: string | string[]) {
-        if (Array.isArray(field)) {
-            for (const key of field) {
-                delete this.bag[key]
-            }
-
-            return this
-        }
-
-        if (field) {
-            delete this.bag[field]
-
-            return this
-        }
-
-        this.bag = {}
+        super.clear(field)
 
         return this
     }

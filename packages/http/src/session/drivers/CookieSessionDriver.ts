@@ -12,7 +12,7 @@ export class CookieSessionDriver extends BaseSessionDriver {
         const payload = decodeJson<SessionPayload & { id?: string }>(decoded)
         const id = payload?.id || generateSessionId()
         const state = payload
-            ? { data: payload.data, errors: payload.errors }
+            ? { data: payload.data, errors: payload.errors, flash: payload.flash }
             : undefined
         const save = async (next: SessionPayload) => {
             setCookie(
@@ -29,7 +29,6 @@ export class CookieSessionDriver extends BaseSessionDriver {
                 expires: new Date(0),
             })
         }
-        await save(state || { data: {}, errors: {} })
 
         return { id, state, save, destroy }
     }

@@ -4,7 +4,7 @@ import { DbNotification } from './drivers/DbNotification'
 import { DriverMap } from './Contracts/Maps'
 import { MailNotification } from './drivers/MailNotification'
 import { SmsNotification } from './drivers/SmsNotification'
-import { notificationConfig } from './config'
+import { configure } from './config'
 
 export class Notification<D extends keyof DriverMap = keyof DriverMap> {
     private driver: DriverMap[D]
@@ -33,7 +33,7 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
         channel?: NotificationChannel | 'email',
         options?: MailDriverOptions | SmsDriverOptions
     ) {
-        return Notification.createDriver(channel ?? notificationConfig<NotificationChannel>('default_driver', 'mail'), options)
+        return Notification.createDriver(channel ?? configure('default_driver', 'mail'), options)
     }
 
     prepare (

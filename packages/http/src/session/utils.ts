@@ -99,3 +99,15 @@ export const toMessages = (value: SessionErrorValue): string[] => {
 
     return [String(value)]
 }
+
+export const getPath = <T = any> (source: Record<string, any>, key: string, defaultValue?: T): T => {
+    const value = key.split('.').reduce<any>((current, part) => {
+        if (!isRecord(current) && !Array.isArray(current)) {
+            return undefined
+        }
+
+        return current[part]
+    }, source)
+
+    return (typeof value === 'undefined' ? defaultValue : value) as T
+}

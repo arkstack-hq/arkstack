@@ -20,7 +20,7 @@ Underlying runtime
 Express, H3
 ```
 
-This split lets Arkstack keep Laravel-like project ergonomics without binding business logic to one runtime's request, response, middleware, or route implementation.
+This split lets Arkstack keep project ergonomics without binding business logic to one runtime's request, response, middleware, or route implementation.
 
 ## Core Principles
 

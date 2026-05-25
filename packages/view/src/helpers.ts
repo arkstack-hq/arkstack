@@ -22,10 +22,61 @@ export const isClass = <T = unknown> (
         && /^class\s/.test(Function.prototype.toString.call(target))
 }
 
+const currentHttpSession = () => {
+    try {
+        const session = globalThis.session?.()
+
+        return session && typeof session === 'object' ? session as Record<string, any> : undefined
+    } catch {
+        return undefined
+    }
+}
+
+const hasRenderableErrors = (errors: unknown) => {
+    if (!errors || typeof errors !== 'object') {
+        return false
+    }
+
+    const bag = errors as Record<string, any>
+
+    if (typeof bag.any === 'function') {
+        return Boolean(bag.any())
+    }
+
+    if (typeof bag.has === 'function') {
+        return Boolean(bag.has())
+    }
+
+    if (typeof bag.isNotEmpty === 'function') {
+        return Boolean(bag.isNotEmpty())
+    }
+
+    if (typeof bag.all === 'function') {
+        const messages = bag.all()
+
+        if (Array.isArray(messages)) {
+            return messages.length > 0
+        }
+
+        return !!messages && typeof messages === 'object' && Object.keys(messages).length > 0
+    }
+
+    return Object.keys(bag).length > 0
+}
+
 export const normalizeViewData = (data: ViewData = {}) => {
+    const session = currentHttpSession()
+    const ownErrors = normalizeViewErrors(data.errors)
+    const sessionErrors = session?.errors
+    const errors = hasRenderableErrors(ownErrors) || !sessionErrors
+        ? ownErrors
+        : normalizeViewErrors(sessionErrors)
+
     return {
+        ...(session && !('session' in data) ? { session } : {}),
+        ...(session && !('httpSession' in data) ? { httpSession: session } : {}),
         ...data,
-        errors: normalizeViewErrors(data.errors),
+        errors,
     }
 }
 

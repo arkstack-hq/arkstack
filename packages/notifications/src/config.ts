@@ -1,9 +1,14 @@
-import { config } from '@arkstack/common'
+import { DotPath, DotPathValue, config } from '@arkstack/common'
 
-export const notificationConfig = <T = unknown> (key: string, defaultValue: T): T => {
+import { NotificationConfig } from './types'
+
+export const configure = <T extends DotPath<NotificationConfig>> (
+    key: T,
+    defaultValue: unknown,
+): DotPathValue<NotificationConfig, T> => {
     try {
-        return config(`notifications.${key}`, defaultValue) as T
+        return config(`notifications.${key}`, defaultValue) as never
     } catch {
-        return defaultValue
+        return defaultValue as never
     }
 }

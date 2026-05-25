@@ -1,12 +1,15 @@
+import type { ErrorBag, Session } from '../session'
+
 import type { Request } from '../Request'
-import type { Session } from '../session'
+import { Response } from '../Response'
 
 export type HeaderValue = string | string[] | number | boolean | null | undefined
 export type HeaderMap = Record<string, string>
 export type HeaderSource = Headers | Record<string, HeaderValue>
 
+
 export interface HttpContext {
-    [key: string]: any
+    errors: ErrorBag
 }
 
 export type RequestSource<TUser = unknown> = {
@@ -30,6 +33,7 @@ export type ResponseSource = {
     getHeader?: (name: string) => string | string[] | number | undefined;
     json?: (body: unknown) => unknown;
     send?: (body: unknown) => unknown;
+    redirect?: (status: number, path: string) => unknown;
 }
 
 export type RequestOptions<TUser = unknown> = {
@@ -50,5 +54,15 @@ export interface RequestHelper<TUser = unknown> {
 
 export interface SessionHelper {
     (): Session
-    <X extends string> (key: X): Session['data'][X]
+    <X extends string> (key: X): any
+}
+
+export interface RedirectHelper {
+    (): Response
+    (to?: string, status?: number): Response
+}
+
+export interface OldHelper {
+    (): Record<string, any>
+    <T = any> (key: string, defaultValue?: T): T
 }

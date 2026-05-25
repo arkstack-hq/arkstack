@@ -1,6 +1,6 @@
 # Views
 
-Arkstack views are powered by Edge.js and use a Laravel-style factory API.
+Arkstack views are powered by Edge.js and use a familiar factory API.
 
 ## Install
 

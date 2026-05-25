@@ -149,11 +149,13 @@ export class ViewErrorBag {
     }
 
     toJSON () {
-        return Object.entries(this.bag).reduce<Record<string, string[]>>((errors, [field, messages]) => {
-            errors[field] = [...messages]
+        return Object
+            .entries(this.bag)
+            .reduce<Record<string, string[]>>((errors, [field, messages]) => {
+                errors[field] = [...messages]
 
-            return errors
-        }, {})
+                return errors
+            }, {})
     }
 }
 

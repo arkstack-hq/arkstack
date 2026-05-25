@@ -1,3 +1,4 @@
+import type { MergedConfig } from '@arkstack/common'
 import type { UserNotification } from './Contracts/UserNotification'
 
 export type NotificationRecipient = string | string[]
@@ -19,7 +20,7 @@ export type NotificationUser = {
 }
 
 export type MailDriverOptions = {
-    transport?: string
+    transport?: 'africastalking' | 'twilio' | 'file' | 'smtp'
     host?: string
     port?: number
     secure?: boolean
@@ -62,3 +63,32 @@ export type NotificationDriverMap = {
     sms: DriverResult
     db: UserNotification
 }
+
+export interface NotificationConfig {
+    default_driver: 'mail' | 'sms' | 'db'
+    drivers: {
+        mail: { transport: 'smtp'; from: string; test_address: string }
+        sms: { transport: 'africastalking'; from: string }
+        db: { table: 'user_notifications' }
+    }
+    transports: {
+        smtp: {
+            host: string; port: number; secure: boolean;
+            auth: { user: string; pass: string }
+            user?: string;
+            pass?: string
+            test_address?: string
+        } | {
+            host: string; port: number; secure: boolean;
+            auth?: { user: string; pass: string }
+            user: string;
+            pass: string
+            test_address?: string
+        }
+        file: { directory: string }
+        africastalking: { username: string; apiKey: string; senderId: string }
+        twilio: { accountSid: string; authToken: string; from: string }
+    }
+}
+
+export type MergedTransportConfig = MergedConfig<NotificationConfig['transports'][NonNullable<MailDriverOptions['transport']>]>

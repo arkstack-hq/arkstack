@@ -23,7 +23,6 @@ export class ViewFactory {
 
     make (name: ViewName, data: ViewData = {}) {
         const edgeName = this.resolveName(name)
-
         return new ViewInstance(
             name,
             normalizeViewData({ ...this.sharedData, ...getViewData(), ...data }),

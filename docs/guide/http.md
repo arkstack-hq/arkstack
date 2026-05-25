@@ -129,6 +129,17 @@ configureSession(
 
 Session mutations are persisted automatically. You may call `await session.save()` when a test or custom integration needs to wait for the write explicitly.
 
+### Flash Data
+
+Use the session flash bag for data that should survive exactly one following request. Flashed values are available through `session.flashBag` and are swept by the `web` middleware before the response completes:
+
+```ts
+session.flash('notice', 'Profile saved');
+session.getFlash('notice');
+```
+
+The error bag extends the same flash behavior, so validation errors survive a redirect and are cleared after the response that consumes them.
+
 ### Validation Errors
 
 Arkstack uses Kanun for validation. Importing `@arkstack/http/setup` registers the Kanun session plugin, so failed validators automatically fill the current HTTP session error bag. You can still pass a Kanun validator message bag, a Kanun validation exception, or a plain keyed error object into the session manually when needed:
@@ -156,6 +167,21 @@ try {
 ```
 
 The error bag is available as `session.errors` and as `errors` on the HTTP context. It supports helpers such as `first`, `get`, `has`, `hasAny`, `missing`, `all`, `keys`, `count`, `toArray`, and `getMessages`.
+
+For browser form routes, add the `web` middleware. Validation errors on those routes redirect back to the source route and flash the errors into the session. During the submitted request, `old()` reads directly from the current request input:
+
+```ts
+import { old, redirect, web } from '@arkstack/http';
+
+Router.post('/register', async ({ req }) => {
+  await validator.validate();
+
+  return redirect('/dashboard');
+}, [web]);
+
+old(); // all submitted form data from the current request
+old('email'); // one field from the current request input
+```
 
 When `@arkstack/view/setup` is also imported, the current session and error bag are available to Edge views rendered during the request.
 
