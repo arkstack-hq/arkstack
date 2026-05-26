@@ -6,7 +6,7 @@
   "base": true,
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
-    "prebuild": "pnpm -w run build:packages --log-level silent && pnpm prepare",
+    "prebuild": "pnpm -w run build:packages --log-level silent",
     "precmd": "pnpm -w run build:packages --log-level silent",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",

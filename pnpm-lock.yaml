@@ -161,6 +161,9 @@ importers:
       '@antfu/install-pkg':
         specifier: 1.1.0
         version: 1.1.0
+      '@arkstack/console':
+        specifier: workspace:^
+        version: link:../packages/console
       '@h3ravel/collect.js':
         specifier: ^5.3.4
         version: 5.3.4

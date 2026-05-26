@@ -127,10 +127,15 @@ jobs:
           git commit -m "chore: prepare release v${{ steps.release_version.outputs.version }}"
           git push
 
-       - name: Build Templates
+      - name: Prepare Template Arkstack TSConfig
         run: |
-          pnpm -w run build:templates
-          pnpm prepare
+          for template in templates/*; do
+            mkdir -p "$template/.arkstack"
+            printf '{"compilerOptions":{"module":"es2022"}}\n' > "$template/.arkstack/tsconfig.json"
+          done
+
+      - name: Build Templates
+        run: pnpm -w run build:templates
 
       - name: Rebuild Console
         run: |

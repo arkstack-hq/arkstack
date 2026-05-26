@@ -107,3 +107,6 @@ const isEntrypointExecution = () => {
 if (isEntrypointExecution()) {
     await runConsoleKernel()
 }
+
+export * from './prepare/BuildInterfaces'
+export * from './prepare/TSConfig'
