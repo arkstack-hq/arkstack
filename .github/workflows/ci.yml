@@ -67,8 +67,8 @@ jobs:
 
       - name: Build Templates
         run: |
-          pnpm prepare
           pnpm -w run build:templates
+          pnpm prepare
 
       - name: Run database migrations
         run: pnpm arkorm migrate:fresh;

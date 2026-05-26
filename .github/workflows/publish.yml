@@ -137,8 +137,8 @@ jobs:
 
        - name: Build Templates
         run: |
-          pnpm prepare
           pnpm -w run build:templates
+          pnpm prepare
 
       - name: Build Create Arkstack
         run: |
