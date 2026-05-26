@@ -144,8 +144,8 @@ jobs:
 
       - name: Prepare Templates
         run: |
-          cd templates/express && pnpm run prepare
-          cd ../h3 && pnpm run prepare
+          cd templates/express && pnpm prepare
+          cd ../h3 && pnpm prepare
 
       - name: Run linter
         run: pnpm lint
