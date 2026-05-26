@@ -29,3 +29,7 @@ export const TSConfig = {
     },
     include: ['./*.d.ts', '../src', '../tests']
 }
+
+export const BaseTCConfig = {
+    extends: './.arkstack/tsconfig.json'
+}

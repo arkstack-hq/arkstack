@@ -1,6 +1,6 @@
+import { BaseTCConfig, TSConfig } from './TSConfig'
 import { ConfigRegistry, config } from '@arkstack/common'
 
-import { TSConfig } from './TSConfig'
 import path from 'node:path'
 import { writeFileSync } from 'node:fs'
 
@@ -20,8 +20,13 @@ export class BuildInterfaces {
     }
 
     static tsconfig () {
-        const config = JSON.stringify(TSConfig, undefined, 2)
-        writeFileSync(path.join(process.cwd(), '.arkstack/tsconfig.json'), config, 'utf8')
+        const configs = {
+            '.arkstack/tsconfig.json': JSON.stringify(TSConfig, undefined, 2),
+            'tsconfig.json': JSON.stringify(BaseTCConfig, undefined, 2),
+        }
+
+        for (const [file, config] of Object.entries(configs))
+            writeFileSync(path.join(process.cwd(), file), config, 'utf8')
     }
 
     private static isDynamicMap (obj: Record<string, unknown>): boolean {
