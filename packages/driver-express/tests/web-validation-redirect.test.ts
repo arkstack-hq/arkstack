@@ -1,6 +1,6 @@
 import '../../http/src/setup'
 
-import { decodeJson, decryptSessionValue, web } from '../../http/src'
+import { decodeSessionPayload, decryptSessionValue, web } from '../../http/src'
 import { describe, expect, it } from 'vitest'
 
 import { Router as ClearRouter } from 'clear-router/express'
@@ -35,7 +35,7 @@ const cookiePayload = (cookie: string) => {
     const rawValue = cookie.split(';')[0]?.split('=').slice(1).join('=')
     const decoded = decryptSessionValue(decodeURIComponent(rawValue), 'arkstack-session-secret')
 
-    return decodeJson<any>(decoded)
+    return decodeSessionPayload<any>(decoded)
 }
 
 const sessionCookiesFromHeader = (header: string | null | undefined) => {

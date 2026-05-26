@@ -8,6 +8,7 @@ export * from './types'
 export * from './config'
 export * from './cookie'
 export * from './encryption'
+export * from './serialization'
 
 export * from './drivers/BaseSessionDriver'
 export * from './drivers/CookieSessionDriver'

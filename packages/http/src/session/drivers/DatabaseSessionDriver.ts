@@ -1,5 +1,6 @@
 import { DatabaseSessionDriverOptions, HttpContextLike, SessionDriverResult, SessionPayload } from '../types'
-import { decodeJson, encodeJson, generateSessionId, setCookie } from '../cookie'
+import { decodeJson, generateSessionId, setCookie } from '../cookie'
+import { decodeSessionPayload, encodeSessionPayload } from '../serialization'
 
 import { BaseSessionDriver } from './BaseSessionDriver'
 import { DB } from 'arkormx'
@@ -23,7 +24,7 @@ export class DatabaseSessionDriver extends BaseSessionDriver {
 
         const row = await this.table().where({ id }).first()
         const state = isRecord(row) && typeof row.payload === 'string'
-            ? decodeJson<SessionPayload>(this.decryptPayload(row.payload) ?? row.payload)
+            ? decodeSessionPayload<SessionPayload>(this.decryptPayload(row.payload) ?? row.payload) ?? decodeJson<SessionPayload>(this.decryptPayload(row.payload) ?? row.payload)
             : isRecord(row?.payload)
                 ? (row.payload as SessionPayload)
                 : undefined
@@ -32,7 +33,7 @@ export class DatabaseSessionDriver extends BaseSessionDriver {
             const now = new Date()
             const values = {
                 id,
-                payload: this.encryptPayload(encodeJson(payload)),
+                payload: this.encryptPayload(encodeSessionPayload(payload)),
                 updatedAt: now,
                 expiresAt: this.ttl ? new Date(now.getTime() + this.ttl * 1000) : null,
             }

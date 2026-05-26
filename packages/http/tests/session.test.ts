@@ -1,4 +1,4 @@
-import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FlashBag, FileSessionDriver, Request, Response, Session, decryptSessionValue, ensureSession, kanunSessionPlugin, old, redirect, registerResponseFlashSweep } from '../src'
+import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FileSessionDriver, FlashBag, Request, Response, Session, decodeSessionPayload, decryptSessionValue, ensureSession, kanunSessionPlugin, old, redirect, registerResponseFlashSweep } from '../src'
 import { describe, expect, it } from 'vitest'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 
@@ -250,7 +250,7 @@ describe('HTTP Session', () => {
         await firstSession.save()
 
         expect(first.cookie).not.toContain('Saved')
-        expect(decryptSessionValue(decodeURIComponent(first.cookie!.split('=')[1]), 'test-secret')).toBeTypeOf('string')
+        expect(decryptSessionValue(decodeURIComponent(first.cookie!.split('=')[1]), 'test-secret')).toContain('a:')
 
         const second = makeCookieContext(first.cookie)
         const secondState = await driver.start(second)
@@ -278,9 +278,10 @@ describe('HTTP Session', () => {
             firstSession.put('theme', 'dark')
             await firstSession.save()
 
-            const stored = await readFile(join(directory, firstSession.id + '.json'), 'utf8')
+            const stored = await readFile(join(directory, firstSession.id as string), 'utf8')
             expect(stored).not.toContain('dark')
-            expect(decryptSessionValue(stored, 'test-secret')).toContain('dark')
+            expect(decryptSessionValue(stored, 'test-secret')).toContain('s:5:"theme"')
+            expect(decodeSessionPayload(decryptSessionValue(stored, 'test-secret'))?.data?.theme).toBe('dark')
 
             const second = makeCookieContext(first.cookie)
             const secondState = await driver.start(second)
@@ -334,7 +335,7 @@ describe('HTTP Session', () => {
                 email: 'ada@example.com',
                 profile: { name: 'Ada' },
             },
-        })
+        } as never)
 
         expect(old('email')).toBe('ada@example.com')
         expect(old('profile.name')).toBe('Ada')

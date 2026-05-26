@@ -1,5 +1,6 @@
 import { HttpContextLike, SessionDriverResult, SessionPayload } from '../types'
-import { decodeJson, decodeSignedValue, encodeJson, generateSessionId, getCookie, setCookie } from '../cookie'
+import { decodeJson, decodeSignedValue, generateSessionId, getCookie, setCookie } from '../cookie'
+import { decodeSessionPayload, encodeSessionPayload } from '../serialization'
 
 import { BaseSessionDriver } from './BaseSessionDriver'
 
@@ -7,7 +8,7 @@ export class CookieSessionDriver extends BaseSessionDriver {
     async start (context: HttpContextLike): Promise<SessionDriverResult> {
         const cookie = getCookie(context, this.cookie)
         const decoded = this.decryptPayload(cookie) ?? decodeSignedValue(cookie, this.secret)
-        const payload = decodeJson<SessionPayload & { id?: string }>(decoded)
+        const payload = decodeSessionPayload<SessionPayload & { id?: string }>(decoded) ?? decodeJson<SessionPayload & { id?: string }>(decoded)
         const id = payload?.id || generateSessionId()
         const state = payload
             ? { data: payload.data, errors: payload.errors, flash: payload.flash }
@@ -16,7 +17,7 @@ export class CookieSessionDriver extends BaseSessionDriver {
             setCookie(
                 context,
                 this.cookie,
-                this.encryptPayload(encodeJson({ id, ...next })),
+                this.encryptPayload(encodeSessionPayload({ id, ...next })),
                 this.cookie_options,
             )
         }

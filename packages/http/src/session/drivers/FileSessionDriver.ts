@@ -4,6 +4,7 @@ import { generateSessionId, setCookie } from '../cookie'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 
 import { BaseSessionDriver } from './BaseSessionDriver'
+import { decodeSessionPayload, encodeSessionPayload } from '../serialization'
 
 export class FileSessionDriver extends BaseSessionDriver {
     readonly directory: string
@@ -16,7 +17,7 @@ export class FileSessionDriver extends BaseSessionDriver {
     }
 
     private path (id: string) {
-        return join(this.directory, `${id}.json`)
+        return join(this.directory, id)
     }
 
     async start (context: HttpContextLike): Promise<SessionDriverResult> {
@@ -26,7 +27,7 @@ export class FileSessionDriver extends BaseSessionDriver {
         try {
             const contents = await readFile(this.path(id), 'utf8')
             const payload = this.decryptPayload(contents) ?? contents
-            state = JSON.parse(payload) as SessionPayload
+            state = decodeSessionPayload<SessionPayload>(payload) ?? JSON.parse(payload) as SessionPayload
         } catch {
             state = undefined
         }
@@ -34,7 +35,7 @@ export class FileSessionDriver extends BaseSessionDriver {
         const save = async (payload: SessionPayload) => {
             const path = this.path(id)
             await mkdir(dirname(path), { recursive: true })
-            await writeFile(path, this.encryptPayload(JSON.stringify(payload)), 'utf8')
+            await writeFile(path, this.encryptPayload(encodeSessionPayload(payload)), 'utf8')
             this.writeSessionId(context, id)
         }
 

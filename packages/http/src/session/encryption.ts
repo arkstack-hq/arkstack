@@ -45,7 +45,7 @@ export const encryptSessionValue = (value: string, secret: string) => {
         tag: '',
     }
 
-    return Buffer.from(JSON.stringify(payload), 'utf8').toString('base64')
+    return JSON.stringify(payload)
 }
 
 export const decryptSessionValue = (payload: string | undefined, secret: string) => {
@@ -54,7 +54,7 @@ export const decryptSessionValue = (payload: string | undefined, secret: string)
     }
 
     try {
-        const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf8')) as LaravelEncryptedPayload
+        const decoded = JSON.parse(payload.startsWith('{') ? payload : Buffer.from(payload, 'base64').toString('utf8')) as LaravelEncryptedPayload
 
         if (!decoded.iv || !decoded.value || !decoded.mac) {
             return undefined
