@@ -34,5 +34,7 @@ child.on('exit', (code) => {
 
 })
 
-BuildInterfaces.configs()
+if (!process.env.NODE_CI)
+    BuildInterfaces.configs()
+
 BuildInterfaces.tsconfig()
