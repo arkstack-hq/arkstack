@@ -82,7 +82,7 @@ export default class Application implements ArkstackRouterAwareCore<Express, unk
     await this.driver.mountPublicAssets(this.app, path.join(process.cwd(), 'public'))
 
     // Apply all middleware
-    await this.driver.applyMiddleware(this.app, config('middleware'))
+    await this.driver.applyMiddleware(this.app, config('middleware') as never)
 
     // Bind the router 
     await this.driver.bindRouter(this.app)
