@@ -140,6 +140,11 @@ jobs:
           pnpm -w run build:templates
           pnpm prepare
 
+       - name: Prepare Templates
+        run: |
+          cd templates/express && pnpm prepare
+          cd ../h3 && pnpm prepare
+
       - name: Build Create Arkstack
         run: |
           cd create-arkstack
