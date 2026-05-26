@@ -5,7 +5,7 @@ import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
 import { H3 } from 'h3'
 import { Router } from '@arkstack/driver-h3'
 
-export default class Application implements ArkstackRouterAwareCore<H3, unknown> {
+export default class Application extends ArkstackRouterAwareCore<H3, unknown> {
   private app: H3
   private static app: H3
   private driver: ArkstackKitDriver<H3, H3Middleware>
@@ -17,6 +17,7 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
    * @param app 
    */
   constructor(app?: H3) {
+    super()
     this.driver = new H3Driver({
       bindRouter: async (runtime) => {
         await Router.bind(runtime)
@@ -72,9 +73,10 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
    * Boots the application by mounting public assets, binding the 
    * router, applying middleware, and starting the server.
    * 
-   * @param port 
+   * @param port      The numeric port to run the server on
+   * @param dontStart Set to true to skip server startup
    */
-  public async boot (port: number) {
+  public async boot (port: number, dontStart = false) {
     if (Hook.has('boot', 'before')) Hook.get('boot', 'before')?.(port, this.app)
 
     // Load public assets
@@ -87,7 +89,9 @@ export default class Application implements ArkstackRouterAwareCore<H3, unknown>
     await this.driver.bindRouter(this.app)
 
     // Start the server
-    await this.driver.start(this.app, port)
+    if (dontStart !== true) {
+      await this.driver.start(this.app, port)
+    }
 
     if (Hook.has('boot', 'after')) Hook.get('boot', 'after')?.(port, this.app)
 

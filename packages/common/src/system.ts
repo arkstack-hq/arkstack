@@ -1,5 +1,6 @@
 import { ConfigRegistry, DotPath, GlobalConfig, GlobalEnv } from './types'
 
+import { Dirent } from 'node:fs'
 import { Obj } from '@h3ravel/support'
 import { createJiti } from 'jiti'
 import { createRequire } from 'module'
@@ -102,19 +103,24 @@ export const config: GlobalConfig = <
             : process.env
     }
 
+    let files: Dirent<string>[]
     const dist = path.relative(process.cwd(), outputDir())
     const require = createRequire(import.meta.url)
 
-    const files = readdirSync(path.join(process.cwd(), `${dist}/config`), {
-        withFileTypes: true,
-    }).filter((file) => {
-        if (file.name.includes('middleware') && globalThis.arkctx?.runtime === 'CLI')
-            return false
+    try {
+        files = readdirSync(path.join(process.cwd(), `${dist}/config`), {
+            withFileTypes: true,
+        }).filter((file) => {
+            if (file.name.includes('middleware') && globalThis.arkctx?.runtime === 'CLI')
+                return false
 
-        return (
-            file.isFile() && (file.name.endsWith('.js') || file.name.endsWith('.ts'))
-        )
-    })
+            return (
+                file.isFile() && (file.name.endsWith('.js') || file.name.endsWith('.ts'))
+            )
+        })
+    } catch {
+        files = [] as Dirent<string>[]
+    }
 
     const config = files.reduce(
         (configs, file) => {

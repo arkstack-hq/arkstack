@@ -78,6 +78,8 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
         app: Express,
         middleware: Handler | ArkstackMiddlewareConfig<Handler>,
     ): void {
+        if (!middleware) return
+
         if (typeof middleware === 'function') {
             app.use(middleware)
 

@@ -5,7 +5,7 @@ import { ExpressDriver } from '@arkstack/driver-express'
 import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { type Express, type Handler } from 'express'
 
-export default class Application extends ArkstackRouterAwareCore<Express, unknown> {
+export default class Application implements ArkstackRouterAwareCore<Express, unknown> {
   private app: Express
   private static app: Express
   private driver: ArkstackKitDriver<Express, Handler>
@@ -18,7 +18,6 @@ export default class Application extends ArkstackRouterAwareCore<Express, unknow
    * @param app 
    */
   constructor(app?: Express) {
-    super()
     this.driver = new ExpressDriver({
       bindRouter: async (runtime) => {
         runtime.use(await Router.bind())
@@ -74,10 +73,9 @@ export default class Application extends ArkstackRouterAwareCore<Express, unknow
    * Boots the application by mounting public assets, binding the 
    * router, applying middleware, and starting the server.
    * 
-   * @param port      The numeric port to run the server on
-   * @param dontStart Set to true to skip server startup
+   * @param port 
    */
-  public async boot (port: number, dontStart = false) {
+  public async boot (port: number) {
     if (Hook.has('boot', 'before')) Hook.get('boot', 'before')?.(port, this.app)
 
     // Load public assets
@@ -93,9 +91,7 @@ export default class Application extends ArkstackRouterAwareCore<Express, unknow
     await this.driver.registerErrorHandler?.(this.app)
 
     // Start the server
-    if (dontStart !== true) {
-      await this.driver.start(this.app, port)
-    }
+    await this.driver.start(this.app, port)
 
     if (Hook.has('boot', 'after')) Hook.get('boot', 'after')?.(port, this.app)
 
@@ -104,7 +100,7 @@ export default class Application extends ArkstackRouterAwareCore<Express, unknow
   }
 
   /**
-   * Shuts down the application by disconnecting from the database and exiting the process.
+   * Shuts down the application and exits the process.
    */
   async shutdown () {
     if (Hook.has('shutdown', 'before')) Hook.get('shutdown', 'after')?.()

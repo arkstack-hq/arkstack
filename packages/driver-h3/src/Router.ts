@@ -7,6 +7,7 @@ import { clearRouterH3Plugin } from '@resora/plugin-clear-router'
 import { importFile } from '@arkstack/common'
 import { join } from 'node:path'
 import { registerPlugin } from 'resora'
+import { stat } from 'node:fs/promises'
 
 registerPlugin(clearRouterH3Plugin)
 ClearRouter.configure({
@@ -15,17 +16,23 @@ ClearRouter.configure({
 
 export class Router extends ClearRouter {
   static async bind (app: H3): Promise<H3App> {
+
+    // Register API routes
     try {
-      // Register API routes
-      await ClearRouter.group('/api', async () => {
-        await importFile(join(process.cwd(), 'src/routes/api.ts'))
-      })
+      if ((await stat(join(process.cwd(), 'src/routes/api.ts'))).isFile()) {
+        await ClearRouter.group('/api', async () => {
+          await importFile(join(process.cwd(), 'src/routes/api.ts'))
+        })
+      }
+    } catch { /** */ }
 
-      // Register web routes
-      await ClearRouter.group('/', async () => {
-        await importFile(join(process.cwd(), 'src/routes/web.ts'))
-      })
-
+    // Register web routes
+    try {
+      if ((await stat(join(process.cwd(), 'src/routes/web.ts'))).isFile()) {
+        await ClearRouter.group('/', async () => {
+          await importFile(join(process.cwd(), 'src/routes/web.ts'))
+        })
+      }
     } catch { /** */ }
 
     // Apply the registered routes to the H3 application

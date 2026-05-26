@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { existsSync, mkdirSync } from 'node:fs'
 
 import { BuildInterfaces } from './prepare/BuildInterfaces'

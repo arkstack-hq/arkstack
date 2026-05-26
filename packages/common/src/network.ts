@@ -21,7 +21,6 @@ export const bootWithDetectedPort = async (
   await initializeGlobalContext()
 }
 
-
 export const renderError = ({
   message = 'An unexpected error occurred.',
   stack,
