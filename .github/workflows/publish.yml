@@ -130,8 +130,10 @@ jobs:
       - name: Run linter
         run: pnpm lint
 
-      - name: Build Templates
-        run: pnpm -w run build:templates
+       - name: Build Templates
+        run: |
+          pnpm prepare
+          pnpm -w run build:templates
 
       - name: Rebuild Console
         run: |

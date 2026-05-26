@@ -67,7 +67,9 @@ jobs:
           pnpm install --frozen-lockfile
 
       - name: Build Templates
-        run: pnpm -w run build:templates
+        run: |
+          pnpm prepare
+          pnpm -w run build:templates
 
       - name: Run database migrations
         run: pnpm arkorm migrate:fresh;
