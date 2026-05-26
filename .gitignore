@@ -14,3 +14,5 @@ docs/architecture/unification-roadmap.md
 .arkormx
 docs/.vitepress/.temp
 docs/.vitepress/cache
+
+/arkstack-express
