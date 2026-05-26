@@ -57,20 +57,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build Console
-        run: |
-          pnpm --filter @arkstack/console run build
-          pnpm install --frozen-lockfile
-
       - name: Build Templates
         run: |
           pnpm -w run build:templates
           pnpm prepare
 
-       - name: Prepare Templates
+      - name: Rebuild Console
         run: |
-          cd templates/express && pnpm prepare
-          cd ../h3 && pnpm prepare
+          pnpm --filter @arkstack/console run build
+          pnpm install --frozen-lockfile
 
       - name: Run linter
         run: pnpm lint
