@@ -1,11 +1,11 @@
 import type { ViewComposer, ViewComposerName, ViewData, ViewFactoryOptions, ViewName } from './types'
 import { mergeData, normalizeViewData, runComposer, runComposerSync } from './helpers'
 import { parsePackageViewName, resolvePackageViewsPath } from './packageViews'
-import { getViewData } from './viewContext'
 
 import { Edge } from 'edge.js'
 import { ViewInstance } from './ViewInstance'
 import { existsSync } from 'node:fs'
+import { getViewData } from './viewContext'
 import { resolve } from 'node:path'
 
 export class ViewFactory {
@@ -23,8 +23,8 @@ export class ViewFactory {
 
     make (name: ViewName, data: ViewData = {}) {
         const edgeName = this.resolveName(name)
-        
-return new ViewInstance(
+
+        return new ViewInstance(
             name,
             normalizeViewData({ ...this.sharedData, ...getViewData(), ...data }),
             this.edge,
