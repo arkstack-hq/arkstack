@@ -1,6 +1,12 @@
+import { existsSync, mkdirSync } from 'node:fs'
+
 import { BuildInterfaces } from './prepare/BuildInterfaces'
 import chalk from 'chalk'
+import path from 'node:path'
 import { spawn } from 'node:child_process'
+
+if (!existsSync(path.join(process.cwd(), '.arkstack/build')))
+    mkdirSync(path.join(process.cwd(), '.arkstack/build'))
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
