@@ -1,7 +1,10 @@
 import { DbNotification, MailNotification, Notification, SmsNotification, UserNotification as UserNotificationAbs, UserNotificationCenter, configure, interpolate } from '../src'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 
 import { View } from '@arkstack/view'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 
 View.boot()
 
@@ -11,6 +14,19 @@ const mocks = vi.hoisted(() => {
     const sendMail = vi.fn(async payload => ({
         accepted: payload.to,
         messageId: 'test-message-id',
+    }))
+    const createTransport = vi.fn((options?: Record<string, any>) => ({
+        sendMail: options?.streamTransport
+            ? vi.fn(async payload => {
+                const result = await sendMail(payload)
+
+                return {
+                    ...result,
+                    envelope: { from: payload.from, to: payload.to },
+                    message: Buffer.from('Subject: ' + payload.subject + '\n\n' + payload.text),
+                }
+            })
+            : sendMail,
     }))
     const create = vi.fn(async payload => ({
         id: 1,
@@ -55,6 +71,7 @@ const mocks = vi.hoisted(() => {
         env,
         getModel,
         sendMail,
+        createTransport,
         twilioCreate,
         deleteQuery,
         get,
@@ -74,9 +91,7 @@ vi.mock('africastalking', () => ({
 
 vi.mock('nodemailer', () => ({
     default: {
-        createTransport: vi.fn(() => ({
-            sendMail: mocks.sendMail,
-        })),
+        createTransport: mocks.createTransport,
     },
 }))
 
@@ -257,6 +272,51 @@ describe('Notification', () => {
         expect(mocks.sendMail).toHaveBeenCalledWith(expect.objectContaining({
             to: ['ada@example.com', 'mailbox@arkstack.test'],
         }))
+    })
+
+    it('stores file transport mails as date-grouped JSON files', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'arkstack-mails-'))
+
+        try {
+            mocks.config.mockImplementation((key: string, defaultValue?: unknown) => {
+                if (key === 'notifications.drivers.mail') {
+                    return {
+                        transport: 'file',
+                        from: 'configured@arkstack.test',
+                    }
+                }
+
+                if (key === 'notifications.transports.file') {
+                    return { directory }
+                }
+
+                return defaultValue
+            })
+
+            await Notification.mail()
+                .recipient('ada@example.com')
+                .subject('Stored')
+                .send('File mail works')
+
+            expect(mocks.createTransport).toHaveBeenCalledWith({
+                streamTransport: true,
+                buffer: true,
+            })
+
+            const date = new Date().toISOString().slice(0, 10)
+            const files = await readdir(join(directory, date))
+            const stored = JSON.parse(await readFile(join(directory, date, files[0]), 'utf8'))
+
+            expect(stored.message).toMatchObject({
+                from: 'configured@arkstack.test',
+                subject: 'Stored',
+                text: 'File mail works',
+            })
+            expect(stored.message.to).toEqual(['ada@example.com'])
+            expect(stored.message.raw).toContain('Subject: Stored')
+        } finally {
+            await rm(directory, { recursive: true, force: true })
+        }
     })
 
     it('throws when mail recipients are missing', async () => {

@@ -1,12 +1,12 @@
 import '../../http/src/setup'
 
+import { decodeJson, decryptSessionValue, web } from '../../http/src'
 import { describe, expect, it } from 'vitest'
 
 import { Router as ClearRouter } from 'clear-router/h3'
 import { H3 } from 'h3'
 import { defaultErrorHandler } from '../src/error-handler'
 import request from 'parasito'
-import { decodeJson, decodeSignedValue, web } from '../../http/src'
 
 const createRouter = (name: string) => class TestRouter extends ClearRouter {
     protected static routerStateNamespace = `h3-web-validation:${name}`
@@ -25,7 +25,7 @@ const sessionCookiesFromHeader = (header: string | null | undefined) => {
 
 const cookiePayload = (cookie: string) => {
     const rawValue = cookie.split(';')[0]?.split('=').slice(1).join('=')
-    const decoded = decodeSignedValue(decodeURIComponent(rawValue), 'arkstack-session-secret')
+    const decoded = decryptSessionValue(decodeURIComponent(rawValue), 'arkstack-session-secret')
 
     return decodeJson<any>(decoded)
 }
@@ -42,7 +42,7 @@ describe('H3 web validation redirects', () => {
             throw validationError()
         }, [web])
 
-        Router.get('/errors', ({ errors }: any) => {
+        Router.get('/errors', ({ errors }) => {
             return {
                 email: errors.first('email'),
                 all: errors.toJSON(),

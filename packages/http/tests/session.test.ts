@@ -1,6 +1,6 @@
-import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FlashBag, FileSessionDriver, Request, Response, Session, ensureSession, kanunSessionPlugin, old, redirect, registerResponseFlashSweep } from '../src'
+import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FlashBag, FileSessionDriver, Request, Response, Session, decryptSessionValue, ensureSession, kanunSessionPlugin, old, redirect, registerResponseFlashSweep } from '../src'
 import { describe, expect, it } from 'vitest'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 
 import { CoreRouter } from 'clear-router/core'
 import { DB } from 'arkormx'
@@ -239,7 +239,7 @@ describe('HTTP Session', () => {
         expect(thirdSession.errors.toJSON()).toEqual({})
     })
 
-    it('persists cookie sessions across loads and keeps devices isolated', async () => {
+    it('persists encrypted cookie sessions across loads and keeps devices isolated', async () => {
         const driver = new CookieSessionDriver({ secret: 'test-secret', cookie: 'ark_test' })
         const first = makeCookieContext()
         const firstState = await driver.start(first)
@@ -248,6 +248,9 @@ describe('HTTP Session', () => {
         firstSession.put('notice', 'Saved')
         firstSession.addError('email', 'Email is required')
         await firstSession.save()
+
+        expect(first.cookie).not.toContain('Saved')
+        expect(decryptSessionValue(decodeURIComponent(first.cookie!.split('=')[1]), 'test-secret')).toBeTypeOf('string')
 
         const second = makeCookieContext(first.cookie)
         const secondState = await driver.start(second)
@@ -274,6 +277,10 @@ describe('HTTP Session', () => {
 
             firstSession.put('theme', 'dark')
             await firstSession.save()
+
+            const stored = await readFile(join(directory, firstSession.id + '.json'), 'utf8')
+            expect(stored).not.toContain('dark')
+            expect(decryptSessionValue(stored, 'test-secret')).toContain('dark')
 
             const second = makeCookieContext(first.cookie)
             const secondState = await driver.start(second)

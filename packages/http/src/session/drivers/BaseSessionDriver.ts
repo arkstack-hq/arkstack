@@ -1,5 +1,6 @@
 import { BaseSessionDriverOptions, HttpContextLike, SessionDriver, SessionDriverResult, cookie_options } from '../types'
 import { decodeSignedValue, encodeSignedValue, getCookie, setCookie } from '../cookie'
+import { decryptSessionValue, encryptSessionValue } from '../encryption'
 
 const defaultSecret = () =>
     String(
@@ -34,6 +35,14 @@ export abstract class BaseSessionDriver implements SessionDriver {
 
     protected readSessionId (context: HttpContextLike) {
         return decodeSignedValue(getCookie(context, this.cookie), this.secret)
+    }
+
+    protected encryptPayload (value: string) {
+        return encryptSessionValue(value, this.secret)
+    }
+
+    protected decryptPayload (value: string | undefined) {
+        return decryptSessionValue(value, this.secret)
     }
 
     protected writeSessionId (context: HttpContextLike, id: string) {

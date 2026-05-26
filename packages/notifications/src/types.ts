@@ -28,6 +28,7 @@ export type MailDriverOptions = {
     pass?: string
     from?: string
     testAddress?: string
+    directory?: string
 }
 
 export type SmsDriverOptions = {
@@ -67,7 +68,7 @@ export type NotificationDriverMap = {
 export interface NotificationConfig {
     default_driver: 'mail' | 'sms' | 'db'
     drivers: {
-        mail: { transport: 'smtp'; from: string; test_address: string }
+        mail: { transport: 'smtp' | 'file'; from: string; test_address: string }
         sms: { transport: 'africastalking'; from: string }
         db: { table: 'user_notifications' }
     }
@@ -85,7 +86,7 @@ export interface NotificationConfig {
             pass: string
             test_address?: string
         }
-        file: { directory: string }
+        file: { directory: string; from?: string; test_address?: string }
         africastalking: { username: string; apiKey: string; senderId: string }
         twilio: { accountSid: string; authToken: string; from: string }
     }

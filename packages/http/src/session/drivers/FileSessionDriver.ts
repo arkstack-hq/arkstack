@@ -24,9 +24,9 @@ export class FileSessionDriver extends BaseSessionDriver {
         this.writeSessionId(context, id)
         let state: SessionPayload | undefined
         try {
-            state = JSON.parse(
-                await readFile(this.path(id), 'utf8'),
-            ) as SessionPayload
+            const contents = await readFile(this.path(id), 'utf8')
+            const payload = this.decryptPayload(contents) ?? contents
+            state = JSON.parse(payload) as SessionPayload
         } catch {
             state = undefined
         }
@@ -34,7 +34,7 @@ export class FileSessionDriver extends BaseSessionDriver {
         const save = async (payload: SessionPayload) => {
             const path = this.path(id)
             await mkdir(dirname(path), { recursive: true })
-            await writeFile(path, JSON.stringify(payload), 'utf8')
+            await writeFile(path, this.encryptPayload(JSON.stringify(payload)), 'utf8')
             this.writeSessionId(context, id)
         }
 

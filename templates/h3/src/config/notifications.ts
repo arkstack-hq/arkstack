@@ -16,9 +16,9 @@ export default (): NotificationConfig => {
          */
         drivers: {
             mail: {
-                transport: 'smtp',
-                from: env('SMTP_FROM_ADDRESS', 'no-reply@example.com'),
-                test_address: env('SMTP_TEST_ADDRESS'),
+                transport: env('MAIL_TRANSPORT', 'smtp') as 'smtp' | 'file',
+                from: env('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
+                test_address: env('MAIL_TEST_ADDRESS'),
             },
             sms: {
                 transport: 'africastalking',
@@ -35,12 +35,12 @@ export default (): NotificationConfig => {
              * Outgoing notifications will be sent as mail using SMTP.
              */
             smtp: {
-                host: env('SMTP_HOST', 'localhost'),
-                port: env('SMTP_PORT', 1025),
-                secure: env('SMTP_SECURE', false),
+                host: env('MAIL_HOST', 'localhost'),
+                port: env('MAIL_PORT', 1025),
+                secure: env('MAIL_SECURE', false),
                 auth: {
-                    user: env('SMTP_USERNAME', 'user@example.com'),
-                    pass: env('SMTP_PASSWORD', 'password'),
+                    user: env('MAIL_USERNAME', 'user@example.com'),
+                    pass: env('MAIL_PASSWORD', 'password'),
                 },
             },
 

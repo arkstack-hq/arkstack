@@ -30,7 +30,7 @@ export default () => ({
   drivers: {
     mail: {
       transport: 'smtp',
-      from: env('SMTP_FROM_ADDRESS', 'no-reply@example.com'),
+      from: env('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
     },
     sms: {
       transport: 'africastalking',
@@ -42,8 +42,8 @@ export default () => ({
   },
   transports: {
     smtp: {
-      host: env('SMTP_HOST', 'localhost'),
-      port: env('SMTP_PORT', 1025),
+      host: env('MAIL_HOST', 'localhost'),
+      port: env('MAIL_PORT', 1025),
     },
     africastalking: {
       username: env('AFRICASTALKING_USERNAME', 'sandbox'),

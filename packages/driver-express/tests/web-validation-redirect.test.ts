@@ -1,6 +1,6 @@
 import '../../http/src/setup'
 
-import { decodeJson, decodeSignedValue, web } from '../../http/src'
+import { decodeJson, decryptSessionValue, web } from '../../http/src'
 import { describe, expect, it } from 'vitest'
 
 import { Router as ClearRouter } from 'clear-router/express'
@@ -33,7 +33,7 @@ const captureCookie = (value: unknown, cookies: string[]) => {
 
 const cookiePayload = (cookie: string) => {
     const rawValue = cookie.split(';')[0]?.split('=').slice(1).join('=')
-    const decoded = decodeSignedValue(decodeURIComponent(rawValue), 'arkstack-session-secret')
+    const decoded = decryptSessionValue(decodeURIComponent(rawValue), 'arkstack-session-secret')
 
     return decodeJson<any>(decoded)
 }
@@ -87,7 +87,7 @@ describe('Express web validation redirects', () => {
             })
         }, [web])
 
-        await Router.apply(router)
+        Router.apply(router)
         app.use(router)
         app.use(defaultErrorHandler)
 

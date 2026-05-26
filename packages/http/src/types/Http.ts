@@ -1,16 +1,11 @@
-import type { ErrorBag, Session } from '../session'
-
 import type { Request } from '../Request'
 import { Response } from '../Response'
+import type { Session } from '../session'
 
 export type HeaderValue = string | string[] | number | boolean | null | undefined
 export type HeaderMap = Record<string, string>
 export type HeaderSource = Headers | Record<string, HeaderValue>
 
-
-export interface HttpContext {
-    errors: ErrorBag
-}
 
 export type RequestSource<TUser = unknown> = {
     headers?: HeaderSource;

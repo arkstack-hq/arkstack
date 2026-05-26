@@ -35,8 +35,8 @@ export default () => ({
   drivers: {
     mail: {
       transport: 'smtp',
-      from: env('SMTP_FROM_ADDRESS', 'no-reply@example.com'),
-      test_address: env('SMTP_TEST_ADDRESS'),
+      from: env('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
+      test_address: env('MAIL_TEST_ADDRESS'),
     },
     sms: {
       transport: env('SMS_TRANSPORT', 'africastalking'),
@@ -48,9 +48,9 @@ export default () => ({
   },
   transports: {
     smtp: {
-      host: env('SMTP_HOST', 'localhost'),
-      port: env('SMTP_PORT', 1025),
-      secure: env('SMTP_SECURE', false),
+      host: env('MAIL_HOST', 'localhost'),
+      port: env('MAIL_PORT', 1025),
+      secure: env('MAIL_SECURE', false),
       auth: {
         user: env('SMTP_USER'),
         pass: env('SMTP_PASS'),
