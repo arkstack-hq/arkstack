@@ -127,6 +127,11 @@ jobs:
           git commit -m "chore: prepare release v${{ steps.release_version.outputs.version }}"
           git push
 
+      - name: Build Console
+        run: |
+          pnpm --filter @arkstack/console run build
+          pnpm install --frozen-lockfile
+
       - name: Run linter
         run: pnpm lint
 
@@ -134,11 +139,6 @@ jobs:
         run: |
           pnpm prepare
           pnpm -w run build:templates
-
-      - name: Rebuild Console
-        run: |
-          pnpm --filter @arkstack/console run build
-          pnpm install --frozen-lockfile
 
       - name: Build Create Arkstack
         run: |
