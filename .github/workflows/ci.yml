@@ -62,13 +62,18 @@ jobs:
           pnpm --filter @arkstack/console run build
           pnpm install --frozen-lockfile
 
-      - name: Run linter
-        run: pnpm lint
-
       - name: Build Templates
         run: |
           pnpm -w run build:templates
           pnpm prepare
+
+       - name: Prepare Templates
+        run: |
+          cd templates/express && pnpm prepare
+          cd ../h3 && pnpm prepare
+
+      - name: Run linter
+        run: pnpm lint
 
       - name: Run database migrations
         run: pnpm arkorm migrate:fresh;
