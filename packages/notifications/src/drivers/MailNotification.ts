@@ -14,6 +14,7 @@ import type {
     NotificationData,
 } from '../types'
 import type { User } from '@arkstack/auth'
+import { Arkstack } from '@arkstack/contract'
 
 export class MailNotification extends NotificationContract {
     driver: Transporter
@@ -39,7 +40,7 @@ export class MailNotification extends NotificationContract {
             this.fileDirectory =
                 options.directory ??
                 transport.directory ??
-                env('MAIL_NOTIFICATION_FILE_PATH', 'storage/framework/mails')
+                env('MAIL_FILE_PATH', join(Arkstack.rootDir(), './storage/framework/mails'))
 
             this.fromAddress =
                 options.from ??

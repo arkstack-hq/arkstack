@@ -1,4 +1,6 @@
+import { Arkstack } from '@arkstack/contract'
 import { NotificationConfig } from '@arkstack/notifications'
+import { join } from 'node:path'
 
 export default (): NotificationConfig => {
     return {
@@ -56,7 +58,7 @@ export default (): NotificationConfig => {
                  * 
                  * Outgoing mails will be intercepted and stored in this directory.
                  */
-                directory: env('MAIL_NOTIFICATION_FILE_PATH', 'storage/framework/mails'),
+                directory: env('MAIL_FILE_PATH', join(Arkstack.rootDir(), './storage/framework/mails')),
             },
 
             /**

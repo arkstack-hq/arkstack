@@ -106,7 +106,7 @@ export const getPath = <T = any> (source: Record<string, any>, key: string, defa
             return undefined
         }
 
-        return current[part]
+        return current[part as never]
     }, source)
 
     return (typeof value === 'undefined' ? defaultValue : value) as T

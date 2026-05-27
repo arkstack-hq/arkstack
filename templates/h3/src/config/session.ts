@@ -1,7 +1,9 @@
-import { ENV } from '@arkstack/contract'
+import { Arkstack, ENV } from '@arkstack/contract'
+
 import { SessionConfig } from '@arkstack/http'
 import { Str } from '@h3ravel/support'
 import appConfig from './app'
+import { join } from 'node:path'
 
 export default (): SessionConfig => {
     const app = appConfig()
@@ -83,6 +85,6 @@ export default (): SessionConfig => {
          * 
          * For the "file" session driver, the session files are placed in this directory.
          */
-        directory: env('SESSION_FILE_PATH', 'storage/framework/sessions'),
+        directory: env('SESSION_FILE_PATH', join(Arkstack.rootDir(), './storage/framework/sessions')),
     }
 }

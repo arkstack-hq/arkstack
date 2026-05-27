@@ -442,6 +442,9 @@ importers:
       '@arkstack/common':
         specifier: workspace:^
         version: link:../common
+      '@arkstack/contract':
+        specifier: workspace:^
+        version: link:../contract
       '@arkstack/database':
         specifier: workspace:^
         version: link:../database
