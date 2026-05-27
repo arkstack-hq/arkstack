@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/filesystem",
-    "version": "0.10.8",
+    "version": "0.10.9",
     "type": "module",
     "description": "Filesystem module for Arkstack, providing shared file storage and filesystem utitlities for the framework.",
     "homepage": "https://arkstack.toneflix.net",
