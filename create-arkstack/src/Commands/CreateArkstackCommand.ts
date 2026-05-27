@@ -133,7 +133,7 @@ export class CreateArkstackCommand extends Command {
           type: 'input',
           name: 'token',
           message: 'Authentication token:',
-          when: () => options.kit && !options.token,
+          when: () => kit.locked && !options.token,
         },
         {
           type: 'confirm',

@@ -6,6 +6,7 @@ export interface Template {
     hint: string;
     source: string;
     lean?: boolean;
+    locked?: boolean;
     baseAlias?: 'express' | 'h3';
     prereleaseSource?: string;
 }
