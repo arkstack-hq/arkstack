@@ -4,7 +4,6 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 
 import { Arkstack } from '@arkstack/contract'
 import { Session } from '../../http/src'
-import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
