@@ -32,7 +32,7 @@ describe('makeLeanProfile', () => {
         await writeFile(join(location, 'src/app/models/UserModel.ts'), 'export default class UserModel {}\n')
         await writeFile(join(location, 'src/database/migrations/0000_initial.ts'), 'export default class InitialMigration {}\n')
         await writeFile(join(location, 'src/core/database.ts'), 'export const prisma = {} as any;\n')
-        await writeFile(join(location, 'src/core/bootstrap.ts'), 'import \'@arkstack/database/setup\';')
+        await writeFile(join(location, 'src/core/bootstrap.ts'), 'import \'@arkstack/database/setup\'')
         await writeFile(join(location, 'prisma.config.ts'), 'export default {};\n')
         await writeFile(join(location, 'arkormx.config.ts'), 'export default {};\n')
         await writeFile(join(location, 'prisma/migrations/migration_lock.toml'), '# lock\n')
@@ -104,6 +104,6 @@ describe('makeLeanProfile', () => {
         expect(appContent).not.toContain('import { ModelNotFoundException } from \'arkormx\'')
 
         const bootContent = await readFile(join(location, 'src/core/bootstrap.ts'), 'utf-8')
-        expect(bootContent).not.toContain('import \'@arkstack/database/setup\';')
+        expect(bootContent).not.toContain('import \'@arkstack/database/setup\'')
     })
 })
