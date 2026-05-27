@@ -17,9 +17,6 @@
     "noImplicitAny": true,
     "removeComments": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "paths": {
-      // "@h3ravel/filesystem": ["./packages/filesystem/src/index.ts"]
-    }
+    "emitDecoratorMetadata": true
   }
 }
