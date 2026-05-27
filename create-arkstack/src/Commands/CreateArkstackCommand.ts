@@ -19,6 +19,7 @@ export class CreateArkstackCommand extends Command {
         {--t|token?: Kit repo authentication token.}
         {--d|desc?: Project Description.}
         {--k|kit?: Runtime template.}
+        {--l|lean: Make a lean project.}
         {--p|pre: Download prerelease version if available.}
         {--o|overwrite: Overwrite the installation directory if it is not empty.}
     `
@@ -67,7 +68,7 @@ export class CreateArkstackCommand extends Command {
             value: e.lean,
           })),
           default: 'full',
-          when: () => !options.kit,
+          when: () => !options.lean,
         },
         {
           type: 'input',
@@ -117,7 +118,7 @@ export class CreateArkstackCommand extends Command {
      * Find selected template kit
      */
     const kit = templates.find((e) => e.alias === template)!
-    kit.lean = lean ?? false
+    kit.lean = options.lean ?? lean ?? false
 
     let { install, token, pre } = await inquirer
       .prompt([
