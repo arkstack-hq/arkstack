@@ -1,7 +1,7 @@
 {
   "name": "create-arkstack",
   "type": "module",
-  "version": "0.10.4",
+  "version": "0.10.5",
   "description": "Create new Arkstack framework applications on Express or H3 runtime drivers",
   "homepage": "https://arkstack.toneflix.net",
   "repository": {
