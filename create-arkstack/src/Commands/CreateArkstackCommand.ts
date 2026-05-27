@@ -18,7 +18,7 @@ export class CreateArkstackCommand extends Command {
         {--i|install: Install node_modules right away}
         {--t|token?: Kit repo authentication token.}
         {--d|desc?: Project Description.}
-        {--k|kit?: Runtime template.}
+        {--k|kit?: Runtime template. [${templates.map(e => e.alias).join(',')}]}
         {--l|lean: Make a lean project.}
         {--p|pre: Download prerelease version if available.}
         {--o|overwrite: Overwrite the installation directory if it is not empty.}
