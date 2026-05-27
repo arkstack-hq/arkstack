@@ -64,7 +64,7 @@ export class CreateArkstackCommand extends Command {
           name: 'lean',
           message: 'Project Scope:',
           choices: projectScopes.map((e) => ({
-            name: `${e.name} - ${e.hint.replace('{template}', Str.title(template))}`,
+            name: `${e.name} - ${e.hint.replace('{template}', Str.title(options.kit || template))}`,
             value: e.lean,
           })),
           default: 'full',
@@ -74,15 +74,15 @@ export class CreateArkstackCommand extends Command {
           type: 'input',
           name: 'appName',
           message: 'What is the name of your project:',
-          default: `arkstack-${template}`,
-          // default: defaultName ?? `arkstack-${template}`,
+          default: `arkstack-${options.kit || template}`,
+          // default: defaultName ?? `arkstack-${options.kit || template}`,
           when: () => !options.name,
         },
         {
           type: 'input',
           name: 'description',
           message: 'Project Description:',
-          default: `Simple ${Str.of(template).ucfirst()}.js project created with Arkstack.`,
+          default: `Simple ${Str.of(options.kit || template).ucfirst()}.js project created with Arkstack.`,
           when: () => !options.desc,
         },
       ])
