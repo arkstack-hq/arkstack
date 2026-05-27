@@ -1,9 +1,9 @@
-import { Auth, AuthenticationException } from '@arkstack/auth'
-
 import type { H3Event } from 'h3'
 import { Hook } from '@arkstack/common'
 
 export const auth = async (event: H3Event, next: () => unknown | Promise<unknown>) => {
+    const { Auth, AuthenticationException } = await import('@arkstack/auth')
+
     try {
         const token = readBearerToken(event.req.headers.get('authorization'))
 

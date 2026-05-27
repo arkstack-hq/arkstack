@@ -1,9 +1,9 @@
-import { Auth, AuthenticationException } from '@arkstack/auth'
-
 import type { Handler } from 'express'
 import { Hook } from '@arkstack/common'
 
 export const auth: Handler = async (req, res, next) => {
+    const { Auth, AuthenticationException } = await import('@arkstack/auth')
+
     try {
         if (Hook.has('middleware:auth', 'before'))
             await Promise.resolve(Hook.get('middleware:auth', 'before')?.({ req, res }))
