@@ -84,7 +84,7 @@ export default class {
    */
   async installPackage (name?: string, args: string[] = []) {
     const bcmd = await Resolver.getPakageInstallCommand() + (name ? ` ${name}` : '')
-    const cmd = bcmd.split(' ')[0]
+    const cmd = bcmd?.split(' ')[0]
     if (bcmd.includes(' ')) {
       args.unshift(...bcmd.split(' ').slice(1))
     }

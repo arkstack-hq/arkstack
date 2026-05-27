@@ -117,8 +117,8 @@ export class CreateArkstackCommand extends Command {
     /**
      * Find selected template kit
      */
-    const kit = templates.find((e) => e.alias === template)!
-    kit.lean = options.lean ?? lean ?? false
+    const kit = templates.find((e) => e.alias === (options.kit || template))!
+    kit.lean = options.lean || lean || false
 
     let { install, token, pre } = await inquirer
       .prompt([
