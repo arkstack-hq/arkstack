@@ -1,8 +1,10 @@
 import { View, ViewFactory, ViewInstance, clearRouterViewPlugin, clearViewData, runWithViewData, view } from '../src'
-import { Session } from '../../http/src'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 
+import { Arkstack } from '@arkstack/contract'
+import { Session } from '../../http/src'
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -193,12 +195,14 @@ describe('View', () => {
 
     it('renders unscoped package views with tilde notation', async () => {
         const root = await mkdtemp(join(tmpdir(), 'arkstack-package-view-'))
-        const previous = process.cwd()
+        Arkstack.setRootDir(root)
+        const previous = Arkstack.rootDir()
 
         process.chdir(root)
 
         try {
             const packageViews = join(root, 'node_modules', 'billing-kit', 'resources', 'views')
+
             await mkdir(packageViews, { recursive: true })
             await writeFile(join(packageViews, 'mail.edge'), 'Invoice {{ number }}')
 
@@ -214,7 +218,8 @@ describe('View', () => {
 
     it('renders scoped package views with tilde notation', async () => {
         const root = await mkdtemp(join(tmpdir(), 'arkstack-scoped-package-view-'))
-        const previous = process.cwd()
+        Arkstack.setRootDir(root)
+        const previous = Arkstack.rootDir()
 
         process.chdir(root)
 
