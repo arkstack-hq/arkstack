@@ -1,5 +1,6 @@
 import { ConfigRegistry, DotPath, GlobalConfig, GlobalEnv } from './types'
 
+import { Arkstack } from '@arkstack/contract'
 import { Dirent } from 'node:fs'
 import { Obj } from '@h3ravel/support'
 import { createJiti } from 'jiti'
@@ -104,11 +105,11 @@ export const config: GlobalConfig = <
     }
 
     let files: Dirent<string>[]
-    const dist = path.relative(process.cwd(), outputDir())
+    const dist = path.relative(Arkstack.rootDir(), outputDir())
     const require = createRequire(import.meta.url)
 
     try {
-        files = readdirSync(path.join(process.cwd(), `${dist}/config`), {
+        files = readdirSync(path.join(Arkstack.rootDir(), `${dist}/config`), {
             withFileTypes: true,
         }).filter((file) => {
             if (file.name.includes('middleware') && globalThis.arkctx?.runtime === 'CLI')
@@ -160,10 +161,12 @@ export const nodeEnv = () => {
 /**
  * Gets the output directory for the application based on the current environment.
  *
- * @param cwd  The current working directory (optional, defaults to process.cwd()).
+ * @param cwd  The current working directory (optional, defaults to Arkstack.rootDir()).
  * @returns
  */
-export const outputDir = (cwd = process.cwd()) => {
+export const outputDir = (cwd?: string) => {
+    cwd ??= Arkstack.rootDir()
+
     const NODE_ENV = nodeEnv()
 
     const output = {

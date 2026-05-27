@@ -26,12 +26,16 @@ Optional method:
 - `bind(app)` — binds discovered routes into the runtime.
 - `list(options?, app?)` — returns route metadata used by `route:list`.
 
-### `ArkstackRouterAwareCore<TApp, TRoutes>`
+### `Arkstack<TApp, TRoutes>`
 
 Application core implementations expose:
 
 - `getAppInstance()`
 - `getRouter()`
+- `startup()`
+- `boot()`
+- `setRootDir()`
+- `getRootDir()`
 
 ## Shared Console Runtime
 

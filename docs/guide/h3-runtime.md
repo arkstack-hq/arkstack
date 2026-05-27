@@ -96,7 +96,7 @@ H3 mounts the `public` directory automatically during `app.boot(port)` through `
 
 Default behavior:
 
-- serves files from `process.cwd()/public`
+- serves files from `Arkstack.rootDir()/public`
 - only handles requests that look like asset paths
 - blocks dotfiles and path traversal attempts
 - applies long-lived cache headers and permissive CORS headers

@@ -33,10 +33,11 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
+        "@arkstack/contract": "workspace:^",
         "clear-router": "^2.7.7"
     },
     "peerDependencies": {
-        "kanun": "^1.2.0",
-        "arkormx": "^2.4.1"
+        "arkormx": "^2.4.1",
+        "kanun": "^1.2.0"
     }
 }

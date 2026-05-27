@@ -1,9 +1,11 @@
 import { H3Event, serveStatic } from 'h3'
-import { readFile, stat } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import { readFile, stat } from 'node:fs/promises'
+
+import { Arkstack } from '@arkstack/contract'
 
 export const staticAssetHandler = (publicPath: string = 'public') => {
-    const rootPath = resolve(process.cwd(), publicPath)
+    const rootPath = resolve(Arkstack.rootDir(), publicPath)
 
     return (event: H3Event) => {
         const { pathname } = new URL(event.req.url)

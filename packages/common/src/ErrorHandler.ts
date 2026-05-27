@@ -1,6 +1,7 @@
 import pino, { type Logger as PinoLogger } from 'pino'
 import path from 'node:path'
 import { ArkstackErrorPayload, ArkstackErrorShape } from './types'
+import { Arkstack } from '@arkstack/contract'
 
 export class ErrorHandler {
     private static loggerCache = new Map<string, PinoLogger>()
@@ -20,7 +21,7 @@ export class ErrorHandler {
     }
 
     static getErrorLogger () {
-        const destination = path.resolve(process.cwd(), 'storage/logs/error.log')
+        const destination = path.resolve(Arkstack.rootDir(), 'storage/logs/error.log')
 
         if (!ErrorHandler.loggerCache.has(destination)) {
             ErrorHandler.loggerCache.set(destination, pino({

@@ -2,6 +2,7 @@ import type { ViewComposer, ViewComposerName, ViewData, ViewFactoryOptions, View
 import { mergeData, normalizeViewData, runComposer, runComposerSync } from './helpers'
 import { parsePackageViewName, resolvePackageViewsPath } from './packageViews'
 
+import { Arkstack } from '@arkstack/contract'
 import { Edge } from 'edge.js'
 import { ViewInstance } from './ViewInstance'
 import { existsSync } from 'node:fs'
@@ -18,7 +19,7 @@ export class ViewFactory {
     constructor(options: ViewFactoryOptions = {}) {
         this.edge = options.edge ?? Edge.create({ cache: options.cache })
         this.packageViewsPath = options.packageViewsPath ?? 'resources/views'
-        this.mount(options.viewsPath ?? resolve(process.cwd(), 'src', 'resources', 'views'))
+        this.mount(options.viewsPath ?? resolve(Arkstack.rootDir(), 'src', 'resources', 'views'))
     }
 
     make (name: ViewName, data: ViewData = {}) {

@@ -1,12 +1,13 @@
 import { nodeEnv, outputDir } from '@arkstack/common'
 import { readFileSync, writeFileSync } from 'node:fs'
 
+import { Arkstack } from '@arkstack/contract'
 import { defineConfig } from 'tsdown'
 import path from 'node:path'
 import run from '@rollup/plugin-run'
 
 const env = nodeEnv()
-const dist = path.relative(process.cwd(), outputDir())
+const dist = path.relative(Arkstack.rootDir(), outputDir())
 
 export default defineConfig([
   {
@@ -31,7 +32,7 @@ export default defineConfig([
             }),
             execArgv: ['-r', 'source-map-support/register'],
             allowRestarts: true,
-            input: path.join(process.cwd(), 'src/server.ts'),
+            input: path.join(Arkstack.rootDir(), 'src/server.ts'),
           }),
         ]
         : [],
@@ -45,7 +46,7 @@ export default defineConfig([
       e.hook('build:done', async (e) => {
         for (let i = 0; i < e.chunks.length; i++) {
           const chunk = e.chunks[i]
-          if (chunk.fileName.endsWith('.js')) {
+          if (chunk && chunk.fileName.endsWith('.js')) {
             let code = readFileSync(path.join(chunk.outDir, chunk.fileName), 'utf-8')
             code = code.replace(/src\//g, `${dist}/`).replace(/(?<!\.d)\.ts(?=\b|$)/g, '.js')
             writeFileSync(path.join(chunk.outDir, chunk.fileName), code, 'utf-8')

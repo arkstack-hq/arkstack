@@ -1,10 +1,11 @@
+import { Arkstack } from '@arkstack/contract'
 import chalk from 'chalk'
 import { spawn } from 'node:child_process'
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 const child = spawn(command, ['exec', 'tsdown', '--log-level=silent'], {
-    cwd: process.cwd(),
+    cwd: Arkstack.rootDir(),
     stdio: 'inherit',
     env: Object.assign({}, process.env, {
         NODE_ENV,

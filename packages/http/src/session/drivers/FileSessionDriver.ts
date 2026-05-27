@@ -1,10 +1,11 @@
 import { BaseSessionDriverOptions, HttpContextLike, SessionDriverResult, SessionPayload } from '../types'
+import { decodeSessionPayload, encodeSessionPayload } from '../serialization'
 import { dirname, join } from 'node:path'
 import { generateSessionId, setCookie } from '../cookie'
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 
+import { Arkstack } from '@arkstack/contract'
 import { BaseSessionDriver } from './BaseSessionDriver'
-import { decodeSessionPayload, encodeSessionPayload } from '../serialization'
 
 export class FileSessionDriver extends BaseSessionDriver {
     readonly directory: string
@@ -13,7 +14,7 @@ export class FileSessionDriver extends BaseSessionDriver {
         super(options)
         this.directory =
             options.directory ||
-            join(process.cwd(), 'storage', 'framework', 'sessions')
+            join(Arkstack.rootDir(), 'storage', 'framework', 'sessions')
     }
 
     private path (id: string) {

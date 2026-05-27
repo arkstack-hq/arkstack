@@ -1,3 +1,4 @@
+import { Arkstack } from '@arkstack/contract'
 import { Command } from '@h3ravel/musket'
 import { resolve } from 'path'
 import { writeFile } from 'fs/promises'
@@ -17,7 +18,7 @@ export class MakeCommand extends Command {
         if (!name) return void this.error('Command name is required')
 
         const stubContent = this.stub(name)
-        const filePath = resolve(process.cwd(), 'src', `app/console/commands/${name}.ts`)
+        const filePath = resolve(Arkstack.rootDir(), 'src', `app/console/commands/${name}.ts`)
 
         await writeFile(filePath, stubContent, { flag: 'wx' })
         this.success(`Command ${name} created successfully at ${filePath}`)

@@ -1,4 +1,4 @@
-import { ArkstackRouteListOptions } from '@arkstack/contract'
+import { Arkstack, ArkstackRouteListOptions } from '@arkstack/contract'
 import { Router as ClearRouter } from 'clear-router/h3'
 import { H3 } from 'h3'
 import type { H3App, Handler, HttpContext, Middleware } from 'clear-router/types/h3'
@@ -19,18 +19,18 @@ export class Router extends ClearRouter {
 
     // Register API routes
     try {
-      if ((await stat(join(process.cwd(), 'src/routes/api.ts'))).isFile()) {
+      if ((await stat(join(Arkstack.rootDir(), 'src/routes/api.ts'))).isFile()) {
         await ClearRouter.group('/api', async () => {
-          await importFile(join(process.cwd(), 'src/routes/api.ts'))
+          await importFile(join(Arkstack.rootDir(), 'src/routes/api.ts'))
         })
       }
     } catch { /** */ }
 
     // Register web routes
     try {
-      if ((await stat(join(process.cwd(), 'src/routes/web.ts'))).isFile()) {
+      if ((await stat(join(Arkstack.rootDir(), 'src/routes/web.ts'))).isFile()) {
         await ClearRouter.group('/', async () => {
-          await importFile(join(process.cwd(), 'src/routes/web.ts'))
+          await importFile(join(Arkstack.rootDir(), 'src/routes/web.ts'))
         })
       }
     } catch { /** */ }

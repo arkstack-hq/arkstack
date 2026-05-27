@@ -2,13 +2,11 @@ import { bindGracefulShutdown, Hook } from '@arkstack/common'
 import { Router } from '@arkstack/driver-express'
 import path from 'path'
 import { ExpressDriver } from '@arkstack/driver-express'
-import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
+import { Arkstack, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { type Express, type Handler } from 'express'
 
-export default class Application extends ArkstackRouterAwareCore<Express, unknown> {
-  private app: Express
+export default class Application extends Arkstack<Express, unknown, Handler> {
   private static app: Express
-  private driver: ArkstackKitDriver<Express, Handler>
 
   /**
    * Creates an instance of the Application class, initializing 
@@ -81,7 +79,7 @@ export default class Application extends ArkstackRouterAwareCore<Express, unknow
     if (Hook.has('boot', 'before')) Hook.get('boot', 'before')?.(port, this.app)
 
     // Load public assets
-    await this.driver.mountPublicAssets(this.app, path.join(process.cwd(), 'public'))
+    await this.driver.mountPublicAssets(this.app, path.join(Arkstack.rootDir(), 'public'))
 
     // Apply all middleware
     await this.driver.applyMiddleware(this.app, config('middleware') as never)

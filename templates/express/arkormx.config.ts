@@ -3,12 +3,13 @@ import 'dotenv/config'
 import { Kysely, PostgresDialect } from 'kysely'
 import { createKyselyAdapter, defineConfig } from 'arkormx'
 
+import { Arkstack } from '@arkstack/contract'
 import { Pool } from 'pg'
 import { createArkormCurrentPageResolver } from 'resora'
 import { outputDir } from '@arkstack/common'
 import path from 'node:path'
 
-const dist = path.relative(process.cwd(), outputDir())
+const dist = path.relative(Arkstack.rootDir(), outputDir())
 
 const db = new Kysely<Record<string, never>>({
     dialect: new PostgresDialect({

@@ -2,18 +2,19 @@
 
 import { existsSync, mkdirSync } from 'node:fs'
 
+import { Arkstack } from '@arkstack/contract'
 import { BuildInterfaces } from './prepare/BuildInterfaces'
 import chalk from 'chalk'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 
-if (!existsSync(path.join(process.cwd(), '.arkstack/build')))
-    mkdirSync(path.join(process.cwd(), '.arkstack/build'))
+if (!existsSync(path.join(Arkstack.rootDir(), '.arkstack/build')))
+    mkdirSync(path.join(Arkstack.rootDir(), '.arkstack/build'), { recursive: true })
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 const child = spawn(command, ['exec', 'tsdown', '--log-level=silent'], {
-    cwd: process.cwd(),
+    cwd: Arkstack.rootDir(),
     stdio: 'inherit',
     env: Object.assign({}, process.env, {
         NODE_ENV,

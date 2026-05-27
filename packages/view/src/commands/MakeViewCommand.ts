@@ -1,6 +1,7 @@
 import { dirname, resolve } from 'node:path'
 import { mkdir, writeFile } from 'node:fs/promises'
 
+import { Arkstack } from '@arkstack/contract'
 import { Command } from '@h3ravel/musket'
 
 export class MakeViewCommand extends Command {
@@ -32,7 +33,7 @@ export class MakeViewCommand extends Command {
             .replace(/\./g, '/')
             .replace(/\.edge$/i, '')
 
-        return resolve(process.cwd(), 'src', 'resources', 'views', `${viewPath}.edge`)
+        return resolve(Arkstack.rootDir(), 'src', 'resources', 'views', `${viewPath}.edge`)
     }
 
     stub (name: string) {

@@ -1,14 +1,12 @@
 import { bindGracefulShutdown, Hook } from '@arkstack/common'
 
-import { ArkstackKitDriver, ArkstackRouterAwareCore, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
+import { Arkstack, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
 import { H3 } from 'h3'
 import { Router } from '@arkstack/driver-h3'
 
-export default class Application extends ArkstackRouterAwareCore<H3, unknown> {
-  private app: H3
+export default class Application extends Arkstack<H3, unknown, H3Middleware> {
   private static app: H3
-  private driver: ArkstackKitDriver<H3, H3Middleware>
 
   /**
    * Creates an instance of the Application class, initializing 

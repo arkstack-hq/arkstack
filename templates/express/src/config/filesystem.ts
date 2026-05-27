@@ -1,3 +1,4 @@
+import { Arkstack } from '@arkstack/contract'
 import { env } from '@arkstack/common'
 import path from 'node:path'
 
@@ -19,11 +20,11 @@ export default () => {
         disks: {
             local: {
                 driver: 'local',
-                root: path.join(process.cwd(), './storage/app'),
+                root: path.join(Arkstack.rootDir(), './storage/app'),
             },
             public: {
                 driver: 'local',
-                root: path.join(process.cwd(), './storage/app/public'),
+                root: path.join(Arkstack.rootDir(), './storage/app/public'),
             },
             ftp: {
                 driver: 'ftp',
@@ -50,7 +51,7 @@ export default () => {
          * The key of the object represents the link location, while the value represents the target location.  
          */
         links: {
-            [path.join(process.cwd(), './public/storage')]: path.join(process.cwd(), './storage/app/public'),
+            [path.join(Arkstack.rootDir(), './public/storage')]: path.join(Arkstack.rootDir(), './storage/app/public'),
         },
 
         /**

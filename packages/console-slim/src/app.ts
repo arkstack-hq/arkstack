@@ -1,6 +1,7 @@
 // oxlint-disable typescript/no-explicit-any
 import path, { isAbsolute, join } from 'node:path'
 
+import { Arkstack } from '@arkstack/contract'
 import { CliApp } from 'resora'
 import { defaultConfig } from './config'
 import { existsSync } from 'node:fs'
@@ -28,14 +29,14 @@ export const resolveStubsDir = (
     if (configuredDir) {
         return isAbsolute(configuredDir)
             ? configuredDir
-            : join(process.cwd(), configuredDir)
+            : join(Arkstack.rootDir(), configuredDir)
     }
 
     if (!options?.stubsDir) {
         const driver = core?.getDriver().name ?? 'h3'
-        let stubsDir = path.resolve(process.cwd(), `node_modules/@arkstack/driver-${driver}/stubs`)
+        let stubsDir = path.resolve(Arkstack.rootDir(), `node_modules/@arkstack/driver-${driver}/stubs`)
         if (!existsSync(stubsDir)) {
-            stubsDir = path.resolve(process.cwd(), 'stubs')
+            stubsDir = path.resolve(Arkstack.rootDir(), 'stubs')
         }
 
         return stubsDir
@@ -63,7 +64,7 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
         const normalized = (name.endsWith('Controller') ? name.replace(/controller/i, '') : name)
 
         let controllerName = normalized.endsWith('Controller') ? normalized : `${normalized}Controller`
-        const controllersDir = path.resolve(process.cwd(), 'src', 'app/http/controllers')
+        const controllersDir = path.resolve(Arkstack.rootDir(), 'src', 'app/http/controllers')
         const fileName = `${controllerName}.${opts?.ext ?? 'ts'}`
         const outputPath = join(controllersDir, fileName)
         const stubsDir = resolveStubsDir(this.config as any, this.options, this.core)
@@ -111,7 +112,7 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
      * @returns 
      */
     normalizePath = (p: string) => {
-        return p.replace(process.cwd(), '')
+        return p.replace(Arkstack.rootDir(), '')
     }
 
     /**

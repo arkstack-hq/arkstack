@@ -33,8 +33,8 @@ Static assets are mounted by the runtime driver before configured middleware run
 
 Default locations:
 
-- Express: `path.join(process.cwd(), 'public')`
-- H3: `process.cwd()/public`
+- Express: `path.join(Arkstack.rootDir(), 'public')`
+- H3: `Arkstack.rootDir()/public`
 
 Use this default behavior when your app only needs a conventional `public` directory. If you need a different mount path, cache policy, or asset strategy, override `mountPublicAssets` when constructing the driver in `src/core/app.ts`.
 

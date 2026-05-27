@@ -4,6 +4,7 @@ import { config, env, importFile, loadPrototypes, outputDir } from '@arkstack/co
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path, { join } from 'node:path'
 
+import { Arkstack } from '@arkstack/contract'
 import { ArkstackConsoleApp } from './app'
 import { BuildCommand } from './commands/BuildCommand'
 import { DevCommand } from './commands/DevCommand'
@@ -26,9 +27,9 @@ export interface RunConsoleOptions {
  * @returns 
  */
 const loadCoreApp = async () => {
-    const dist = path.relative(process.cwd(), outputDir())
+    const dist = path.relative(Arkstack.rootDir(), outputDir())
 
-    const bootstrapPath = join(process.cwd(), `${dist}/core/bootstrap.js`)
+    const bootstrapPath = join(Arkstack.rootDir(), `${dist}/core/bootstrap.js`)
 
 
     const module = await importFile<{ app: any }>(bootstrapPath)
@@ -45,7 +46,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
     loadPrototypes()
 
     const app = await loadCoreApp()
-    const dist = path.relative(process.cwd(), outputDir())
+    const dist = path.relative(Arkstack.rootDir(), outputDir())
     const stubsDir = process.env.ARKSTACK_STUBS_DIR
     globalThis.app = () => app as never
     globalThis.env = env
@@ -67,12 +68,12 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             MakeCommand,
         ],
         discoveryPaths: [
-            join(process.cwd(), 'src', 'app', 'console', 'commands/*.ts'),
-            join(process.cwd(), 'src', 'app/console/commands/*.js'),
-            join(process.cwd(), 'src', 'app/console/commands/*.mjs'),
-            join(process.cwd(), dist, 'app/console/commands/*.js'),
-            join(process.cwd(), dist, 'app/console/commands/*.mjs'),
-            join(process.cwd(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js'),
+            join(Arkstack.rootDir(), 'src', 'app', 'console', 'commands/*.ts'),
+            join(Arkstack.rootDir(), 'src', 'app/console/commands/*.js'),
+            join(Arkstack.rootDir(), 'src', 'app/console/commands/*.mjs'),
+            join(Arkstack.rootDir(), dist, 'app/console/commands/*.js'),
+            join(Arkstack.rootDir(), dist, 'app/console/commands/*.mjs'),
+            join(Arkstack.rootDir(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js'),
         ],
         exceptionHandler (exception) {
             throw exception

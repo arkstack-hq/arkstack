@@ -1,7 +1,7 @@
-import { ArkstackRouterAwareCore } from './index'
+import { Arkstack } from '.'
 
 declare global {
-  function app (): ArkstackRouterAwareCore<never, never>
+  function app (): Arkstack<never, never>
   var arkctx: {
     runtime: 'CLI' | 'HTTP' | 'Worker'
     command?: string

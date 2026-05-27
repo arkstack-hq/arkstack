@@ -46,6 +46,7 @@
     },
     "peerDependencies": {
         "@h3ravel/support": "^0.15.11",
+        "@arkstack/contract": "workspace:^",
         "arkormx": "^ 2.4.1"
     }
 }

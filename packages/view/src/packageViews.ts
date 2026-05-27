@@ -1,3 +1,4 @@
+import { Arkstack } from '@arkstack/contract'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -51,7 +52,7 @@ export const resolvePackageViewsPath = (
     nodePackageName: string,
     viewPath = 'resources/views',
 ) => {
-    const packageRoot = resolve(process.cwd(), 'node_modules', nodePackageName)
+    const packageRoot = resolve(Arkstack.rootDir(), 'node_modules', nodePackageName)
     const viewsPath = resolve(packageRoot, viewPath)
 
     if (!existsSync(viewsPath)) {

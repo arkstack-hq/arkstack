@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises'
 
+import { Arkstack } from '@arkstack/contract'
 import { CliApp } from 'arkormx'
 import { Logger } from '@arkstack/common'
 import { createRequire } from 'node:module'
@@ -15,13 +16,13 @@ export class Rebuilder {
         try {
             const inst = new Rebuilder(app)
 
-            const dir = inst.paths()[type] ?? join(process.cwd(), 'src', type)
+            const dir = inst.paths()[type] ?? join(Arkstack.rootDir(), 'src', type)
             const outputExt = inst.resolveOutputExt()
             let outputPath = join(dir, `${name}.${outputExt}`)
 
             if (type === 'migrations') {
                 outputPath = globSync(`${join(dir, inst.date())}*_${name}.ts`, {
-                    cwd: process.cwd(),
+                    cwd: Arkstack.rootDir(),
                     withFileTypes: false,
                 }).sort().at(-1)!
             }
@@ -77,7 +78,7 @@ export class Rebuilder {
 
     hasTypeScriptInstalled () {
         try {
-            createRequire(import.meta.url).resolve('typescript', { paths: [process.cwd()] })
+            createRequire(import.meta.url).resolve('typescript', { paths: [Arkstack.rootDir()] })
 
             return true
         } catch {

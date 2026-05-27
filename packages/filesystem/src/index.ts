@@ -3,6 +3,7 @@ import { DriverContract, ObjectMetaData, ObjectVisibility, SignedURLOptions, Wri
 import { appUrl, config } from '@arkstack/common'
 import { rmSync, symlinkSync } from 'node:fs'
 
+import { Arkstack } from '@arkstack/contract'
 import { FSDriver } from 'flydrive/drivers/fs'
 import { FtpDriver } from './FtpDriver'
 import { Logger } from '@h3ravel/shared'
@@ -263,8 +264,8 @@ export class Storage implements DriverContract {
         for (const link in config('filesystem.links')) {
             const target = config('filesystem.links')[link]
 
-            const unlink = link.replace(process.cwd(), '')
-            const untarget = target.replace(process.cwd(), '')
+            const unlink = link.replace(Arkstack.rootDir(), '')
+            const untarget = target.replace(Arkstack.rootDir(), '')
 
             try {
                 if (force) rmSync(link, { recursive: true, force: true })

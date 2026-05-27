@@ -94,7 +94,7 @@ Express mounts the `public` directory automatically during `app.boot(port)` thro
 
 Default behavior:
 
-- serves files from `path.join(process.cwd(), 'public')`
+- serves files from `path.join(Arkstack.rootDir(), 'public')`
 - applies `Cache-Control: public, max-age=31536000, immutable`
 - adds permissive CORS headers for static responses
 

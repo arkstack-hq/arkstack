@@ -1,6 +1,7 @@
 import { getUserConfig, type Model, type ModelStatic } from 'arkormx'
 import { importFile } from '../system'
 import path from 'node:path'
+import { Arkstack } from '@arkstack/contract'
 
 export type AbstractModelConstructor<TModel = unknown> =
     abstract new (attributes?: Record<string, unknown>) => TModel
@@ -61,7 +62,7 @@ export async function getModel (modelName: string) {
 
     const modelPath = getUserConfig().paths?.models || './src/models'
     const modulePath = path.join(
-        path.isAbsolute(modelPath) ? modelPath : path.join(process.cwd(), modelPath),
+        path.isAbsolute(modelPath) ? modelPath : path.join(Arkstack.rootDir(), modelPath),
         modelName
     )
     const module = await importFile<ModelModule | unknown>(modulePath)
