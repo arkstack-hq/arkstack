@@ -1,4 +1,13 @@
-import { GlobalConfig, GlobalEnv } from './'
+import type { GlobalConfig, GlobalEnv } from '.'
+
+interface Stubs {
+  api: string;
+  model: string;
+  resource: string;
+  controller: string;
+  collection: string;
+  apiResource: string;
+}
 
 declare global {
   var env: GlobalEnv
@@ -24,6 +33,16 @@ declare global {
      * @param suffix Suffix to add to the string
      */
     truncate (len: number, suffix?: string): string;
+  }
+}
+
+declare module 'resora' {
+  interface Config {
+    stubs: Stubs;
+  }
+
+  interface ResoraConfig {
+    stubs?: Partial<Stubs> | undefined
   }
 }
 
