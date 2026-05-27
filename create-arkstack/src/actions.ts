@@ -258,8 +258,8 @@ export default class {
       }
 
       let content = await readFile(filePath, 'utf-8')
-
       content = content
+        .replace(/import '@arkstack\/database\/setup';\s*/g, '')
         .replace('import { ValidatorDBDriver } from \'@arkstack/database\'\n', '')
         .replace('import { ModelNotFoundException } from \'arkormx\'\n', '')
         .replace('import { prisma } from \'src/core/database\'\n', '')
@@ -287,6 +287,9 @@ export default class {
           '\n\n    ',
         )
 
+      if (file.includes('bootstrap.ts')) {
+        console.log(content, content.length, '==')
+      }
       await writeFile(filePath, content, 'utf-8')
     }
   }
