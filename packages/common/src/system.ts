@@ -1,9 +1,9 @@
-import { ConfigRegistry, DotPath, GlobalConfig, GlobalEnv } from './types'
+import { ConfigRegistry, DotPath, FileImporter, GlobalConfig, GlobalEnv } from './types'
+import { JitiOptions, JitiResolveOptions, createJiti } from 'jiti'
 
 import { Arkstack } from '@arkstack/contract'
 import { Dirent } from 'node:fs'
 import { Obj } from '@h3ravel/support'
-import { createJiti } from 'jiti'
 import { createRequire } from 'module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -189,14 +189,19 @@ export const outputDir = (cwd?: string) => {
  * @example
  * const config = await importFile<AppConfig>('./config/app.ts')
  */
-export const importFile = async <T = unknown> (filePath: string): Promise<T> => {
+export const importFile: FileImporter = async <T = unknown> (
+    filePath: string,
+    userOptions?: JitiOptions | undefined,
+    resolveOptions?: (JitiResolveOptions & { default?: true })
+): Promise<T> => {
     const resolvedPath = resolve(filePath)
     const jiti = createJiti(pathToFileURL(resolvedPath).href, {
+        ...userOptions,
         interopDefault: false,
         tsconfigPaths: true,
     })
 
-    return await jiti.import<T>(resolvedPath)
+    return await jiti.import<T>(resolvedPath, resolveOptions)
 }
 
 /**

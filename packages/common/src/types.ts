@@ -1,3 +1,5 @@
+import { JitiOptions, JitiResolveOptions } from 'jiti'
+
 import { ChalkInstance } from 'chalk'
 import type { Logger } from './Logger'
 
@@ -83,6 +85,12 @@ export interface GlobalConfig {
         key: P,
         defaultValue: D,
     ): DotPathValue<X, P> | D
+}
+
+export interface FileImporter {
+    <T = unknown> (filePath: string): Promise<T>
+    <T = unknown> (filePath: string, userOptions?: JitiOptions | undefined): Promise<T>
+    <T = unknown> (filePath: string, userOptions?: JitiOptions | undefined, resolveOptions?: (JitiResolveOptions & { default?: true })): Promise<T>
 }
 
 export type ArkstackErrorShape = Error & {
