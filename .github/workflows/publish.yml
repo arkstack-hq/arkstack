@@ -162,6 +162,6 @@ jobs:
         run: pnpm test
 
       - name: Publish to NPM
-        run: pnpm publish:packages --no-git-checks
+        run: pnpm publish:packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
