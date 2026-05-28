@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { ChalkInstance } from 'chalk'
 import type { Logger } from './Logger'
 

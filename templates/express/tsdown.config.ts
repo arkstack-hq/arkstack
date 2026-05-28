@@ -16,7 +16,7 @@ export default defineConfig([
     platform: 'node',
     outDir: dist,
     format: 'esm',
-    sourcemap: true,
+    sourcemap: env !== 'dev',
     logLevel: 'silent',
     deps: {
       skipNodeModulesBundle: true,

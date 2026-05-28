@@ -1,22 +1,24 @@
 import { BaseTCConfig, TSConfig } from './TSConfig'
-import { ConfigRegistry, config } from '@arkstack/common'
+import { Project, Type } from 'ts-morph'
+import { readdirSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
 import path from 'node:path'
-import { writeFileSync } from 'node:fs'
 
 export class BuildInterfaces {
-    static configs () {
-        const items = config()
-        const output = this.buildInterface('ConfigRegistry', items)
+    private static project: Project
+    private static checker: ReturnType<Project['getTypeChecker']>
 
-        const declaration = [
-            'export {}',
-            '',
-            'declare module \'@arkstack/common\' {',
-            output,
-            '}',
-        ].join('\n')
+    /**
+     * Generate configuration interfaces
+     * 
+     * @param configDir 
+     */
+    static configs (configDir?: string) {
+        configDir ??= path.join(Arkstack.rootDir(), 'src/config')
+
+        const declaration = this.generateConfig(configDir)
+
         writeFileSync(path.join(Arkstack.rootDir(), '.arkstack/ark.d.ts'), declaration, 'utf8')
     }
 
@@ -30,62 +32,129 @@ export class BuildInterfaces {
             writeFileSync(path.join(Arkstack.rootDir(), file), config, 'utf8')
     }
 
-    private static isDynamicMap (obj: Record<string, unknown>): boolean {
-        const keys = Object.keys(obj)
-        if (keys.length === 0) return false
+    private static generateConfig (
+        configDir: string = path.join(process.cwd(), 'src/config'),
+    ) {
+        BuildInterfaces.project = new Project({
+            tsConfigFilePath: path.join(process.cwd(), 'tsconfig.json'),
+            skipAddingFilesFromTsConfig: true,
+        })
 
-        return keys.every(key =>
-            path.isAbsolute(key) ||
-            /[^a-zA-Z0-9_$]/.test(key) ||
-            /^\d/.test(key)
+        BuildInterfaces.checker = BuildInterfaces.project.getTypeChecker()
+
+        const files = readdirSync(configDir).filter(
+            f => f.endsWith('.ts') && !f.includes('middleware')
         )
+
+        const properties: string[] = []
+
+        for (const file of files) {
+            const configName = path.basename(file, '.ts')
+            const sourceFile = BuildInterfaces.project.addSourceFileAtPath(
+                path.join(configDir, file)
+            )
+
+            // Arkstack config files are `export default (app) => ({...})`
+            // We need the expression, not the symbol, to get the correct type
+            const exportAssignment = sourceFile.getExportAssignment(
+                e => !e.isExportEquals()
+            )
+
+            if (!exportAssignment) continue
+
+            const expr = exportAssignment.getExpression()
+            const type = BuildInterfaces.checker.getTypeAtLocation(expr)
+
+            // Unwrap the factory function to get the return type
+            const callSignatures = type.getCallSignatures()
+            const resolvedType = callSignatures.length
+                ? callSignatures[0].getReturnType()
+                : type
+
+            const typeStr = BuildInterfaces.resolveType(resolvedType, 2)
+            properties.push(`        ${configName}: ${typeStr}`)
+        }
+
+        return [
+            'declare module \'@arkstack/common\' {',
+            '    interface ConfigRegistry {',
+            ...properties,
+            '    }',
+            '}',
+            '',
+            'export {}',
+        ].join('\n')
     }
 
-    private static inferType (value: unknown, indent: number): string {
-        if (value === null) return 'null'
-        if (typeof value === 'undefined') return 'any'
-        if (typeof value === 'function') return 'Function'
-        if (Array.isArray(value)) {
-            if (value.length === 0) return 'unknown[]'
-            const itemTypes = [...new Set(value.map(v => this.inferType(v, indent)))]
-
-            return itemTypes.length === 1
-                ? `${itemTypes[0]}[]`
-                : `(${itemTypes.join(' | ')})[]`
-        }
-        if (typeof value === 'object') {
-            const obj = value as Record<string, unknown>
-            if (this.isDynamicMap(obj)) {
-                const valueTypes = [...new Set(Object.values(obj).map(v => this.inferType(v, indent)))]
-                const valueType = valueTypes.length === 1 ? valueTypes[0] : valueTypes.join(' | ')
-
-                return `Record<string, ${valueType}>`
-            }
-
-            return this.buildInterface(undefined, obj, indent)
-        }
-
-        return typeof value
+    /**
+     * ts-morph resolves computed keys like path.join(...) as { [x: number]: any }
+     * detect these by checking the type text for an index signature pattern
+     * 
+     * @param type 
+     * @returns 
+     */
+    private static isDynamicMap (type: Type): boolean {
+        return /^\{ \[x: (string|number)\]:/.test(type.getText())
     }
 
-    private static buildInterface (
-        name: string | undefined,
-        obj: Record<string, unknown> | ConfigRegistry,
-        indent = 0
-    ): string {
+    private static resolveType (type: Type, indent: number): string {
         const pad = '    '.repeat(indent)
         const innerPad = '    '.repeat(indent + 1)
 
-        const lines = Object.entries(obj).map(([key, value]) => {
-            const type = this.inferType(value, indent + 1)
+        // Primitives
+        if (type.isString()) return 'string'
+        if (type.isNumber()) return 'number'
+        if (type.isBoolean()) return 'boolean'
+        if (type.isNull()) return 'null'
+        if (type.isUndefined()) return 'undefined'
+        if (type.isAny() || type.isUnknown()) return 'any'
 
-            return `${innerPad}${key}: ${type}`
-        })
+        // Literals
+        if (type.isStringLiteral()) return `'${type.getLiteralValue()}'`
+        if (type.isNumberLiteral()) return String(type.getLiteralValue())
+        if (type.isBooleanLiteral()) return String(type.getLiteralValue())
 
-        const body = lines.join('\n')
+        // Union
+        if (type.isUnion()) {
+            return type.getUnionTypes()
+                .map(t => BuildInterfaces.resolveType(t, indent))
+                .join(' | ')
+        }
 
-        return name
-            ? `${pad}interface ${name} {\n${body}\n${pad}}`
-            : `{\n${body}\n${pad}}`
+        // Array
+        if (type.isArray()) {
+            const elementType = type.getArrayElementTypeOrThrow()
+
+            return `${BuildInterfaces.resolveType(elementType, indent)}[]`
+        }
+
+        // Function
+        if (type.getCallSignatures().length) return 'Function'
+
+        // Object
+        if (type.isObject()) {
+            // Dynamic computed keys (e.g. path.join(...) as key)
+            if (BuildInterfaces.isDynamicMap(type)) {
+                return 'Record<string, string>'
+            }
+
+            const props = type.getProperties()
+            if (!props.length) return 'Record<string, any>'
+
+            const lines = props.map(prop => {
+                const decl = prop.getDeclarations()[0]
+                if (!decl) return `${innerPad}${prop.getName()}: any`
+
+                const propType = BuildInterfaces.checker.getTypeOfSymbolAtLocation(prop, decl)
+                const optional = prop.isOptional() ? '?' : ''
+
+                return `${innerPad}${prop.getName()}${optional}: ${BuildInterfaces.resolveType(propType, indent + 1)}`
+            })
+
+            return `{\n${lines.join('\n')}\n${pad}}`
+        }
+
+        // Fallback: use TypeScript's own text representation
+        return type.getText()
     }
 }
