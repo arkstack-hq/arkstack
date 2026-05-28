@@ -12,6 +12,47 @@ interface Stubs {
 declare global {
   var env: GlobalEnv
   var config: GlobalConfig
+
+  /**
+   * Thows to abort the current request
+   * 
+   * @param message 
+   * @param code 
+   * @throws {RequestException}
+   */
+  function abort (
+    message?: string,
+    code?: number
+  ): void
+
+  /**
+   * Asserts that a boolean condition is true. 
+   * 
+   * @param boolean 
+   * @param message 
+   * @param code 
+   * @throws {RequestException} Throws if the boolean condition is true.
+   */
+  function abortIf<T> (
+    boolean: T,
+    message?: string,
+    code?: number,
+  ): asserts  boolean is T
+
+  /**
+   * Asserts that a value is not null or undefined. 
+   * 
+   * @param value 
+   * @param message 
+   * @param code 
+   * @throws {RequestException} Throws if the value is null or undefined.
+   */
+  function assertFound<T> (
+    value: T | null | undefined,
+    message: string,
+    code: number = 404,
+  ): asserts value is T
+
   interface String {
     /**
      * Converts the string to title case.

@@ -8,7 +8,8 @@ export interface EnvRegistry { }
 export type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never
 
 export type MergedConfig<X> = UnionToIntersection<X>
-export type Primitive = string | number | boolean | null | undefined | ((e: any) => any)
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+export type Primitive = string | number | boolean | null | undefined | Function
 export type LoggerChalk = keyof ChalkInstance | ChalkInstance | (keyof ChalkInstance)[]
 export type LoggerParseSignature = [string, LoggerChalk][]
 export type DotPathValue<T, P extends string> =

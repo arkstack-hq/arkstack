@@ -16,7 +16,7 @@ export class RequestException extends AppException {
      * @param code 
      * @throws {RequestException} Throws if the value is null or undefined.
      */
-    static assertNotEmpty<T> (
+    static assertFound<T> (
         value: T | null | undefined,
         message: string,
         code: number = 404,
@@ -24,6 +24,23 @@ export class RequestException extends AppException {
         if (!value) {
             throw new RequestException(message, code)
         }
+    }
+
+    /**
+     * Asserts that a value is not null or undefined. 
+     * 
+     * @param value 
+     * @param message 
+     * @param code 
+     * @throws {RequestException} Throws if the value is null or undefined.
+     * @deprecated Use assertFound instead
+     */
+    static assertNotEmpty<T> (
+        value: T | null | undefined,
+        message: string,
+        code: number = 404,
+    ): asserts value is T {
+        return this.assertFound(value, message, code)
     }
 
     /**

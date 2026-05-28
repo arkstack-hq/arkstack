@@ -1,16 +1,26 @@
+import { abort, abortIf, assertFound, initializeGlobalContext } from './utils'
 import { config, env } from './system'
 
 import { Arkstack } from '@arkstack/contract'
 import { Hook } from '@arkstack/foundry'
 import { bindGracefulShutdown } from './lifecycle'
 import { detect } from 'detect-port'
-import { initializeGlobalContext } from './utils'
 import { str } from '@h3ravel/support'
 
+/**
+ * Boots the app using an available port close to the requested port 
+ *when requested port is not available
+ * 
+ * @param boot 
+ * @param preferredPort 
+ * @param app 
+ * @param defer 
+ */
 export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = unknown> (
   boot: (port: number) => Promise<void>,
   preferredPort: number = 3000,
-  app?: Arkstack<TApp, TRoutes, THandler>
+  app?: Arkstack<TApp, TRoutes, THandler>,
+  defer?: boolean
 ) => {
   const port = await detect(preferredPort)
 
@@ -20,6 +30,9 @@ export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = u
   globalThis.env = env
   globalThis.config = config
   globalThis.str = str
+  globalThis.abort = abort
+  globalThis.abortIf = abortIf
+  globalThis.assertFound = assertFound
   globalThis.arkctx = {
     runtime: 'HTTP',
   }
@@ -27,7 +40,7 @@ export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = u
   await initializeGlobalContext()
 
   // Handle graceful shutdown
-  bindGracefulShutdown(async () => await app?.shutdown())
+  bindGracefulShutdown(async () => await app?.shutdown(), defer)
 
   if (Hook.has('boot', 'after')) Hook.get('boot', 'after', port, app)
 }

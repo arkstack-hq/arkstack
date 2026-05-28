@@ -40,10 +40,10 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
    * Boots the application by mounting public assets, binding the 
    * router, applying middleware, and starting the server.
    * 
-   * @param port      The numeric port to run the server on
-   * @param dontStart Set to true to skip server startup
+   * @param port    The numeric port to run the server on
+   * @param defer   Set to true to skip server startup
    */
-  public async boot (port: number, dontStart = false) {
+  public async boot (port: number, defer = false) {
     // Load public assets
     await this.driver.mountPublicAssets(this.app, 'public')
 
@@ -54,7 +54,7 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
     await this.driver.bindRouter(this.app)
 
     // Start the server
-    if (dontStart !== true) {
+    if (defer !== true) {
       await this.driver.start(this.app, port)
     }
   }

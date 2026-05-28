@@ -42,9 +42,7 @@ export class BuildInterfaces {
 
         BuildInterfaces.checker = BuildInterfaces.project.getTypeChecker()
 
-        const files = readdirSync(configDir).filter(
-            f => f.endsWith('.ts') && !f.includes('middleware')
-        )
+        const files = readdirSync(configDir).filter(f => f.endsWith('.ts'))
 
         const properties: string[] = []
 
@@ -127,7 +125,6 @@ export class BuildInterfaces {
 
             return `${BuildInterfaces.resolveType(elementType, indent)}[]`
         }
-
         // Function
         if (type.getCallSignatures().length) return 'Function'
 

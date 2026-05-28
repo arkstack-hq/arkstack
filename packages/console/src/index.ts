@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { config, env, importFile, initializeGlobalContext, loadPrototypes, outputDir } from '@arkstack/common'
+import { abort, abortIf, assertFound, config, env, importFile, initializeGlobalContext, loadPrototypes, outputDir } from '@arkstack/common'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path, { join } from 'node:path'
 
@@ -51,6 +51,9 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
     globalThis.env = env
     globalThis.config = config
     globalThis.str = str
+    globalThis.abort = abort
+    globalThis.abortIf = abortIf
+    globalThis.assertFound = assertFound
     globalThis.arkctx = {
         runtime: 'CLI',
     }
