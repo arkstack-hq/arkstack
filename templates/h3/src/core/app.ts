@@ -1,14 +1,9 @@
-import { Hook } from '@arkstack/foundry'
-import { bindGracefulShutdown } from '@arkstack/common'
-
 import { Arkstack, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
 import { H3 } from 'h3'
 import { Router } from '@arkstack/driver-h3'
 
 export default class Application extends Arkstack<H3, unknown, H3Middleware> {
-  private static app: H3
-
   /**
    * Creates an instance of the Application class, initializing 
    * the H3 driver with the provided options and creating an H3 application instance.
@@ -27,33 +22,6 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
 
     Application.app = this.app
     globalThis.app = () => this.app as never
-  }
-
-  /**
-   * Gets the H3 application instance.
-   * 
-   * @returns 
-   */
-  getAppInstance () {
-    return this.app
-  }
-
-  /**
-   * Gets the static H3 application instance.
-   * 
-   * @returns 
-   */
-  static getAppInstance () {
-    return Application.app
-  }
-
-  /**
-   * Gets the ArkstackKitDriver instance used by the application.
-   * 
-   * @returns 
-   */
-  getDriver () {
-    return this.driver
   }
 
   /**
@@ -76,8 +44,6 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
    * @param dontStart Set to true to skip server startup
    */
   public async boot (port: number, dontStart = false) {
-    if (Hook.has('boot', 'before')) Hook.get('boot', 'before')?.(port, this.app)
-
     // Load public assets
     await this.driver.mountPublicAssets(this.app, 'public')
 
@@ -91,17 +57,5 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
     if (dontStart !== true) {
       await this.driver.start(this.app, port)
     }
-
-    if (Hook.has('boot', 'after')) Hook.get('boot', 'after')?.(port, this.app)
-
-    // Handle graceful shutdown
-    bindGracefulShutdown(async () => await this.shutdown())
-  }
-
-  /**
-   * Shuts down the application by disconnecting from the database and exiting the process.
-   */
-  async shutdown () {
-    process.exit(0)
   }
 }

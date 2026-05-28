@@ -1,5 +1,3 @@
-import { Hook } from '@arkstack/foundry'
-import { bindGracefulShutdown } from '@arkstack/common'
 import { Router } from '@arkstack/driver-express'
 import path from 'path'
 import { ExpressDriver } from '@arkstack/driver-express'
@@ -7,8 +5,6 @@ import { Arkstack, ArkstackRouterContract, ArkstackRouteListOptions } from '@ark
 import { type Express, type Handler } from 'express'
 
 export default class Application extends Arkstack<Express, unknown, Handler> {
-  private static app: Express
-
   /**
    * Creates an instance of the Application class, initializing 
    * the Express driver with the provided options and creating an Express 
@@ -31,33 +27,6 @@ export default class Application extends Arkstack<Express, unknown, Handler> {
   }
 
   /**
-   * Gets the Express application instance.
-   * 
-   * @returns 
-   */
-  getAppInstance () {
-    return this.app
-  }
-
-  /**
-   * Gets the static Express application instance.
-   * 
-   * @returns 
-   */
-  static getAppInstance () {
-    return Application.app
-  }
-
-  /**
-   * Gets the ArkstackKitDriver instance used by the application.
-   * 
-   * @returns 
-   */
-  getDriver () {
-    return this.driver
-  }
-
-  /**
    * Gets the ArkstackRouterContract implementation for the Express framework.
    * 
    * @returns 
@@ -77,8 +46,6 @@ export default class Application extends Arkstack<Express, unknown, Handler> {
    * @param dontStart Set to true to skip server startup
    */
   public async boot (port: number, dontStart = false) {
-    if (Hook.has('boot', 'before')) Hook.get('boot', 'before')?.(port, this.app)
-
     // Load public assets
     await this.driver.mountPublicAssets(this.app, path.join(Arkstack.rootDir(), 'public'))
 
@@ -95,18 +62,5 @@ export default class Application extends Arkstack<Express, unknown, Handler> {
     if (dontStart !== true) {
       await this.driver.start(this.app, port)
     }
-
-    if (Hook.has('boot', 'after')) Hook.get('boot', 'after')?.(port, this.app)
-
-    // Handle graceful shutdown
-    bindGracefulShutdown(async () => await this.shutdown())
-  }
-
-  /**
-   * Shuts down the application by disconnecting from the database and exiting the process.
-   */
-  async shutdown () {
-    if (Hook.has('shutdown', 'before')) Hook.get('shutdown', 'after')?.()
-    process.exit(0)
   }
 }

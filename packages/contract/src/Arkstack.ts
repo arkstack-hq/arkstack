@@ -8,11 +8,11 @@ export type ENV = 'development' | 'production' | 'stagging' | 'testing'
 export type RootDirChangeListener = (dir: string, previousDir: string) => void
 
 export abstract class Arkstack<TApp, TRoutes = unknown, THandler = unknown> {
+    static app: unknown
     private static appRootDir: string = process.cwd()
     protected app!: TApp
     protected driver!: ArkstackKitDriver<TApp, THandler>
 
-    abstract getAppInstance (): TApp;
     abstract getRouter (): ArkstackRouterContract<TApp, TRoutes>;
     /**
      * Boots the application by mounting public assets, binding the 
@@ -24,11 +24,31 @@ export abstract class Arkstack<TApp, TRoutes = unknown, THandler = unknown> {
     abstract boot (port: number, dontStart?: boolean): Promise<void>
 
     /**
+     * Gets the driver application instance.
+     * 
+     * @returns 
+     */
+    getAppInstance () {
+        return this.app
+    }
+
+    /**
+     * Gets the static driver application instance.
+     * 
+     * @returns 
+     */
+    static getAppInstance<TApp = unknown> (): TApp {
+        return Arkstack.app as TApp
+    }
+
+    /**
      * Gets the ArkstackKitDriver instance used by the application.
      * 
      * @returns 
      */
-    abstract getDriver (): ArkstackKitDriver<TApp, TRoutes>
+    getDriver () {
+        return this.driver
+    }
 
     /**
      * Boostrap the app and start up the server
@@ -38,9 +58,16 @@ export abstract class Arkstack<TApp, TRoutes = unknown, THandler = unknown> {
      */
     async startup (defaultPort: number = 3000, dontStart?: boolean) {
         const { bootWithDetectedPort } = await import('@arkstack/common')
-        await bootWithDetectedPort(async (port) => {
+        await bootWithDetectedPort<TApp, TRoutes, THandler>(async (port) => {
             await this.boot(port, dontStart)
-        }, Number(process.env.APP_PORT ?? defaultPort), this)
+        }, Number(process.env.APP_PORT ?? defaultPort), this as never)
+    }
+
+    /**
+     * Shuts down the application by disconnecting from the database and exiting the process.
+     */
+    async shutdown () {
+        process.exit(0)
     }
 
     /**

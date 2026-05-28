@@ -2,6 +2,7 @@ import pino, { type Logger as PinoLogger } from 'pino'
 import path from 'node:path'
 import { ArkstackErrorPayload, ArkstackErrorShape } from './types'
 import { Arkstack } from '@arkstack/contract'
+import { ModelNotFoundException } from 'arkormx'
 
 export class ErrorHandler {
     private static loggerCache = new Map<string, PinoLogger>()
@@ -101,7 +102,14 @@ export class ErrorHandler {
     static isModelNotFoundError (error: unknown): error is ArkstackErrorShape {
         const candidate = ErrorHandler.toErrorShape(error)
 
-        return typeof candidate?.getModelName === 'function'
+        if ((error as any).cause && (error as any).cause instanceof ModelNotFoundException) {
+            (error as any).getModelName = (error as any).cause.getModelName
+
+            return true
+        }
+
+        return typeof candidate?.getModelName === 'function' ||
+            error instanceof ModelNotFoundException
     }
 
     static shouldHideStack () {
@@ -129,6 +137,7 @@ export class ErrorHandler {
         const modelNotFoundError = detailedError && ErrorHandler.isModelNotFoundError(detailedError)
             ? detailedError
             : undefined
+
         const payload: ArkstackErrorPayload = {
             status: 'error',
             code: typeof err === 'string'

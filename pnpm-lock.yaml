@@ -234,6 +234,9 @@ importers:
       '@arkstack/contract':
         specifier: workspace:^
         version: link:../contract
+      '@arkstack/foundry':
+        specifier: workspace:^
+        version: link:../foundry
       '@h3ravel/support':
         specifier: ^0.15.11
         version: 0.15.11
@@ -482,6 +485,9 @@ importers:
       '@arkstack/contract':
         specifier: workspace:^
         version: link:../contract
+      '@arkstack/foundry':
+        specifier: workspace:^
+        version: link:../foundry
       '@h3ravel/musket':
         specifier: ^0.10.1
         version: 0.10.1(@types/node@25.6.2)
