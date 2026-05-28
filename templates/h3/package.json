@@ -2,7 +2,7 @@
   "name": "h3-app",
   "description": "Arkstack framework application running on the H3 driver.",
   "type": "module",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "base": true,
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
