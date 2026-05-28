@@ -136,7 +136,7 @@ For example, an authenticated route uses driver middleware to validate the beare
 
 ### Hooks
 
-`Hook` from `@arkstack/common` provides named callback positions.
+`Hook` from `@arkstack/foundry` provides named callback positions.
 
 The auth middleware exposes `middleware:auth`, with a runtime-agnostic context shape:
 

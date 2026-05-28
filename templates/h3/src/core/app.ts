@@ -1,4 +1,5 @@
-import { bindGracefulShutdown, Hook } from '@arkstack/common'
+import { Hook } from '@arkstack/foundry'
+import { bindGracefulShutdown } from '@arkstack/common'
 
 import { Arkstack, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
 import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'

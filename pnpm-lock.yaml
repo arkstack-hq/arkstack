@@ -345,6 +345,9 @@ importers:
       '@arkstack/contract':
         specifier: workspace:^
         version: link:../contract
+      '@arkstack/foundry':
+        specifier: workspace:^
+        version: link:../foundry
       '@resora/plugin-clear-router':
         specifier: ^1.0.33
         version: 1.0.33(@types/node@25.6.2)(clear-router@2.7.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2))
@@ -382,6 +385,9 @@ importers:
       '@arkstack/contract':
         specifier: workspace:^
         version: link:../contract
+      '@arkstack/foundry':
+        specifier: workspace:^
+        version: link:../foundry
       '@resora/plugin-clear-router':
         specifier: ^1.0.33
         version: 1.0.33(@types/node@25.6.2)(clear-router@2.7.7(@h3ravel/support@0.15.11)(express@5.2.1)(h3@2.0.1-rc.16)(hono@4.12.10)(reflect-metadata@0.2.2))

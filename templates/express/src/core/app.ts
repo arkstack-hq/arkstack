@@ -1,4 +1,5 @@
-import { bindGracefulShutdown, Hook } from '@arkstack/common'
+import { Hook } from '@arkstack/foundry'
+import { bindGracefulShutdown } from '@arkstack/common'
 import { Router } from '@arkstack/driver-express'
 import path from 'path'
 import { ExpressDriver } from '@arkstack/driver-express'

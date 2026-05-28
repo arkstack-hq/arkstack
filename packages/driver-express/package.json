@@ -51,6 +51,7 @@
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",
+        "@arkstack/foundry": "workspace:^",
         "@arkstack/common": "workspace:^",
         "express": "^5.2.1"
     },

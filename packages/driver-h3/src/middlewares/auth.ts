@@ -1,5 +1,5 @@
 import type { H3Event } from 'h3'
-import { Hook } from '@arkstack/common'
+import { Hook } from '@arkstack/foundry'
 
 export const auth = async (event: H3Event, next: () => unknown | Promise<unknown>) => {
     const { Auth, AuthenticationException } = await import('@arkstack/auth')
@@ -20,7 +20,7 @@ export const auth = async (event: H3Event, next: () => unknown | Promise<unknown
         }
 
         if (Hook.has('middleware:auth', 'before'))
-            Hook.get('middleware:auth', 'before')?.(event)
+            Hook.get('middleware:auth', 'before')?.(event as never)
 
         const requestSource = {
             headers: event.req.headers,
@@ -43,12 +43,12 @@ export const auth = async (event: H3Event, next: () => unknown | Promise<unknown
         (event.req as any).authToken = token
 
         if (Hook.has('middleware:auth', 'after'))
-            Hook.get('middleware:auth', 'after')?.(event)
+            Hook.get('middleware:auth', 'after')?.(event as never)
 
         return await next()
     } catch (error) {
         if (Hook.has('middleware:auth', 'error'))
-            Hook.get('middleware:auth', 'error')?.(error, event)
+            Hook.get('middleware:auth', 'error')?.(error, event as never)
 
         throw error
     }

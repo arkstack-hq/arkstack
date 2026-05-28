@@ -23,7 +23,7 @@ A global, named hook registry for extending Arkstack internals without modifying
 Registers a hook. Multiple calls for the same name are merged.
 
 ```ts
-import { Hook } from '@arkstack/common';
+import { Hook } from '@arkstack/foundry';
 
 Hook.set('request:handle', {
   before: (ctx) => console.log('before handler'),

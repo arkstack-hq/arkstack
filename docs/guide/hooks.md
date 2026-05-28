@@ -1,13 +1,13 @@
 # Hooks
 
-Arkstack exposes a small shared hook registry through `@arkstack/common`. Hooks are useful when a package or application wants to register callbacks around named extension points without coupling the caller to a concrete implementation.
+Arkstack exposes a small shared hook registry through `@arkstack/foundry`. Hooks are useful when a package or application wants to register callbacks around named extension points without coupling the caller to a concrete implementation.
 
 ## Register Hooks
 
 Use `Hook.set(name, positions)` to register callbacks. The built-in positions are `before` and `after`, and applications can use custom position names when a package documents them.
 
 ```ts
-import { Hook } from '@arkstack/common';
+import { Hook } from '@arkstack/foundry';
 
 Hook.set('middleware:auth', {
   before: (context) => {
