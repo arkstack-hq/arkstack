@@ -5,6 +5,7 @@ import swc from 'unplugin-swc'
 
 const resolvePath = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
+
 export default defineConfig({
     plugins: [
         swc.vite({
@@ -36,6 +37,7 @@ export default defineConfig({
         include: ['tests/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
         env: {
             NODE_ENV: 'test',
+            VERBOSITY: '0'
         },
     },
 })

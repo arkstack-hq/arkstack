@@ -287,9 +287,6 @@ export default class {
           '\n\n    ',
         )
 
-      if (file.includes('bootstrap.ts')) {
-        console.log(content, content.length, '==')
-      }
       await writeFile(filePath, content, 'utf-8')
     }
   }

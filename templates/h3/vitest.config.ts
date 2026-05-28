@@ -36,6 +36,7 @@ export default defineConfig({
         include: ['tests/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
         env: {
             NODE_ENV: 'test',
+            VERBOSITY: '0'
         },
     },
 })

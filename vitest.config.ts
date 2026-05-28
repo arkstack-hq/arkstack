@@ -41,6 +41,7 @@ export default defineConfig({
         include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
         env: {
             NODE_ENV: 'test',
+            VERBOSITY: '0'
         },
         coverage: {
             reporter: ['text', 'json', 'html', 'lcov'],

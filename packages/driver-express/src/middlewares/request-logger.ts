@@ -21,7 +21,8 @@ export const requestLogger = ({
 }: {
     allowInProduction?: boolean
 } = {}) => async (req: Request, res: Response, next: NextFunction) => {
-    if (nodeEnv() === 'prod' && !allowInProduction) return next()
+    const VERBOSE = process.env.VERBOSITY != '0'
+    if ((nodeEnv() === 'prod' && !allowInProduction) || !VERBOSE) return next()
 
     const start = Date.now()
 

@@ -31,5 +31,8 @@
     "exports": {
         ".": "./dist/index.js",
         "./package.json": "./package.json"
+    },
+    "dependencies": {
+        "@arkstack/foundry": "workspace:^"
     }
 }

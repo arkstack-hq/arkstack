@@ -1,7 +1,7 @@
 import '@arkstack/database/setup'
 import '@arkstack/http/setup'
 
-import Application from 'src/core/app'
+import Application from '../core/app'
 import { Validator } from 'kanun'
 import { View } from '@arkstack/view'
 import { fileValidatorPlugin } from '@kanun-hq/plugin-file'

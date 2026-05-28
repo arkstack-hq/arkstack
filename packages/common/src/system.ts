@@ -178,7 +178,17 @@ export const outputDir = (cwd?: string) => {
         ? (output[NODE_ENV] ?? output.dev)
         : path.join(cwd, output[NODE_ENV] ?? output.dev)
 }
-
+/**
+ * 
+ * Dynamically imports a file at the given path with full TypeScript support,
+ * including `tsconfig.json` path aliases. 
+ *
+ * @param filePath - The path to the file to import. 
+ * @returns The imported module typed as `T`.
+ *
+ * @example
+ * const config = await importFile<AppConfig>('./config/app.ts')
+ */
 export const importFile = async <T = unknown> (filePath: string): Promise<T> => {
     const resolvedPath = resolve(filePath)
     const jiti = createJiti(pathToFileURL(resolvedPath).href, {
@@ -187,4 +197,18 @@ export const importFile = async <T = unknown> (filePath: string): Promise<T> => 
     })
 
     return await jiti.import<T>(resolvedPath)
+}
+
+/**
+ * Resolves the default export from a module, handling both CJS and ESM interop.
+ * In CJS modules, the default export is often the module itself (a function or object),
+ * while in ESM the default is nested under the `default` property.
+ *
+ * @param imp - The imported module
+ * @returns The resolved default export
+ */
+export const interopDefault = <T> (imp: T | { default: T }): T => {
+    return typeof imp === 'function'
+        ? imp as T
+        : (imp as { default: T }).default
 }

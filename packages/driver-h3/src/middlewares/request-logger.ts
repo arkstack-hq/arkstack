@@ -22,7 +22,8 @@ export const requestLogger = ({
 }: {
     allowInProduction?: boolean
 } = {}): H3Middleware => async (event, next) => {
-    if (nodeEnv() === 'prod' && !allowInProduction) return next()
+    const VERBOSE = process.env.VERBOSITY != '0'
+    if ((nodeEnv() === 'prod' && !allowInProduction) || !VERBOSE) return next()
 
     await next()
 
