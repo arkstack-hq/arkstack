@@ -51,7 +51,7 @@
         "@arkstack/auth": "workspace:^",
         "@arkstack/foundry": "workspace:^",
         "@arkstack/common": "workspace:^",
-        "h3": "2.0.1-rc.16"
+        "h3": "2.0.1-rc.22"
     },
     "peerDependenciesMeta": {
         "@arkstack/auth": {
