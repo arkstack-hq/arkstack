@@ -69,8 +69,8 @@ export interface NotificationConfig {
     default_driver: 'mail' | 'sms' | 'db'
     drivers: {
         mail: { transport: 'smtp' | 'file'; from: string; test_address: string }
-        sms: { transport: 'africastalking'; from: string }
-        db: { table: 'user_notifications' }
+        sms: { transport: 'africastalking' | 'twillio'; from: string }
+        db: { table: string }
     }
     transports: {
         smtp: {
