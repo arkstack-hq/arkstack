@@ -28,7 +28,7 @@
         "stubs"
     ],
     "scripts": {
-        "build": "tsdown",
+        "build": "tsdown --config-loader unrun",
         "version:patch": "pnpm version patch",
         "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
     },

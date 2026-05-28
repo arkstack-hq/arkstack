@@ -42,6 +42,7 @@ export const depsList: Record<string, string> = {
     '@arkstack/auth': '^0.10.10',
     '@arkstack/common': '^0.10.10',
     '@arkstack/console': '^0.10.10',
+    '"@arkstack/foundry': '^0.10.10',
     // '@arkstack/console-slim': '^0.10.10', Depracated
     '@arkstack/contract': '^0.10.10',
     '@arkstack/database': '^0.10.10',

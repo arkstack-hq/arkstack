@@ -24,6 +24,7 @@
     "@arkstack/driver-express": "workspace:^",
     "@arkstack/filesystem": "workspace:^",
     "@arkstack/http": "workspace:^",
+    "@arkstack/foundry": "workspace:^",
     "@arkstack/notifications": "workspace:^",
     "@arkstack/view": "workspace:^",
     "@h3ravel/musket": "^0.10.1",

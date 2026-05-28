@@ -1,4 +1,4 @@
-import { PromiseOrValue } from './core'
+import { PromiseOrValue } from './Arkstack'
 
 export interface ArkstackRouteListOptions {
     path?: string;

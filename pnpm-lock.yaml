@@ -509,6 +509,9 @@ importers:
       '@arkstack/filesystem':
         specifier: workspace:^
         version: link:../../packages/filesystem
+      '@arkstack/foundry':
+        specifier: workspace:^
+        version: link:../../packages/foundry
       '@arkstack/http':
         specifier: workspace:^
         version: link:../../packages/http
@@ -648,6 +651,9 @@ importers:
       '@arkstack/filesystem':
         specifier: workspace:^
         version: link:../../packages/filesystem
+      '@arkstack/foundry':
+        specifier: workspace:^
+        version: link:../../packages/foundry
       '@arkstack/http':
         specifier: workspace:^
         version: link:../../packages/http

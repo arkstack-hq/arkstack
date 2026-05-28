@@ -1,5 +1,5 @@
 import { ArkstackMiddlewareConfig } from './http'
-import { PromiseOrValue } from './core'
+import { PromiseOrValue } from './Arkstack'
 
 /**
  * The ArkstackKitDriver class defines the contract for a driver 
