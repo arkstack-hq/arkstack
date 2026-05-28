@@ -2,9 +2,20 @@ import type { ViewComposer, ViewComposerName, ViewData, ViewFactoryOptions, View
 
 import { ViewFactory } from './ViewFactory'
 import type { ViewInstance } from './ViewInstance'
+import { Hook } from '@arkstack/foundry'
 
 export class View {
     private static factory = new ViewFactory()
+    private static usesDefaultFactoryRoot = true
+
+    static {
+        Hook.set('set:root-dir', {
+            after: () => {
+                if (View.usesDefaultFactoryRoot)
+                    View.factory = new ViewFactory()
+            }
+        })
+    }
 
     /**
      * Bootstrap the view service
@@ -25,6 +36,7 @@ export class View {
 
     static configure (options: ViewFactoryOptions = {}) {
         this.factory = new ViewFactory(options)
+        this.usesDefaultFactoryRoot = options.viewsPath === undefined && options.edge === undefined
 
         return this.factory
     }

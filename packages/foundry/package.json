@@ -1,0 +1,38 @@
+{
+    "name": "@arkstack/foundry",
+    "version": "0.10.10",
+    "type": "module",
+    "description": "Extensibility primitives and framework internals for the Arkstack ecosystem.",
+    "homepage": "https://arkstack.toneflix.net",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-tmp/arkstack.git",
+        "directory": "packages/foundry"
+    },
+    "keywords": [
+        "foundry",
+        "utilities",
+        "helpers",
+        "logging",
+        "configuration",
+        "error-handling",
+        "validation",
+        "arkstack"
+    ],
+    "files": [
+        "dist",
+        "resources"
+    ],
+    "scripts": {
+        "build": "tsdown --config-loader unrun",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./package.json": "./package.json"
+    }
+}

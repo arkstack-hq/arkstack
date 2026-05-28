@@ -7,3 +7,19 @@ declare global {
     command?: string
   }
 }
+
+declare module '@arkstack/common' {
+  interface HookRegistry {
+    'set:root-dir': {
+      after: (dir: string) => void
+    }
+  }
+}
+
+declare module '@arkstack/foundry' {
+  interface HookRegistry {
+    'set:root-dir': {
+      after: (dir: string) => void
+    }
+  }
+}

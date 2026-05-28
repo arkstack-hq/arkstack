@@ -96,8 +96,8 @@ importers:
         specifier: ^0.28.15
         version: 0.28.16
       parasito:
-        specifier: ^0.1.6
-        version: 0.1.6
+        specifier: ^0.2.3
+        version: 0.2.3
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -422,6 +422,8 @@ importers:
         specifier: ^9.0.6
         version: 9.0.6
 
+  packages/foundry: {}
+
   packages/http:
     dependencies:
       '@arkstack/contract':
@@ -558,8 +560,8 @@ importers:
         specifier: ^0.28.15
         version: 0.28.16
       parasito:
-        specifier: ^0.1.8
-        version: 0.1.8
+        specifier: ^0.2.3
+        version: 0.2.3
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -694,8 +696,8 @@ importers:
         specifier: ^0.28.15
         version: 0.28.16
       parasito:
-        specifier: ^0.1.8
-        version: 0.1.8
+        specifier: ^0.2.3
+        version: 0.2.3
       pg:
         specifier: ^8.20.0
         version: 8.20.0
@@ -4293,11 +4295,8 @@ packages:
   package-manager-detector@1.6.0:
     resolution: {integrity: sha512-61A5ThoTiDG/C8s8UMZwSorAGwMJ0ERVGj2OjoW5pAalsNOg15+iQiPzrLJ4jhZ1HJzmC2PIHT2oEiH3R5fzNA==}
 
-  parasito@0.1.6:
-    resolution: {integrity: sha512-0k6xvYDXXn17I8gosAPa2GyaYN57A2ArH8WkTqCNXimY93El2JvHL0SK+ZUiOmaROGxwd/or2c7vsuMI4o5CuA==}
-
-  parasito@0.1.8:
-    resolution: {integrity: sha512-j5WGH/7hz1URpRzi9lYffL/dX5ud91c+U59sS2Je4yHL1NnoZUrlUArGbLxpZuCwNd/Z/kRXdU9eWCa3hFyUdA==}
+  parasito@0.2.3:
+    resolution: {integrity: sha512-RM1HbKVEIh6FL+6kgVFdXR/PqHTkeCPn7Gc5a2UMFNnxDPWn4LuuscglDnN0jDwtraBiGck07XPVxlY0F/3bUg==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -9457,13 +9456,7 @@ snapshots:
 
   package-manager-detector@1.6.0: {}
 
-  parasito@0.1.6:
-    dependencies:
-      superagent: 10.3.0
-    transitivePeerDependencies:
-      - supports-color
-
-  parasito@0.1.8:
+  parasito@0.2.3:
     dependencies:
       superagent: 10.3.0
     transitivePeerDependencies:
