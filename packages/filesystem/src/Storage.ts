@@ -16,7 +16,6 @@ export class Storage implements DriverContract {
     diskName: string
 
     constructor() {
-
         const disks = Object.entries(config('filesystem.disks', {})) as Array<[string, DriverConfig]>
         const customDrivers = config('filesystem.custom_drivers', {}) as Record<string, DriverContract>
 

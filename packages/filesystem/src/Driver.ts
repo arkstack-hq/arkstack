@@ -1,4 +1,4 @@
-import { CustomDiskDriverRegistry, DriverConfig, FtpDriverConfig, LocalDriverConfig, S3DriverConfig } from './types'
+import { CustomDiskConfig, CustomDiskDriverRegistry, DriverConfig, FtpDriverConfig, LocalDriverConfig, S3DriverConfig } from './types'
 import { DriverContract, SignedURLOptions } from 'flydrive/types'
 
 import { FSDriver } from 'flydrive/drivers/fs'
@@ -13,7 +13,10 @@ type DriverFor<K extends string> = K extends keyof BuiltInDriverMap
     : ReturnType<BuiltInDriverMap['custom']>
 
 export class Driver {
-    private static customDrivers = new Map<keyof CustomDiskDriverRegistry | (string & {}), DriverContract>()
+    private static customDrivers = new Map<
+        keyof CustomDiskDriverRegistry | (string & {}),
+        DriverContract | (new (config?: CustomDiskConfig) => DriverContract)
+    >()
 
     constructor(private config: DriverConfig) { }
 
@@ -25,7 +28,7 @@ export class Driver {
             throw new Error(`Unsupported driver: ${name}`)
         }
 
-        const driver = new Driver(config)
+        const driver = new Driver(config as never)
 
         if (this.customDrivers.has(name)) {
             return driver.custom(name) as DriverFor<K>
@@ -87,7 +90,15 @@ export class Driver {
             throw new Error(`Unsupported driver: ${name} has not been registered`)
         }
 
-        return Driver.customDrivers.get(name)!
+        const DriverInstance = Driver.customDrivers.get(name)!
+
+        if (typeof DriverInstance === 'function') {
+            const config = this.config as CustomDiskConfig
+
+            return new DriverInstance(config)
+        }
+
+        return DriverInstance
     }
 
     /**
