@@ -1,8 +1,9 @@
 import { Arkstack } from '@arkstack/contract'
+import { FilesystemConfig } from '@arkstack/filesystem'
 import { env } from '@arkstack/common'
 import path from 'node:path'
 
-export default () => {
+export default (): FilesystemConfig => {
     return {
         /**
          * Default filesystem disk to be used by the framework.
@@ -11,6 +12,7 @@ export default () => {
 
         /**
          * Available disks and their configurations. 
+         * 
          * You can configure as many disks as you want, and even have multiple disks 
          * using the same driver.
          * 
@@ -20,10 +22,12 @@ export default () => {
             local: {
                 driver: 'local',
                 root: path.join(Arkstack.rootDir(), './storage/app'),
+                visibility: 'public',
             },
             public: {
                 driver: 'local',
                 root: path.join(Arkstack.rootDir(), './storage/app/public'),
+                visibility: 'public'
             },
             ftp: {
                 driver: 'ftp',
@@ -42,6 +46,7 @@ export default () => {
                 bucket: env('AWS_BUCKET'),
                 url: env('AWS_URL'),
                 endpoint: env('AWS_ENDPOINT'),
+                visibility: 'public',
             }
         },
 

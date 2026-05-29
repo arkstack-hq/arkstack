@@ -17,3 +17,4 @@ docs/.vitepress/cache
 
 /arkstack-express
 /arkstack-express/*
+/storage

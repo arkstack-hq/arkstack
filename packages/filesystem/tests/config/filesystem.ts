@@ -1,5 +1,5 @@
 import { Arkstack } from '@arkstack/contract'
-import { FilesystemConfig } from '@arkstack/filesystem'
+import type { FilesystemConfig } from '../../src'
 import { env } from '@arkstack/common'
 import path from 'node:path'
 
@@ -8,7 +8,7 @@ export default (): FilesystemConfig => {
         /**
          * Default filesystem disk to be used by the framework.
          */
-        default: env('FILESYSTEM_DISK', 'local'),
+        default: env('FILESYSTEM_DISK', 'public'),
 
         /**
          * Available disks and their configurations. 

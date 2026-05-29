@@ -1,9 +1,9 @@
+import { Arr, Obj, undot } from '@h3ravel/support'
 import { ConfigRegistry, DotPath, FileImporter, GlobalConfig, GlobalEnv } from './types'
 import { JitiOptions, JitiResolveOptions, createJiti } from 'jiti'
 
 import { Arkstack } from '@arkstack/contract'
 import { Dirent } from 'node:fs'
-import { Obj } from '@h3ravel/support'
 import { createRequire } from 'module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -84,6 +84,9 @@ export const appUrl = (link?: string): string => {
     }
 }
 
+export const CONFIG_KEY = Symbol('globalConfig');
+(globalThis as any)[CONFIG_KEY] = {}
+
 /**
  * Gets the application configuration.
  *
@@ -104,43 +107,53 @@ export const config: GlobalConfig = <
             : process.env
     }
 
-    let files: Dirent<string>[]
-    const dist = path.relative(Arkstack.rootDir(), outputDir())
-    const require = createRequire(import.meta.url)
+    const config = (globalThis as any)[CONFIG_KEY]
 
-    try {
-        files = readdirSync(path.join(Arkstack.rootDir(), `${dist}/config`), {
-            withFileTypes: true,
-        }).filter((file) => {
-            if (file.name.includes('middleware') && globalThis.arkctx?.runtime === 'CLI')
-                return false
+    if (Object.entries(config).length < 1) {
+        let files: Dirent<string>[]
+        const dist = path.relative(Arkstack.rootDir(), outputDir())
+        const require = createRequire(import.meta.url)
+        const configDir = env('CONFIG_PATH', path.join(Arkstack.rootDir(), `${dist}/config`))
 
-            return (
-                file.isFile() && (file.name.endsWith('.js') || file.name.endsWith('.ts'))
-            )
-        })
-    } catch {
-        files = [] as Dirent<string>[]
+        try {
+            files = readdirSync(configDir, {
+                withFileTypes: true,
+            }).filter((file) => {
+                if (file.name.includes('middleware') && globalThis.arkctx?.runtime === 'CLI')
+                    return false
+
+                return (
+                    file.isFile() && (file.name.endsWith('.js') || file.name.endsWith('.ts'))
+                )
+            })
+        } catch {
+            files = [] as Dirent<string>[]
+        }
+
+        Object.assign(config, files.reduce(
+            (configs, file) => {
+                const configName = path.basename(file.name, path.extname(file.name))
+
+                configs[configName] = require(
+                    path.join(file.parentPath, file.name),
+                ).default(typeof globalThis.app === 'function' ? globalThis.app() : {})
+
+                return configs
+            },
+            {} as Record<string, any>,
+        ) as X);
+
+        (globalThis as any)[CONFIG_KEY] = config
     }
 
-    const config = files.reduce(
-        (configs, file) => {
-            const configName = path.basename(file.name, path.extname(file.name))
-
-            configs[configName] = require(
-                path.join(file.parentPath, file.name),
-            ).default(typeof globalThis.app === 'function' ? globalThis.app() : {})
-
-            return configs
-        },
-        {} as Record<string, any>,
-    ) as X
-
-    if (key) {
-        return Obj.get(config, key as never, defaultValue)
+    if (typeof key === 'object') {
+        const config = Object.assign({}, Arr.dot((globalThis as any)[CONFIG_KEY]), key);
+        (globalThis as any)[CONFIG_KEY] = undot(config)
+    } else if (key) {
+        return Obj.get((globalThis as any)[CONFIG_KEY], key as never, defaultValue)
     }
 
-    return config
+    return (globalThis as any)[CONFIG_KEY]
 }
 
 /**

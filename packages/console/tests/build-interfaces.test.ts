@@ -33,6 +33,10 @@ describe('BuildInterfaces', () => {
             },
         }))
         await writeFile(join(configDir, 'app.ts'), 'export default () => ({ name: "Arkstack" })')
+        await writeFile(
+            join(configDir, 'filesystem.ts'),
+            'import { FilesystemConfig } from "@arkstack/filesystem"\nexport default (): FilesystemConfig => ({ default: "local", disks: {}, links: {} })',
+        )
         await writeFile(join(configDir, 'middleware.ts'), 'export default () => ({ global: [() => undefined] })')
 
         Arkstack.setRootDir(root)
@@ -41,6 +45,8 @@ describe('BuildInterfaces', () => {
         const declaration = await readFile(join(root, '.arkstack', 'ark.d.ts'), 'utf8')
 
         expect(declaration).toContain('app: {')
+        expect(declaration).toContain('import type { FilesystemConfig } from \'@arkstack/filesystem\'')
+        expect(declaration).toContain('filesystem: FilesystemConfig')
         expect(declaration).toContain('middleware: {')
         expect(declaration).toContain('global: Function[]')
     })

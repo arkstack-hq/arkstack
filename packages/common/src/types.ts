@@ -82,6 +82,7 @@ export interface GlobalConfig {
     <X extends ConfigShape, P extends DotPath<X>> (
         key: P,
     ): DotPathValue<X, P>
+    <X extends ConfigShape, P extends DotPath<X>> (key: Record<P, Partial<DotPathValue<X, P>>>): void;
     <X extends ConfigShape, P extends DotPath<X>, D> (
         key: P,
         defaultValue: D,

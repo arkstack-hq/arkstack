@@ -1,5 +1,5 @@
 import { BaseTCConfig, TSConfig } from './TSConfig'
-import { Project, Type } from 'ts-morph'
+import { Node, Project, Type } from 'ts-morph'
 import { readdirSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
@@ -44,6 +44,7 @@ export class BuildInterfaces {
 
         const files = readdirSync(configDir).filter(f => f.endsWith('.ts'))
 
+        const imports = new Map<string, Set<string>>()
         const properties: string[] = []
 
         for (const file of files) {
@@ -61,6 +62,14 @@ export class BuildInterfaces {
             if (!exportAssignment) continue
 
             const expr = exportAssignment.getExpression()
+            const annotatedType = BuildInterfaces.resolveReturnTypeAnnotation(sourceFile, expr, imports)
+
+            if (annotatedType) {
+                properties.push(`        ${configName}: ${annotatedType}`)
+
+                continue
+            }
+
             const type = BuildInterfaces.checker.getTypeAtLocation(expr)
 
             // Unwrap the factory function to get the return type
@@ -74,6 +83,7 @@ export class BuildInterfaces {
         }
 
         return [
+            ...BuildInterfaces.renderImports(imports),
             'declare module \'@arkstack/common\' {',
             '    interface ConfigRegistry {',
             ...properties,
@@ -82,6 +92,77 @@ export class BuildInterfaces {
             '',
             'export {}',
         ].join('\n')
+    }
+
+    private static resolveReturnTypeAnnotation (
+        sourceFile: ReturnType<Project['addSourceFileAtPath']>,
+        expr: Node,
+        imports: Map<string, Set<string>>,
+    ) {
+        if (!Node.isArrowFunction(expr) && !Node.isFunctionExpression(expr)) {
+            return undefined
+        }
+
+        const returnType = expr.getReturnTypeNode()
+
+        if (!returnType) {
+            return undefined
+        }
+
+        const referencedNames = new Set<string>()
+
+        if (Node.isTypeReference(returnType)) {
+            referencedNames.add(returnType.getTypeName().getText())
+        }
+
+        returnType.forEachDescendant(node => {
+            if (Node.isTypeReference(node)) {
+                referencedNames.add(node.getTypeName().getText())
+            }
+        })
+
+        for (const name of referencedNames) {
+            const imported = BuildInterfaces.findNamedTypeImport(sourceFile, name)
+
+            if (imported) {
+                const specifiers = imports.get(imported.moduleSpecifier) ?? new Set<string>()
+                specifiers.add(imported.specifier)
+                imports.set(imported.moduleSpecifier, specifiers)
+            }
+        }
+
+        return returnType.getText(!!sourceFile)
+    }
+
+    private static findNamedTypeImport (
+        sourceFile: ReturnType<Project['addSourceFileAtPath']>,
+        name: string,
+    ) {
+        for (const declaration of sourceFile.getImportDeclarations()) {
+            for (const namedImport of declaration.getNamedImports()) {
+                const alias = namedImport.getAliasNode()?.getText()
+                const importedName = namedImport.getName()
+
+                if ((alias ?? importedName) !== name) {
+                    continue
+                }
+
+                return {
+                    moduleSpecifier: declaration.getModuleSpecifierValue(),
+                    specifier: alias ? `${importedName} as ${alias}` : importedName,
+                }
+            }
+        }
+    }
+
+    private static renderImports (imports: Map<string, Set<string>>) {
+        return [...imports.entries()]
+            .sort(([left], [right]) => left.localeCompare(right))
+            .map(([moduleSpecifier, specifiers]) => {
+                const names = [...specifiers].sort().join(', ')
+
+                return `import type { ${names} } from '${moduleSpecifier}'`
+            })
     }
 
     /**
