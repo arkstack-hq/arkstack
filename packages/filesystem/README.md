@@ -41,7 +41,7 @@ export class CloudinaryFileDriver implements DriverContract {
 import { CloudinaryFileDriver } from '../CloudinaryFileDriver';
 export default () => {
   return {
-    default: 'memory',
+    default: 'images',
     disks: {
       images: {
         //...Other Disks Here
