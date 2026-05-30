@@ -2,7 +2,7 @@
   "name": "h3-app",
   "description": "Arkstack framework application running on the H3 driver.",
   "type": "module",
-  "version": "0.12.0",
+  "version": "0.12.2",
   "base": true,
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
@@ -31,7 +31,7 @@
     "@h3ravel/musket": "^0.10.1",
     "@h3ravel/support": "^0.15.11",
     "@kanun-hq/plugin-file": "^0.1.12",
-    "clear-router": "^2.7.7",
+    "clear-router": "^2.8.0",
     "arkormx": "^ 2.4.1",
     "resora": "^1.3.6",
     "kanun": "^1.2.0",

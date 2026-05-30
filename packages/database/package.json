@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/database",
-    "version": "0.12.0",
+    "version": "0.12.2",
     "type": "module",
     "description": "Database module for Arkstack, providing core database integration and data layer features.",
     "homepage": "https://arkstack.toneflix.net",
@@ -51,10 +51,10 @@
     },
     "peerDependencies": {
         "kanun": "^1.2.0",
-        "clear-router": "^2.7.7"
+        "clear-router": "^2.8.0"
     },
     "dependencies": {
-        "@arkormx/plugin-clear-router": "^0.1.26",
+        "@arkormx/plugin-clear-router": "^0.1.27",
         "@arkstack/common": "workspace:^",
         "@arkstack/contract": "workspace:^",
         "arkormx": "^ 2.4.1"

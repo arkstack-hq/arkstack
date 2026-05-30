@@ -2,7 +2,7 @@
   "name": "express-app",
   "description": "Arkstack framework application running on the Express driver.",
   "type": "module",
-  "version": "0.12.0",
+  "version": "0.12.2",
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
     "prebuild": "pnpm -w run build:packages --log-level silent",
@@ -33,7 +33,7 @@
     "argon2": "^0.44.0",
     "arkormx": "^ 2.4.1",
     "chalk": "^5.6.2",
-    "clear-router": "^2.7.7",
+    "clear-router": "^2.8.0",
     "commander": "^14.0.3",
     "cors": "^2.8.6",
     "date-fns": "^4.1.0",
