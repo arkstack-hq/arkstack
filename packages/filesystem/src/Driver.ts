@@ -34,7 +34,7 @@ export class Driver {
             return driver.custom(name) as DriverFor<K>
         }
 
-        return driver['ftp'].apply(this) as DriverFor<K>
+        return driver[name as 'ftp'].apply(this) as DriverFor<K>
 
     }
 
