@@ -6,7 +6,6 @@ export default defineConfig({
     entry: ['src/index.ts', 'src/middlewares/index.ts', 'src/types.ts'],
     exports: true,
     format: 'esm',
-    sourcemap: true,
     dts: true,
     clean: true,
     outDir: 'dist',

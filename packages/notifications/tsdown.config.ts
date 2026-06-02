@@ -4,8 +4,7 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
     ...baseConfig,
     entry: ['src/index.ts'],
-    format: 'esm',
-    sourcemap: true,
+    format: 'esm', 
     shims: false,
     outDir: 'dist',
     copy: [{ from: 'src/resources', to: 'src/../' }]
