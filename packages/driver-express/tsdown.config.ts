@@ -4,7 +4,7 @@ import { defineConfig } from 'tsdown'
 export default defineConfig({
     hooks: config.hooks,
     entry: ['src/index.ts', 'src/middlewares/index.ts', 'src/types.ts'],
-    sourcemap: true,
+    sourcemap: false,
     exports: true,
     format: 'esm',
     dts: true,
