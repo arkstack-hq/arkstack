@@ -5,15 +5,13 @@ export default defineConfig([
     {
         ...baseConfig,
         entry: ['src/index.ts', 'src/setup.ts'],
-        format: 'esm',
-        sourcemap: true,
+        format: 'esm', 
         shims: false,
         outDir: 'dist',
     }, {
         ...baseConfig,
         entry: ['src/commands/*.ts'],
-        format: 'esm',
-        sourcemap: false,
+        format: 'esm', 
         shims: false,
         dts: false,
         outDir: 'dist/commands',

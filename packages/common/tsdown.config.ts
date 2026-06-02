@@ -5,7 +5,6 @@ export default defineConfig({
     ...baseConfig,
     entry: ['src/index.ts', 'src/utils/index.ts'],
     format: 'esm',
-    sourcemap: true,
     outDir: 'dist',
     copy: [{ from: 'src/resources', to: 'src/../' }]
 })
