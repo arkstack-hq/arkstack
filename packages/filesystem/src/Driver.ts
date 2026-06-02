@@ -34,8 +34,9 @@ export class Driver {
             return driver.custom(name) as DriverFor<K>
         }
 
-        return driver[name as 'ftp'].apply(this) as DriverFor<K>
+        const factory = driver[name as 'local']
 
+        return factory.call(driver) as DriverFor<K>
     }
 
     local () {
