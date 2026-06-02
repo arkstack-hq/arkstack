@@ -1,5 +1,7 @@
 # @arkstack/notifications
 
+[![@arkstack/notifications](https://img.shields.io/npm/dt/@arkstack/notifications?style=flat-square&label=@arkstack/notifications&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/notifications)](https://www.npmjs.com/package/@arkstack/notifications)
+
 Framework-agnostic notification module for Arkstack and Nodejs, providing support for multi-channel notification delivery.
 
 ```ts

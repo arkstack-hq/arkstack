@@ -1,5 +1,7 @@
 # @arkstack/http
 
+[![@arkstack/http](https://img.shields.io/npm/dt/@arkstack/http?style=flat-square&label=@arkstack/http&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/http)](https://www.npmjs.com/package/@arkstack/http)
+
 HTTP module for Arkstack, providing framework-agnostic request and response primitives.
 
 ```ts

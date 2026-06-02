@@ -1,5 +1,7 @@
 # @arkstack/auth
 
+[![@arkstack/auth](https://img.shields.io/npm/dt/@arkstack/auth?style=flat-square&label=@arkstack/auth&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/auth)](https://www.npmjs.com/package/@arkstack/auth)
+
 Authentication module for Arkstack, providing core authentication and identity features.
 
 `@arkstack/auth` provides the framework-neutral auth service used by Arkstack runtime drivers. It supports credential verification, JWT-backed personal access tokens, temporary purpose-bound tokens, current-session lookup, two-factor authentication helpers, and auth-specific exceptions.

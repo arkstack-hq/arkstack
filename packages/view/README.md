@@ -1,5 +1,7 @@
 # @arkstack/view
 
+[![@arkstack/view](https://img.shields.io/npm/dt/@arkstack/view?style=flat-square&label=@arkstack/view&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/view)](https://www.npmjs.com/package/@arkstack/view)
+
 View module for Arkstack, providing template rendering and view integration utilities.
 
 ```ts

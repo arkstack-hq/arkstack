@@ -1,5 +1,7 @@
 # @arkstack/filesystem
 
+[![@arkstack/filesystem](https://img.shields.io/npm/dt/@arkstack/filesystem?style=flat-square&label=@arkstack/filesystem&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/filesystem)](https://www.npmjs.com/package/@arkstack/filesystem)
+
 Filesystem module for Arkstack, providing shared file storage and filesystem utitlities for the framework.
 
 ## Custom Drivers

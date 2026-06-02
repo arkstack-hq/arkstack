@@ -1,5 +1,7 @@
 # @arkstack/driver-express
 
+[![@arkstack/driver-express](https://img.shields.io/npm/dt/@arkstack/driver-express?style=flat-square&label=@arkstack/driver-express&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/driver-express)](https://www.npmjs.com/package/@arkstack/driver-express)
+
 Express driver for Arkstack, providing Express-based runtime integration for the framework.
 
 ## Auth Middleware

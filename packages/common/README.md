@@ -1,5 +1,7 @@
 # `@arkstack/common`
 
+[![@arkstack/common](https://img.shields.io/npm/dt/@arkstack/common?style=flat-square&label=@arkstack/common&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/common)](https://www.npmjs.com/package/@arkstack/common)
+
 Core utilities, primitives, and shared infrastructure for the Arkstack framework ecosystem. This package provides the building blocks used across all Arkstack packages — error handling, logging, hashing, encryption, lifecycle management, hooks, and more.
 
 ---

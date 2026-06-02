@@ -1,5 +1,7 @@
 # @arkstack/driver-h3
 
+[![@arkstack/driver-h3](https://img.shields.io/npm/dt/@arkstack/driver-h3?style=flat-square&label=@arkstack/driver-h3&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/driver-h3)](https://www.npmjs.com/package/@arkstack/driver-h3)
+
 H3 driver for Arkstack, providing H3-based runtime integration for the framework.
 
 ## Auth Middleware
