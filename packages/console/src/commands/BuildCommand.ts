@@ -3,8 +3,10 @@ import { Command } from '@h3ravel/musket'
 import { spawn } from 'node:child_process'
 
 export class BuildCommand extends Command {
-    protected signature = 'build'
-
+    protected signature = `build
+    {--d|dev : Run the build in dev mode, the dev server will not be fired}
+    `
+    
     protected description = 'Build the application for production'
 
     async handle () {
@@ -14,7 +16,8 @@ export class BuildCommand extends Command {
                 cwd: Arkstack.rootDir(),
                 stdio: 'inherit',
                 env: Object.assign(process.env, {
-                    NODE_ENV: 'production',
+                    NODE_ENV: this.option('dev') ? 'development' : 'production',
+                    CLI_BUILD: this.option('dev') ? 'true' : undefined
                 }),
             })
 
