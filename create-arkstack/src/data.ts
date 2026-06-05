@@ -60,8 +60,18 @@ export const environment = {
         'APP_PORT',
     ],
     max: [
+        'APP_NAME',
         'JWT_SECRET',
         'JWT_EXPIRES_IN',
         'DATABASE_URL',
+        'JWT_SECRET',
+        'TWO_FACTOR_ENCRYPTION_KEY',
+        'MAIL_HOST',
+        'MAIL_PORT',
+        'MAIL_SECURE',
+        'MAIL_USERNAME',
+        'MAIL_PASSWORD',
+        'MAIL_FROM_ADDRESS',
+        'MAIL_TEST_ADDRESS',
     ],
 }
