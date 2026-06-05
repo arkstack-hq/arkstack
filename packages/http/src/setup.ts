@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import type { OldHelper, RedirectHelper, RequestHelper, SessionHelper } from './types/Http'
 import { arkstackHttpPlugin, kanunSessionPlugin } from './session'
 
