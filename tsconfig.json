@@ -15,7 +15,6 @@
     "strictPropertyInitialization": true,
     "strictBindCallApply": true,
     "noImplicitAny": true,
-    "removeComments": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   }
