@@ -1,9 +1,10 @@
-import type { MailDriverOptions, MailRecipient, NotificationChannel, NotificationData, NotificationRecipient, NotificationUser, SmsDriverOptions } from './types'
+import type { MailDriverOptions, MailRecipient, NotificationChannel, NotificationData, NotificationRecipient, SmsDriverOptions } from './types'
 
 import { DbNotification } from './drivers/DbNotification'
 import { DriverMap } from './Contracts/Maps'
 import { MailNotification } from './drivers/MailNotification'
 import { SmsNotification } from './drivers/SmsNotification'
+import { User } from '@app/models/User'
 import { configure } from './config'
 
 export class Notification<D extends keyof DriverMap = keyof DriverMap> {
@@ -37,7 +38,7 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
     }
 
     prepare (
-        recipient?: null | MailRecipient | NotificationRecipient | NotificationUser,
+        recipient?: null | MailRecipient | NotificationRecipient | User,
         data: NotificationData = {}
     ) {
         this.driver.data(data)
