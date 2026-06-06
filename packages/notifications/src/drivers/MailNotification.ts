@@ -13,7 +13,7 @@ import type {
     MergedTransportConfig,
     NotificationData,
 } from '../types'
-import type { User } from '@arkstack/auth'
+import { User } from '@arkstack/auth'
 import { Arkstack } from '@arkstack/contract'
 
 export class MailNotification extends NotificationContract {

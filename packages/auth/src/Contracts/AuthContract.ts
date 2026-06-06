@@ -1,7 +1,7 @@
 import { Session } from '../Session'
-import { PersonalAccessToken } from './PersonalAccessToken'
+import type { PersonalAccessToken } from '@app/models/PersonalAccessToken'
 import { Request, type RequestSource } from '@arkstack/http'
-import { User } from './User'
+import type { User } from '@app/models/User'
 
 /**
  * The Auth class provides methods for user authentication, including verifying 

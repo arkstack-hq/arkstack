@@ -1,4 +1,5 @@
-import type { User, Auth } from '@arkstack/auth'
+import type { Auth } from '@arkstack/auth'
+import type { User } from '@app/models/User'
 
 declare module 'node:http' {
   interface IncomingMessage {

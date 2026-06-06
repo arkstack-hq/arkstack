@@ -1,14 +1,14 @@
+import type { DbNotificationPayload } from './types'
+import type { User } from '@app/models/User'
+import type { UserNotification } from '@app/models/UserNotification'
 import { getModel } from '@arkstack/common'
-
-import { UserNotification } from './Contracts/UserNotification'
-import type { DbNotificationPayload, NotificationUser } from './types'
 
 export class UserNotificationCenter {
     private static async getModel () {
         return await getModel<typeof UserNotification>('UserNotification')
     }
 
-    static async create (user: NotificationUser, payload: DbNotificationPayload) {
+    static async create (user: User, payload: DbNotificationPayload) {
         const Model = await this.getModel()
 
         return await Model.query().create({
@@ -22,13 +22,13 @@ export class UserNotificationCenter {
         })
     }
 
-    static async forUser (user: NotificationUser) {
+    static async forUser (user: User) {
         const Model = await this.getModel()
 
         return await Model.query().where({ userId: user.id }).get()
     }
 
-    static async unreadForUser (user: NotificationUser) {
+    static async unreadForUser (user: User) {
         const Model = await this.getModel()
 
         return await Model.query().where({ userId: user.id, readAt: null }).get()
@@ -36,17 +36,17 @@ export class UserNotificationCenter {
 
     static async markRead (notification: UserNotification | UserNotification['id']) {
         const Model = await this.getModel()
-        const id = notification instanceof UserNotification ? notification.id : notification
+        const id = typeof notification === 'object' ? notification.id : notification
         const readAt = new Date()
 
         await Model.query().where({ id }).update({ readAt })
 
-        if (notification instanceof UserNotification) {
+        if (typeof notification === 'object') {
             notification.readAt = readAt
         }
     }
 
-    static async markAllRead (user: NotificationUser) {
+    static async markAllRead (user: User) {
         const Model = await this.getModel()
 
         await Model.query().where({ userId: user.id, readAt: null }).update({ readAt: new Date() })
@@ -54,7 +54,7 @@ export class UserNotificationCenter {
 
     static async delete (notification: UserNotification | UserNotification['id']) {
         const Model = await this.getModel()
-        const id = notification instanceof UserNotification ? notification.id : notification
+        const id = typeof notification === 'object' ? notification.id : notification
 
         await Model.query().where({ id }).delete()
     }

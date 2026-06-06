@@ -1,5 +1,5 @@
 import { AuthContract } from './Contracts/AuthContract'
-import { PersonalAccessToken } from './Contracts/PersonalAccessToken'
+import type { PersonalAccessToken } from '@app/models/PersonalAccessToken'
 import { Session as HttpSession } from '@arkstack/http'
 import { getModel } from '@arkstack/common'
 

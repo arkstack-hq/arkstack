@@ -1,5 +1,5 @@
 import type { MergedConfig } from '@arkstack/common'
-import type { UserNotification } from './Contracts/UserNotification'
+import type { UserNotification } from '@app/models/UserNotification'
 
 export type NotificationRecipient = string | string[]
 
@@ -12,12 +12,6 @@ export type NotificationData = Record<string, unknown>
 export type SmsDriverName = 'africastalking' | 'twilio'
 
 export type NotificationChannel = 'mail' | 'sms' | 'db'
-
-export type NotificationUser = {
-    id: string | number
-    email?: string | null
-    phone?: string | null
-}
 
 export type MailDriverOptions = {
     transport?: 'africastalking' | 'twilio' | 'file' | 'smtp'

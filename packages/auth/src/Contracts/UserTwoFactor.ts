@@ -1,7 +1,7 @@
 import { Model } from '@arkstack/database'
 
 import type { SmsCodePurpose, TwoFactorMethod } from '../types/TwoFactor'
-import type { User } from './User'
+import type { User } from '@app/models/User'
 
 export abstract class UserTwoFactor extends Model {
     [key: string]: any

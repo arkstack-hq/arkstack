@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-
 // Augmentable Hooks Registry 
 export interface HookRegistry { }
 

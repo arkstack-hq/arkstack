@@ -1,13 +1,14 @@
-import type { DbNotificationPayload, NotificationData, NotificationRecipient, NotificationUser } from '../types'
+import type { DbNotificationPayload, NotificationData, NotificationRecipient } from '../types'
 
 import { NotificationContract } from '../Contracts/NotificationContract'
-import { UserNotification } from '../Contracts/UserNotification'
+import type { User } from '@app/models/User'
+import type { UserNotification } from '@app/models/UserNotification'
 import { UserNotificationCenter } from '../UserNotificationCenter'
 import { getModel } from '@arkstack/common'
 import { interpolate } from '../utils/template'
 
 export class DbNotification extends NotificationContract<UserNotification> {
-    private user?: NotificationUser
+    private user?: User
     private payload: Partial<DbNotificationPayload> = {}
 
     from (_from: string): this {
@@ -20,7 +21,7 @@ export class DbNotification extends NotificationContract<UserNotification> {
         return this
     }
 
-    recipient (recipient: NotificationRecipient | NotificationUser): this {
+    recipient (recipient: NotificationRecipient | User): this {
         if (typeof recipient === 'object' && !Array.isArray(recipient) && 'id' in recipient) {
             this.user = recipient
 
@@ -49,7 +50,7 @@ export class DbNotification extends NotificationContract<UserNotification> {
         return this
     }
 
-    async create (user: NotificationUser, payload: DbNotificationPayload) {
+    async create (user: User, payload: DbNotificationPayload) {
         await getModel<typeof UserNotification>('UserNotification')
 
         return await UserNotificationCenter.create(user, payload)

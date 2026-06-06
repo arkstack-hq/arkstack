@@ -2,8 +2,8 @@ import { Encryption, Hash, env, getModel } from '@arkstack/common'
 import type { IssuedSmsCode, SmsCodePurpose, TwoFactorMethod, TwoFactorSetup, TwoFactorStatus } from './types/TwoFactor'
 
 import { Secret } from 'otpauth'
-import { User } from './Contracts/User'
-import { UserTwoFactor } from './Contracts/UserTwoFactor'
+import type { User } from '@app/models/User'
+import type { UserTwoFactor } from '@app/models/UserTwoFactor'
 import { randomBytes } from 'node:crypto'
 
 type TwoFactorUser = User & {

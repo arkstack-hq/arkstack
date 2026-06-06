@@ -29,6 +29,15 @@ export default defineConfig({
                 find: /^@arkstack\/([^/]+)$/,
                 replacement: path.resolve(__dirname, 'packages') + '/$1/src/index.ts',
             },
+            {
+                find: /^@app\/models\/([^/]+)$/,
+                replacement: '$1',
+                customResolver (source, importer) {
+                    const pkgRoot = (importer ?? '').split('/src/').at(0)!
+
+                    return path.resolve(pkgRoot, 'src/Contracts', `${source}.ts`)
+                },
+            },
         ],
         tsconfigPaths: true,
     } as ViteUserConfig['resolve'],
