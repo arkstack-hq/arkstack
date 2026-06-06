@@ -112,21 +112,6 @@ jobs:
       - name: Set package versions
         run: pnpm prepare:release-version ${{ steps.release_version.outputs.version }}
 
-      - name: Commit release version changes
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json packages/*/package.json templates/*/package.json create-arkstack/package.json create-arkstack/src/data.ts
-
-          if git diff --cached --quiet; then
-            echo "Release version files are already up to date."
-            exit 0
-          fi
-
-          git commit -m "chore: prepare release v${{ steps.release_version.outputs.version }}"
-          git push
-
       - name: Prepare Template Arkstack TSConfig
         run: |
           for template in templates/*; do
@@ -160,6 +145,21 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      - name: Commit release version changes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "Release version files are already up to date."
+            exit 0
+          fi
+
+          git commit -m "chore: prepare release v${{ steps.release_version.outputs.version }}"
+          git push
 
       - name: Publish to NPM
         run: pnpm publish:packages
