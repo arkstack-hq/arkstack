@@ -34,7 +34,8 @@
     },
     "dependencies": {
         "@arkstack/contract": "workspace:^",
-        "clear-router": "^2.8.0"
+        "clear-router": "^2.8.0",
+        "dotenv": "17.3.1"
     },
     "peerDependencies": {
         "arkormx": "^2.4.1",
