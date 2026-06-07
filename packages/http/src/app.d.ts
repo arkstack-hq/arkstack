@@ -1,5 +1,5 @@
 import type { ErrorBag } from '.'
-import type { Session } from '@arkstack/auth'
+import type { AuthSession } from '@arkstack/auth'
 
 declare module 'clear-router' {
   interface ClearHttpContext {
@@ -11,28 +11,28 @@ declare module 'clear-router' {
 declare module 'node:http' {
   interface IncomingMessage {
     rawBody?: Buffer
-    session?: Session | undefined;
+    session?: AuthSession | undefined;
   }
 }
 
 declare module 'clear-router/types/h3' {
   interface HttpRequest {
     rawBody?: Buffer
-    session?: Session | undefined;
+    session?: AuthSession | undefined;
   }
 }
 
 declare module 'clear-router' {
   interface HttpRequests {
     rawBody?: Buffer
-    session?: Session | undefined;
+    session?: AuthSession | undefined;
   }
 }
 
 declare module 'h3' {
   interface H3EventContext {
     rawBody?: Buffer
-    session?: Session | undefined;
+    session?: AuthSession | undefined;
   }
 }
 
@@ -40,7 +40,7 @@ declare global {
   namespace Express {
     interface Request {
       rawBody?: Buffer
-      session?: Session | undefined;
+      session?: AuthSession | undefined;
     }
   }
 }
