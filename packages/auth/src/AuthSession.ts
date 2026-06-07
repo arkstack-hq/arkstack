@@ -8,7 +8,7 @@ import { getModel } from '@arkstack/common'
  *
  * @author 3m1n3nc3
  */
-export class Session extends HttpSession {
+export class AuthSession extends HttpSession {
     constructor(private auth: AuthContract, current: HttpSession | undefined = (globalThis as any).session?.()) {
         super(current instanceof HttpSession ? current : undefined)
     }

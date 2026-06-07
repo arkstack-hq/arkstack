@@ -3,7 +3,7 @@ import { JWTPayload, SignJWT, jwtVerify } from 'jose'
 
 import { AuthContract } from './Contracts/AuthContract'
 import { AuthenticationException } from './Exceptions/AuthenticationException'
-import { Session } from './Session'
+import { AuthSession } from './AuthSession'
 import type { PersonalAccessToken } from '@app/models/PersonalAccessToken'
 import { Request, type RequestSource } from '@arkstack/http'
 import { SessionDevice } from './SessionDevice'
@@ -227,7 +227,7 @@ export class Auth extends AuthContract {
      * @returns 
      */
     session () {
-        return new Session(this)
+        return new AuthSession(this)
     }
 
     /**

@@ -1,4 +1,4 @@
-import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FileSessionDriver, FlashBag, Request, Response, Session, decodeSessionPayload, decryptSessionValue, ensureSession, kanunSessionPlugin, old, redirect, registerResponseFlashSweep } from '../src'
+import { CookieSessionDriver, DatabaseSessionDriver, ErrorBag, FileSessionDriver, FlashBag, Request, Response, Session, decodeSessionPayload, decryptSessionValue, ensureSession, kanunSessionPlugin, old, redirect, registerResponseFlashSweep, web } from '../src'
 import { describe, expect, it } from 'vitest'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 
@@ -176,15 +176,17 @@ describe('HTTP Session', () => {
             clearResponse: new Response({ source: { locals: {} } }),
         }
 
-        await (CoreRouter as any).resolvePluginHttpCtx(ctx)
+        await web(ctx, async () => {
+            await (CoreRouter as any).resolvePluginHttpCtx(ctx)
 
-        const validator = Validator.make({ email: '' }, { email: 'required|email' })
+            const validator = Validator.make({ email: '' }, { email: 'required|email' })
 
-        await expect(validator.passes()).resolves.toBe(false)
+            await expect(validator.passes()).resolves.toBe(false)
 
-        expect(ctx.session.errors.first('email')).toBe('The email field is required.')
-        expect(ctx.errors.first('email')).toBe('The email field is required.')
-        expect(ctx.clearResponse.source.locals.errors.first('email')).toBe('The email field is required.')
+            expect(ctx.session.errors.first('email')).toBe('The email field is required.')
+            expect(ctx.errors.first('email')).toBe('The email field is required.')
+            expect(ctx.clearResponse.source.locals.errors.first('email')).toBe('The email field is required.')
+        })
     })
 
     it('does not fail Kanun validation hooks when no request session exists', async () => {
@@ -315,7 +317,7 @@ describe('HTTP Session', () => {
         }
     })
 
-    it('registers the clear-router session plugin through http setup', async () => {
+    it('keeps clear-router HTTP contexts stateless until sessions are explicitly enabled', async () => {
         await import('../src/setup')
 
         const ctx: any = {
@@ -325,9 +327,11 @@ describe('HTTP Session', () => {
 
         await (CoreRouter as any).resolvePluginHttpCtx(ctx)
 
-        expect(ctx.session).toBeInstanceOf(Session)
-        expect(ctx.errors).toBe(ctx.session.errors)
-        expect(ctx.clearResponse.source.locals.session).toBe(ctx.session)
+        expect(ctx.session).toBeUndefined()
+        expect(ctx.httpSession).toBeUndefined()
+        expect(ctx.errors).toBeUndefined()
+        expect(ctx.clearResponse.source.locals.session).toBeUndefined()
+        expect(globalThis.session).toBeUndefined()
     })
     it('reads old input directly from the current request input', () => {
         new Request({

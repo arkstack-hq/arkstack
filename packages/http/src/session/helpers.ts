@@ -140,7 +140,11 @@ export const getSession = (ctx: unknown): Session | undefined => {
         return undefined
     }
 
-    const session = ctx[sessionKey] ?? ctx.session
+    const session = ctx[sessionKey]
+        ?? (ctx.httpSession instanceof Session ? ctx.httpSession : undefined)
+        ?? (ctx.session instanceof Session ? ctx.session : undefined)
+        ?? (isRecord(ctx.req) && ctx.req.httpSession instanceof Session ? ctx.req.httpSession : undefined)
+        ?? (isRecord(ctx.context) && ctx.context.httpSession instanceof Session ? ctx.context.httpSession : undefined)
 
     return session instanceof Session ? session : undefined
 }

@@ -31,6 +31,28 @@ const cookiePayload = (cookie: string) => {
 }
 
 describe('H3 web validation redirects', () => {
+    it('does not create sessions for routes without web middleware', async () => {
+        const app = new H3({ silent: true })
+        const Router = createRouter('stateless')
+
+        Router.get('/api/ping', (context) => {
+            return {
+                hasSession: 'session' in context || 'httpSession' in context,
+                hasErrors: 'errors' in context,
+            }
+        })
+
+        Router.apply(app)
+
+        const response = await request(app).get('/api/ping').expect(200)
+
+        expect(response.body).toEqual({
+            hasSession: false,
+            hasErrors: false,
+        })
+        expect(response.headers.get('set-cookie')).toBeNull()
+    })
+
     it('redirects web validation errors back and persists flashed errors', async () => {
         const app = new H3({
             silent: true,

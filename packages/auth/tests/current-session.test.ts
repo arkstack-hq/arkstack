@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from './fixtures/auth'
 
+import { AuthSession } from '../src/AuthSession'
 import { Request } from '@arkstack/http'
-import { Session } from '../src/Session'
 
 describe('Session', () => {
 
@@ -25,7 +25,7 @@ describe('Session', () => {
             logout: async () => undefined,
         }
 
-        const session = new Session(auth as never)
+        const session = new AuthSession(auth as never)
         const resolved = await session.token()
 
         expect(resolved?.id).toBe(pat.id)
@@ -37,7 +37,7 @@ describe('Session', () => {
             getRequest: () => Request.from({ headers: {} }),
             logout: async () => undefined,
         }
-        const session = new Session(auth as never)
+        const session = new AuthSession(auth as never)
 
         await expect(session.token()).resolves.toBeNull()
     })

@@ -47,6 +47,30 @@ const findErrorCookie = (cookies: string[]) => {
 }
 
 describe('Express web validation redirects', () => {
+    it('does not create sessions for routes without web middleware', async () => {
+        const app = express()
+        const router = express.Router()
+        const Router = createRouter('stateless')
+
+        Router.get('/api/ping', (context) => {
+            return context.res.status(200).json({
+                hasSession: 'session' in context || 'httpSession' in context,
+                hasErrors: 'errors' in context,
+            })
+        })
+
+        Router.apply(router)
+        app.use(router)
+
+        const response = await request(app).get('/api/ping').expect(200)
+
+        expect(response.body).toEqual({
+            hasSession: false,
+            hasErrors: false,
+        })
+        expect(response.headers.get('set-cookie')).toBeNull()
+    })
+
     it('redirects web validation errors back and persists flashed errors', async () => {
         const app = express()
         const router = express.Router()

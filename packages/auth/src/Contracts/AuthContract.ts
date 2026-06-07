@@ -1,4 +1,4 @@
-import { Session } from '../Session'
+import { AuthSession } from '../AuthSession'
 import type { PersonalAccessToken } from '@app/models/PersonalAccessToken'
 import { Request, type RequestSource } from '@arkstack/http'
 import type { User } from '@app/models/User'
@@ -101,7 +101,7 @@ export abstract class AuthContract {
      * 
      * @returns 
      */
-    abstract session (): Session
+    abstract session (): AuthSession
 
     /**
      * Create a personal access token for a user

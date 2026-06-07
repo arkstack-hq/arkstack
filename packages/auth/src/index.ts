@@ -1,6 +1,6 @@
 export * from './utils'
 export * from './Auth'
-export * from './Session'
+export * from './AuthSession'
 export * from './SessionDevice'
 export * from './TwoFactor'
 export * from './Contracts/AuthContract'
