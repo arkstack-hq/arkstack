@@ -39,3 +39,11 @@ export const requestLogger = ({
         [`- ${duration}ms`, 'dim']
     ], ' ')
 }
+
+export class RequestLoggerMiddleware {
+    constructor(private options: { allowInProduction?: boolean } = {}) { }
+
+    handler () {
+        return requestLogger(this.options)
+    }
+}

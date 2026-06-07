@@ -20,6 +20,19 @@ type ModelModule = Record<string, unknown> & {
 }
 
 /**
+ * Checks and asserts if target is a class
+ * 
+ * @param target 
+ * @returns 
+ */
+export const isClass = <T = unknown> (
+    target: unknown
+): target is new (...args: any[]) => T => {
+    return typeof target === 'function'
+        && /^class\s/.test(Function.prototype.toString.call(target))
+}
+
+/**
  * Determine the number of items to return per page based on the provided query parameters.
  * 
  * @param query 

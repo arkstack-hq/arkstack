@@ -37,3 +37,13 @@ export const requestLogger = ({
 
     next()
 }
+
+export class RequestLoggerMiddleware {
+    constructor(private options: { allowInProduction?: boolean } = {}) { }
+
+    handler (req: Request, res: Response, next: NextFunction) {
+        const inst = requestLogger(this.options)
+
+        return inst.call(inst, req, res, next)
+    }
+}

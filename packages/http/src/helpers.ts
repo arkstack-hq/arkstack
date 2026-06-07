@@ -1,4 +1,7 @@
-import { HeaderMap, HeaderSource, HeaderValue, RequestSource } from './types/Http'
+import { FunctionMiddleware, HeaderMap, HeaderSource, HeaderValue, RequestSource } from './types/Http'
+import { MiddlewareClass, MiddlewareInstance } from 'clear-router/types/basic'
+
+import { isClass } from '@arkstack/common'
 
 export const unwrapRequestSource = <TUser> (
     source: RequestSource<TUser>
@@ -66,4 +69,40 @@ export const isHeaders = (value: unknown): value is Headers => (
 
 export const isRecord = (value: unknown): value is Record<PropertyKey, any> => {
     return !!value && typeof value === 'object' && !Array.isArray(value)
+}
+
+/**
+ * Resolve Middleware
+ * 
+ * @param middleware 
+ * @returns 
+ */
+export const resolveMiddleware = <T extends FunctionMiddleware | MiddlewareClass | MiddlewareInstance> (
+    middleware: T
+): T extends MiddlewareClass<FunctionMiddleware>
+    ? InstanceType<T>['handle']
+    : T extends MiddlewareInstance
+    ? T['handle']
+    : T => {
+    if (!middleware || typeof middleware === 'function' && !isClass(middleware)) {
+        return middleware as never
+    }
+
+    if (
+        middleware &&
+        typeof middleware === 'object' &&
+        !isClass(middleware) &&
+        'handle' in middleware) {
+        return middleware.handle.bind(middleware) as never
+    }
+
+    const instance: MiddlewareInstance = isClass(middleware)
+        ? new middleware() as never
+        : middleware
+
+    if (instance && typeof instance.handle === 'function') {
+        return instance.handle.bind(instance) as never
+    }
+
+    return middleware as never
 }

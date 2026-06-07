@@ -1,4 +1,5 @@
-import type { Handler } from 'express'
+import type { Handler, NextFunction, Request, Response } from 'express'
+
 import { Hook } from '@arkstack/common'
 
 export const auth: Handler = async (req, res, next) => {
@@ -35,6 +36,12 @@ export const auth: Handler = async (req, res, next) => {
             }))
 
         next(error)
+    }
+}
+
+export class AuthMiddleware {
+    handler (req: Request, res: Response, next: NextFunction) {
+        return auth(req, res, next)
     }
 }
 

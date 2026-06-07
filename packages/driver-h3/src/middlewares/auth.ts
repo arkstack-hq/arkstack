@@ -54,6 +54,12 @@ export const auth = async (event: H3Event, next: () => unknown | Promise<unknown
     }
 }
 
+export class AuthMiddleware {
+    handler (event: H3Event, next: () => unknown | Promise<unknown>) {
+        return auth(event, next)
+    }
+}
+
 const readBearerToken = (authorization: string | null) => {
     if (!authorization?.startsWith('Bearer ')) {
         return null

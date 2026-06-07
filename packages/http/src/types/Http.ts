@@ -5,7 +5,8 @@ import type { Session } from '../session'
 export type HeaderValue = string | string[] | number | boolean | null | undefined
 export type HeaderMap = Record<string, string>
 export type HeaderSource = Headers | Record<string, HeaderValue>
-
+export type FunctionMiddleware = (...args: any[]) => any;
+export type ClassMiddleware = new (...args: any[]) => { handle: FunctionMiddleware };
 
 export type RequestSource<TUser = unknown> = {
     headers?: HeaderSource;

@@ -1,8 +1,10 @@
 import express, { type ErrorRequestHandler, type Express, type Handler } from 'express'
 
-import { ArkstackKitDriver, ArkstackMiddlewareConfig, PromiseOrValue } from '@arkstack/contract'
+import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
 import { Logger } from '@arkstack/common'
 import { defaultErrorHandler } from './error-handler'
+import { Middleware, MiddlewareConfig } from './types'
+import { resolveMiddleware } from '@arkstack/http'
 
 export interface ExpressDriverOptions {
     bindRouter: (app: Express) => PromiseOrValue<void>;
@@ -76,18 +78,20 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      */
     applyMiddleware (
         app: Express,
-        middleware: Handler | ArkstackMiddlewareConfig<Handler>,
+        middleware: Middleware | MiddlewareConfig,
     ): void {
         if (!middleware) return
 
         if (typeof middleware === 'function') {
-            app.use(middleware)
+            app.use(resolveMiddleware(middleware))
 
             return
         }
 
-        for (const [pos, entries] of Object.entries(middleware) as [string, Handler[]][]) {
-            for (const entry of entries) {
+        for (const [pos, entries] of Object.entries(middleware) as [string, Middleware[]][]) {
+            for (const instance of entries) {
+                const entry = resolveMiddleware(instance)
+
                 if (pos === 'after') {
                     app.use(async (req, res, next) => {
                         res.once('finish', async () => {

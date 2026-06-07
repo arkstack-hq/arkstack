@@ -1,4 +1,5 @@
-import { H3Event } from 'h3'
+import { EventHandlerRequest, H3Event } from 'h3'
+
 import { NextFunction } from 'clear-router/types/h3'
 import { vary } from '../utils/vary'
 
@@ -215,3 +216,21 @@ export const cors =
         next()
       }
     }
+
+
+export class CorsMiddleware {
+  constructor(private options: {
+    origin?: string | string[] | RegExp | boolean;
+    methods?: string[] | string;
+    allowedHeaders?: string[] | string | null;
+    exposedHeaders?: string[] | string;
+    credentials?: boolean;
+    maxAge?: number | string;
+    optionsSuccessStatus?: number;
+    preflightContinue?: boolean;
+  } = {}) { }
+
+  handler (event: H3Event<EventHandlerRequest>, next: NextFunction) {
+    return cors(this.options).call(this.handler, event, next)
+  }
+}

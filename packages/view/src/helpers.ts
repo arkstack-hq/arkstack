@@ -3,6 +3,7 @@ import type { ViewComposer, ViewComposerObject, ViewData, ViewErrorRecord, ViewE
 import { View } from './View'
 import { ViewFactory } from './ViewFactory'
 import { ViewInstance } from './ViewInstance'
+import { isClass } from '@arkstack/common'
 import { normalizeViewErrors } from './ViewErrorBag'
 
 export function view (): ViewFactory
@@ -13,13 +14,6 @@ export function view (name?: ViewName, data: ViewData = {}) {
     }
 
     return View.make(name, data)
-}
-
-export const isClass = <T = unknown> (
-    target: unknown
-): target is new (...args: any[]) => T => {
-    return typeof target === 'function'
-        && /^class\s/.test(Function.prototype.toString.call(target))
 }
 
 const currentHttpSession = () => {

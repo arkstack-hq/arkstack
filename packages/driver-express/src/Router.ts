@@ -1,4 +1,4 @@
-import { RequestException, importFile } from '@arkstack/common'
+import { RequestException } from '@arkstack/common'
 import express, { Router as ExpressRouter } from 'express'
 
 import { Arkstack, ArkstackRouteListOptions } from '@arkstack/contract'
@@ -8,7 +8,6 @@ import { clearRouterExpressPlugin } from '@resora/plugin-clear-router'
 import { join } from 'node:path'
 import { registerPlugin } from 'resora'
 import type { Handler, HttpContext, Middleware } from 'clear-router/types/express'
-import { stat } from 'node:fs/promises'
 
 registerPlugin(clearRouterExpressPlugin)
 ClearRouter.configure({
@@ -21,20 +20,12 @@ export class Router extends ClearRouter {
 
     // Register API routes
     try {
-      if ((await stat(join(Arkstack.rootDir(), 'src/routes/api.ts'))).isFile()) {
-        await ClearRouter.group('/api', async () => {
-          await importFile(join(Arkstack.rootDir(), 'src/routes/api.ts'))
-        })
-      }
+      await ClearRouter.group('/api', join(Arkstack.rootDir(), 'src/routes/api.ts'))
     } catch { /** */ }
 
     // Register web routes
     try {
-      if ((await stat(join(Arkstack.rootDir(), 'src/routes/web.ts'))).isFile()) {
-        await ClearRouter.group('/', async () => {
-          await importFile(join(Arkstack.rootDir(), 'src/routes/web.ts'))
-        })
-      }
+      await ClearRouter.group('/', join(Arkstack.rootDir(), 'src/routes/web.ts'))
     } catch { /** */ }
 
     // Apply the registered routes to the Express application

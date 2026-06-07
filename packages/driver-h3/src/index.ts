@@ -1,9 +1,11 @@
-import { ArkstackKitDriver, ArkstackMiddlewareConfig, PromiseOrValue } from '@arkstack/contract'
+import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
 import { H3, H3Event, serve, toResponse } from 'h3'
+import { Middleware, MiddlewareConfig } from './types'
 
 import { Middleware as H3BaseMiddleware } from 'clear-router/types/h3'
 import { Logger } from '@arkstack/common'
 import { defaultErrorHandler } from './error-handler'
+import { resolveMiddleware } from '@arkstack/http'
 import { staticAssetHandler } from './middlewares'
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -89,21 +91,23 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      */
     applyMiddleware (
         app: H3,
-        middleware: H3Middleware | ArkstackMiddlewareConfig<H3Middleware>,
+        middleware: H3Middleware | Middleware | MiddlewareConfig,
     ): void {
         const mw = Array.isArray(middleware) ? middleware[0] : middleware
         const conf = Array.isArray(middleware) && middleware[1] ? middleware[1] : {}
 
         if (typeof mw === 'function') {
-            app.use(mw, conf)
+            app.use(resolveMiddleware(mw), conf)
 
             return
         }
 
-        for (const [pos, entries] of Object.entries(middleware) as [string, H3Middleware[]][]) {
+        for (const [pos, entries] of Object.entries(middleware) as [string, (H3Middleware | Middleware)[]][]) {
             for (const entry of entries) {
-                const mw = Array.isArray(entry) ? entry[0] : entry
+                const instance = Array.isArray(entry) ? entry[0] : entry
                 const conf = Array.isArray(entry) && entry[1] ? entry[1] : {}
+
+                const mw = resolveMiddleware(instance)
 
                 if (pos === 'after') {
                     app.use(async (evt, next) => {
