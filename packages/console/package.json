@@ -48,7 +48,7 @@
         }
     },
     "peerDependencies": {
-        "arkormx": "^ 2.4.1",
+        "arkormx": "^ 2.4.4",
         "clear-router": "^2.8.6"
     },
     "dependencies": {

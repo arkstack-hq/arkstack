@@ -31,7 +31,7 @@
     "@h3ravel/support": "^0.15.11",
     "@kanun-hq/plugin-file": "^0.1.12",
     "clear-router": "^2.8.6",
-    "arkormx": "^ 2.4.1",
+    "arkormx": "^ 2.4.4",
     "resora": "^1.3.7",
     "kanun": "^1.2.0",
     "parasito": "^0.2.3",
