@@ -172,5 +172,5 @@ jobs:
           PACKAGE_COUNT=$(ls -d packages/*/ | wc -l | tr -d ' ')
           echo "## Publish Report" >> $GITHUB_STEP_SUMMARY
           echo "### Summary" >> $GITHUB_STEP_SUMMARY
-          echo "* Version: ✅ ${{ steps.release_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "* Packages: ✅ $PACKAGE_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "* **Version**: ✅ ${{ steps.release_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "* **Packages**: ✅ $PACKAGE_COUNT" >> $GITHUB_STEP_SUMMARY
