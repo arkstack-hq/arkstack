@@ -44,8 +44,8 @@
     "dependencies": {
         "clear-router": "^2.8.6",
         "@arkstack/contract": "workspace:^",
-        "@resora/plugin-clear-router": "^1.0.37",
-        "resora": "^1.3.6"
+        "@resora/plugin-clear-router": "^1.0.38",
+        "resora": "^1.3.7"
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",

@@ -33,7 +33,7 @@
     "@kanun-hq/plugin-file": "^0.1.12",
     "clear-router": "^2.8.6",
     "arkormx": "^ 2.4.1",
-    "resora": "^1.3.6",
+    "resora": "^1.3.7",
     "kanun": "^1.2.0",
     "parasito": "^0.2.3",
     "kysely": "^0.28.15",
