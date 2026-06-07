@@ -60,7 +60,7 @@ describe('HTTP primitives', () => {
         const response = new Response({ statusCode: 202 })
 
         expect(Request.from(request)).toBe(request)
-        expect(Response.from(response)).toBe(response)
+        expect(Response.from(response as never)).toBe(response)
         expect(Request.from()).toBeUndefined()
         expect(Response.from()).toBeUndefined()
     })

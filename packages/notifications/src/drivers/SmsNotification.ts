@@ -16,25 +16,22 @@ export class SmsNotification extends NotificationContract {
     constructor(options: SmsDriverOptions = {}) {
         super()
 
-        const driverConfig = configure<SmsDriverOptions>('drivers.sms', {})
+        const driverConfig = configure('drivers.sms', {})
         const transport = options.transport ?? driverConfig.transport ?? 'twilio'
-        const transportConfig = configure<Record<string, any>>(`transports.${transport}`, {})
-        const legacySmsConfig = configure<SmsDriverOptions>('sms', {})
-        const from = options.from ?? driverConfig.from ?? legacySmsConfig.from
+        const transportConfig = configure(`transports.${transport}` as any, {})
+        const from = options.from ?? driverConfig.from
 
         this.fromValue = from
         this.driver = transport === 'twilio'
             ? new TwilioSmsDriver({
-                ...legacySmsConfig.twilio,
                 ...transportConfig,
                 ...options.twilio,
-                from: options.twilio?.from ?? transportConfig.from ?? legacySmsConfig.twilio?.from ?? from,
+                from: options.twilio?.from ?? transportConfig.from ?? from,
             })
             : new AfricasTalkingSmsDriver({
-                ...legacySmsConfig.africastalking,
                 ...transportConfig,
                 ...options.africastalking,
-                senderId: options.africastalking?.senderId ?? transportConfig.senderId ?? legacySmsConfig.africastalking?.senderId ?? from,
+                senderId: options.africastalking?.senderId ?? transportConfig.senderId ?? from,
             })
     }
 

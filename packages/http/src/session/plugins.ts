@@ -1,15 +1,15 @@
 import { attachViewState, ensureSession, registerResponseFlashSweep } from './helpers'
 
-import { HttpContext } from '../types/Http'
+import { ClearHttpContext } from 'clear-router'
 import { Session } from './Session'
 import { definePlugin as defineClearRouterPlugin } from 'clear-router/core'
 import { definePlugin as defineKanunPlugin } from 'kanun'
 import { getSessionDriver } from './config'
 
-export const arkstackHttpPlugin = defineClearRouterPlugin<any, HttpContext>({
+export const arkstackHttpPlugin = defineClearRouterPlugin<any, ClearHttpContext>({
     name: 'arkstack-http',
     setup: ({ bind, useHttpContext }) => {
-        bind(Session, ({ ctx }: { ctx: HttpContext }) => ensureSession(ctx))
+        bind(Session, ({ ctx }: { ctx: ClearHttpContext }) => ensureSession(ctx))
 
         useHttpContext(async (context) => {
             globalThis.request = (key?: string) => key

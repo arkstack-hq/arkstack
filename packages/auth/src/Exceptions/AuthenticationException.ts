@@ -23,7 +23,7 @@ export class AuthenticationException extends Exception {
         this.statusCode = ctx?.status ?? 401
         if (ctx) {
             this.#request = Request.from(ctx.req)
-            this.#response = Response.from(ctx.res)
+            this.#response = Response.from(ctx.res as never)
             this.#errors = ctx.errors
         }
 
