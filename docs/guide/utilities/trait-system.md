@@ -179,6 +179,38 @@ Service.bootAll(); // ["tracker", "logger"]
 
 Only method conflicts are registered. Calling `callTraitMethods()` for a method without conflicting implementations logs a warning and returns an empty array; `getTraitMethods()` returns an empty array without logging.
 
+### Opt-in Method Helpers
+
+Pass `true` as the first argument to `use()` to attach `getTraitMethods()` and `callTraitMethods()` to both the consuming instance and class. This is useful when the consuming class overrides a conflicting method and needs to invoke the preserved trait implementations:
+
+```ts
+class Service extends use(true, LogsBoot, TracksBoot, BaseService) {
+  boot() {
+    return this.callTraitMethods<string>('boot').at(-1);
+  }
+}
+
+const service = new Service();
+
+service.boot(); // "logger"
+service.getTraitMethods('boot'); // Bound conflicting methods
+```
+
+The helpers are also available statically when enabled:
+
+```ts
+class Service extends use(true, LogsStaticBoot, TracksStaticBoot) {
+  static boot() {
+    return Service.callTraitMethods<string>('boot').at(-1);
+  }
+}
+
+Service.boot(); // "logger"
+Service.getTraitMethods('boot'); // Bound conflicting static methods
+```
+
+The consuming overrides are not added to the conflict registry, so these calls do not recurse back into `Service.boot()`. Classes composed with the regular `use(...)` signature do not receive the helper methods.
+
 ## Verifying Trait Membership
 
 `uses()` lets you check at runtime whether a given trait was applied anywhere in a class's composition chain. This is useful for conditional logic, guards, or introspection without relying on duck typing.

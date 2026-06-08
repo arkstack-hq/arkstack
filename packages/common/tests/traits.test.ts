@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
 import { callTraitMethods, getTraitMethods, trait, use, uses } from '../src/utils/traits'
+import { describe, expect, it, vi } from 'vitest'
 
 import { Model } from 'arkormx'
 
@@ -141,6 +141,61 @@ describe('Trait System', () => {
             'second:done',
             'first:done',
         ])
+    })
+
+    it('can expose trait method helpers on the consuming class', () => {
+        class BaseClass {
+            boot (value: string) {
+                return 'base:' + value
+            }
+
+            static boot (value: string) {
+                return 'base:' + value
+            }
+        }
+
+        const First = trait(Base => class First extends Base {
+            boot (value: string) {
+                return 'first:' + value
+            }
+
+            static boot (value: string) {
+                return 'first:' + value
+            }
+        })
+        const Second = trait(Base => class Second extends Base {
+            boot (value: string) {
+                return 'second:' + value
+            }
+
+            static boot (value: string) {
+                return 'second:' + value
+            }
+        })
+
+        class MyClass extends use(true, First, Second, BaseClass) {
+            boot (value: string) {
+                return this.callTraitMethods<string>('boot', value).at(-1)!
+            }
+
+            static boot (value: string) {
+                return MyClass.callTraitMethods<string>('boot', value).at(-1)!
+            }
+        }
+
+        expect(new MyClass().boot('ready')).toBe('first:ready')
+        expect(MyClass.boot('ready')).toBe('first:ready')
+        expect(new MyClass().getTraitMethods('boot')).toHaveLength(3)
+        expect(MyClass.getTraitMethods('boot')).toHaveLength(3)
+    })
+
+    it('does not expose trait method helpers unless requested', () => {
+        class MyClass extends use(Addable) {
+            value = 0
+        }
+
+        expect((new MyClass() as any).callTraitMethods).toBeUndefined()
+        expect((MyClass as any).callTraitMethods).toBeUndefined()
     })
 
     it('should allow traits to be applied to classes that already have traits', () => {

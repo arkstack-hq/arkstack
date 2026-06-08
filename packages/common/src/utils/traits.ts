@@ -389,6 +389,20 @@ type DeriveTraits<
     DeriveTraitsCons<T> &
     DeriveTraitsStats<T>
 
+type TraitMethodHelpers = {
+    getTraitMethods: <T extends TraitMethod = TraitMethod>(name: PropertyKey) => T[]
+    callTraitMethods: <T = any>(name: PropertyKey, ...args: any[]) => T[]
+}
+
+type DeriveTraitsWithMethodHelpers<
+    T extends ((Trait | TypeFactory<Trait>)[] | [...(Trait | TypeFactory<Trait>)[], DirectBase])
+> =
+    DeriveTraits<T> extends new (...args: infer Args) => infer Instance
+    ? (new (...args: Args) => Instance & TraitMethodHelpers) &
+        Omit<DeriveTraits<T>, 'prototype'> &
+        TraitMethodHelpers
+    : never
+
 /**
  * utility function: add an additional invisible property to an object
  * 
@@ -572,6 +586,11 @@ const deriveTrait = (
 const reverseTraitList = (traits: (Trait | TypeFactory<Trait>)[]) =>
     traits.slice().reverse() as (Trait | TypeFactory<Trait>)[]
 
+type UsableTraits = (
+    [Trait | TypeFactory<Trait>, ...(Trait | TypeFactory<Trait>)[]] |
+    [...(Trait | TypeFactory<Trait>)[], DirectBase]
+)
+
 /**
  * API: derive a class from one or more traits or trait type factories
  * 
@@ -579,11 +598,15 @@ const reverseTraitList = (traits: (Trait | TypeFactory<Trait>)[]) =>
  * @returns 
  */
 export function use
-    <T extends (
-        [Trait | TypeFactory<Trait>, ...(Trait | TypeFactory<Trait>)[]] |
-        [...(Trait | TypeFactory<Trait>)[], DirectBase]
-    )>
-    (...traits: T): DeriveTraits<T> {
+    <T extends UsableTraits>
+    (withMethodHelpers: true, ...traits: T): DeriveTraitsWithMethodHelpers<T>
+export function use
+    <T extends UsableTraits>
+    (...traits: T): DeriveTraits<T>
+export function use (...args: any[]): any {
+    const withMethodHelpers = args[0] === true
+    const traits = (withMethodHelpers ? args.slice(1) : args) as UsableTraits
+
     /*  run-time sanity check  */
     if (traits.length === 0)
         throw new Error('invalid number of parameters (expected one or more traits)')
@@ -613,7 +636,27 @@ export function use
     for (const trait of reverseTraitList(lot))
         classInstance = deriveTrait(trait, classInstance, derived)
 
-    return classInstance as DeriveTraits<T>
+    if (withMethodHelpers) {
+        classInstance = class TraitMethodEnabled extends classInstance {
+            getTraitMethods<T extends TraitMethod = TraitMethod> (name: PropertyKey): T[] {
+                return getTraitMethods<T>(this, name)
+            }
+
+            callTraitMethods<T = any> (name: PropertyKey, ...args: any[]): T[] {
+                return callTraitMethods<T>(this, name, ...args)
+            }
+
+            static getTraitMethods<T extends TraitMethod = TraitMethod> (name: PropertyKey): T[] {
+                return getTraitMethods<T>(this, name)
+            }
+
+            static callTraitMethods<T = any> (name: PropertyKey, ...args: any[]): T[] {
+                return callTraitMethods<T>(this, name, ...args)
+            }
+        }
+    }
+
+    return classInstance
 }
 
 /**
