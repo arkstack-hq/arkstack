@@ -401,6 +401,120 @@ const extendProperties =
     (cons: Cons, field: string | symbol, value: any) =>
         Object.defineProperty(cons, field, { value, enumerable: false, writable: false })
 
+type TraitMethod = (...args: any[]) => any
+type TraitMethodRegistry = Map<PropertyKey, TraitMethod[]>
+
+const traitMethodRegistry = Symbol('trait-method-registry')
+
+const cloneMethodRegistry = (target: Record<PropertyKey, any>): TraitMethodRegistry => {
+    const registry = target[traitMethodRegistry] as TraitMethodRegistry | undefined
+
+    return new Map(
+        [...(registry?.entries() ?? [])].map(([name, methods]) => [name, [...methods]])
+    )
+}
+
+const registerMethodScope = (
+    target: Record<PropertyKey, any>,
+    base: Record<PropertyKey, any>,
+    ignored: Set<PropertyKey>,
+) => {
+    const registry = cloneMethodRegistry(base)
+
+    for (const name of Reflect.ownKeys(target)) {
+        if (ignored.has(name)) continue
+
+        const descriptor = Object.getOwnPropertyDescriptor(target, name)
+        const method = descriptor?.value
+
+        if (typeof method !== 'function') continue
+
+        const methods = registry.get(name)
+        const previous = base?.[name]
+
+        if (methods) {
+            if (methods.at(-1) !== method) {
+                methods.push(method)
+            }
+
+            registry.set(name, methods)
+        } else if (typeof previous === 'function' && previous !== method) {
+            registry.set(name, [previous, method])
+        }
+    }
+
+    Object.defineProperty(target, traitMethodRegistry, {
+        configurable: false,
+        enumerable: false,
+        value: registry,
+        writable: false,
+    })
+}
+
+/**
+ * Registers conflicting trait methods
+ * 
+ * @param classInstance 
+ * @param baseClass 
+ */
+const registerTraitMethods = (classInstance: Cons, baseClass: Cons) => {
+    registerMethodScope(
+        classInstance.prototype as Record<PropertyKey, any>,
+        baseClass.prototype as Record<PropertyKey, any>,
+        new Set<PropertyKey>(['constructor']),
+    )
+    registerMethodScope(
+        classInstance as unknown as Record<PropertyKey, any>,
+        baseClass as unknown as Record<PropertyKey, any>,
+        new Set<PropertyKey>(['length', 'name', 'prototype', 'arguments', 'caller']),
+    )
+}
+
+/**
+ * Return every trait implementation for a method, bound to the supplied
+ * instance or class. Methods are ordered from the base implementation to the
+ * currently active trait implementation.
+ * 
+ * @param target 
+ * @param name 
+ * @returns 
+ */
+export const getTraitMethods = <T extends TraitMethod = TraitMethod> (
+    target: object | Cons,
+    name: PropertyKey,
+): T[] => {
+    const scope = typeof target === 'function'
+        ? target as unknown as Record<PropertyKey, any>
+        : Object.getPrototypeOf(target) as Record<PropertyKey, any>
+    const registry = scope?.[traitMethodRegistry] as TraitMethodRegistry | undefined
+
+    return (registry?.get(name) ?? []).map(method => method.bind(target) as T)
+}
+
+/**
+ * Invoke every trait implementation for a method in registration order.
+ * 
+ * @param target 
+ * @param name 
+ * @param args 
+ * @returns 
+ */
+export const callTraitMethods = <T = any> (
+    target: object | Cons,
+    name: PropertyKey,
+    ...args: any[]
+): T[] => {
+    const methods = getTraitMethods(target, name)
+
+    if (methods.length === 0) {
+        console.warn(`No conflicting trait methods found for "${String(name)}".`)
+
+        return []
+    }
+
+    return methods.map(method => method(...args) as T)
+}
+
 /**
  * utility function: get raw trait
  * 
@@ -414,20 +528,20 @@ const rawTrait = (x: (Trait | TypeFactory<Trait>)) =>
  * utility function: derive a trait
  * 
  * @param trait$ 
- * @param baseClz 
+ * @param baseClass 
  * @param derived 
  * @returns 
  */
 const deriveTrait = (
     trait$: Trait | TypeFactory<Trait>,
-    baseClz: Cons<any>,
+    baseClass: Cons<any>,
     derived: Map<number, boolean>
 ) => {
     /*  get real trait  */
     const trait = rawTrait(trait$)
 
     /*  start with base class  */
-    let clz = baseClz
+    let classInstance = baseClass
 
     /*  in case we still have not derived this trait...  */
     if (!derived.has(trait.id)) {
@@ -436,15 +550,17 @@ const deriveTrait = (
         /*  iterate over all of its super traits  */
         if (trait.superTraits !== undefined)
             for (const superTrait of reverseTraitList(trait.superTraits))
-                clz = deriveTrait(superTrait, clz, derived) /*  RECURSION  */
+                classInstance = deriveTrait(superTrait, classInstance, derived) /*  RECURSION  */
 
         /*  derive this trait  */
-        clz = trait.factory(clz)
-        extendProperties(clz, 'id', crc32(trait.factory.toString()))
-        extendProperties(clz, trait.symbol, true)
+        const base = classInstance
+        classInstance = trait.factory(classInstance)
+        registerTraitMethods(classInstance, base)
+        extendProperties(classInstance, 'id', crc32(trait.factory.toString()))
+        extendProperties(classInstance, trait.symbol, true)
     }
 
-    return clz
+    return classInstance
 }
 
 /**
@@ -472,21 +588,21 @@ export function use
     if (traits.length === 0)
         throw new Error('invalid number of parameters (expected one or more traits)')
 
-    /*  determine the base class (clz) and the list of traits (lot)  */
-    let clz: Cons<any>
+    /*  determine the base class (classInstance) and the list of traits (lot)  */
+    let classInstance: Cons<any>
     let lot: (Trait | TypeFactory<Trait>)[]
     const last = traits[traits.length - 1]
     if (isCons(last) && !isTypeFactory(last)) {
         /*  case 1: with trailing regular class  */
-        clz = last
+        classInstance = last
         lot = traits.slice(0, -1) as (Trait | TypeFactory<Trait>)[]
     } else if (isArkormModelInstance(last)) {
         /*  case 2: with trailing Arkorm model instance  */
-        clz = last.constructor as Cons<any>
+        classInstance = last.constructor as Cons<any>
         lot = traits.slice(0, -1) as (Trait | TypeFactory<Trait>)[]
     } else {
         /*  case 3: just regular traits or trait type factories  */
-        clz = class ROOT { }
+        classInstance = class ROOT { }
         lot = traits as (Trait | TypeFactory<Trait>)[]
     }
 
@@ -495,9 +611,9 @@ export function use
 
     /*  iterate over all traits  */
     for (const trait of reverseTraitList(lot))
-        clz = deriveTrait(trait, clz, derived)
+        classInstance = deriveTrait(trait, classInstance, derived)
 
-    return clz as DeriveTraits<T>
+    return classInstance as DeriveTraits<T>
 }
 
 /**

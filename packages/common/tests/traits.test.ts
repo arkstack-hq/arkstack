@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { trait, use, uses } from '../src/utils/traits'
+import { callTraitMethods, getTraitMethods, trait, use, uses } from '../src/utils/traits'
 
 import { Model } from 'arkormx'
 
@@ -48,6 +48,99 @@ describe('Trait System', () => {
         const instance = new MyClass()
         expect(instance.add()).toBe(1)
         expect(instance.subtract()).toBe(0)
+    })
+
+    it('does not register methods without conflicts', () => {
+        class MyClass extends use(Addable, Subtractable) {
+            value = 0
+        }
+
+        const instance = new MyClass()
+
+        expect(getTraitMethods(instance, 'add')).toEqual([])
+        expect(getTraitMethods(instance, 'subtract')).toEqual([])
+    })
+
+    it('warns when calling a trait method without registered conflicts', () => {
+        class MyClass extends use(Addable) {
+            value = 0
+        }
+
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => { })
+
+        expect(callTraitMethods(new MyClass(), 'missing')).toEqual([])
+        expect(warn).toHaveBeenCalledOnce()
+        expect(warn).toHaveBeenCalledWith('No conflicting trait methods found for "missing".')
+
+        warn.mockRestore()
+    })
+
+    it('preserves conflicting instance trait methods in execution order', () => {
+        class BaseClass {
+            prefix = 'base'
+
+            boot (value: string) {
+                return this.prefix + ':' + value
+            }
+        }
+
+        const First = trait(Base => class First extends Base {
+            boot (value: string) {
+                return 'first:' + value
+            }
+        })
+        const Second = trait(Base => class Second extends Base {
+            boot (value: string) {
+                return 'second:' + value
+            }
+        })
+
+        class MyClass extends use(First, Second, BaseClass) { }
+
+        const instance = new MyClass()
+        const methods = getTraitMethods(instance, 'boot')
+
+        expect(instance.boot('ready')).toBe('first:ready')
+        expect(methods.map(method => method('ready'))).toEqual([
+            'base:ready',
+            'second:ready',
+            'first:ready',
+        ])
+        expect(callTraitMethods(instance, 'boot', 'done')).toEqual([
+            'base:done',
+            'second:done',
+            'first:done',
+        ])
+    })
+
+    it('preserves conflicting static trait methods in execution order', () => {
+        class BaseClass {
+            static prefix = 'base'
+
+            static boot (value: string) {
+                return this.prefix + ':' + value
+            }
+        }
+
+        const First = trait(Base => class First extends Base {
+            static boot (value: string) {
+                return 'first:' + value
+            }
+        })
+        const Second = trait(Base => class Second extends Base {
+            static boot (value: string) {
+                return 'second:' + value
+            }
+        })
+
+        class MyClass extends use(First, Second, BaseClass) { }
+
+        expect(MyClass.boot('ready')).toBe('first:ready')
+        expect(callTraitMethods(MyClass, 'boot', 'done')).toEqual([
+            'base:done',
+            'second:done',
+            'first:done',
+        ])
     })
 
     it('should allow traits to be applied to classes that already have traits', () => {

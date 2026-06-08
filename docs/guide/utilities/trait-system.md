@@ -2,7 +2,7 @@
 
 Arkstack provides a composable mixin pattern for TypeScript classes that brings the expressiveness of trait-based design to JavaScript's prototype model.
 
-The trait system is built around three primitives: `trait()` to define a behaviour unit, `use()` to compose traits onto a class, and `uses()` to verify trait membership at runtime.
+The trait system is built around `trait()` to define a behaviour unit, `use()` to compose traits onto a class, and `uses()` to verify trait membership at runtime. When traits define the same method, `getTraitMethods()` and `callTraitMethods()` provide access to every conflicting implementation.
 
 ## Defining Traits
 
@@ -34,7 +34,7 @@ const Subtractable = trait(
 
 ## Applying Traits
 
-`use()` composes one or more traits into a base class that your class can extend. Traits are applied left to right, and if two traits define the same method, the rightmost one wins. Alongside traits, `use()` also accepts existing classes that already have traits applied, so you can extend a traitful class while adding new behaviour at the same time.
+`use()` composes one or more traits into a base class that your class can extend. Traits are applied left to right, and if two traits define the same method, the leftmost one is the active implementation. Alongside traits, `use()` also accepts existing classes that already have traits applied, so you can extend a traitful class while adding new behaviour at the same time.
 
 `use()` also accepts a regular class as its **last argument**. When provided, it becomes the root of the composition chain — all traits are applied on top of it, and `instanceof` checks against the base class work as expected. Only one regular class is permitted, and it must always come after all traits.
 
@@ -85,6 +85,99 @@ MyClass.label; // "base"
 ```
 
 > **Note:** The regular base class must always be the last argument to `use()`. Placing it before any trait will result in unexpected behaviour.
+
+## Calling Conflicting Trait Methods
+
+When multiple traits or the base class define the same method, Arkstack keeps the conflicting implementations instead of discarding the methods that were overridden. `callTraitMethods()` invokes the complete chain in base-to-active order and returns an array containing each result.
+
+This can be called from inside the consuming class by passing `this`:
+
+```ts
+import { callTraitMethods, trait, use } from '@arkstack/common/utils';
+
+class BaseService {
+  boot() {
+    return 'base';
+  }
+}
+
+const LogsBoot = trait(
+  (Base) =>
+    class LogsBoot extends Base {
+      boot() {
+        return 'logger';
+      }
+    },
+);
+
+const TracksBoot = trait(
+  (Base) =>
+    class TracksBoot extends Base {
+      boot() {
+        return 'tracker';
+      }
+    },
+);
+
+class Service extends use(LogsBoot, TracksBoot, BaseService) {
+  bootAll() {
+    return callTraitMethods(this, 'boot');
+  }
+}
+
+const service = new Service();
+
+service.boot(); // "logger" — the leftmost trait is active
+service.bootAll(); // ["base", "tracker", "logger"]
+```
+
+Use `getTraitMethods()` when you need to inspect, filter, or invoke the bound methods yourself:
+
+```ts
+import { getTraitMethods } from '@arkstack/common/utils';
+
+class Service extends use(LogsBoot, TracksBoot, BaseService) {
+  bootUntilReady() {
+    for (const boot of getTraitMethods(this, 'boot')) {
+      const result = boot();
+      if (result === 'logger') return result;
+    }
+  }
+}
+```
+
+Conflicting static methods work the same way. Pass the consuming class directly:
+
+```ts
+const LogsStaticBoot = trait(
+  (Base) =>
+    class LogsStaticBoot extends Base {
+      static boot() {
+        return 'logger';
+      }
+    },
+);
+
+const TracksStaticBoot = trait(
+  (Base) =>
+    class TracksStaticBoot extends Base {
+      static boot() {
+        return 'tracker';
+      }
+    },
+);
+
+class Service extends use(LogsStaticBoot, TracksStaticBoot) {
+  static bootAll() {
+    return callTraitMethods(Service, 'boot');
+  }
+}
+
+Service.boot(); // "logger"
+Service.bootAll(); // ["tracker", "logger"]
+```
+
+Only method conflicts are registered. Calling `callTraitMethods()` for a method without conflicting implementations logs a warning and returns an empty array; `getTraitMethods()` returns an empty array without logging.
 
 ## Verifying Trait Membership
 
