@@ -4,7 +4,7 @@ import { DbNotification } from './drivers/DbNotification'
 import { DriverMap } from './Contracts/Maps'
 import { MailNotification } from './drivers/MailNotification'
 import { SmsNotification } from './drivers/SmsNotification'
-import { User } from '@app/models/User'
+import type { User } from '@app/models/User'
 import { configure } from './config'
 
 export class Notification<D extends keyof DriverMap = keyof DriverMap> {

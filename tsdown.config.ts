@@ -81,6 +81,7 @@ export const baseConfig: UserConfig = {
             /^node:.*/gi,
             /.*\/promises$/gi,
             'fs-readdir-recursive',
+            '@app/models/User'
         ]
     },
 }
