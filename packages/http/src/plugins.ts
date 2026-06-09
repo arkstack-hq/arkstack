@@ -27,9 +27,11 @@ export const arkstackHttpPlugin = defineClearRouterPlugin<any, ClearHttpContext>
         })
 
         bind(Request, ({ request, ctx }: { request: Request, ctx: ClearHttpContext }) => {
-            return request instanceof Request
+            const current = request instanceof Request
                 ? request
                 : Request.from(request ?? ctx)!
+
+            return current.syncFromSource()
         })
 
         useHttpContext((context) => {

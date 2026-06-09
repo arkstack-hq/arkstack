@@ -1,7 +1,8 @@
 import { Request, Response, arkstackHttpPlugin, normalizeHeaderValue, normalizeHeaders, unwrapRequestSource } from '../src'
-import { CoreRouter } from 'clear-router/core'
-import { Container } from 'clear-router/decorators'
 import { describe, expect, it, vi } from 'vitest'
+
+import { Container } from 'clear-router/decorators'
+import { CoreRouter } from 'clear-router/core'
 
 describe('HTTP primitives', () => {
     it('normalizes request headers and reads bearer tokens consistently', () => {
@@ -66,13 +67,39 @@ describe('HTTP primitives', () => {
     it('binds the Arkstack Request to the current Clear Router request', async () => {
         await CoreRouter.use(arkstackHttpPlugin)
 
-        const request = new Request({ method: 'POST', path: '/bound' })
+        const user = { id: 1 }
+        const auth = {}
+        const source = {
+            auth: undefined as object | undefined,
+            authToken: undefined as string | undefined,
+            authUser: undefined as typeof user | undefined,
+            headers: {},
+            ip: '127.0.0.1',
+            user: undefined as typeof user | undefined,
+        }
+        const request = new Request({
+            method: 'POST',
+            original: source,
+            path: '/bound',
+        })
+
+        source.auth = auth
+        source.authToken = 'hydrated-token'
+        source.authUser = user
+        source.user = user
+
         const resolved = await Container.resolve(Request, {
             clearRequest: request,
             clearResponse: new Response(),
         })
 
         expect(resolved).toBe(request)
+        expect(resolved?.ip).toBe('127.0.0.1')
+        expect(resolved?.source).toBe(source)
+        expect(resolved?.user).toBe(user)
+        expect(resolved?.auth).toBe(auth)
+        expect(resolved?.authUser).toBe(user)
+        expect(resolved?.authToken).toBe('hydrated-token')
     })
 
     it('proxies response helpers to the underlying source when available', () => {

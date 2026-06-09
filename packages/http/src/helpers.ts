@@ -6,6 +6,10 @@ import { isClass } from '@arkstack/common'
 export const unwrapRequestSource = <TUser> (
     source: RequestSource<TUser>
 ): RequestSource<TUser> => {
+    if (source.original) {
+        return unwrapRequestSource(source.original)
+    }
+
     if (source.headers) {
         return source
     }

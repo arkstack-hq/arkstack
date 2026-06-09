@@ -2,23 +2,61 @@ import { HeaderMap, RequestOptions, RequestSource } from './types/Http'
 import { isRecord, normalizeHeaders, unwrapRequestSource } from './helpers'
 
 import { Request as BaseRequest } from 'clear-router'
+import { User } from '@app/models/User'
 
 /**
  * Represents an HTTP request, providing a consistent interface for accessing request data.
  * 
  * @author 3m1n3nc3
  */
-export class Request<TUser = unknown> extends BaseRequest {
+export class Request<TUser = User> extends BaseRequest {
     readonly headers: HeaderMap
     readonly ip: string | null
     readonly source?: unknown
-    user?: TUser
-    auth?: unknown
-    authUser?: TUser
-    authToken?: string
+    private currentUser?: TUser
+    private currentAuth?: unknown
+    private currentAuthUser?: TUser
+    private currentAuthToken?: string
+
+    get user (): TUser | undefined {
+        return this.getSourceRequest()?.user ?? this.currentUser
+    }
+
+    set user (user: TUser | undefined) {
+        this.currentUser = user
+    }
+
+    get auth (): unknown {
+        return this.getSourceRequest()?.auth ?? this.currentAuth
+    }
+
+    set auth (auth: unknown) {
+        this.currentAuth = auth
+    }
+
+    get authUser (): TUser | undefined {
+        return this.getSourceRequest()?.authUser ?? this.currentAuthUser
+    }
+
+    set authUser (user: TUser | undefined) {
+        this.currentAuthUser = user
+    }
+
+    get authToken (): string | undefined {
+        return this.getSourceRequest()?.authToken ?? this.currentAuthToken
+    }
+
+    set authToken (token: string | undefined) {
+        this.currentAuthToken = token
+    }
 
     constructor(options: RequestOptions<TUser> = {}) {
         super(options)
+
+        const source = options.source ?? options.original
+        const sourceRequest = isRecord(source)
+            ? source as RequestSource<TUser>
+            : undefined
 
         this.headers = normalizeHeaders(options.headers)
         if (this.method)
@@ -27,12 +65,12 @@ export class Request<TUser = unknown> extends BaseRequest {
             this.url = options.url!
         if (this.path)
             this.path = options.path!
-        this.ip = options.ip ?? null
-        this.user = options.user
-        this.auth = options.auth
-        this.authUser = options.authUser
-        this.authToken = options.authToken
-        this.source = options.source
+        this.ip = options.ip ?? sourceRequest?.ip ?? null
+        this.user = options.user ?? sourceRequest?.user
+        this.auth = options.auth ?? sourceRequest?.auth
+        this.authUser = options.authUser ?? sourceRequest?.authUser
+        this.authToken = options.authToken ?? sourceRequest?.authToken
+        this.source = source
 
         globalThis.request = (key?: string) => key ? this.input(key) : this
     }
@@ -60,7 +98,7 @@ export class Request<TUser = unknown> extends BaseRequest {
             auth: request.auth,
             authUser: request.authUser,
             authToken: request.authToken,
-            source,
+            source: request,
         })
     }
 
@@ -101,6 +139,27 @@ export class Request<TUser = unknown> extends BaseRequest {
         }
 
         return this
+    }
+
+    syncFromSource () {
+        if (!isRecord(this.source)) {
+            return this
+        }
+
+        const source = this.source as RequestSource<TUser>
+
+        this.user = source.user ?? this.user
+        this.auth = source.auth ?? this.auth
+        this.authUser = source.authUser ?? this.authUser
+        this.authToken = source.authToken ?? this.authToken
+
+        return this
+    }
+
+    private getSourceRequest (): RequestSource<TUser> | undefined {
+        return isRecord(this.source)
+            ? this.source as RequestSource<TUser>
+            : undefined
     }
 
     clearAuthentication () {

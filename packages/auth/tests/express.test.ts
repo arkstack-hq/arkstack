@@ -1,8 +1,10 @@
+import { Request as ArkstackRequest, arkstackHttpPlugin } from '../../http/src'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from './fixtures/auth'
 
 import { Auth } from '../src'
 import { Router as ClearRouter } from 'clear-router/express'
+import { Container } from 'clear-router/decorators'
 import { Hash } from '../../common/src'
 import { auth } from '../../driver-express/src/middlewares/auth'
 import express from 'express'
@@ -50,6 +52,62 @@ describe('Express auth integration', () => {
         expect(response.body.authToken).toBe(token)
     })
 
+    it('hydrates the container-bound Arkstack request after authentication', async () => {
+        const user = await createAuthUser()
+        const token = await createAuthToken(user.id)
+
+        await createPersonalAccessToken(user.id, token)
+
+        const app = express()
+        const router = express.Router()
+        const Router = createRouter('bound-request')
+
+        await import('../../http/src/setup')
+        await (Router as any).pluginsReady()
+
+        expect(Container.has(ArkstackRequest)).toBe(true)
+
+        await Router.use(arkstackHttpPlugin)
+        Router.configure({
+            container: {
+                enabled: true,
+                autoDiscover: true,
+            },
+        })
+        Router.get('/account/request', async (ctx) => {
+            const req = await Container.resolve(ArkstackRequest, ctx)
+
+            return {
+                authToken: req?.authToken,
+                authUserFromAuthId: (req?.auth as Auth | undefined)?.user()?.id,
+                authUserId: req?.authUser?.id,
+                constructorName: req?.constructor.name,
+                hasIp: Boolean(req?.ip),
+                hasSource: Boolean(req?.source),
+                isArkstackRequest: req instanceof ArkstackRequest,
+                userId: req?.user?.id,
+            }
+        }, [auth])
+        Router.apply(router)
+        app.use(router)
+
+        const response = await request(app)
+            .get('/account/request')
+            .set('Authorization', `Bearer ${token}`)
+            .expect(200)
+
+        expect(response.body).toMatchObject({
+            authToken: token,
+            constructorName: 'Request',
+            hasIp: true,
+            hasSource: true,
+            isArkstackRequest: true,
+        })
+        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
+        expect(String(response.body.authUserId)).toBe(String(user.id))
+        expect(String(response.body.userId)).toBe(String(user.id))
+    })
+
     it('returns an authentication error when the bearer token is missing', async () => {
         const app = express()
 
@@ -89,6 +147,7 @@ describe('Express auth integration', () => {
             const personalAccessToken = await auth.login(email, password)
 
             return res.status(200).json({
+                // @ts-expect-error req.auth is typed from built dependencies
                 authMatches: req.auth === auth,
                 authToken: req.authToken,
                 authUserFromAuthId: req.auth?.user()?.id,
@@ -131,6 +190,7 @@ describe('Express auth integration', () => {
             const personalAccessToken = await auth.create(user)
 
             return res.status(201).json({
+                // @ts-expect-error req.auth is typed from built dependencies
                 authMatches: req.auth === auth,
                 authToken: req.authToken,
                 authUserFromAuthId: req.auth?.user()?.id,

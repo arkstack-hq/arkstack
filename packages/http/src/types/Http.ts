@@ -21,6 +21,7 @@ export type RequestSource<TUser = unknown> = {
     authToken?: string;
     req?: RequestSource<TUser>;
     request?: RequestSource<TUser>;
+    original?: RequestSource<TUser>;
 }
 
 export type ResponseSource = {
@@ -45,6 +46,7 @@ export type RequestOptions<TUser = unknown> = {
     authUser?: TUser;
     authToken?: string;
     source?: unknown;
+    original?: unknown;
 }
 
 export interface RequestHelper<TUser = unknown> {
