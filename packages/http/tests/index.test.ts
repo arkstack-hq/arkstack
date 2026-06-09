@@ -1,4 +1,6 @@
-import { Request, Response, normalizeHeaderValue, normalizeHeaders, unwrapRequestSource } from '../src'
+import { Request, Response, arkstackHttpPlugin, normalizeHeaderValue, normalizeHeaders, unwrapRequestSource } from '../src'
+import { CoreRouter } from 'clear-router/core'
+import { Container } from 'clear-router/decorators'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('HTTP primitives', () => {
@@ -33,6 +35,44 @@ describe('HTTP primitives', () => {
 
         expect(request.user).toBe(user)
         expect(source.user).toBe(user)
+    })
+
+    it('keeps authentication state synchronized with the source request', () => {
+        const source: {
+            headers: Record<string, string>
+            user?: { id: number }
+            auth?: object
+            authUser?: { id: number }
+            authToken?: string
+        } = {
+            headers: {},
+        }
+        const user = { id: 1 }
+        const auth = {}
+        const request = Request.from(source)!
+
+        request.setAuthentication(auth, user, 'test-token')
+
+        expect(request.user).toBe(user)
+        expect(request.auth).toBe(auth)
+        expect(request.authUser).toBe(user)
+        expect(request.authToken).toBe('test-token')
+        expect(source.user).toBe(user)
+        expect(source.auth).toBe(auth)
+        expect(source.authUser).toBe(user)
+        expect(source.authToken).toBe('test-token')
+    })
+
+    it('binds the Arkstack Request to the current Clear Router request', async () => {
+        await CoreRouter.use(arkstackHttpPlugin)
+
+        const request = new Request({ method: 'POST', path: '/bound' })
+        const resolved = await Container.resolve(Request, {
+            clearRequest: request,
+            clearResponse: new Response(),
+        })
+
+        expect(resolved).toBe(request)
     })
 
     it('proxies response helpers to the underlying source when available', () => {

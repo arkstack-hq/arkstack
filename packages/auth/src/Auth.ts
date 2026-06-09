@@ -113,9 +113,7 @@ export class Auth extends AuthContract {
             throw new AuthenticationException('Invalid credentials', { req: Auth.req, status: 422, errors: { password: ['Invalid password'] } })
         }
 
-        Auth.req?.setUser(user)
-
-        this.#user = user
+        this.setAuthenticated(user)
 
         return user
     }
@@ -177,9 +175,7 @@ export class Auth extends AuthContract {
             )
         }
 
-        Auth.req?.setUser(user)
-
-        this.#user = user
+        this.setAuthenticated(user, token)
 
         return user
     }
@@ -210,6 +206,10 @@ export class Auth extends AuthContract {
         }
 
         this.#user = null
+
+        if (Auth.req?.auth === this) {
+            Auth.req.clearAuthentication()
+        }
     }
 
     /**
@@ -242,14 +242,13 @@ export class Auth extends AuthContract {
             email: user.email,
         }
 
-        Auth.req?.setUser(user)
-
         const token = await this.createJWT(payload)
         const deviceInfo = SessionDevice.fromRequest(Auth.req)
 
         const pat = await this.upsertDeviceToken(user, token, deviceInfo)
 
         pat.setLoadedRelation('user', user)
+        this.setAuthenticated(user, token)
 
         return pat
     }
@@ -352,15 +351,13 @@ export class Auth extends AuthContract {
             )
         }
 
-        Auth.req?.setUser(user)
-
         void this.touchSession(pat).catch((error) => {
             if (env('NODE_ENV') === 'development') {
                 console.error('Failed to update session activity', error)
             }
         })
 
-        this.#user = user
+        this.setAuthenticated(user, token)
 
         return user
     }
@@ -399,6 +396,11 @@ export class Auth extends AuthContract {
 
     private getSecret (): string {
         return this.configuredSecret ?? env('JWT_SECRET', 'default_secret')
+    }
+
+    private setAuthenticated (user: User, token?: string) {
+        this.#user = user
+        Auth.req?.setAuthentication(this, user, token)
     }
 
     /**

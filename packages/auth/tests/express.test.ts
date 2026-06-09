@@ -32,6 +32,7 @@ describe('Express auth integration', () => {
             const authReq = req
 
             res.status(200).json({
+                authUserFromAuthId: authReq.auth?.user()?.id,
                 authToken: authReq.authToken,
                 authUserId: authReq.authUser?.id,
                 userId: authReq.user?.id,
@@ -45,6 +46,7 @@ describe('Express auth integration', () => {
 
         expect(String(response.body.userId)).toBe(String(user.id))
         expect(String(response.body.authUserId)).toBe(String(user.id))
+        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
         expect(response.body.authToken).toBe(token)
     })
 
@@ -83,13 +85,17 @@ describe('Express auth integration', () => {
 
         Router.post('/auth/login', async ({ req, res }) => {
             const { email, password } = req.body
-            const personalAccessToken = await Auth.make()
-                .setRequest(req as never)
-                .login(email, password)
+            const auth = Auth.make().setRequest(req as never)
+            const personalAccessToken = await auth.login(email, password)
 
             return res.status(200).json({
+                authMatches: req.auth === auth,
+                authToken: req.authToken,
+                authUserFromAuthId: req.auth?.user()?.id,
+                authUserId: req.authUser?.id,
                 token: personalAccessToken.token,
                 userId: personalAccessToken.getAttribute('user')?.id,
+                requestUserId: req.user?.id,
             })
         })
 
@@ -106,6 +112,45 @@ describe('Express auth integration', () => {
             .expect(200)
 
         expect(response.body.token).toEqual(expect.any(String))
+        expect(response.body.authMatches).toBe(true)
+        expect(response.body.authToken).toBe(response.body.token)
+        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
+        expect(String(response.body.authUserId)).toBe(String(user.id))
+        expect(String(response.body.userId)).toBe(String(user.id))
+        expect(String(response.body.requestUserId)).toBe(String(user.id))
+    })
+
+    it('sets complete authentication state when issuing a token during registration', async () => {
+        const user = await createAuthUser()
+        const app = express()
+        const router = express.Router()
+        const Router = createRouter('register')
+
+        Router.post('/auth/register', async ({ req, res }) => {
+            const auth = Auth.make().setRequest(req as never)
+            const personalAccessToken = await auth.create(user)
+
+            return res.status(201).json({
+                authMatches: req.auth === auth,
+                authToken: req.authToken,
+                authUserFromAuthId: req.auth?.user()?.id,
+                authUserId: req.authUser?.id,
+                token: personalAccessToken.token,
+                userId: req.user?.id,
+            })
+        })
+
+        Router.apply(router)
+        app.use(router)
+
+        const response = await request(app)
+            .post('/auth/register')
+            .expect(201)
+
+        expect(response.body.authMatches).toBe(true)
+        expect(response.body.authToken).toBe(response.body.token)
+        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
+        expect(String(response.body.authUserId)).toBe(String(user.id))
         expect(String(response.body.userId)).toBe(String(user.id))
     })
 

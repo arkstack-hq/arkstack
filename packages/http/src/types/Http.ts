@@ -16,6 +16,8 @@ export type RequestSource<TUser = unknown> = {
     path?: string;
     ip?: string;
     user?: TUser;
+    auth?: unknown;
+    authUser?: TUser;
     authToken?: string;
     req?: RequestSource<TUser>;
     request?: RequestSource<TUser>;
@@ -39,6 +41,8 @@ export type RequestOptions<TUser = unknown> = {
     path?: string;
     ip?: string | null;
     user?: TUser;
+    auth?: unknown;
+    authUser?: TUser;
     authToken?: string;
     source?: unknown;
 }

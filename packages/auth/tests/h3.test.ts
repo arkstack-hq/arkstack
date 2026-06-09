@@ -30,6 +30,7 @@ describe('H3 auth integration', () => {
             const context = event.context
 
             return {
+                authUserFromAuthId: context.auth?.user()?.id,
                 authToken: context.authToken,
                 authUserId: context.authUser?.id,
                 userId: context.user?.id,
@@ -44,6 +45,7 @@ describe('H3 auth integration', () => {
         expect(response.status).toBe(200)
         expect(String(response.body.userId)).toBe(String(user.id))
         expect(String(response.body.authUserId)).toBe(String(user.id))
+        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
         expect(response.body.authToken).toBe(token)
     })
 

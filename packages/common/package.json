@@ -49,6 +49,6 @@
         "@h3ravel/support": "^0.15.11",
         "@arkstack/foundry": "workspace:^",
         "@arkstack/contract": "workspace:^",
-        "arkormx": "^2.5.3"
+        "arkormx": "^2.5.6"
     }
 }

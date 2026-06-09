@@ -39,7 +39,7 @@
         "dotenv": "17.3.1"
     },
     "peerDependencies": {
-        "arkormx": "^2.4.1",
+        "arkormx": "^2.5.6",
         "kanun": "^1.2.0"
     }
 }

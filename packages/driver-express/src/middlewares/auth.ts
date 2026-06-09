@@ -16,7 +16,7 @@ export const auth: Handler = async (req, res, next) => {
         }
 
         const auth = Auth.make().setRequest(req)
-        const user = await Auth.make().setRequest(req).authorizeToken(token)
+        const user = await auth.authorizeToken(token)
 
         req.user = user
         req.auth = auth

@@ -1,7 +1,7 @@
 export * from './FlashBag'
 export * from './ErrorBag'
 export * from './Session'
-export * from './plugins'
+export * from '../plugins'
 export * from './helpers'
 export * from './types'
 

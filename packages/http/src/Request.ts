@@ -13,6 +13,8 @@ export class Request<TUser = unknown> extends BaseRequest {
     readonly ip: string | null
     readonly source?: unknown
     user?: TUser
+    auth?: unknown
+    authUser?: TUser
     authToken?: string
 
     constructor(options: RequestOptions<TUser> = {}) {
@@ -27,6 +29,8 @@ export class Request<TUser = unknown> extends BaseRequest {
             this.path = options.path!
         this.ip = options.ip ?? null
         this.user = options.user
+        this.auth = options.auth
+        this.authUser = options.authUser
         this.authToken = options.authToken
         this.source = options.source
 
@@ -53,6 +57,8 @@ export class Request<TUser = unknown> extends BaseRequest {
             path: request.path,
             ip: request.ip ?? null,
             user: request.user,
+            auth: request.auth,
+            authUser: request.authUser,
             authToken: request.authToken,
             source,
         })
@@ -77,6 +83,37 @@ export class Request<TUser = unknown> extends BaseRequest {
 
         if (isRecord(this.source)) {
             this.source.user = user
+        }
+
+        return this
+    }
+
+    setAuthentication<TAuth> (auth: TAuth, user: TUser, token?: string) {
+        this.auth = auth
+        this.authUser = user
+        this.authToken = token
+        this.setUser(user)
+
+        if (isRecord(this.source)) {
+            this.source.auth = auth
+            this.source.authUser = user
+            this.source.authToken = token
+        }
+
+        return this
+    }
+
+    clearAuthentication () {
+        this.auth = undefined
+        this.authUser = undefined
+        this.authToken = undefined
+        this.user = undefined
+
+        if (isRecord(this.source)) {
+            this.source.auth = undefined
+            this.source.authUser = undefined
+            this.source.authToken = undefined
+            this.source.user = undefined
         }
 
         return this
