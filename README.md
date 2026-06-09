@@ -19,9 +19,9 @@
 [![View Downloads](https://img.shields.io/npm/dt/@arkstack/view?style=flat-square&label=@arkstack/view&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/view)](https://www.npmjs.com/package/@arkstack/view)
 [![Notifications Downloads](https://img.shields.io/npm/dt/@arkstack/notifications?style=flat-square&label=@arkstack/notifications&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/notifications)](https://www.npmjs.com/package/@arkstack/notifications)
 [![Database Downloads](https://img.shields.io/npm/dt/@arkstack/database?style=flat-square&label=@arkstack/database&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/database)](https://www.npmjs.com/package/@arkstack/database)
-[![Deploy Documentation](https://github.com/arkstack-tmp/arkstack/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/arkstack-tmp/arkstack/actions/workflows/deploy-docs.yml)
-[![CI](https://github.com/arkstack-tmp/arkstack/actions/workflows/ci.yml/badge.svg)](https://github.com/arkstack-tmp/arkstack/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/arkstack-tmp/arkstack/graph/badge.svg?token=vaccg5iudz)](https://codecov.io/gh/arkstack-tmp/arkstack)
+[![Deploy Documentation](https://github.com/arkstack-hq/arkstack/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/arkstack-hq/arkstack/actions/workflows/deploy-docs.yml)
+[![CI](https://github.com/arkstack-hq/arkstack/actions/workflows/ci.yml/badge.svg)](https://github.com/arkstack-hq/arkstack/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/arkstack-hq/arkstack/graph/badge.svg?token=vaccg5iudz)](https://codecov.io/gh/arkstack-hq/arkstack)
 
 Arkstack is a runtime-agnostic TypeScript backend framework for building structured, production-ready server applications.
 

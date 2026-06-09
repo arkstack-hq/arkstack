@@ -84,7 +84,7 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'discord', link: 'https://discord.gg/jmQybxKQ7R' },
-      { icon: 'github', link: 'https://github.com/arkstack-tmp/arkstack' },
+      { icon: 'github', link: 'https://github.com/arkstack-hq/arkstack' },
       { icon: 'npm', link: 'https://www.npmjs.com/package/create-arkstack' },
     ],
 
