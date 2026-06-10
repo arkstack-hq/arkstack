@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/http",
-    "version": "0.12.20",
+    "version": "0.12.21",
     "type": "module",
     "description": "HTTP module for Arkstack, providing framework-agnostic request and response primitives.",
     "homepage": "https://arkstack.toneflix.net/guide/http",
