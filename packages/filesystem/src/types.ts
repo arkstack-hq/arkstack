@@ -46,7 +46,7 @@ export type CustomDiskConfig = keyof CustomDiskDriverRegistry extends never
     : { [K in keyof CustomDiskDriverRegistry]: CustomDiskDriverRegistry[K] & { driver: K } }[keyof CustomDiskDriverRegistry]
 
 export type DiskConfig =
-    | LocalDriverConfig & { driver: 'local' }
+    | LocalDriverConfig & { driver: 'local' | 'public' }
     | FtpDriverConfig & { driver: 'ftp' }
     | S3DriverConfig & { driver: 's3' }
     | CustomDiskConfig

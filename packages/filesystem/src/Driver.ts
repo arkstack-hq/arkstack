@@ -1,4 +1,4 @@
-import { CustomDiskConfig, CustomDiskDriverRegistry, DriverConfig, FtpDriverConfig, LocalDriverConfig, S3DriverConfig } from './types'
+import { CustomDiskConfig, CustomDiskDriverRegistry, DiskConfig, FtpDriverConfig, LocalDriverConfig, S3DriverConfig } from './types'
 import { DriverContract, SignedURLOptions } from 'flydrive/types'
 
 import { FSDriver } from 'flydrive/drivers/fs'
@@ -18,17 +18,18 @@ export class Driver {
         DriverContract | (new (config?: CustomDiskConfig) => DriverContract)
     >()
 
-    constructor(private config: DriverConfig) { }
+    constructor(private config: DiskConfig) { }
 
     static make<K extends 'local' | 'ftp' | 's3' | (string & {})> (
-        name: K,
-        config: DriverConfig<K>
+        config: DiskConfig
     ): DriverFor<K> {
+        const name = config.driver
+
         if (!['local', 'ftp', 's3'].includes(name) && !this.customDrivers.has(name)) {
             throw new Error(`Unsupported driver: ${name}`)
         }
 
-        const driver = new Driver(config as never)
+        const driver = new Driver(config)
 
         if (this.customDrivers.has(name)) {
             return driver.custom(name) as DriverFor<K>

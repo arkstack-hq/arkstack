@@ -23,8 +23,8 @@ export class Storage implements DriverContract {
             Driver.registerDriver(name, driver)
         }
 
-        for (const [disk, conf] of disks) {
-            this.services[disk] = () => Driver.make(disk, conf)
+        for (const [disk, config] of disks) {
+            this.services[disk] = () => Driver.make(config)
         }
 
         this.diskName = config('filesystem.default')

@@ -29,7 +29,7 @@ describe('Filesystem Storage', () => {
 
             Driver.registerDriver('memory', driver)
 
-            expect(Driver.make('memory', { driver: 'memory' } as never)).toBe(driver)
+            expect(Driver.make({ driver: 'memory' } as never)).toBe(driver)
 
             Driver.removeDriver('memory')
         })
