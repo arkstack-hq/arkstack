@@ -269,7 +269,11 @@ export class Storage<
      * @param options 
      * @returns 
      */
-    put (key: string, contents: string | Uint8Array | FileLike, options?: WriteOptions): Promise<void> {
+    put (
+        key: string,
+        contents: string | Uint8Array | FileLike,
+        options?: WriteOptions
+    ): Promise<void> {
         if (!(contents instanceof Uint8Array) && typeof contents !== 'string') {
             contents = contents.buffer
         }
