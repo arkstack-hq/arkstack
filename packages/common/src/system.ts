@@ -57,9 +57,9 @@ export const env: GlobalEnv = <X = string, Y = undefined | X> (
  * @returns
  */
 export const appUrl = (link?: string): string => {
-    const port = env('PORT') || '3000'
+    const port = env('PORT', env('APP_PORT', '3000'))
     const defaultUrl = `http://localhost:${port}`
-    const appUrl = env('APP_URL') ?? defaultUrl
+    const appUrl = env('APP_URL', `http://localhost:${port}`)
 
     try {
         const url = new URL(appUrl)

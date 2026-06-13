@@ -1,8 +1,9 @@
-import { CustomDiskConfig, CustomDiskDriverRegistry, DiskConfig, FtpDriverConfig, LocalDriverConfig, S3DriverConfig } from './types'
+import { CustomDiskConfig, CustomDiskDriverRegistry, DiskConfig, FtpDriverConfig, GcsDiskDriverConfig, LocalDriverConfig, S3DriverConfig } from './types'
 import { DriverContract, SignedURLOptions } from 'flydrive/types'
 
 import { FSDriver } from 'flydrive/drivers/fs'
 import { FtpDriver } from './FtpDriver'
+import { GCSDriver } from 'flydrive/drivers/gcs'
 import { S3Driver } from 'flydrive/drivers/s3'
 import { appUrl } from '@arkstack/common'
 
@@ -20,12 +21,12 @@ export class Driver {
 
     constructor(private config: DiskConfig) { }
 
-    static make<K extends 'local' | 'ftp' | 's3' | (string & {})> (
+    static make<K extends 'local' | 'ftp' | 'gcs' | 's3' | (string & {})> (
         config: DiskConfig
     ): DriverFor<K> {
         const name = config.driver
 
-        if (!['local', 'ftp', 's3'].includes(name) && !this.customDrivers.has(name)) {
+        if (!['local', 'ftp', 's3', 'gcs'].includes(name) && !this.customDrivers.has(name)) {
             throw new Error(`Unsupported driver: ${name}`)
         }
 
@@ -48,10 +49,14 @@ export class Driver {
             visibility: config.visibility ?? 'public',
             urlBuilder: {
                 async generateURL (key: string, _path: string) {
+                    if (config.url) return `${config.url}/key`.replace(/^(https?:\/)\/+/, '$1/').replace(/([^:]\/)\/+/g, '$1')
+
                     return appUrl(key)
                 },
 
                 async generateSignedURL (key: string, _path: string, _opts: SignedURLOptions) {
+                    if (config.url) return `${config.url}/key`.replace(/^(https?:\/)\/+/, '$1/').replace(/([^:]\/)\/+/g, '$1')
+
                     return appUrl(key)
                 },
             },
@@ -72,6 +77,13 @@ export class Driver {
             visibility: 'private',
             cdnUrl: config.cdnUrl ?? config.url,
         })
+    }
+
+    gcs () {
+        const config = this.config as GcsDiskDriverConfig & { driver?: string }
+        const { driver: _driver, ...options } = config
+
+        return new GCSDriver(options)
     }
 
     ftp () {
