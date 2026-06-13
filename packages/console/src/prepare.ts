@@ -11,9 +11,10 @@ import { spawn } from 'node:child_process'
 if (!existsSync(path.join(Arkstack.rootDir(), '.arkstack/build')))
     mkdirSync(path.join(Arkstack.rootDir(), '.arkstack/build'), { recursive: true })
 
+const LOG_LEVEL = parseInt(process.env.VERBOSITY ?? '0') > 0 ? [] : ['--log-level=silent']
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
-const child = spawn(command, ['exec', 'tsdown', '--log-level=silent'], {
+const child = spawn(command, ['exec', 'tsdown', ...LOG_LEVEL], {
     cwd: Arkstack.rootDir(),
     stdio: 'inherit',
     env: Object.assign({}, process.env, {
