@@ -48,6 +48,6 @@
     },
     "peerDependencies": {
         "@arkstack/database": "workspace:^",
-        "@h3ravel/support": "^0.15.11"
+        "@h3ravel/support": "^2.1.3"
     }
 }

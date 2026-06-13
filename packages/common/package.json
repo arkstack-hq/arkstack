@@ -46,7 +46,7 @@
         "pino": "^10.3.1"
     },
     "peerDependencies": {
-        "@h3ravel/support": "^0.15.11",
+        "@h3ravel/support": "catalog:",
         "@arkstack/foundry": "workspace:^",
         "@arkstack/contract": "workspace:^",
         "arkormx": "^2.5.6"

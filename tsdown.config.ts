@@ -62,6 +62,7 @@ export const baseConfig: UserConfig = {
         })
     },
     deps: {
+        skipNodeModulesBundle: true,
         neverBundle: [
             'fs',
             'os',

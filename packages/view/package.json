@@ -43,9 +43,9 @@
     },
     "peerDependencies": {
         "@arkstack/common": "workspace:^",
-        "@h3ravel/musket": "^0.10.1",
+        "@h3ravel/musket": "catalog:",
         "@arkstack/foundry": "workspace:^",
-        "clear-router": "^2.8.6"
+        "clear-router": "^2.8.8"
     },
     "peerDependenciesMeta": {
         "@h3ravel/musket": {

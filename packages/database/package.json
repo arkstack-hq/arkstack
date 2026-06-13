@@ -51,7 +51,7 @@
     },
     "peerDependencies": {
         "kanun": "^1.2.0",
-        "clear-router": "^2.8.6"
+        "clear-router": "^2.8.8"
     },
     "dependencies": {
         "@arkormx/plugin-clear-router": "^0.1.40",
