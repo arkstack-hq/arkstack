@@ -11,6 +11,11 @@ import { spawn } from 'node:child_process'
 if (!existsSync(path.join(Arkstack.rootDir(), '.arkstack/build')))
     mkdirSync(path.join(Arkstack.rootDir(), '.arkstack/build'), { recursive: true })
 
+if (!process.env.NODE_CI)
+    BuildInterfaces.configs()
+
+BuildInterfaces.tsconfig()
+
 const LOG_LEVEL = parseInt(process.env.VERBOSITY ?? '0') > 0 ? [] : ['--log-level=silent']
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
@@ -37,8 +42,3 @@ child.on('exit', (code) => {
     throw new Error(`tsdown exited with code ${code}`)
 
 })
-
-if (!process.env.NODE_CI)
-    BuildInterfaces.configs()
-
-BuildInterfaces.tsconfig()
