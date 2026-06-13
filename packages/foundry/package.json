@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/foundry",
-    "version": "0.12.23",
+    "version": "0.12.24",
     "type": "module",
     "description": "Extensibility primitives and framework internals for the Arkstack ecosystem.",
     "homepage": "https://arkstack.toneflix.net",
