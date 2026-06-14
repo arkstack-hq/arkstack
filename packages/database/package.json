@@ -57,6 +57,6 @@
         "@arkormx/plugin-clear-router": "^0.1.41",
         "@arkstack/common": "workspace:^",
         "@arkstack/contract": "workspace:^",
-        "arkormx": "^2.5.7"
+        "arkormx": "^2.6.0"
     }
 }
