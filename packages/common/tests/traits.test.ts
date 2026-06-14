@@ -398,4 +398,11 @@ describe('Trait System', () => {
         expect(uses(router, Magical)).toBeTruthy()
         expect(uses(router, IRouter)).toBeTruthy()
     })
+
+    it('throws a clear error when a trait is undefined (e.g. circular import)', () => {
+        // Simulates a trait that resolved to `undefined` because its module had
+        // not finished initializing when `use()` ran (a circular import).
+        expect(() => use(undefined as never, Model))
+            .toThrow(/undefined or invalid trait/)
+    })
 })

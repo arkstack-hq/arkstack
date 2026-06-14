@@ -554,6 +554,18 @@ const deriveTrait = (
     /*  get real trait  */
     const trait = rawTrait(trait$)
 
+    /*  guard against an undefined/invalid trait, which otherwise crashes below
+        with a cryptic "Cannot read properties of undefined (reading 'id')". The
+        usual cause is a circular import: a trait module is evaluated before it
+        finished initializing (e.g. a trait that imports a model which imports
+        the class that uses the trait).  */
+    if (trait === undefined || trait === null || typeof trait.id !== 'number')
+        throw new Error(
+            'use(): received an undefined or invalid trait. This usually means a circular '
+            + 'import — the trait module had not finished initializing when use() ran. Avoid '
+            + 'importing models at the top level of trait modules, or break the import cycle.',
+        )
+
     /*  start with base class  */
     let classInstance = baseClass
 
