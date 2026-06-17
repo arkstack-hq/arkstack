@@ -1,4 +1,4 @@
-import { RequestException } from '@arkstack/common'
+import { Logger, RequestException } from '@arkstack/common'
 import express, { Router as ExpressRouter } from 'express'
 
 import { Arkstack, ArkstackRouteListOptions } from '@arkstack/contract'
@@ -21,12 +21,16 @@ export class Router extends ClearRouter {
     // Register API routes
     try {
       await ClearRouter.group('/api', join(Arkstack.rootDir(), 'src/routes/api.ts'))
-    } catch { /** */ }
+    } catch (e: any) {
+      Logger.error('ERROR: Unable to load "api.ts" routes: ' + e.message, false)
+    }
 
     // Register web routes
     try {
       await ClearRouter.group('/', join(Arkstack.rootDir(), 'src/routes/web.ts'))
-    } catch { /** */ }
+    } catch (e: any) {
+      Logger.error('ERROR: Unable to load "web.ts" routes: ' + e.message, false)
+    }
 
     // Apply the registered routes to the Express application
     ClearRouter.apply(router)
