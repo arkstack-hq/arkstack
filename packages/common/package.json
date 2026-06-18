@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/common",
-    "version": "0.12.32",
+    "version": "0.12.33",
     "type": "module",
     "description": "Core utilities, primitives, and shared infrastructure for the Arkstack ecosystem.",
     "homepage": "https://arkstack.toneflix.net",
