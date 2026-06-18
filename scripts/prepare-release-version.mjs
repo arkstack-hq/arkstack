@@ -1,6 +1,8 @@
 import { readFile, readdir, writeFile } from 'node:fs/promises'
 
 import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
+import yaml from 'js-yaml'
 
 const versionArg = process.argv[2]
 const version = normalizeVersion(versionArg)
@@ -27,6 +29,23 @@ await writeFile(
   dataPath,
   data.replace(/('@arkstack\/[^']+': )'\^[^']+'/g, `$1'^${version}'`),
 )
+
+try {
+  const doc = yaml.load(readFileSync('pnpm-workspace.yaml', 'utf8'))
+  let updatedData = data
+
+  for (const [name, version] of Object.entries(doc.catalog ?? {})) {
+    const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+    updatedData = updatedData.replace(
+      new RegExp(`('${escapedName}'\\s*:\\s*)'[^']+'`, 'g'),
+      `$1'${version}'`
+    )
+  }
+  await writeFile(dataPath, updatedData)
+} catch (e) {
+  console.log(e)
+}
 
 console.log(`Prepared Arkstack packages for ${version}`)
 

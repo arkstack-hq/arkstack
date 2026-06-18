@@ -208,7 +208,8 @@ export default class {
       this.packageJson = await readFile(pkgPath, 'utf-8').then(JSON.parse)
 
       for (const [name] of Object.entries(this.packageJson.dependencies)) {
-        if (name.includes('@arkstack/')) delete this.packageJson.dependencies[name]
+        if (/^@(arkstack|h3ravel)\//.test(name))
+          delete this.packageJson.dependencies[name]
       }
 
       const deps = Object.fromEntries([

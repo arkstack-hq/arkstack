@@ -52,6 +52,8 @@ export const depsList: Record<string, string> = {
     '@arkstack/http': '^0.12.30',
     '@arkstack/view': '^0.12.30',
     '@arkstack/notifications': '^0.12.30',
+    '@h3ravel/musket': '^2.0.0',
+    '@h3ravel/support': '^2.1.4',
 }
 
 export const environment = {
