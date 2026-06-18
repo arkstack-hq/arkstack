@@ -146,10 +146,15 @@ export const config: GlobalConfig = <
         (globalThis as any)[CONFIG_KEY] = config
     }
 
-    if (typeof key === 'object') {
-        const config = Object.assign({}, Arr.dot((globalThis as any)[CONFIG_KEY]), key);
+    if (typeof key === 'object' && key !== null) {
+        const config = Object.assign(
+            {},
+            Arr.dot((globalThis as any)[CONFIG_KEY]),
+            Arr.dot(key),
+        );
+
         (globalThis as any)[CONFIG_KEY] = undot(config)
-    } else if (key) {
+    } else if (typeof key === 'string') {
         return Obj.get((globalThis as any)[CONFIG_KEY], key as never, defaultValue)
     }
 
