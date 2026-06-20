@@ -9,6 +9,8 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { readdirSync } from 'fs'
 import { resolve } from 'node:path'
+import { rm } from 'node:fs/promises'
+import { spawn } from 'node:child_process'
 
 /**
  * Read the .env file
@@ -196,6 +198,39 @@ export const outputDir = (cwd?: string) => {
         ? (output[NODE_ENV] ?? output.dev)
         : path.join(cwd, output[NODE_ENV] ?? output.dev)
 }
+
+/**
+ * Rebuild the application output (tsdown) into {@link outputDir}, wiping it first
+ * so no stale emitted modules survive a source change. Standalone — it does NOT
+ * boot the app — so the console kernel can call it to self-heal a stale or
+ * incomplete build artifact that would otherwise wedge startup. Build-only: it
+ * sets `CLI_BUILD` so tsdown emits without starting a watcher/dev server, and
+ * inherits the current `NODE_ENV` so it targets the same dir the kernel reads.
+ */
+export const rebuildOutput = async (): Promise<void> => {
+    await rm(outputDir(), { recursive: true, force: true })
+
+    await new Promise<void>((resolveBuild, reject) => {
+        const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
+        const child = spawn(command, ['exec', 'tsdown', '--log-level', 'silent'], {
+            cwd: Arkstack.rootDir(),
+            stdio: 'inherit',
+            env: Object.assign({}, process.env, { CLI_BUILD: 'true' }),
+        })
+
+        child.on('error', reject)
+        child.on('exit', (code) => {
+            if (code === 0 || code === null) {
+                resolveBuild()
+
+                return
+            }
+
+            reject(new Error(`tsdown exited with code ${code}`))
+        })
+    })
+}
+
 /**
  * 
  * Dynamically imports a file at the given path with full TypeScript support,

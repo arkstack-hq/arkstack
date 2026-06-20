@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { abort, abortIf, assertFound, config, env, importFile, initializeGlobalContext, loadPrototypes, outputDir } from '@arkstack/common'
+import { abort, abortIf, assertFound, config, env, importFile, initializeGlobalContext, loadPrototypes, outputDir, rebuildOutput } from '@arkstack/common'
+import { existsSync, realpathSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path, { join } from 'node:path'
 
@@ -15,26 +16,50 @@ import { MakeFullResource } from './commands/MakeFullResource'
 import { MakeResource } from './commands/MakeResource'
 import { RouteList } from './commands/RouteList'
 import logo from './logo'
-import { realpathSync } from 'node:fs'
 import { str } from '@h3ravel/support'
 
 export interface RunConsoleOptions {
     logo?: string;
 }
 
-/**
- * Loads the core application instance by importing the bootstrap file.
+/** 
+ * A missing-module error from importing a stale/incomplete build artifact. 
  * 
+ * @param error 
  * @returns 
+ */
+const isMissingModuleError = (error: unknown): boolean => {
+    const code = (error as { code?: string })?.code
+
+    return code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND'
+}
+
+/**
+ * Loads the core application instance by importing the built bootstrap file.
+ *
+ * The kernel boots this for every command — including `build` — before the build
+ * can run, so a stale or incomplete build artifact (source changed since the last
+ * build: a module moved, renamed, or added) would otherwise wedge startup with
+ * `Cannot find module '<outDir>/...'` and the build could never self-heal. When
+ * that happens and source is present, regenerate the output once and retry.
+ *
+ * @returns
  */
 const loadCoreApp = async () => {
     const dist = path.relative(Arkstack.rootDir(), outputDir())
-
     const bootstrapPath = join(Arkstack.rootDir(), `${dist}/core/bootstrap.js`)
 
-    const module = await importFile<{ app: any }>(bootstrapPath)
+    try {
+        return (await importFile<{ app: any }>(bootstrapPath)).app
+    } catch (error) {
+        if (!isMissingModuleError(error) || !existsSync(join(Arkstack.rootDir(), 'src'))) {
+            throw error
+        }
 
-    return module.app
+        await rebuildOutput()
+
+        return (await importFile<{ app: any }>(bootstrapPath)).app
+    }
 }
 
 /**
