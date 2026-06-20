@@ -258,6 +258,96 @@ export const importFile: FileImporter = async <T = unknown> (
 }
 
 /**
+ * Picks the command class out of an imported module. Prefers the export named
+ * after the file (musket's discovery convention), then a default export, then
+ * the first exported constructor it finds.
+ *
+ * @param mod        The imported module namespace.
+ * @param basename   The file name without extension.
+ * @returns          The resolved command class, or undefined when none is found.
+ */
+const resolveCommandExport = (
+    mod: Record<string, unknown>,
+    basename: string,
+): unknown => {
+    const named = mod[basename]
+
+    if (typeof named === 'function') return named
+    if (typeof mod.default === 'function') return mod.default
+
+    return Object.values(mod).find((value) => typeof value === 'function')
+}
+
+/**
+ * Discover console command classes from the application's command directory.
+ *
+ * Commands are loaded straight from TypeScript source through {@link importFile}
+ * (jiti), so they are picked up without a build and reflect edits on every run.
+ * The built output is only used as a fallback when the source directory is
+ * absent — e.g. a production deploy that ships `dist` without `src`.
+ *
+ * This exists because musket's own glob discovery imports paths with native
+ * `import()`, which silently skips `.ts` files — the reason commands previously
+ * only appeared after a `build --dev` and never reflected later edits.
+ *
+ * @param subPath   Command directory relative to the app root (src/dist aware).
+ * @returns         The discovered command classes.
+ */
+export const discoverCommands = async <T = unknown> (
+    subPath: string = path.join('app', 'console', 'commands'),
+): Promise<T[]> => {
+    const root = Arkstack.rootDir()
+    const dist = path.relative(root, outputDir())
+
+    // Prefer source so edits land without a rebuild; fall back to built output.
+    const candidateDirs = [
+        path.join(root, 'src', subPath),
+        path.join(root, dist, subPath),
+    ]
+
+    let commandsDir: string | undefined
+    let files: Dirent<string>[] = []
+
+    for (const dir of candidateDirs) {
+        try {
+            const entries = readdirSync(dir, { withFileTypes: true }).filter(
+                (file) => file.isFile() && ['.ts', '.js', '.mjs'].includes(path.extname(file.name)),
+            )
+
+            if (entries.length > 0) {
+                commandsDir = dir
+                files = entries
+
+                break
+            }
+        } catch {
+            // Directory missing — try the next candidate.
+        }
+    }
+
+    if (!commandsDir) return []
+
+    const commands: T[] = []
+
+    for (const file of files) {
+        const basename = path.basename(file.name, path.extname(file.name))
+
+        try {
+            const mod = await importFile<Record<string, unknown>>(path.join(commandsDir, file.name))
+            const command = resolveCommandExport(mod, basename)
+
+            if (command) commands.push(command as T)
+        } catch (error) {
+            // Surface the failure so a broken command file is debuggable instead
+            // of silently vanishing from the command list.
+            console.error(`[arkstack] Failed to load command "${file.name}":`, error)
+        }
+    }
+
+    return commands
+}
+
+/**
  * Resolves the default export from a module, handling both CJS and ESM interop.
  * In CJS modules, the default export is often the module itself (a function or object),
  * while in ESM the default is nested under the `default` property.

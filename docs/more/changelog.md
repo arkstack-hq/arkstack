@@ -17,10 +17,12 @@ The format follows semantic versioning principles.
 ### Docs
 
 - Documented host and port binding for the Express and H3 runtimes, including Railway deployment guidance.
+- Documented that custom console commands are discovered from source and picked up without a build.
 
 ### Fixed
 
 - Fixed deployments where the server bound to `localhost` and platform healthcheck proxies (e.g. Railway) could not reach the app.
+- Fixed custom console commands in `src/app/console/commands` only being discovered after a `build --dev`, and not reflecting edits afterwards. Commands are now loaded directly from TypeScript source via jiti (`discoverCommands`), so they appear and update on every CLI run, with the built output kept as a production fallback.
 
 ## [0.4.0] - 2026-05-07
 

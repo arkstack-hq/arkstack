@@ -101,6 +101,8 @@ You can add your own commands in:
 
 - `src/app/console/commands`
 
-They will be discovered automatically by the console kernel.
+Scaffold one with `pnpm ark make:command <Name>`, then run it straight away — the console kernel loads commands directly from the TypeScript source, so new commands and edits are picked up on the next CLI run without a build step. The built output (`dist`) is only used as a fallback when the source directory is not present, such as a production deploy.
+
+By convention each file exports a class named after the file (e.g. `GreetCommand.ts` → `export class GreetCommand`); a `default` export is also supported.
 
 For info on creating custom commands, see the [Official H3ravel Musket documentation](https://h3ravel.toneflix.net/musket/commands).

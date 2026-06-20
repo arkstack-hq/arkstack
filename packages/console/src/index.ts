@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { abort, abortIf, assertFound, config, env, importFile, initializeGlobalContext, loadPrototypes, outputDir, rebuildOutput } from '@arkstack/common'
+import { abort, abortIf, assertFound, config, discoverCommands, env, importFile, initializeGlobalContext, loadPrototypes, outputDir, rebuildOutput } from '@arkstack/common'
 import { existsSync, realpathSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path, { join } from 'node:path'
@@ -9,7 +9,7 @@ import { Arkstack } from '@arkstack/contract'
 import { ArkstackConsoleApp } from './app'
 import { BuildCommand } from './commands/BuildCommand'
 import { DevCommand } from './commands/DevCommand'
-import { Kernel } from '@h3ravel/musket'
+import { Command, Kernel } from '@h3ravel/musket'
 import { MakeCommand } from './commands/MakeCommand'
 import { MakeController } from './commands/MakeController'
 import { MakeFullResource } from './commands/MakeFullResource'
@@ -70,7 +70,6 @@ const loadCoreApp = async () => {
 export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
     loadPrototypes()
     const app = await loadCoreApp()
-    const dist = path.relative(Arkstack.rootDir(), outputDir())
     const stubsDir = process.env.ARKSTACK_STUBS_DIR
     globalThis.app = () => app as never
     globalThis.env = env
@@ -84,6 +83,12 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
     }
 
     await initializeGlobalContext()
+
+    // Discover user commands from source via jiti so they are picked up without a
+    // build and reflect edits on every run. Musket's glob discovery uses native
+    // import(), which silently skips .ts files (see discoverCommands).
+    const userCommands = await discoverCommands<typeof Command>()
+
     await Kernel.init(await new ArkstackConsoleApp(app, { stubsDir }).loadConfig(), {
         logo: options.logo ?? logo,
         name: 'Cmd',
@@ -95,13 +100,9 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             DevCommand,
             BuildCommand,
             MakeCommand,
+            ...userCommands,
         ],
         discoveryPaths: [
-            join(Arkstack.rootDir(), 'src', 'app', 'console', 'commands/*.ts'),
-            join(Arkstack.rootDir(), 'src', 'app/console/commands/*.js'),
-            join(Arkstack.rootDir(), 'src', 'app/console/commands/*.mjs'),
-            join(Arkstack.rootDir(), dist, 'app/console/commands/*.js'),
-            join(Arkstack.rootDir(), dist, 'app/console/commands/*.mjs'),
             join(Arkstack.rootDir(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js'),
         ],
         exceptionHandler (exception) {
