@@ -1,0 +1,47 @@
+{
+    "name": "@arkstack/jobs",
+    "version": "0.12.37",
+    "type": "module",
+    "description": "Jobs module for Arkstack, providing dispatchable job classes and a dispatcher on top of @arkstack/queue.",
+    "homepage": "https://arkstack.toneflix.net/guide/jobs",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/jobs"
+    },
+    "keywords": [
+        "jobs",
+        "queue",
+        "dispatch",
+        "background",
+        "dispatchable",
+        "worker",
+        "arkstack"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsdown",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./commands/MakeJobCommand": "./dist/commands/MakeJobCommand.js",
+        "./setup": "./dist/setup.js",
+        "./package.json": "./package.json"
+    },
+    "dependencies": {
+        "@arkstack/common": "workspace:^",
+        "@arkstack/queue": "workspace:^"
+    },
+    "peerDependencies": {
+        "@arkstack/contract": "workspace:^",
+        "@h3ravel/musket": "catalog:"
+    }
+}

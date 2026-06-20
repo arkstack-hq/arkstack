@@ -26,6 +26,7 @@
     "@arkstack/filesystem": "workspace:^",
     "@arkstack/foundry": "workspace:^",
     "@arkstack/http": "workspace:^",
+    "@arkstack/jobs": "workspace:^",
     "@arkstack/notifications": "workspace:^",
     "@arkstack/queue": "workspace:^",
     "@arkstack/view": "workspace:^",
