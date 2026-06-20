@@ -1,0 +1,56 @@
+{
+    "name": "@arkstack/cache",
+    "version": "0.12.37",
+    "type": "module",
+    "description": "Cache module for Arkstack, providing a unified, driver based caching layer for the framework.",
+    "homepage": "https://arkstack.toneflix.net/guide/cache",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/cache"
+    },
+    "keywords": [
+        "cache",
+        "caching",
+        "memory",
+        "file",
+        "redis",
+        "database",
+        "store",
+        "arkstack"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsdown",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./commands/CacheClearCommand": "./dist/commands/CacheClearCommand.js",
+        "./package.json": "./package.json"
+    },
+    "dependencies": {
+        "@arkstack/common": "workspace:^"
+    },
+    "peerDependencies": {
+        "@arkstack/contract": "workspace:^",
+        "@arkstack/database": "workspace:^",
+        "@h3ravel/musket": "catalog:",
+        "ioredis": "^5.4.1"
+    },
+    "peerDependenciesMeta": {
+        "@arkstack/database": {
+            "optional": true
+        },
+        "ioredis": {
+            "optional": true
+        }
+    }
+}
