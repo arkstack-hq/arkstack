@@ -8,6 +8,16 @@ The format follows semantic versioning principles.
 
 ### Added
 
+### Changed
+
+### Docs
+
+### Fixed
+
+## [0.12.36] - 2026-06-20
+
+### Added
+
 - Added `rebuildOutput()` to `@arkstack/common` — wipes `outputDir()` and runs a build-only `tsdown` pass (no app boot, no dev watcher), inheriting the current `NODE_ENV`. Used by the console kernel's self-heal and reusable wherever a clean, boot-free rebuild is needed.
 
 ### Changed
