@@ -25,9 +25,12 @@ export const fullDependencies = [
     '@prisma/client',
     '@prisma/adapter-pg',
     '@arkstack/auth',
+    '@arkstack/cache',
     '@arkstack/database',
     '@arkstack/filesystem',
+    '@arkstack/jobs',
     '@arkstack/notifications',
+    '@arkstack/queue',
     'pg',
     'kysely',
     'prisma',
@@ -40,9 +43,11 @@ export const leanDependencies = [
 
 export const depsList: Record<string, string> = {
     '@arkstack/auth': '^0.12.31',
+    '@arkstack/cache': '^0.12.31',
     '@arkstack/common': '^0.12.31',
     '@arkstack/console': '^0.12.31',
     '@arkstack/foundry': '^0.12.31',
+    '@arkstack/jobs': '^0.12.31',
     // '@arkstack/console-slim': '^0.12.31', Depracated
     '@arkstack/contract': '^0.12.31',
     '@arkstack/database': '^0.12.31',
@@ -51,6 +56,7 @@ export const depsList: Record<string, string> = {
     '@arkstack/filesystem': '^0.12.31',
     '@arkstack/http': '^0.12.31',
     '@arkstack/view': '^0.12.31',
+    '@arkstack/queue': '^0.12.31',
     '@arkstack/notifications': '^0.12.31',
     '@h3ravel/musket': '^2.0.0',
     '@h3ravel/support': '^2.1.4',
