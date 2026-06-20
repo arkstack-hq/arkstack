@@ -51,6 +51,7 @@ export default defineConfig({
           { text: 'Authentication', link: '/guide/authentication' },
           { text: 'Notifications', link: '/guide/notifications' },
           { text: 'Cache', link: '/guide/cache' },
+          { text: 'Queue', link: '/guide/queue' },
           { text: 'Views', link: '/guide/views' },
           { text: 'Hooks', link: '/guide/hooks' },
           { text: 'HTTP', link: '/guide/http' },

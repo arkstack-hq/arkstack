@@ -27,6 +27,7 @@
     "@arkstack/foundry": "workspace:^",
     "@arkstack/http": "workspace:^",
     "@arkstack/notifications": "workspace:^",
+    "@arkstack/queue": "workspace:^",
     "@arkstack/view": "workspace:^",
     "@h3ravel/musket": "catalog:",
     "@h3ravel/support": "catalog:",
