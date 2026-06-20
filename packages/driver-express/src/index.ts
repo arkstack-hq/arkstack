@@ -1,7 +1,7 @@
 import express, { type ErrorRequestHandler, type Express, type Handler } from 'express'
 
 import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
-import { Logger } from '@arkstack/common'
+import { Logger, env } from '@arkstack/common'
 import { defaultErrorHandler } from './error-handler'
 import { Middleware, MiddlewareConfig } from './types'
 import { resolveMiddleware } from '@arkstack/http'
@@ -118,15 +118,22 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
 
     /**
      * Starts the Express server on the specified port.
-     * 
-     * @param app 
-     * @param port 
+     *
+     * The bind host can be overridden with the `APP_HOST` (or `HOST`) env
+     * variable. It defaults to `0.0.0.0` so the server is reachable on all
+     * network interfaces, which platforms like Railway require for their
+     * healthcheck proxy to reach the app.
+     *
+     * @param app
+     * @param port
      */
     start (app: Express, port: number): void {
-        app.listen(port, () => {
+        const host = env('APP_HOST', env('HOST', '0.0.0.0'))
+
+        app.listen(port, host, () => {
             Logger.log([
                 ['Server is running on', 'white'],
-                [`http://localhost:${port}`, 'cyan']
+                [`http://${host}:${port}`, 'cyan']
             ], ' ')
         })
     }

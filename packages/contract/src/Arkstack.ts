@@ -53,14 +53,15 @@ export abstract class Arkstack<TApp, TRoutes = unknown, THandler = unknown> {
     /**
      * Boostrap the app and start up the server
      * 
-     * @param defaultPort   start the server with this port if none is APP_PORT env variable is not set
+     * @param defaultPort   start the server with this port if neither PORT nor APP_PORT env variable is set
      * @param defer         Set to true to skip server startup
      */
     async startup (defaultPort: number = 3000, defer?: boolean) {
         const { bootWithDetectedPort } = await import('@arkstack/common')
+        // Prefer the platform-provided PORT (e.g. Railway, Heroku) over APP_PORT when available.
         await bootWithDetectedPort<TApp, TRoutes, THandler>(async (port) => {
             await this.boot(port, defer)
-        }, Number(process.env.APP_PORT ?? defaultPort), this as never, defer)
+        }, Number(process.env.PORT ?? process.env.APP_PORT ?? defaultPort), this as never, defer)
     }
 
     /**

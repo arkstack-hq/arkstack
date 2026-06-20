@@ -3,7 +3,7 @@ import { H3, H3Event, serve, toResponse } from 'h3'
 import { Middleware, MiddlewareConfig } from './types'
 
 import { Middleware as H3BaseMiddleware } from 'clear-router/types/h3'
-import { Logger } from '@arkstack/common'
+import { Logger, env } from '@arkstack/common'
 import { defaultErrorHandler } from './error-handler'
 import { resolveMiddleware } from '@arkstack/http'
 import { staticAssetHandler } from './middlewares'
@@ -126,15 +126,22 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
 
     /**
      * Starts the H3 server on the specified port.
-     * 
-     * @param app 
-     * @param port 
+     *
+     * The bind host can be overridden with the `APP_HOST` (or `HOST`) env
+     * variable. It defaults to `0.0.0.0` so the server is reachable on all
+     * network interfaces, which platforms like Railway require for their
+     * healthcheck proxy to reach the app.
+     *
+     * @param app
+     * @param port
      */
     start (app: H3, port: number): void {
-        serve(app, { port, silent: true }).ready().then(() => {
+        const host = env('APP_HOST', env('HOST', '0.0.0.0'))
+
+        serve(app, { port, hostname: host, silent: true }).ready().then(() => {
             Logger.log([
                 ['Server is running on', 'white'],
-                [`http://localhost:${port}`, 'cyan']
+                [`http://${host}:${port}`, 'cyan']
             ], ' ')
         })
     }

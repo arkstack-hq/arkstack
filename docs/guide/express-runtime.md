@@ -121,6 +121,22 @@ this.driver = new ExpressDriver({
 });
 ```
 
+## Host & Port Binding
+
+The server resolves its listening port and host from environment variables, which makes it portable across hosting platforms (Railway, Heroku, Render, etc.).
+
+| Variable               | Default   | Purpose                                                         |
+| ---------------------- | --------- | --------------------------------------------------------------- |
+| `PORT`                 | —         | Platform-provided port. Preferred over `APP_PORT` when present. |
+| `APP_PORT`             | `3000`    | Application port used when `PORT` is not set.                   |
+| `APP_HOST` (or `HOST`) | `0.0.0.0` | Host the server binds to.                                       |
+
+Port resolution order is `PORT` → `APP_PORT` → `3000`. Platforms such as Railway inject a `PORT` variable at runtime, so it takes precedence automatically.
+
+The server binds to `0.0.0.0` by default so it is reachable on all network interfaces. This is required for platform healthcheck proxies (e.g. Railway) to reach the app. To restrict the server to local connections only, set `APP_HOST=localhost`.
+
+> **Deploying to Railway:** point `APP_PORT` at Railway's `PORT` variable (`APP_PORT=${{ PORT }}`) or simply rely on the built-in `PORT` precedence, and leave `APP_HOST` at its `0.0.0.0` default.
+
 ## Notes
 
 - `app.boot(port)` mounts public assets, binds router, applies middleware, registers error handling, starts the server, and attaches graceful shutdown.

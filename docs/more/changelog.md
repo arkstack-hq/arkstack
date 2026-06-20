@@ -8,11 +8,19 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- Added `APP_HOST` (with `HOST` fallback) to override the server bind host in the Express and H3 drivers, defaulting to `0.0.0.0` so the app is reachable on all network interfaces.
+
 ### Changed
+
+- Prefer the platform-provided `PORT` env variable over `APP_PORT` when resolving the server port, so deployments on Railway, Heroku, and similar platforms bind to the expected port automatically.
 
 ### Docs
 
+- Documented host and port binding for the Express and H3 runtimes, including Railway deployment guidance.
+
 ### Fixed
+
+- Fixed deployments where the server bound to `localhost` and platform healthcheck proxies (e.g. Railway) could not reach the app.
 
 ## [0.4.0] - 2026-05-07
 
