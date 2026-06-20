@@ -8,11 +8,17 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- Added `rebuildOutput()` to `@arkstack/common` — wipes `outputDir()` and runs a build-only `tsdown` pass (no app boot, no dev watcher), inheriting the current `NODE_ENV`. Used by the console kernel's self-heal and reusable wherever a clean, boot-free rebuild is needed.
+
 ### Changed
+
+- Express and H3 templates now clean the output dir on build/prepare (`clean: env !== 'dev' || CLI_BUILD` in `tsdown.config.ts`), so a renamed, removed, or added source file can't leave a stale emitted module behind. The live dev watcher (`ark dev`) is excluded so its running server isn't disrupted.
 
 ### Docs
 
 ### Fixed
+
+- Console: self-heal a stale or incomplete build artifact instead of wedging the CLI. `runConsoleKernel` boots the app from the emitted output (`.arkstack/build` in dev, `dist` in prod) for every command — including `build` — before it can regenerate, so a source change since the last build (a module moved, renamed, or added) left the artifact stale and the boot threw `Cannot find module '<outDir>/...'` with no way to recover. `loadCoreApp` now catches a missing-module error and, when source is present, regenerates the output once via `rebuildOutput()` and retries. Applies to both `@arkstack/console` and `@arkstack/console-slim`.
 
 ## [0.4.0] - 2026-05-07
 
