@@ -5,6 +5,7 @@ import path, { basename, join, relative } from 'node:path'
 
 import type { KitName } from './types'
 import { Str } from '@h3ravel/support'
+import { catalog, catalogs } from './catalog'
 import { chdir } from 'node:process'
 import { depsList } from './data'
 import { detectPackageManager } from '@antfu/install-pkg'
@@ -218,7 +219,89 @@ export default class {
       ])
 
       this.packageJson.dependencies = deps
+
+      await this.resolveCatalogDeps()
     } else this.packageJson = {}
+  }
+
+  /**
+   * Replace any `catalog:` dependency specifiers with concrete version ranges.
+   *
+   * `catalog:` is a pnpm workspace protocol and is meaningless once the project
+   * is scaffolded outside the monorepo. Each specifier is resolved from the
+   * curated {@link depsList}, then the workspace catalog snapshot ({@link catalog}
+   * / {@link catalogs}), and finally — as a defensive fallback — the npm registry.
+   */
+  async resolveCatalogDeps () {
+    for (const field of ['dependencies', 'devDependencies'] as const) {
+      const deps = this.packageJson[field] as Record<string, string> | undefined
+      if (!deps) continue
+
+      for (const [name, version] of Object.entries(deps)) {
+        if (typeof version !== 'string' || !version.startsWith('catalog:')) {
+          continue
+        }
+
+        const catalogName = version.slice('catalog:'.length).trim()
+        deps[name] = await this.resolveCatalogVersion(name, catalogName)
+      }
+    }
+  }
+
+  /**
+   * Resolve a single `catalog:` specifier to a concrete version range.
+   *
+   * @param name         The dependency name.
+   * @param catalogName  The named catalog (empty string for the default catalog).
+   */
+  private async resolveCatalogVersion (name: string, catalogName: string): Promise<string> {
+    const fromCatalog = catalogName
+      ? catalogs[catalogName]?.[name]
+      : catalog[name]
+
+    const resolved = depsList[name] ?? fromCatalog
+
+    if (resolved) {
+      return resolved
+    }
+
+    const latest = await this.fetchLatestVersion(name)
+
+    if (latest) {
+      return `^${latest}`
+    }
+
+    Logger.parse(
+      [
+        [' WARN ', 'bgYellow'],
+        [`Could not resolve a catalog version for "${name}"; using "latest".`, 'white'],
+      ],
+      ' ',
+    )
+
+    return 'latest'
+  }
+
+  /**
+   * Look up a package's latest published version from the npm registry.
+   *
+   * @param name  The dependency name.
+   * @returns     The version, or `undefined` when the lookup fails.
+   */
+  private async fetchLatestVersion (name: string): Promise<string | undefined> {
+    try {
+      const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}/latest`)
+
+      if (!response.ok) {
+        return undefined
+      }
+
+      const data = await response.json() as { version?: string }
+
+      return data.version
+    } catch {
+      return undefined
+    }
   }
 
   async makeFullProfile (_kit: KitName) {

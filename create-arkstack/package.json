@@ -51,7 +51,10 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretest": "node scripts/generate-catalog.mjs",
     "runner": "tsx --experimental-specifier-resolution=node src/run.ts",
+    "generate:catalog": "node scripts/generate-catalog.mjs",
+    "prebuild": "node scripts/generate-catalog.mjs",
     "build": "tsdown",
     "version": "pnpm run build",
     "unlink": "npm unlink -g create-arkstack",
@@ -80,6 +83,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.29.5",
     "eslint": "^9.32.0",
+    "js-yaml": "^4.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.0"
   },
