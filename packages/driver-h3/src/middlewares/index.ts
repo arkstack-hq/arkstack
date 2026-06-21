@@ -1,4 +1,5 @@
 export * from './auth'
 export * from './cors'
 export * from './request-logger'
+export * from './resora'
 export * from './static-asset-handler'

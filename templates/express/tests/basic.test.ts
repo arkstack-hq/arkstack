@@ -22,4 +22,8 @@ describe('starter template', () => {
     it('can test a route', async () => {
         await request(app).get('/api').contains('{"status":"OK"}')
     })
+
+    it('can test an api route', async () => {
+        await request(app).get('/api/users').contains('"status":"success","message":"OK"')
+    })
 })

@@ -13,5 +13,4 @@ View.boot()
 Validator.use(fileValidatorPlugin)
 
 const expressApp = interopDefault(express)()
-
 export const app = new Application(expressApp)

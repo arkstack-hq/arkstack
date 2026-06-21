@@ -12,3 +12,4 @@ onlyBuiltDependencies:
 catalog:
   '@h3ravel/musket': ^2.2.0
   '@h3ravel/support': ^2.1.4
+  'dotenv': ^17.4.2

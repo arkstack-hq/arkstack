@@ -11,6 +11,10 @@ export default defineConfig({
     outDir: 'dist',
     deps: {
         skipNodeModulesBundle: true,
+        neverBundle: [
+            /^@h3ravel\/.*/gi,
+            /^@arkstack\/.*/gi,
+        ]
     },
     outExtensions (ctx) {
         return {

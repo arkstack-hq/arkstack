@@ -1,5 +1,4 @@
-import { GenericResource, Resource, ResourceCollection } from 'resora'
-import { cors, requestLogger } from '@arkstack/driver-h3/middlewares'
+import { cors, requestLogger, resora } from '@arkstack/driver-h3/middlewares'
 
 import { MiddlewareConfig } from '@arkstack/driver-h3/types'
 import corsConfig from './cors'
@@ -16,10 +15,8 @@ export default (): MiddlewareConfig => {
       }),
     ],
     before: [
-      function ({ req, res }, next) {
-        Resource.setCtx({ req, res })
-        GenericResource.setCtx({ req, res })
-        ResourceCollection.setCtx({ res, req })
+      resora(),
+      function ({ req }, next) {
         useH3UploadContext(req)
         next()
       }

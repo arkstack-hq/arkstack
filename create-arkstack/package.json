@@ -73,7 +73,7 @@
     "@inquirer/core": "^10.2.2",
     "giget": "^2.0.0",
     "inquirer": "^12.9.6",
-    "dotenv": "^17.4.2",
+    "dotenv": "catalog:",
     "tsdown": "^0.22.0",
     "unrun": "^0.3.0"
   },

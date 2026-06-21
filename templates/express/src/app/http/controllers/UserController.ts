@@ -13,7 +13,7 @@ export default class UserController extends BaseController {
    *
    * @param req
    */
-  async index () {
+  async index() {
     const users = await User.query().paginate(5)
 
     return new ResourceCollection(users)
@@ -32,7 +32,7 @@ export default class UserController extends BaseController {
    * @param res
    */
   @Bind()
-  async show (user: User) {
+  async show(user: User) {
     return new Resource(user)
       .additional({
         status: 'success',
@@ -48,7 +48,7 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  async create () {
+  async create() {
     return new Resource({ data: {} })
       .additional({
         status: 'success',
@@ -64,7 +64,7 @@ export default class UserController extends BaseController {
    *
    * @param res
    */
-  async update () {
+  async update() {
     const data = await this.validate({
       name: 'string|required',
       age: 'numeric|required|min:30',
@@ -83,7 +83,7 @@ export default class UserController extends BaseController {
   /**
    * Delete a specific resource 
    */
-  async destroy () {
+  async destroy() {
     return new Resource({})
       .additional({
         status: 'success',
