@@ -62,7 +62,7 @@ export const depsList: Record<string, string> = {
     '@arkstack/view': '^0.12.31',
     '@arkstack/queue': '^0.12.31',
     '@arkstack/notifications': '^0.12.31',
-    '@h3ravel/musket': '^2.0.0',
+    '@h3ravel/musket': '^2.2.0',
     '@h3ravel/support': '^2.1.4',
 }
 
