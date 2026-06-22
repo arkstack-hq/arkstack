@@ -39,7 +39,7 @@
         "dotenv": "catalog:"
     },
     "peerDependencies": {
-        "arkormx": "^2.9.2",
+        "arkormx": "^2.9.3",
         "kanun": "^1.2.0"
     }
 }
