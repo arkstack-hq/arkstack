@@ -19,7 +19,8 @@ export class CreateArkstackCommand extends Command {
         {--t|token?: Kit repo authentication token.}
         {--d|desc?: Project Description.}
         {--k|kit?: Runtime template. [${templates.map(e => e.alias).join(',')}]}
-        {--l|lean: Make a lean project (Set to false or 0 for explicit set).}
+        {--l|lean: Make a lean project.}
+        {--f|full: Make a full project (Ignored if lean is defined).}
         {--p|pre: Download prerelease version if available.}
         {--o|overwrite: Overwrite the installation directory if it is not empty.}
     `
@@ -68,7 +69,7 @@ export class CreateArkstackCommand extends Command {
             value: e.lean,
           })),
           default: 'full',
-          when: () => !options.lean && !['0', 0, 'false'].includes(options.lean),
+          when: () => !options.lean && !options.full,
         },
         {
           type: 'input',
@@ -118,7 +119,7 @@ export class CreateArkstackCommand extends Command {
      * Find selected template kit
      */
     const kit = templates.find((e) => e.alias === (options.kit || template))!
-    kit.lean = options.lean || !!lean || false
+    kit.lean = options.full === false || options.lean || !!lean || false
 
     let { install, token, pre } = await inquirer
       .prompt([
