@@ -183,16 +183,30 @@ export default class {
 
     if (existsSync(exampleEnvPath)) {
       const env = await readFile(exampleEnvPath, 'utf-8')
-      let lines = env.split(/\r?\n/)
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]
-        const key = line.split('=').at(0) ?? ''
-        if (key === '' || line === '' || line.trim().startsWith('#')) continue
-        if (!allowed.includes(key)) delete lines[i]
-      }
-      lines = lines.slice(lines.findIndex(v => v), lines.findLastIndex(v => v) + 1)
 
-      await writeFile(exampleEnvPath, lines.join('\n'))
+      const kept: string[] = []
+      for (const line of env.split(/\r?\n/)) {
+        const trimmed = line.trim()
+        const isBlank = trimmed === ''
+        const isComment = trimmed.startsWith('#')
+
+        // Drop disallowed variable lines outright (keep comments/blank lines).
+        if (!isBlank && !isComment) {
+          const key = line.split('=').at(0)?.trim() ?? ''
+          if (!allowed.includes(key)) continue
+        }
+
+        // Collapse the runs of blank lines left behind by removed vars.
+        if (isBlank && kept.at(-1)?.trim() === '') continue
+
+        kept.push(line)
+      }
+
+      // Trim leading/trailing blank lines.
+      while (kept.length && kept[0].trim() === '') kept.shift()
+      while (kept.length && kept.at(-1)!.trim() === '') kept.pop()
+
+      await writeFile(exampleEnvPath, kept.join('\n') + '\n')
       await copyFile(exampleEnvPath, envPath)
     }
   }
