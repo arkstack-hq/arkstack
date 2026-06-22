@@ -164,6 +164,34 @@ export const config: GlobalConfig = <
 }
 
 /**
+ * Resolve the unified application key.
+ *
+ * `APP_KEY` (exposed as `config('app.key')`) is the single secret used for
+ * signing and encryption across the framework. Resolution order:
+ *
+ *   1. An explicit `APP_KEY` environment variable.
+ *   2. Any legacy environment variable(s) passed in, for backward compatibility
+ *      with apps that predate `APP_KEY` (e.g. `JWT_SECRET`,
+ *      `TWO_FACTOR_ENCRYPTION_KEY`).
+ *   3. `config('app.key')` — the value from `src/config/app.ts`, which may itself
+ *      be a placeholder default when no config is loaded.
+ *
+ * @param legacy  Legacy env var name(s) to fall back to.
+ * @returns       The resolved key, or `undefined` when none is configured.
+ */
+export const appKey = (legacy: string | string[] = []): string | undefined => {
+    const explicit = env<string>('APP_KEY')
+    if (explicit) return explicit
+
+    for (const name of Array.isArray(legacy) ? legacy : [legacy]) {
+        const value = env<string>(name)
+        if (value) return value
+    }
+
+    return config('app.key') || undefined
+}
+
+/**
  * Gets the current Node environment (development or production).
  *
  * @returns

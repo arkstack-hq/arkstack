@@ -1,6 +1,6 @@
 # Encryption
 
-AES-256-GCM symmetric encryption for sensitive values (e.g. two-factor authentication secrets). Requires the `TWO_FACTOR_ENCRYPTION_KEY` environment variable.
+AES-256-GCM symmetric encryption for sensitive values (e.g. two-factor authentication secrets). Uses the application key, `APP_KEY` (`config('app.key')`).
 
 ## `Encryption.encrypt(value)`
 
@@ -24,6 +24,8 @@ const original = Encryption.decrypt(token);
 
 **Environment variable:**
 
-| Variable                    | Required | Description                                                |
-| --------------------------- | -------- | ---------------------------------------------------------- |
-| `TWO_FACTOR_ENCRYPTION_KEY` | Yes      | Raw secret; hashed to a 256-bit key internally via SHA-256 |
+| Variable  | Required | Description                                                |
+| --------- | -------- | ---------------------------------------------------------- |
+| `APP_KEY` | Yes      | Raw secret; hashed to a 256-bit key internally via SHA-256 |
+
+Generate one with [`ark key:generate`](/guide/cli). For backward compatibility, a legacy `TWO_FACTOR_ENCRYPTION_KEY` is still honored when `APP_KEY` is not set.

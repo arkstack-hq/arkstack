@@ -25,7 +25,8 @@
         "arkstack"
     ],
     "files": [
-        "dist"
+        "dist",
+        "stubs"
     ],
     "scripts": {
         "build": "tsdown --config-loader unrun",
@@ -37,6 +38,7 @@
     },
     "exports": {
         ".": "./dist/index.js",
+        "./setup": "./dist/setup.js",
         "./package.json": "./package.json"
     },
     "dependencies": {

@@ -1,5 +1,4 @@
 import { DatabaseConfig } from '@arkstack/database'
-import { env } from '@arkstack/common'
 
 export default (): DatabaseConfig => {
     return {

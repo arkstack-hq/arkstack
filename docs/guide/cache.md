@@ -63,7 +63,12 @@ export default (): CacheConfig => ({
 });
 ```
 
-The `database` store expects a table with `key` (string, primary), `value` (text), and `expiration` (nullable integer, epoch seconds) columns.
+The `database` store expects a table with `key` (string, primary), `value` (text), and `expiration` (nullable integer, epoch seconds) columns. Publish the ready-made migration with:
+
+```sh
+pnpm ark publish --tag cache-migrations
+pnpm ark migrate
+```
 
 ## Usage
 

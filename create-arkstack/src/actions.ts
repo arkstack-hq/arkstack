@@ -1,11 +1,11 @@
 import { Logger, Resolver } from '@h3ravel/shared'
+import { catalog, catalogs } from './catalog'
 import { copyFile, readFile, readdir, rm, unlink, writeFile } from 'node:fs/promises'
 import { environment, filesToRemove, fullDependencies, leanDependencies } from './data'
 import path, { basename, join, relative } from 'node:path'
 
 import type { KitName } from './types'
 import { Str } from '@h3ravel/support'
-import { catalog, catalogs } from './catalog'
 import { chdir } from 'node:process'
 import { depsList } from './data'
 import { detectPackageManager } from '@antfu/install-pkg'
@@ -28,11 +28,11 @@ export default class {
     }
   }
 
-  async pm () {
+  async pm() {
     return (await detectPackageManager()) ?? 'npm'
   }
 
-  async runCmd (npx: boolean = false) {
+  async runCmd(npx: boolean = false) {
     if (npx) return 'npx'
 
     const pm = await this.pm()
@@ -40,7 +40,7 @@ export default class {
     return pm === 'npm' ? 'npm run' : pm
   }
 
-  async download (template: string, install = false, auth?: string, overwrite = false) {
+  async download(template: string, install = false, auth?: string, overwrite = false) {
     if (this.location?.includes('.temp') || (overwrite && existsSync(this.location!))) {
       await rm(this.location!, { force: true, recursive: true })
     } else if (existsSync(this.location!)) {
@@ -83,7 +83,7 @@ export default class {
    * @param args 
    * @returns 
    */
-  async installPackage (name?: string, args: string[] = []) {
+  async installPackage(name?: string, args: string[] = []) {
     const bcmd = await Resolver.getPakageInstallCommand() + (name ? ` ${name}` : '')
     const cmd = bcmd?.split(' ')[0]
     if (bcmd.includes(' ')) {
@@ -102,7 +102,7 @@ export default class {
     return 0
   }
 
-  async complete (install = false) {
+  async complete(install = false) {
     let installed = false
     if (install) {
       installed = await this.installPackage() === 0
@@ -157,7 +157,7 @@ export default class {
     ])
   }
 
-  async removeLockFile () {
+  async removeLockFile() {
     if (!this.skipInstallation) {
       return
     }
@@ -169,11 +169,11 @@ export default class {
     ])
   }
 
-  async getBanner () {
+  async getBanner() {
     return await readFile(join(process.cwd(), './logo.txt'), 'utf-8')
   }
 
-  async createDotEnv (scope: 'min' | 'max' = 'max') {
+  async createDotEnv(scope: 'min' | 'max' = 'max') {
     const envPath = join(this.location!, '.env')
     const exampleEnvPath = join(this.location!, '.env.example')
 
@@ -211,12 +211,12 @@ export default class {
     }
   }
 
-  async saveProfile () {
+  async saveProfile() {
     if (this.pkgPath)
       await writeFile(this.pkgPath, JSON.stringify(this.packageJson, null, 2))
   }
 
-  async makeProfile () {
+  async makeProfile() {
     const pkgPath = join(this.location!, 'package.json')
     if (existsSync(pkgPath)) {
       this.pkgPath = pkgPath
@@ -246,7 +246,7 @@ export default class {
    * curated {@link depsList}, then the workspace catalog snapshot ({@link catalog}
    * / {@link catalogs}), and finally — as a defensive fallback — the npm registry.
    */
-  async resolveCatalogDeps () {
+  async resolveCatalogDeps() {
     for (const field of ['dependencies', 'devDependencies'] as const) {
       const deps = this.packageJson[field] as Record<string, string> | undefined
       if (!deps) continue
@@ -268,7 +268,7 @@ export default class {
    * @param name         The dependency name.
    * @param catalogName  The named catalog (empty string for the default catalog).
    */
-  private async resolveCatalogVersion (name: string, catalogName: string): Promise<string> {
+  private async resolveCatalogVersion(name: string, catalogName: string): Promise<string> {
     const fromCatalog = catalogName
       ? catalogs[catalogName]?.[name]
       : catalog[name]
@@ -302,7 +302,7 @@ export default class {
    * @param name  The dependency name.
    * @returns     The version, or `undefined` when the lookup fails.
    */
-  private async fetchLatestVersion (name: string): Promise<string | undefined> {
+  private async fetchLatestVersion(name: string): Promise<string | undefined> {
     try {
       const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}/latest`)
 
@@ -318,7 +318,7 @@ export default class {
     }
   }
 
-  async makeFullProfile (_kit: KitName) {
+  async makeFullProfile(_kit: KitName) {
     await this.makeProfile()
     if (!this.pkgPath) return
 
@@ -328,7 +328,7 @@ export default class {
     }
   }
 
-  async makeLeanProfile (_kit: KitName) {
+  async makeLeanProfile(_kit: KitName) {
     await Promise.allSettled(
       filesToRemove.map((file) => rm(join(this.location!, file), { force: true, recursive: true })),
     )
@@ -358,6 +358,9 @@ export default class {
       let content = await readFile(filePath, 'utf-8')
       content = content
         .replace(/import '@arkstack\/database\/setup'\s*/g, '')
+        .replace(/import '@arkstack\/auth\/setup'\s*/g, '')
+        .replace(/import '@arkstack\/queue\/setup'\s*/g, '')
+        .replace(/import '@arkstack\/cache\/setup'\s*/g, '')
         .replace('import { ValidatorDBDriver } from \'@arkstack/database\'\n', '')
         .replace('import { ModelNotFoundException } from \'arkormx\'\n', '')
         .replace('import { prisma } from \'src/core/database\'\n', '')
@@ -389,7 +392,7 @@ export default class {
     }
   }
 
-  async cleanup (kit: KitName) {
+  async cleanup(kit: KitName) {
     const pkg = this.packageJson
 
     delete pkg.packageManager

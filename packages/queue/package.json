@@ -20,7 +20,8 @@
         "arkstack"
     ],
     "files": [
-        "dist"
+        "dist",
+        "stubs"
     ],
     "scripts": {
         "build": "tsdown",
@@ -35,6 +36,7 @@
         ".": "./dist/index.js",
         "./commands/QueueClearCommand": "./dist/commands/QueueClearCommand.js",
         "./commands/QueueWorkCommand": "./dist/commands/QueueWorkCommand.js",
+        "./setup": "./dist/setup.js",
         "./package.json": "./package.json"
     },
     "dependencies": {

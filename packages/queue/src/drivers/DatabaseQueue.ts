@@ -13,7 +13,8 @@ const now = (): number => Math.floor(Date.now() / 1000)
  * `attempts` (int), `reserved_at` (nullable int), `available_at` (int),
  * `created_at` (int). Reservation marks `reserved_at` and bumps `attempts`;
  * completion deletes the row; release clears `reserved_at` and reschedules
- * `available_at`. Use `ark queue:table` (or a migration) to create the table.
+ * `available_at`. Run `ark publish --tag queue-migrations` to add the migration
+ * that creates this table.
  */
 export class DatabaseQueue extends QueueContract {
     private db?: DatabaseFacade

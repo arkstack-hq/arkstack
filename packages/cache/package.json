@@ -20,7 +20,8 @@
         "arkstack"
     ],
     "files": [
-        "dist"
+        "dist",
+        "stubs"
     ],
     "scripts": {
         "build": "tsdown",
@@ -34,6 +35,7 @@
     "exports": {
         ".": "./dist/index.js",
         "./commands/CacheClearCommand": "./dist/commands/CacheClearCommand.js",
+        "./setup": "./dist/setup.js",
         "./package.json": "./package.json"
     },
     "dependencies": {

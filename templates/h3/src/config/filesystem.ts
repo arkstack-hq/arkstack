@@ -1,6 +1,5 @@
 import { Arkstack } from '@arkstack/contract'
 import { FilesystemConfig } from '@arkstack/filesystem'
-import { env } from '@arkstack/common'
 import path from 'node:path'
 
 export default (): FilesystemConfig => {

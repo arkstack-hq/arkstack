@@ -10,10 +10,12 @@ import { ArkstackConsoleApp } from './app'
 import { BuildCommand } from './commands/BuildCommand'
 import { DevCommand } from './commands/DevCommand'
 import { Command, Kernel } from '@h3ravel/musket'
+import { KeyGenerateCommand } from './commands/KeyGenerateCommand'
 import { MakeCommand } from './commands/MakeCommand'
 import { MakeController } from './commands/MakeController'
 import { MakeFullResource } from './commands/MakeFullResource'
 import { MakeResource } from './commands/MakeResource'
+import { PublishCommand } from './commands/PublishCommand'
 import { RouteList } from './commands/RouteList'
 import logo from './logo'
 import { str } from '@h3ravel/support'
@@ -100,6 +102,8 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
             DevCommand,
             BuildCommand,
             MakeCommand,
+            KeyGenerateCommand,
+            PublishCommand,
             ...userCommands,
         ],
         discoveryPaths: [

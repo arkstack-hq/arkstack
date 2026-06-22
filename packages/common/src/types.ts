@@ -45,19 +45,19 @@ export type DotPath<T> = T extends Primitive
  */
 export interface LoggerLog {
     (): typeof Logger
-    <L extends boolean> (
+    <L extends boolean>(
         config: string,
         joiner: LoggerChalk,
         log?: L,
         sc?: LoggerChalk
     ): L extends true ? void : string
-    <L extends boolean> (
+    <L extends boolean>(
         config: LoggerParseSignature,
         joiner?: string,
         log?: L,
         sc?: LoggerChalk
     ): L extends true ? void : string
-    <L extends boolean> (
+    <L extends boolean>(
         config?: LoggerParseSignature,
         joiner?: string,
         log?: L,
@@ -67,7 +67,7 @@ export interface LoggerLog {
 
 
 export interface GlobalEnv {
-    <X = string, Y = undefined | X> (
+    <X = string, Y = undefined | X>(
         env: string,
         defaultValue?: Y,
     ): Y extends undefined ? X : Y
@@ -78,21 +78,21 @@ export type ConfigShape = keyof ConfigRegistry extends never
     : ConfigRegistry
 
 export interface GlobalConfig {
-    <X extends ConfigShape> (): X
-    <X extends ConfigShape, P extends DotPath<X>> (
+    <X extends ConfigShape>(): X
+    <X extends ConfigShape, P extends DotPath<X>>(
         key: P,
     ): DotPathValue<X, P>
-    <X extends ConfigShape, P extends DotPath<X>> (key: Record<P, Partial<DotPathValue<X, P>>>): void;
-    <X extends ConfigShape, P extends DotPath<X>, D> (
+    <X extends ConfigShape, P extends DotPath<X>>(key: Record<P, Partial<DotPathValue<X, P>>>): void;
+    <X extends ConfigShape, P extends DotPath<X>, D>(
         key: P,
         defaultValue: D,
     ): DotPathValue<X, P> | D
 }
 
 export interface FileImporter {
-    <T = unknown> (filePath: string): Promise<T>
-    <T = unknown> (filePath: string, userOptions?: JitiOptions | undefined): Promise<T>
-    <T = unknown> (filePath: string, userOptions?: JitiOptions | undefined, resolveOptions?: (JitiResolveOptions & { default?: true })): Promise<T>
+    <T = unknown>(filePath: string): Promise<T>
+    <T = unknown>(filePath: string, userOptions?: JitiOptions | undefined): Promise<T>
+    <T = unknown>(filePath: string, userOptions?: JitiOptions | undefined, resolveOptions?: (JitiResolveOptions & { default?: true })): Promise<T>
 }
 
 export type ArkstackErrorShape = Error & {
@@ -146,3 +146,38 @@ export type HookArgs<N extends string, P extends string> = N extends keyof HookR
     : any[]
     : any[]
     : any[]
+
+/**
+* A single source → destination mapping a package wants to publish into the
+* consuming application.
+*/
+export interface PublishEntry {
+    /** Absolute path to the file or directory shipped by the package. */
+    from: string
+    /**
+     * Destination path, relative to the application root, where the artifact is
+     * written when published.
+     */
+    to: string
+}
+
+/**
+ * A group of publishable artifacts registered by a package.
+ */
+export interface PublishGroup {
+    /** The package registering the artifacts, e.g. `@arkstack/cache`. */
+    package: string
+    /**
+     * Optional tag for selective publishing (`ark publish --tag <tag>`). A
+     * package may register several groups under different tags.
+     */
+    tag?: string
+    /** The files/directories to publish. */
+    entries: PublishEntry[]
+}
+
+/** Optional filter applied when reading the registry. */
+export interface PublishFilter {
+    package?: string
+    tag?: string
+}

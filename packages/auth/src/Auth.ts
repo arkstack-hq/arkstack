@@ -1,4 +1,4 @@
-import { Hash, env, getModel } from '@arkstack/common'
+import { Hash, appKey, env, getModel } from '@arkstack/common'
 import { JWTPayload, SignJWT, jwtVerify } from 'jose'
 
 import { AuthContract } from './Contracts/AuthContract'
@@ -395,7 +395,9 @@ export class Auth extends AuthContract {
     }
 
     private getSecret (): string {
-        return this.configuredSecret ?? env('JWT_SECRET', 'default_secret')
+        // Explicitly configured secret wins, then the unified APP_KEY with a
+        // backward-compatible fallback to the legacy JWT_SECRET variable.
+        return this.configuredSecret ?? appKey('JWT_SECRET') ?? 'default_secret'
     }
 
     private setAuthenticated (user: User, token?: string) {

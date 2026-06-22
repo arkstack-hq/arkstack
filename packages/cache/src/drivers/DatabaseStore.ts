@@ -7,8 +7,9 @@ import { Store } from '../Contracts/Store'
  * `@arkstack/database`.
  *
  * The table is expected to have `key` (string, primary), `value` (text), and
- * `expiration` (nullable integer epoch seconds) columns. `@arkstack/database`
- * is an optional peer dependency and is imported lazily.
+ * `expiration` (nullable integer epoch seconds) columns. Run
+ * `ark publish --tag cache-migrations` to add the migration that creates it.
+ * `@arkstack/database` is an optional peer dependency and is imported lazily.
  */
 export class DatabaseStore extends Store {
     private db?: DatabaseFacade

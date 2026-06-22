@@ -1,5 +1,4 @@
 import type { QueueConfig } from '@arkstack/queue'
-import { env } from '@arkstack/common'
 
 export default (): QueueConfig => {
     return {

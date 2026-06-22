@@ -24,12 +24,20 @@ yarn add @arkstack/auth @arkstack/http
 
 :::
 
-Set a JWT secret in `.env`:
+Set the application key in `.env`. `APP_KEY` is the unified secret used to sign JWTs and encrypt values (exposed as `config('app.key')`):
 
 ```env
-JWT_SECRET="replace-this-with-a-long-random-secret"
+APP_KEY="a-long-random-secret"
 JWT_EXPIRES_IN="1h"
 ```
+
+Generate one automatically with:
+
+```sh
+ark key:generate
+```
+
+> Backward compatibility: if `APP_KEY` is not set, a legacy `JWT_SECRET` is still used when present.
 
 ## Models
 
@@ -254,10 +262,17 @@ Temporary tokens are JWTs and are not stored as personal access tokens.
 
 Arkstack supports authenticator app and SMS two-factor flows through `TwoFactor`.
 
-Apps that persist two-factor state should provide a `UserTwoFactor` model backed by a `user_two_factors` table. Full templates include the model and migration. Set `TWO_FACTOR_ENCRYPTION_KEY` before storing authenticator secrets.
+Apps that persist two-factor state should provide a `UserTwoFactor` model backed by a `user_two_factors` table. Full templates include the model and migration; otherwise publish them from `@arkstack/auth`:
+
+```sh
+pnpm ark publish --tag two-factor
+pnpm ark migrate
+```
+
+Authenticator secrets are encrypted with the application key (`APP_KEY`), so make sure it is set before storing them.
 
 ```env
-TWO_FACTOR_ENCRYPTION_KEY="replace-this-with-a-long-random-secret"
+APP_KEY="a-long-random-secret"
 TWO_FACTOR_SMS_TTL_MINUTES="10"
 ```
 

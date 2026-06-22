@@ -71,6 +71,57 @@ Create a full API set: resource, collection, and controller.
 pnpm ark make:full-resource User --m User --force
 ```
 
+### `key:generate`
+
+Generate and set the application key (`APP_KEY`) in your `.env` file. `APP_KEY` is the unified secret used to sign JWTs and encrypt values, available as `config('app.key')`.
+
+```sh
+pnpm ark key:generate
+```
+
+| Option    | Description                                                 |
+| --------- | ----------------------------------------------------------- |
+| `--show`  | Print a freshly generated key instead of writing to `.env`. |
+| `--force` | Overwrite an existing `APP_KEY` without confirmation.       |
+
+### `publish`
+
+Publish artifacts that installed packages register migrations, stubs, assets into your application. For example, the `database` cache store and queue connection ship migrations, and `@arkstack/auth` ships the `UserTwoFactor` model and its migration this command copies them into `src/database/migrations` and `src/app/models`.
+
+```sh
+pnpm ark publish --list                       # show what can be published
+pnpm ark publish --tag cache-migrations       # publish the cache table migration
+pnpm ark publish --package @arkstack/queue    # publish everything @arkstack/queue offers
+pnpm ark publish --tag two-factor             # publish the UserTwoFactor model + migration
+pnpm ark publish --tag queue-migrations --force
+```
+
+| Option             | Description                                              |
+| ------------------ | -------------------------------------------------------- |
+| `--package <name>` | Only publish artifacts registered by this package.       |
+| `--tag <tag>`      | Only publish artifacts registered under this tag.        |
+| `--force`          | Overwrite files that already exist at the destination.   |
+| `--list`           | List the publishable artifacts without copying anything. |
+
+Packages register what they publish by calling `Publisher.publishes()` from their `setup` module:
+
+```ts
+import { Publisher } from '@arkstack/common';
+
+Publisher.publishes({
+  package: '@arkstack/cache',
+  tag: 'cache-migrations',
+  entries: [
+    {
+      from: '/abs/path/in/package/stubs/create_cache_table.ts.stub',
+      to: 'src/database/migrations/create_cache_table.ts',
+    },
+  ],
+});
+```
+
+Source artifacts may be named with a trailing `.stub` extension (e.g. `Model.ts.stub`) so they are ignored by the package's own linting, type-checking and tests. The `.stub` suffix is stripped automatically when the file is published, restoring its real extension.
+
 ## Arkormˣ-powered commands
 
 Arkstack also exposes Arkormˣ database/modeling commands via the same CLI:

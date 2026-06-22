@@ -1,6 +1,5 @@
 import { Arkstack } from '@arkstack/contract'
 import type { CacheConfig } from '@arkstack/cache'
-import { env } from '@arkstack/common'
 import path from 'node:path'
 
 export default (): CacheConfig => {

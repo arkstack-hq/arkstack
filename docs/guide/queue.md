@@ -60,7 +60,12 @@ export default (): QueueConfig => ({
 });
 ```
 
-The `database` connection expects a `jobs` table with `id` (auto increment), `queue` (string), `payload` (text), `attempts` (int), `reserved_at` (nullable int), `available_at` (int), and `created_at` (int) columns.
+The `database` connection expects a `jobs` table with `id` (auto increment), `queue` (string), `payload` (text), `attempts` (int), `reserved_at` (nullable int), `available_at` (int), and `created_at` (int) columns. Publish the ready-made migration with:
+
+```sh
+pnpm ark publish --tag queue-migrations
+pnpm ark migrate
+```
 
 ## Dispatching
 

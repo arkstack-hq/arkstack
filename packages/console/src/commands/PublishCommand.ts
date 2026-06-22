@@ -1,0 +1,164 @@
+import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, statSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import type { PublishGroup } from '@arkstack/common'
+
+import { Arkstack } from '@arkstack/contract'
+import { Command } from '@h3ravel/musket'
+import { pathToFileURL } from 'node:url'
+import { Publisher } from '@arkstack/common'
+
+/** Suffix that marks a file as a publishable stub; stripped on publish. */
+const STUB_SUFFIX = '.stub'
+
+/**
+ * Strip a trailing `.stub` suffix from a path.
+ *
+ * Stubs are shipped as `<name>.<ext>.stub` so they are ignored by linting,
+ * type-checking and test discovery in the source repo, then restored to their
+ * real extension when published into an application.
+ *
+ * @param path
+ */
+export const stripStubSuffix = (path: string): string =>
+    path.endsWith(STUB_SUFFIX) ? path.slice(0, -STUB_SUFFIX.length) : path
+
+/**
+ * Publish artifacts (migrations, stubs, assets, …) that installed packages
+ * register via `publishes()` into the consuming application.
+ */
+export class PublishCommand extends Command {
+    protected signature = `publish
+        {--package= : Only publish artifacts registered by this package (e.g. @arkstack/cache).}
+        {--tag= : Only publish artifacts registered under this tag.}
+        {--force : Overwrite files that already exist at the destination.}
+        {--list : List the publishable artifacts without copying anything.}
+    `
+
+    protected description = 'Publish package artifacts into your application.'
+
+    async handle () {
+        // Installed packages register their publishables from their `setup`
+        // module — load them before reading the registry.
+        await this.loadPackageSetups()
+
+        const filter = {
+            package: this.option('package'),
+            tag: this.option('tag'),
+        }
+        const groups = Publisher.publishables(filter)
+
+        if (groups.length < 1) {
+            return void this.warn(
+                `No publishable artifacts found${this.describeFilter(filter)}.`,
+            )
+        }
+
+        if (this.option('list')) {
+            return void this.listGroups(groups)
+        }
+
+        let published = 0
+        let skipped = 0
+
+        for (const group of groups) {
+            for (const entry of group.entries) {
+                if (!existsSync(entry.from)) {
+                    this.warn(`[${group.package}] Source not found, skipping: ${entry.from}`)
+                    continue
+                }
+
+                // The published artifact never keeps the `.stub` marker.
+                const to = stripStubSuffix(entry.to)
+                const dest = join(Arkstack.rootDir(), to)
+
+                if (existsSync(dest) && !this.option('force')) {
+                    this.warn(`Exists, skipped (use --force): ${to}`)
+                    skipped++
+                    continue
+                }
+
+                mkdirSync(dirname(dest), { recursive: true })
+                cpSync(entry.from, dest, { recursive: true })
+
+                // A published directory may itself contain `.stub` files.
+                if (statSync(dest).isDirectory()) {
+                    this.stripStubsInTree(dest)
+                }
+
+                this.success(`Published [${group.package}] -> ${to}`)
+                published++
+            }
+        }
+
+        this.info(`Done. ${published} published, ${skipped} skipped.`)
+    }
+
+    /**
+     * Recursively rename `*.stub` files within a published directory to their
+     * real extension.
+     *
+     * @param dir
+     */
+    private stripStubsInTree (dir: string) {
+        for (const item of readdirSync(dir, { recursive: true, withFileTypes: true })) {
+            if (item.isFile() && item.name.endsWith(STUB_SUFFIX)) {
+                const current = join(item.parentPath, item.name)
+
+                renameSync(current, stripStubSuffix(current))
+            }
+        }
+    }
+
+    /**
+     * Print the publishable artifacts grouped by package without copying.
+     *
+     * @param groups
+     */
+    private listGroups (groups: PublishGroup[]) {
+        this.info('Publishable artifacts:')
+
+        for (const group of groups) {
+            this.line(`  ${group.package}${group.tag ? ` (tag: ${group.tag})` : ''}`)
+
+            for (const entry of group.entries) {
+                this.line(`    - ${stripStubSuffix(entry.to)}`)
+            }
+        }
+    }
+
+    /**
+     * Import the `setup` module of every installed `@arkstack/*` package so its
+     * `publishes()` registrations run. Errors (missing build, side effects) are
+     * ignored so one bad package cannot break publishing.
+     */
+    private async loadPackageSetups () {
+        const scope = join(Arkstack.rootDir(), 'node_modules', '@arkstack')
+
+        if (!existsSync(scope)) {
+            return
+        }
+
+        for (const pkg of readdirSync(scope)) {
+            const setup = join(scope, pkg, 'dist', 'setup.js')
+
+            if (!existsSync(setup)) {
+                continue
+            }
+
+            try {
+                await import(pathToFileURL(setup).href)
+            } catch {
+                /** Ignore packages whose setup cannot be loaded in this context. */
+            }
+        }
+    }
+
+    private describeFilter (filter: { package?: string, tag?: string }): string {
+        const parts = [
+            filter.package ? `package "${filter.package}"` : '',
+            filter.tag ? `tag "${filter.tag}"` : '',
+        ].filter(Boolean)
+
+        return parts.length ? ` for ${parts.join(' and ')}` : ''
+    }
+}

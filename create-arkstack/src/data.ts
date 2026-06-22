@@ -69,19 +69,18 @@ export const depsList: Record<string, string> = {
 export const environment = {
     min: [
         'APP_URL',
+        'APP_KEY',
         'APP_HOST',
         'APP_PORT',
+        'APP_NAME',
     ],
     max: [
-        'APP_NAME',
         'FILESYSTEM_DISK',
         'CACHE_STORE',
         'QUEUE_CONNECTION',
         'REDIS_HOST',
         'REDIS_PORT',
         'REDIS_PASSWORD',
-        'TWO_FACTOR_ENCRYPTION_KEY',
-        'JWT_SECRET',
         'JWT_EXPIRES_IN',
         'DATABASE_URL',
         'DB_CONNECTION',

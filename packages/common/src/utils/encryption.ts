@@ -1,15 +1,17 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from 'node:crypto'
 
-import { env } from '../system'
+import { appKey } from '../system'
 
 export class Encryption {
     private static readonly algorithm = 'aes-256-gcm'
 
     private static getKey () {
-        const secret = env('TWO_FACTOR_ENCRYPTION_KEY')
+        // Unified APP_KEY, with backward-compatible fallback to the legacy
+        // TWO_FACTOR_ENCRYPTION_KEY variable.
+        const secret = appKey('TWO_FACTOR_ENCRYPTION_KEY')
 
         if (!secret) {
-            throw new Error('TWO_FACTOR_ENCRYPTION_KEY is required to use two-factor authentication')
+            throw new Error('APP_KEY is required to use two-factor authentication. Run `ark key:generate`.')
         }
 
         return createHash('sha256').update(secret).digest()
