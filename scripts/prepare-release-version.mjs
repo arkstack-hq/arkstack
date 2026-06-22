@@ -25,14 +25,14 @@ for (const path of packageJsonPaths) {
 
 const dataPath = 'create-arkstack/src/data.ts'
 const data = await readFile(dataPath, 'utf8')
-await writeFile(
-  dataPath,
-  data.replace(/('@arkstack\/[^']+': )'\^[^']+'/g, `$1'^${version}'`),
+
+let updatedData = data.replace(
+  /('@arkstack\/[^']+': )'\^[^']+'/g,
+  `$1'^${version}'`,
 )
 
 try {
   const doc = yaml.load(readFileSync('pnpm-workspace.yaml', 'utf8'))
-  let updatedData = data
 
   for (const [name, version] of Object.entries(doc.catalog ?? {})) {
     const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -42,20 +42,21 @@ try {
       `$1'${version}'`
     )
   }
-  await writeFile(dataPath, updatedData)
 } catch (e) {
   console.log(e)
 }
 
+await writeFile(dataPath, updatedData)
+
 console.log(`Prepared Arkstack packages for ${version}`)
 
-async function packagePaths (directory) {
+async function packagePaths(directory) {
   return (await readdir(directory, { withFileTypes: true }))
     .filter((entry) => entry.isDirectory())
     .map((entry) => join(directory, entry.name, 'package.json'))
 }
 
-function normalizeVersion (rawVersion) {
+function normalizeVersion(rawVersion) {
   const normalized = rawVersion?.trim().replace(/^v/, '')
 
   if (!normalized) {
