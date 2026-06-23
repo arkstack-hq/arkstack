@@ -10,6 +10,8 @@ export class DevCommand extends Command {
     protected description = 'Run the development server'
 
     async handle() {
+        const tunnel = this.option?.('tunnel')
+
         await new Promise<void>((resolve, reject) => {
             const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
             const child = spawn(command, [
@@ -19,7 +21,7 @@ export class DevCommand extends Command {
                 stdio: 'inherit',
                 env: Object.assign(process.env, {
                     NODE_ENV: 'development',
-                    TUNNEL: this.option('tunnel') ? 'true' : undefined,
+                    TUNNEL: tunnel ? 'true' : undefined,
                 }),
             })
 
