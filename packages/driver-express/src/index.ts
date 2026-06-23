@@ -5,6 +5,7 @@ import { Logger, env } from '@arkstack/common'
 import { defaultErrorHandler } from './error-handler'
 import { Middleware, MiddlewareConfig } from './types'
 import { resolveMiddleware } from '@arkstack/http'
+import ngrok from '@ngrok/ngrok'
 
 export interface ExpressDriverOptions {
     bindRouter: (app: Express) => PromiseOrValue<void>;
@@ -35,7 +36,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * 
      * @returns 
      */
-    createApp (): Express {
+    createApp(): Express {
         return express()
     }
 
@@ -45,7 +46,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * @param app 
      * @param publicPath 
      */
-    mountPublicAssets (app: Express, publicPath: string): PromiseOrValue<void> {
+    mountPublicAssets(app: Express, publicPath: string): PromiseOrValue<void> {
         if (this.options.mountPublicAssets) {
             return this.options.mountPublicAssets(app, publicPath)
         }
@@ -66,7 +67,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * 
      * @param app 
      */
-    bindRouter (app: Express): PromiseOrValue<void> {
+    bindRouter(app: Express): PromiseOrValue<void> {
         return this.options.bindRouter(app)
     }
 
@@ -76,7 +77,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * @param app 
      * @param middleware 
      */
-    applyMiddleware (
+    applyMiddleware(
         app: Express,
         middleware: Middleware | MiddlewareConfig,
     ): void {
@@ -112,7 +113,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * 
      * @param app 
      */
-    registerErrorHandler (app: Express): void {
+    registerErrorHandler(app: Express): void {
         app.use((this.options.errorHandler ?? defaultErrorHandler) as ErrorRequestHandler)
     }
 
@@ -127,14 +128,34 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      * @param app
      * @param port
      */
-    start (app: Express, port: number): void {
+    async start(app: Express, port: number): Promise<void> {
         const host = env('APP_HOST', env('HOST', '0.0.0.0'))
+        const tunneled = env<boolean>('TUNNEL', false)
 
-        app.listen(port, host, () => {
-            Logger.log([
-                ['Server is running on', 'white'],
-                [`http://${host}:${port}`, 'cyan']
-            ], ' ')
+        app.listen(port, host, async () => {
+            let log = [
+                Logger.log([
+                    ['Server is running on', 'white'],
+                    [`http://${host}:${port}`, 'cyan']
+                ], ' ', false)
+            ]
+
+            if (tunneled === true) {
+                const listener = await ngrok.forward({
+                    addr: port,
+                    authtoken: env('NGROK_AUTHTOKEN'),
+                    domain: env('NGROK_DOMAIN'),
+                })
+
+                const url = listener.url()
+
+                if (url) log = log.concat(Logger.log([
+                    ['Trafic has been tunnelled to', 'white'],
+                    [url, 'green']
+                ], ' ', false))
+            }
+
+            console.log(log.join('\n'))
         })
     }
 }

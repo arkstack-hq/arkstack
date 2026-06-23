@@ -12,8 +12,8 @@ export class MakeController extends Command<ArkstackConsoleApp<any>> {
 
     protected description = 'Create a new controller file'
 
-    async handle () {
-        this.app.command = this
+    async handle() {
+        this.app.command = this as never
 
         if (!this.argument('name')) return void this.error('Error: Controller name is required.')
 

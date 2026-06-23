@@ -70,9 +70,11 @@ export const environment = {
     min: [
         'APP_URL',
         'APP_KEY',
+        'APP_ENV',
         'APP_HOST',
         'APP_PORT',
         'APP_NAME',
+        'NGROK_AUTHTOKEN',
     ],
     max: [
         'FILESYSTEM_DISK',

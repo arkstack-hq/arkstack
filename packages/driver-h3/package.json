@@ -42,15 +42,16 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
-        "clear-router": "^2.8.8",
         "@arkstack/contract": "workspace:^",
+        "@ngrok/ngrok": "^1.7.0",
         "@resora/plugin-clear-router": "^1.0.63",
+        "clear-router": "^2.8.8",
         "resora": "^1.3.26"
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",
-        "@arkstack/foundry": "workspace:^",
         "@arkstack/common": "workspace:^",
+        "@arkstack/foundry": "workspace:^",
         "h3": "2.0.1-rc.22"
     },
     "peerDependenciesMeta": {

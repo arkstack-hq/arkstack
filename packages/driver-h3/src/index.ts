@@ -1,10 +1,11 @@
 import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
 import { H3, H3Event, serve, toResponse } from 'h3'
+import { Logger, env } from '@arkstack/common'
 import { Middleware, MiddlewareConfig } from './types'
 
 import { Middleware as H3BaseMiddleware } from 'clear-router/types/h3'
-import { Logger, env } from '@arkstack/common'
 import { defaultErrorHandler } from './error-handler'
+import ngrok from '@ngrok/ngrok'
 import { resolveMiddleware } from '@arkstack/http'
 import { staticAssetHandler } from './middlewares'
 
@@ -27,7 +28,7 @@ export class H3EventResponse {
         this.statusText = response.statusText
     }
 
-    get headers (): Headers {
+    get headers(): Headers {
         return this.response.headers
     }
 }
@@ -54,7 +55,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * 
      * @returns 
      */
-    createApp (): H3 {
+    createApp(): H3 {
         return this.options.createApp?.() ?? new H3({
             onError: this.options.onError ?? defaultErrorHandler,
         })
@@ -66,7 +67,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * @param app 
      * @param publicPath 
      */
-    mountPublicAssets (app: H3, publicPath: string): PromiseOrValue<void> {
+    mountPublicAssets(app: H3, publicPath: string): PromiseOrValue<void> {
         if (this.options.mountPublicAssets) {
             return this.options.mountPublicAssets(app, publicPath)
         }
@@ -79,7 +80,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * 
      * @param app 
      */
-    bindRouter (app: H3): PromiseOrValue<void> {
+    bindRouter(app: H3): PromiseOrValue<void> {
         return this.options.bindRouter(app)
     }
 
@@ -89,7 +90,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * @param app 
      * @param middleware 
      */
-    applyMiddleware (
+    applyMiddleware(
         app: H3,
         middleware: H3Middleware | Middleware | MiddlewareConfig,
     ): void {
@@ -135,15 +136,36 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      * @param app
      * @param port
      */
-    start (app: H3, port: number): void {
+    async start(app: H3, port: number): Promise<void> {
         const host = env('APP_HOST', env('HOST', '0.0.0.0'))
+        const tunneled = env<boolean>('TUNNEL', false)
 
-        serve(app, { port, hostname: host, silent: true }).ready().then(() => {
+        const server = await serve(app, { port, hostname: host, silent: true })
+            .ready()
+
+        let log = [
             Logger.log([
                 ['Server is running on', 'white'],
-                [`http://${host}:${port}`, 'cyan']
-            ], ' ')
-        })
+                [server.url ?? `http://${host}:${port}`, 'cyan']
+            ], ' ', false)
+        ]
+
+        if (tunneled === true) {
+            const listener = await ngrok.forward({
+                addr: port,
+                authtoken: env('NGROK_AUTHTOKEN'),
+                domain: env('NGROK_DOMAIN'),
+            })
+
+            const url = listener.url()
+
+            if (url) log = log.concat(Logger.log([
+                ['Trafic has been tunnelled to', 'white'],
+                [url, 'green']
+            ], ' ', false))
+        }
+
+        console.log(log.join('\n'))
     }
 }
 
