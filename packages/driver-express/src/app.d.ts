@@ -19,3 +19,7 @@ declare module '@arkstack/foundry' {
         }
     }
 }
+
+declare global {
+    var tunnelUrl: () => string
+}

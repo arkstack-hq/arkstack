@@ -38,6 +38,7 @@ export class H3EventResponse {
  */
 export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
     readonly name = 'h3'
+    private tunnel_url?: string
     private readonly options: H3DriverOptions
 
     /**
@@ -126,6 +127,15 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
     }
 
     /**
+     * If trafic has been proxied via ngrok, this will return the tunnel URL.
+     * 
+     * @returns 
+     */
+    geTunnelUrl(): string | undefined {
+        return this.tunnel_url
+    }
+
+    /**
      * Starts the H3 server on the specified port.
      *
      * The bind host can be overridden with the `APP_HOST` (or `HOST`) env
@@ -159,10 +169,16 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
 
             const url = listener.url()
 
-            if (url) log = log.concat(Logger.log([
-                ['Trafic has been tunnelled to', 'white'],
-                [url, 'green']
-            ], ' ', false))
+            if (url) {
+                log = log.concat(Logger.log([
+                    ['Trafic has been tunnelled to', 'white'],
+                    [url, 'green']
+                ], ' ', false))
+
+                process.env.TUNNEL_URL = url
+                this.tunnel_url = url
+                globalThis.tunnelUrl = () => url
+            }
         }
 
         console.log(log.join('\n'))

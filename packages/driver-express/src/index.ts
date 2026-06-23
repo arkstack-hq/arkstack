@@ -19,6 +19,7 @@ export interface ExpressDriverOptions {
  */
 export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
     readonly name = 'express'
+    private tunnel_url?: string
     private readonly options: ExpressDriverOptions
 
     /**
@@ -118,6 +119,15 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
     }
 
     /**
+     * If trafic has been proxied via ngrok, this will return the tunnel URL.
+     * 
+     * @returns 
+     */
+    geTunnelUrl(): string | undefined {
+        return this.tunnel_url
+    }
+
+    /**
      * Starts the Express server on the specified port.
      *
      * The bind host can be overridden with the `APP_HOST` (or `HOST`) env
@@ -149,10 +159,16 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
 
                 const url = listener.url()
 
-                if (url) log = log.concat(Logger.log([
-                    ['Trafic has been tunnelled to', 'white'],
-                    [url, 'green']
-                ], ' ', false))
+                if (url) {
+                    log = log.concat(Logger.log([
+                        ['Trafic has been tunnelled to', 'white'],
+                        [url, 'green']
+                    ], ' ', false))
+
+                    process.env.TUNNEL_URL = url
+                    this.tunnel_url = url
+                    globalThis.tunnelUrl = () => url
+                }
             }
 
             console.log(log.join('\n'))
