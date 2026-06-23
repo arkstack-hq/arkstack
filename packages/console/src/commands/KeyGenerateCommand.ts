@@ -19,7 +19,7 @@ export class KeyGenerateCommand extends Command {
 
     protected description = 'Set the application key (APP_KEY).'
 
-    async handle () {
+    async handle() {
         const key = this.generateKey()
 
         if (this.option('show')) {
@@ -35,9 +35,8 @@ export class KeyGenerateCommand extends Command {
         }
 
         const contents = readFileSync(envPath, 'utf-8')
-        const existing = contents.match(/^APP_KEY=(.*)$/m)
 
-        if (existing?.[1]?.trim() && !this.option('force')) {
+        if (KeyGenerateCommand.hasEnvValue(contents, 'APP_KEY') && !this.option('force')) {
             const confirmed = await this.confirm(
                 'An application key already exists. Overwrite it?',
                 false,
@@ -48,17 +47,54 @@ export class KeyGenerateCommand extends Command {
             }
         }
 
-        const next = existing
-            ? contents.replace(/^APP_KEY=.*$/m, `APP_KEY=${key}`)
-            : `${contents.replace(/\s*$/, '')}\nAPP_KEY=${key}\n`
-
-        writeFileSync(envPath, next)
+        writeFileSync(envPath, KeyGenerateCommand.upsertEnvKey(contents, 'APP_KEY', key))
 
         this.success('Application key set successfully.')
     }
 
-    private generateKey (): string {
+    private generateKey(): string {
         // URL-safe base64 so the value is safe to drop into .env unquoted.
         return randomBytes(32).toString('base64url')
+    }
+
+
+
+    /**
+     * Whether the env file defines a non-empty value for `name`.
+     *
+     * An empty assignment (`APP_KEY=`), whitespace, or empty quotes (`APP_KEY=""`)
+     * all count as "not set" so a placeholder line is never mistaken for a real key.
+     *
+     * @param contents  The raw `.env` contents.
+     * @param name      The variable name.
+     */
+    static hasEnvValue = (contents: string, name: string): boolean => {
+        const match = contents.match(new RegExp(`^${name}=(.*)$`, 'm'))
+        const value = match?.[1]
+            ?.trim()
+            .replace(/^(["'])(.*)\1$/, '$2')
+            .trim()
+
+        return Boolean(value)
+    }
+
+    /**
+     * Return `contents` with `name` set to `value`, replacing the line in place if
+     * it exists or appending it otherwise.
+     *
+     * @param contents  The raw `.env` contents.
+     * @param name      The variable name.
+     * @param value     The value to set.
+     */
+    static upsertEnvKey = (contents: string, name: string, value: string): string => {
+        const line = `${name}=${value}`
+        const pattern = new RegExp(`^${name}=.*$`, 'm')
+
+        // Function replacer so the value is inserted verbatim (no `$` specials).
+        if (pattern.test(contents)) {
+            return contents.replace(pattern, () => line)
+        }
+
+        return `${contents.replace(/\s*$/, '')}\n${line}\n`
     }
 }
