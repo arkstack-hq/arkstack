@@ -4,7 +4,7 @@
 
 /** The default workspace catalog (`catalog:`). */
 export const catalog: Record<string, string> = {
-    "@h3ravel/musket": "^2.2.0",
+    "@h3ravel/musket": "^2.2.1",
     "@h3ravel/support": "^2.1.4",
     "dotenv": "^17.4.2"
 }
