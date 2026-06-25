@@ -1,6 +1,6 @@
 import { BaseTCConfig, TSConfig } from './TSConfig'
 import { Node, Project, Type } from 'ts-morph'
-import { readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
 import path from 'node:path'
@@ -30,6 +30,138 @@ export class BuildInterfaces {
 
         for (const [file, config] of Object.entries(configs))
             writeFileSync(path.join(Arkstack.rootDir(), file), config, 'utf8')
+    }
+
+    /**
+     * Generate an `EnvRegistry` augmentation from the application's `.env`
+     * schema, giving `env()` precise return types for app-specific variables.
+     *
+     * Mirrors {@link configs}: the declaration is appended to
+     * `.arkstack/ark.d.ts`. Keys already typed by the framework's own
+     * `EnvRegistry` are skipped so declaration merging never conflicts.
+     *
+     * @param envFile  Explicit `.env` path; defaults to `.env.example` then `.env`.
+     */
+    static env (envFile?: string) {
+        const root = Arkstack.rootDir()
+        const file = envFile ?? BuildInterfaces.resolveEnvFile(root)
+
+        if (!file) return
+
+        const declaration = BuildInterfaces.envRegistryFromEnv(
+            readFileSync(file, 'utf8'),
+            [...BuildInterfaces.frameworkEnvKeys()],
+        )
+
+        if (!declaration) return
+
+        const target = path.join(root, '.arkstack/ark.d.ts')
+        const existing = existsSync(target) ? readFileSync(target, 'utf8') : ''
+
+        writeFileSync(target, `${existing}\n${declaration}\n`, 'utf8')
+    }
+
+    /**
+     * Render an `EnvRegistry` augmentation for the variables declared in the
+     * given `.env` contents. Pure (no filesystem) for testability.
+     *
+     * @param contents  Raw `.env` file contents.
+     * @param skip      Variable names to omit (e.g. framework-owned keys).
+     * @returns         The `declare module` block, or `''` when nothing to emit.
+     */
+    static envRegistryFromEnv (contents: string, skip: string[] = []): string {
+        const skipped = new Set(skip)
+
+        const properties = Object.entries(BuildInterfaces.parseEnvFile(contents))
+            .filter(([key]) => !skipped.has(key))
+            .map(([key, value]) => `        ${key}: ${BuildInterfaces.inferEnvType(value)}`)
+
+        if (!properties.length) return ''
+
+        return [
+            'declare module \'@arkstack/common\' {',
+            '    interface EnvRegistry {',
+            ...properties,
+            '    }',
+            '}',
+            '',
+            'export {}',
+        ].join('\n')
+    }
+
+    /** Prefer `.env.example` (the documented schema), then `.env`. */
+    private static resolveEnvFile (root: string): string | undefined {
+        for (const name of ['.env.example', '.env']) {
+            const file = path.join(root, name)
+
+            if (existsSync(file)) return file
+        }
+    }
+
+    /** Parse `KEY=VALUE` lines, skipping blanks, comments and invalid names. */
+    private static parseEnvFile (contents: string): Record<string, string> {
+        const entries: Record<string, string> = {}
+
+        for (const raw of contents.split(/\r?\n/)) {
+            const line = raw.trim()
+
+            if (!line || line.startsWith('#')) continue
+
+            const eq = line.indexOf('=')
+            if (eq === -1) continue
+
+            const key = line.slice(0, eq).trim()
+            if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) continue
+
+            let value = line.slice(eq + 1).trim()
+            if (
+                (value.startsWith('"') && value.endsWith('"')) ||
+                (value.startsWith('\'') && value.endsWith('\''))
+            ) {
+                value = value.slice(1, -1)
+            }
+
+            entries[key] = value
+        }
+
+        return entries
+    }
+
+    /** Infer a TS type from a value, mirroring env()'s runtime coercion. */
+    private static inferEnvType (value: string): 'string' | 'number' | 'boolean' {
+        if (value === '') return 'string'
+        if (['true', 'false', 'on', 'off'].includes(value)) return 'boolean'
+        if (!Number.isNaN(Number(value))) return 'number'
+
+        return 'string'
+    }
+
+    /** Resolve the framework's own `EnvRegistry` keys to skip during generation. */
+    private static frameworkEnvKeys (): Set<string> {
+        try {
+            const project = new Project({
+                tsConfigFilePath: path.join(Arkstack.rootDir(), 'tsconfig.json'),
+                skipAddingFilesFromTsConfig: true,
+            })
+
+            const probe = project.createSourceFile(
+                '__ark_env_probe__.ts',
+                'import type { EnvRegistry } from \'@arkstack/common\'\ndeclare const value: EnvRegistry\n',
+                { overwrite: true },
+            )
+
+            const keys = probe
+                .getVariableDeclarationOrThrow('value')
+                .getType()
+                .getProperties()
+                .map((prop) => prop.getName())
+
+            return new Set(keys)
+        } catch {
+            // @arkstack/common types unavailable — emit all keys (identical
+            // primitive types still merge cleanly).
+            return new Set()
+        }
     }
 
     private static generateConfig (

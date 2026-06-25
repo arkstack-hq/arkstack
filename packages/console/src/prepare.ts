@@ -11,8 +11,10 @@ import { spawn } from 'node:child_process'
 if (!existsSync(path.join(Arkstack.rootDir(), '.arkstack/build')))
     mkdirSync(path.join(Arkstack.rootDir(), '.arkstack/build'), { recursive: true })
 
-if (!process.env.NODE_CI)
+if (!process.env.NODE_CI) {
     BuildInterfaces.configs()
+    BuildInterfaces.env()
+}
 
 BuildInterfaces.tsconfig()
 
