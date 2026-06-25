@@ -1,11 +1,10 @@
-import { Logger, RequestException } from '@arkstack/common'
+import { Logger, RequestException, resolveRuntimeModule } from '@arkstack/common'
 import express, { Router as ExpressRouter } from 'express'
 
-import { Arkstack, ArkstackRouteListOptions } from '@arkstack/contract'
+import { ArkstackRouteListOptions } from '@arkstack/contract'
 import { Router as ClearRouter } from 'clear-router/express'
 import { type Route } from 'clear-router'
 import { clearRouterExpressPlugin } from '@resora/plugin-clear-router'
-import { join } from 'node:path'
 import { registerPlugin } from 'resora'
 import type { Handler, HttpContext, Middleware } from 'clear-router/types/express'
 
@@ -20,14 +19,14 @@ export class Router extends ClearRouter {
 
     // Register API routes
     try {
-      await ClearRouter.group('/api', join(Arkstack.rootDir(), 'src/routes/api.ts'))
+      await ClearRouter.group('/api', resolveRuntimeModule('src/routes/api.ts'))
     } catch (e: any) {
       Logger.error('ERROR: Unable to load "api.ts" routes: ' + e.message, false)
     }
 
     // Register web routes
     try {
-      await ClearRouter.group('/', join(Arkstack.rootDir(), 'src/routes/web.ts'))
+      await ClearRouter.group('/', resolveRuntimeModule('src/routes/web.ts'))
     } catch (e: any) {
       Logger.error('ERROR: Unable to load "web.ts" routes: ' + e.message, false)
     }

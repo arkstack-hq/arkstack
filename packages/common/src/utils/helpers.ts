@@ -1,5 +1,5 @@
 import { getUserConfig, type Model, type ModelStatic } from 'arkormx'
-import { importFile } from '../system'
+import { importFile, resolveRuntimeModule } from '../system'
 import path from 'node:path'
 import { Arkstack } from '@arkstack/contract'
 import { RequestException } from '../Exceptions/RequestException'
@@ -75,10 +75,12 @@ export async function getModel (modelName: string) {
     )
 
     const modelPath = getUserConfig().paths?.models || './src/models'
-    const modulePath = path.join(
+    const sourcePath = path.join(
         path.isAbsolute(modelPath) ? modelPath : path.join(Arkstack.rootDir(), modelPath),
         modelName
     )
+    // In production the source tree is absent; resolve to the build output.
+    const modulePath = resolveRuntimeModule(sourcePath)
     const module = await importFile<ModelModule | unknown>(modulePath)
     const exportName = path.basename(modelName, path.extname(modelName))
     const model = resolveModelExport(module, exportName)

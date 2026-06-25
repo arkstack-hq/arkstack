@@ -1,13 +1,13 @@
 import { Arr, Obj, undot } from '@h3ravel/support'
 import { ConfigRegistry, DotPath, FileImporter, GlobalConfig, GlobalEnv } from './types'
 import { JitiOptions, JitiResolveOptions, createJiti } from 'jiti'
+import { existsSync, readdirSync } from 'fs'
 
 import { Arkstack } from '@arkstack/contract'
 import { Dirent } from 'node:fs'
 import { createRequire } from 'module'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { readdirSync } from 'fs'
 import { resolve } from 'node:path'
 import { rm } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
@@ -19,7 +19,7 @@ import { spawn } from 'node:child_process'
  * @param def
  * @returns
  */
-export const env: GlobalEnv = <X = string, Y = undefined | X> (
+export const env: GlobalEnv = <X = string, Y = undefined | X>(
     env: string,
     defaultValue?: Y,
 ) => {
@@ -99,7 +99,7 @@ export const CONFIG_KEY = Symbol('globalConfig');
 export const config: GlobalConfig = <
     X extends ConfigRegistry,
     P extends DotPath<X> | undefined = undefined,
-> (
+>(
     key?: P,
     defaultValue?: any,
 ) => {
@@ -227,6 +227,85 @@ export const outputDir = (cwd?: string) => {
         : path.join(cwd, output[NODE_ENV] ?? output.dev)
 }
 
+const SOURCE_DIR = 'src'
+const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.mjs', '.cjs']
+const OUTPUT_EXTENSIONS = ['.js', '.mjs', '.cjs', '.ts']
+
+/** 
+ * Strip a trailing known source/compiled extension from a path. 
+ * 
+ * @param value 
+ * @returns 
+ */
+const stripKnownExtension = (value: string): string =>
+    value.replace(/\.(ts|tsx|mts|cts|js|mjs|cjs)$/i, '')
+
+/**
+ * Build the list of concrete file candidates for a base path. Any existing
+ * source/compiled extension is dropped first so the correct runtime extension
+ * can be tried (e.g. a `.ts` source maps to a `.js` candidate under `dist`).
+ * 
+ * @param base 
+ * @param extensions 
+ * @returns 
+ */
+const moduleCandidates = (base: string, extensions: string[]): string[] => {
+    const bare = stripKnownExtension(base)
+
+    return extensions.map((ext) => bare + ext)
+}
+
+/**
+ * Map an application source path to its build-output counterpart.
+ *
+ * Application code is authored under `src/` and compiled into {@link outputDir},
+ * which strips the leading `src/` segment (e.g. `src/app/models/User.ts` ->
+ * `dist/app/models/User.js`). Absolute or root-relative paths outside the app
+ * root are returned unchanged.
+ *
+ * @param sourcePath  Absolute or root-relative source path.
+ */
+export const toOutputPath = (sourcePath: string): string => {
+    const root = Arkstack.rootDir()
+    const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
+    const rel = path.relative(root, abs)
+
+    if (!rel || rel.startsWith('..')) {
+        return abs
+    }
+
+    return path.join(outputDir(), rel.replace(new RegExp(`^${SOURCE_DIR}[\\\\/]`), ''))
+}
+
+/**
+ * Resolve an application module's source path to a file that can be imported at
+ * runtime.
+ *
+ * In development the TypeScript source is loaded directly (jiti compiles on the
+ * fly); in production only the build output ships, so the path is remapped into
+ * {@link outputDir} with a compiled extension. The first existing candidate
+ * wins — production prefers the build output, development prefers source — so a
+ * deploy that ships only `dist` never reaches for `src`.
+ *
+ * @param sourcePath  Absolute or root-relative source path, with or without extension.
+ * @returns           An existing importable path, or `sourcePath` unchanged when none exists.
+ */
+export const resolveRuntimeModule = (sourcePath: string): string => {
+    const root = Arkstack.rootDir()
+    const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
+
+    const sourceCandidates = moduleCandidates(abs, SOURCE_EXTENSIONS)
+    const outputCandidates = moduleCandidates(toOutputPath(abs), OUTPUT_EXTENSIONS)
+
+    const ordered = nodeEnv() === 'prod'
+        ? [...outputCandidates, ...sourceCandidates]
+        : [...sourceCandidates, ...outputCandidates]
+
+    // Fall back to the absolute source path so the caller gets a clear,
+    // consistent error if it later tries to import a non-existent module.
+    return ordered.find((candidate) => existsSync(candidate)) ?? abs
+}
+
 /**
  * Rebuild the application output (tsdown) into {@link outputDir}, wiping it first
  * so no stale emitted modules survive a source change. Standalone — it does NOT
@@ -270,7 +349,7 @@ export const rebuildOutput = async (): Promise<void> => {
  * @example
  * const config = await importFile<AppConfig>('./config/app.ts')
  */
-export const importFile: FileImporter = async <T = unknown> (
+export const importFile: FileImporter = async <T = unknown>(
     filePath: string,
     userOptions?: JitiOptions | undefined,
     resolveOptions?: (JitiResolveOptions & { default?: true })
@@ -321,17 +400,19 @@ const resolveCommandExport = (
  * @param subPath   Command directory relative to the app root (src/dist aware).
  * @returns         The discovered command classes.
  */
-export const discoverCommands = async <T = unknown> (
+export const discoverCommands = async <T = unknown>(
     subPath: string = path.join('app', 'console', 'commands'),
 ): Promise<T[]> => {
     const root = Arkstack.rootDir()
-    const dist = path.relative(root, outputDir())
 
-    // Prefer source so edits land without a rebuild; fall back to built output.
-    const candidateDirs = [
-        path.join(root, 'src', subPath),
-        path.join(root, dist, subPath),
-    ]
+    const sourceDir = path.join(root, SOURCE_DIR, subPath)
+    const outputCommandDir = path.join(outputDir(), subPath)
+
+    // Production prefers the build output (a deploy ships only `dist`); dev
+    // prefers source so edits land without a rebuild. Either falls back.
+    const candidateDirs = nodeEnv() === 'prod'
+        ? [outputCommandDir, sourceDir]
+        : [sourceDir, outputCommandDir]
 
     let commandsDir: string | undefined
     let files: Dirent<string>[] = []
@@ -383,7 +464,7 @@ export const discoverCommands = async <T = unknown> (
  * @param imp - The imported module
  * @returns The resolved default export
  */
-export const interopDefault = <T> (imp: T | { default: T }): T => {
+export const interopDefault = <T>(imp: T | { default: T }): T => {
     return typeof imp === 'function'
         ? imp as T
         : (imp as { default: T }).default

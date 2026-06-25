@@ -2,8 +2,7 @@ import { describe, expect, test } from 'vitest'
 
 import { KeyGenerateCommand } from '../src/commands/KeyGenerateCommand'
 
-const hasEnvValue = KeyGenerateCommand.hasEnvValue
-const upsertEnvKey = KeyGenerateCommand.upsertEnvKey
+const { hasEnvValue, upsertEnvKey } = KeyGenerateCommand
 
 describe('hasEnvValue', () => {
     test('false when the line is absent', () => {
