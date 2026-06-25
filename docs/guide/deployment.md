@@ -71,12 +71,13 @@ const dir = resolveRuntimeDir('src/routes');
 
 ### `toOutputPath(sourcePath)`
 
-Map a source path to its build-output counterpart (strips the leading `src/`), **without** checking the filesystem or choosing an extension. Useful when you need the mapped location regardless of what currently exists.
+Map a source path to its build-output counterpart: strips the leading `src/` and rewrites a TypeScript source extension to `.js` (directories keep their shape). It's a **pure path transform** — it does not check the filesystem.
 
 ```ts
 import { toOutputPath } from '@arkstack/common';
 
-toOutputPath('src/app/models/User.ts'); // <root>/dist/app/models/User.ts (prod)
+toOutputPath('src/app/models/User.ts'); // <root>/dist/app/models/User.js (prod)
+toOutputPath('src/routes');             // <root>/dist/routes (prod)
 ```
 
-> `resolveRuntimeModule` / `resolveRuntimeDir` consult the filesystem and pick the existing file/dir for the current environment; `toOutputPath` is a pure path transform.
+> `resolveRuntimeModule` / `resolveRuntimeDir` consult the filesystem and pick the existing file/dir for the current environment; `toOutputPath` just computes the mapped location.

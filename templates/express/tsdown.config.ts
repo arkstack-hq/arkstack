@@ -52,7 +52,14 @@ export default defineConfig([
           const chunk = e.chunks[i]
           if (chunk && chunk.fileName.endsWith('.js')) {
             let code = readFileSync(path.join(chunk.outDir, chunk.fileName), 'utf-8')
-            code = code.replace(/src\//g, `${dist}/`).replace(/(?<!\.d)\.ts(?=\b|$)/g, '.js')
+            // Remap module specifiers from source (`src/…`, `.ts`) to their built
+            // location (`${dist}/…`, `.js`). Scoped to import/export/require
+            // specifiers so unrelated string data and comments are never rewritten.
+            code = code.replace(
+              /(?<![\w.])(from|import|require)(\s*\(?\s*)(["'])([^"'\n]+)\3/g,
+              (_m, kw, gap, quote, spec) =>
+                `${kw}${gap}${quote}${spec.replace(/^src\//, `${dist}/`).replace(/(?<!\.d)\.ts$/, '.js')}${quote}`,
+            )
             writeFileSync(path.join(chunk.outDir, chunk.fileName), code, 'utf-8')
           }
         }

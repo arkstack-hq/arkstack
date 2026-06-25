@@ -1,7 +1,7 @@
 import { applyRuntimeConfig, getDefaultConfig, runWithCtx, setCtx } from 'resora'
 
 import type { Handler } from 'express'
-import { config } from '@arkstack/common'
+import { config, resolveRuntimeDir } from '@arkstack/common'
 
 /**
  * Apply the application's resora configuration (`src/config/resources.ts`) and
@@ -13,11 +13,24 @@ import { config } from '@arkstack/common'
  * async context so downstream handlers resolve the correct context.
  */
 export const resora = (): Handler => {
+    // Resolve once: the merged config doesn't change between requests.
+    let resources: Record<string, unknown> | undefined
+
     return (req, res, next) => {
         try {
-            // Merge over resora's defaults so unspecified keys (e.g. pagination
-            // metadata) are never wiped when the app has no resources config.
-            applyRuntimeConfig({ ...getDefaultConfig(), ...config('resources', {}) } as never)
+            if (!resources) {
+                // Merge over resora's defaults so unspecified keys (e.g. pagination
+                // metadata) are never wiped when the app has no resources config.
+                resources = { ...getDefaultConfig(), ...config('resources', {}) } as Record<string, unknown>
+
+                // Resources are compiled into the build output; point resora's
+                // resourcesDir at the runtime location (dist in production).
+                if (typeof resources.resourcesDir === 'string') {
+                    resources.resourcesDir = resolveRuntimeDir(resources.resourcesDir)
+                }
+            }
+
+            applyRuntimeConfig(resources as never)
         } catch {
             /** No resources config; resora falls back to its defaults. */
         }

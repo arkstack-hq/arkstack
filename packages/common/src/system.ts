@@ -259,9 +259,15 @@ const moduleCandidates = (base: string, extensions: string[]): string[] => {
  * Map an application source path to its build-output counterpart.
  *
  * Application code is authored under `src/` and compiled into {@link outputDir},
- * which strips the leading `src/` segment (e.g. `src/app/models/User.ts` ->
- * `dist/app/models/User.js`). Absolute or root-relative paths outside the app
- * root are returned unchanged.
+ * which strips the leading `src/` segment and emits JavaScript (e.g.
+ * `src/app/models/User.ts` -> `dist/app/models/User.js`). A TypeScript source
+ * extension is rewritten to `.js`; paths without one (directories) keep their
+ * shape. Absolute or root-relative paths outside the app root are returned
+ * unchanged.
+ *
+ * This is a pure path transform — it does not touch the filesystem. Use
+ * {@link resolveRuntimeModule} / {@link resolveRuntimeDir} when you need an
+ * existing file/dir for the current environment.
  *
  * @param sourcePath  Absolute or root-relative source path.
  */
@@ -274,7 +280,10 @@ export const toOutputPath = (sourcePath: string): string => {
         return abs
     }
 
-    return path.join(outputDir(), rel.replace(new RegExp(`^${SOURCE_DIR}[\\\\/]`), ''))
+    const mapped = path.join(outputDir(), rel.replace(new RegExp(`^${SOURCE_DIR}[\\\\/]`), ''))
+
+    // TypeScript sources compile to JavaScript; reflect that in the mapped path.
+    return mapped.replace(/\.(ts|tsx|mts|cts)$/i, '.js')
 }
 
 /**

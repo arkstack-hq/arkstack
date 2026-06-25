@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
 import { join } from 'node:path'
-import { resolveRuntimeDir, resolveRuntimeModule } from '../src/system'
+import { resolveRuntimeDir, resolveRuntimeModule, toOutputPath } from '../src/system'
 import { tmpdir } from 'node:os'
 
 let root: string
@@ -99,5 +99,35 @@ describe('resolveRuntimeDir', () => {
         process.env.NODE_ENV = 'production'
 
         expect(resolveRuntimeDir('src/routes')).toBe(join(root, 'src/routes'))
+    })
+})
+
+describe('toOutputPath', () => {
+    test('maps a TypeScript source to the compiled .js under the output dir', () => {
+        process.env.NODE_ENV = 'production'
+
+        expect(toOutputPath('src/app/models/User.ts'))
+            .toBe(join(root, 'dist/app/models/User.js'))
+    })
+
+    test('strips the src segment for a directory, leaving the extension alone', () => {
+        process.env.NODE_ENV = 'production'
+
+        expect(toOutputPath('src/routes')).toBe(join(root, 'dist/routes'))
+    })
+
+    test('leaves an existing .js extension as-is', () => {
+        process.env.NODE_ENV = 'production'
+
+        expect(toOutputPath('src/app/models/User.js'))
+            .toBe(join(root, 'dist/app/models/User.js'))
+    })
+
+    test('does not consult the filesystem (pure transform)', () => {
+        process.env.NODE_ENV = 'production'
+
+        // Nothing is created on disk; the mapping is purely structural.
+        expect(toOutputPath('src/whatever/Missing.ts'))
+            .toBe(join(root, 'dist/whatever/Missing.js'))
     })
 })

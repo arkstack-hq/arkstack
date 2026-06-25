@@ -56,10 +56,10 @@ const dir = resolveRuntimeDir('src/routes'); // dist/routes in production
 
 ## `toOutputPath(sourcePath)`
 
-Pure path transform that maps a source path to its build-output counterpart (strips the leading `src/`), without touching the filesystem.
+Pure path transform that maps a source path to its build-output counterpart — strips the leading `src/` and rewrites a TypeScript extension to `.js` — without touching the filesystem.
 
 ```ts
 import { toOutputPath } from '@arkstack/common';
 
-toOutputPath('src/app/models/User.ts'); // <root>/dist/app/models/User.ts (production)
+toOutputPath('src/app/models/User.ts'); // <root>/dist/app/models/User.js (production)
 ```
