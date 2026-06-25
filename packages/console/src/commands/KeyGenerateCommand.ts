@@ -15,12 +15,14 @@ export class KeyGenerateCommand extends Command {
     protected signature = `key:generate
         {--show : Display the generated key instead of writing it to the .env file.}
         {--force : Overwrite the existing APP_KEY without confirmation.}
+        {--ignore : Ignore existing APP_KEY without confirmation.}
     `
 
     protected description = 'Set the application key (APP_KEY).'
 
     async handle() {
         const key = this.generateKey()
+        const ignore = this.option('ignore')
 
         if (this.option('show')) {
             return void this.line(key)
@@ -36,14 +38,16 @@ export class KeyGenerateCommand extends Command {
 
         const contents = readFileSync(envPath, 'utf-8')
 
-        if (KeyGenerateCommand.hasEnvValue(contents, 'APP_KEY') && !this.option('force')) {
-            const confirmed = await this.confirm(
+        if ((KeyGenerateCommand.hasEnvValue(contents, 'APP_KEY') && !this.option('force')) || ignore) {
+
+
+            const confirmed = !ignore ? await this.confirm(
                 'An application key already exists. Overwrite it?',
                 false,
-            )
+            ) : false
 
-            if (!confirmed) {
-                return void this.info('Application key generation aborted.')
+            if (!confirmed || ignore) {
+                return void this.info(`Application key generation ${ignore ? 'skipped' : 'aborted'}.`)
             }
         }
 
