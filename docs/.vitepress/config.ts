@@ -57,6 +57,7 @@ export default defineConfig({
           { text: 'Hooks', link: '/guide/hooks' },
           { text: 'HTTP', link: '/guide/http' },
           { text: 'Database & Modeling', link: '/guide/database-modeling' },
+          { text: 'Deployment', link: '/guide/deployment' },
           { text: 'API Reference', link: '/api' },
         ]
       },
