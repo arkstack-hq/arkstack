@@ -4,7 +4,97 @@ import { ChalkInstance } from 'chalk'
 import type { Logger } from './Logger'
 
 export interface ConfigRegistry { }
-export interface EnvRegistry { }
+
+/**
+ * Map of known environment variables to their (coerced) value types.
+ *
+ * Used to give {@link GlobalEnv | env()} precise return types. Unknown keys fall
+ * back to `string`. Augment this interface (declaration merging) to register
+ * application-specific variables:
+ *
+ * ```ts
+ * declare module '@arkstack/common' {
+ *   interface EnvRegistry { MY_FLAG: boolean }
+ * }
+ * ```
+ */
+export interface EnvRegistry {
+    // Application
+    APP_NAME: string
+    APP_ENV: 'development' | 'production' | 'staging' | 'local'
+    APP_KEY: string
+    APP_URL: string
+    APP_HOST: string
+    APP_PORT: number
+    NODE_ENV: 'development' | 'production' | 'test'
+    PORT: number
+    HOST: string
+    FRONTEND_URL: string
+
+    // Build / runtime
+    OUTPUT_DIR: string
+    OUTPUT_DIR_DEV: string
+    CONFIG_PATH: string
+    TUNNEL: boolean
+
+    // Filesystem
+    FILESYSTEM_DISK: string
+
+    // Cache
+    CACHE_STORE: string
+    CACHE_PREFIX: string
+    CACHE_TABLE: string
+
+    // Queue
+    QUEUE_CONNECTION: string
+    QUEUE_TABLE: string
+    QUEUE_NAME: string
+    QUEUE_RETRY_AFTER: number
+
+    // Redis
+    REDIS_HOST: string
+    REDIS_PORT: number
+    REDIS_PASSWORD: string
+    REDIS_CACHE_DB: number
+    REDIS_QUEUE_DB: number
+
+    // Auth / session
+    JWT_EXPIRES_IN: string
+    SESSION_LIFETIME: number
+    TWO_FACTOR_SMS_TTL_MINUTES: number
+
+    // Database
+    DATABASE_URL: string
+    DB_CONNECTION: string
+    DB_HOST: string
+    DB_PORT: number
+    DB_DATABASE: string
+    DB_USERNAME: string
+    DB_PASSWORD: string
+
+    // Mail
+    MAIL_HOST: string
+    MAIL_PORT: number
+    MAIL_SECURE: boolean
+    MAIL_USERNAME: string
+    MAIL_PASSWORD: string
+    MAIL_FROM_ADDRESS: string
+    MAIL_TEST_ADDRESS: string
+
+    // AWS / S3
+    AWS_ACCESS_KEY_ID: string
+    AWS_SECRET_ACCESS_KEY: string
+    AWS_DEFAULT_REGION: string
+    AWS_BUCKET: string
+    AWS_URL: string
+    AWS_ENDPOINT: string
+}
+
+/** Known environment variable names. */
+export type EnvKey = keyof EnvRegistry & string
+
+/** The registered type for a known key, or `string` for an unknown one. */
+export type EnvLookup<K extends string> = [K] extends [EnvKey] ? EnvRegistry[K] : string
 export type UnionToIntersection<U> = (U extends any ? (x: U) => void : never) extends (x: infer I) => void ? I : never
 
 export type MergedConfig<X> = UnionToIntersection<X>
@@ -66,11 +156,24 @@ export interface LoggerLog {
 }
 
 
+/**
+ * Return type of {@link GlobalEnv | env()}.
+ *
+ * When an explicit value type `X` is given it wins (backward compatible with
+ * `env<boolean>('FLAG')`). Otherwise the type registered for the key `K` is used
+ * — falling back to `string` for unknown keys. A provided default `D` is unioned
+ * into the result.
+ */
+export type EnvReturn<X, K extends string, D> =
+    [X] extends [never]
+    ? [D] extends [undefined] ? EnvLookup<K> : EnvLookup<K> | D
+    : [D] extends [undefined] ? X : X | D
+
 export interface GlobalEnv {
-    <X = string, Y = undefined | X>(
-        env: string,
-        defaultValue?: Y,
-    ): Y extends undefined ? X : Y
+    <X = never, D = undefined, K extends string = string>(
+        env: K,
+        defaultValue?: D,
+    ): EnvReturn<X, K, D>
 }
 
 export type ConfigShape = keyof ConfigRegistry extends never

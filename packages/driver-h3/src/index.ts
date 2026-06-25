@@ -148,7 +148,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      */
     async start(app: H3, port: number): Promise<void> {
         const host = env('APP_HOST', env('HOST', '0.0.0.0'))
-        const tunneled = env<boolean>('TUNNEL', false)
+        const tunneled = env('TUNNEL', false)
 
         const server = await serve(app, { port, hostname: host, silent: true })
             .ready()

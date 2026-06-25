@@ -1,3 +1,4 @@
+import type { EnvReturn } from './types'
 import { config as loadEnvFile } from 'dotenv'
 
 /**
@@ -39,10 +40,10 @@ export class EnvLoader {
      * @param name          The variable name.
      * @param defaultValue  Returned when the variable is unset.
      */
-    get<X = string, Y = undefined | X>(
-        name: string,
-        defaultValue?: Y,
-    ): Y extends undefined ? X : Y & (X & {}) {
+    get<X = never, D = undefined, K extends string = string>(
+        name: K,
+        defaultValue?: D,
+    ): EnvReturn<X, K, D> {
         this.ensureLoaded()
 
         let val: string | number | boolean | undefined | null =
@@ -71,7 +72,7 @@ export class EnvLoader {
 
         val ??= defaultValue as typeof val
 
-        return val as Y extends undefined ? X : Y & (X & {})
+        return val as EnvReturn<X, K, D>
     }
 }
 

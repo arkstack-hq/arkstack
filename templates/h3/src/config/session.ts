@@ -1,4 +1,4 @@
-import { Arkstack, ENV } from '@arkstack/contract'
+import { Arkstack } from '@arkstack/contract'
 
 import { SessionConfig } from '@arkstack/http'
 import { Str } from '@h3ravel/support'
@@ -37,7 +37,7 @@ export default (): SessionConfig => {
          * The number of minutes that the session is allowed to remain idle before 
          * it expires.
          */
-        ttl: env<number>('SESSION_LIFETIME', 60 * 60 * 24 * 7),
+        ttl: env('SESSION_LIFETIME', 60 * 60 * 24 * 7),
 
         /**
          * HTTP Only Access
@@ -53,7 +53,7 @@ export default (): SessionConfig => {
          * This option ensures that cookies will only be sent back to the server 
          * if the browser has a HTTPS connection if set to "true".
          */
-        secure: env<ENV>('NODE_ENV', 'development') === 'production',
+        secure: env('NODE_ENV', 'development') === 'production',
 
         /**
          * Same-Site Cookies

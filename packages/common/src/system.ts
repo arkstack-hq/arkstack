@@ -19,10 +19,10 @@ import { spawn } from 'node:child_process'
  * @param def
  * @returns
  */
-export const env: GlobalEnv = <X = string, Y = undefined | X>(
-    env: string,
-    defaultValue?: Y,
-) => envLoader.get<X, Y>(env, defaultValue)
+export const env: GlobalEnv = <X = never, D = undefined, K extends string = string>(
+    env: K,
+    defaultValue?: D,
+) => envLoader.get<X, D, K>(env, defaultValue)
 
 /**
  * Build the app url
@@ -39,7 +39,7 @@ export const appUrl = (link?: string): string => {
         const url = new URL(appUrl)
         // Append port only if APP_URL has a port or is localhost
         if (url.port || url.hostname === 'localhost') {
-            url.port = port
+            url.port = String(port)
         }
         // Remove trailing slash from base URL
         const baseUrl = url.toString().replace(/\/$/, '')
@@ -107,7 +107,7 @@ export const appKey = (legacy: string | string[] = []): string | undefined => {
  * @returns
  */
 export const nodeEnv = () => {
-    let envValue = env<'development' | 'production'>('NODE_ENV', 'development')
+    let envValue = env('NODE_ENV', 'development')
 
     if (envValue !== 'development' && envValue !== 'production') {
         envValue = 'development'

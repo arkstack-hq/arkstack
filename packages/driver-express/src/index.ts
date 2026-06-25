@@ -140,7 +140,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      */
     async start(app: Express, port: number): Promise<void> {
         const host = env('APP_HOST', env('HOST', '0.0.0.0'))
-        const tunneled = env<boolean>('TUNNEL', false)
+        const tunneled = env('TUNNEL', false)
 
         app.listen(port, host, async () => {
             let log = [
