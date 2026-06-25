@@ -292,6 +292,9 @@ importers:
       detect-port:
         specifier: ^2.1.0
         version: 2.1.0
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
       jiti:
         specifier: ^2.7.0
         version: 2.7.0

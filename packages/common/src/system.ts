@@ -1,11 +1,11 @@
-import { Arr, Obj, undot } from '@h3ravel/support'
 import { ConfigRegistry, DotPath, FileImporter, GlobalConfig, GlobalEnv } from './types'
 import { JitiOptions, JitiResolveOptions, createJiti } from 'jiti'
 import { existsSync, readdirSync } from 'fs'
 
 import { Arkstack } from '@arkstack/contract'
 import { Dirent } from 'node:fs'
-import { createRequire } from 'module'
+import { configLoader } from './ConfigLoader'
+import { envLoader } from './EnvLoader'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { resolve } from 'node:path'
@@ -22,35 +22,7 @@ import { spawn } from 'node:child_process'
 export const env: GlobalEnv = <X = string, Y = undefined | X>(
     env: string,
     defaultValue?: Y,
-) => {
-    let val: string | number | boolean | undefined | null =
-        process.env[env] ?? ''
-
-    if ([true, 'true', 'on', false, 'false', 'off'].includes(val)) {
-        val = [true, 'true', 'on'].includes(val)
-    }
-
-    if (
-        !isNaN(Number(val)) &&
-        typeof val !== 'boolean' &&
-        typeof val !== 'undefined' &&
-        val !== ''
-    ) {
-        val = Number(val)
-    }
-
-    if (val === '') {
-        val = undefined
-    }
-
-    if (val === 'null') {
-        val = null
-    }
-
-    val ??= defaultValue as typeof val
-
-    return val as Y extends undefined ? X : Y
-}
+) => envLoader.get<X, Y>(env, defaultValue)
 
 /**
  * Build the app url
@@ -86,9 +58,6 @@ export const appUrl = (link?: string): string => {
     }
 }
 
-export const CONFIG_KEY = Symbol('globalConfig');
-(globalThis as any)[CONFIG_KEY] = {}
-
 /**
  * Gets the application configuration.
  *
@@ -102,66 +71,7 @@ export const config: GlobalConfig = <
 >(
     key?: P,
     defaultValue?: any,
-) => {
-    if (typeof globalThis.env === 'undefined') {
-        globalThis.env = (key?: string, def?: any): any => key
-            ? process.env[key] ?? def
-            : process.env
-    }
-
-    const config = (globalThis as any)[CONFIG_KEY]
-
-    if (Object.entries(config).length < 1) {
-        let files: Dirent<string>[]
-        const dist = path.relative(Arkstack.rootDir(), outputDir())
-        const require = createRequire(import.meta.url)
-        const configDir = env('CONFIG_PATH', path.join(Arkstack.rootDir(), `${dist}/config`))
-
-        try {
-            files = readdirSync(configDir, {
-                withFileTypes: true,
-            }).filter((file) => {
-                if (file.name.includes('middleware') && globalThis.arkctx?.runtime === 'CLI')
-                    return false
-
-                return (
-                    file.isFile() && (file.name.endsWith('.js') || file.name.endsWith('.ts'))
-                )
-            })
-        } catch {
-            files = [] as Dirent<string>[]
-        }
-
-        Object.assign(config, files.reduce(
-            (configs, file) => {
-                const configName = path.basename(file.name, path.extname(file.name))
-
-                configs[configName] = require(
-                    path.join(file.parentPath, file.name),
-                ).default(typeof globalThis.app === 'function' ? globalThis.app() : {})
-
-                return configs
-            },
-            {} as Record<string, any>,
-        ) as X);
-
-        (globalThis as any)[CONFIG_KEY] = config
-    }
-
-    if (typeof key === 'object' && key !== null) {
-        const config = Object.assign(
-            {},
-            Arr.dot((globalThis as any)[CONFIG_KEY]),
-            Arr.dot(key),
-        );
-
-        (globalThis as any)[CONFIG_KEY] = undot(config)
-    } else if (typeof key === 'string') {
-        return Obj.get((globalThis as any)[CONFIG_KEY], key as never, defaultValue)
-    }
-
-    return (globalThis as any)[CONFIG_KEY]
-}
+) => configLoader.resolve<X, P>(key, defaultValue)
 
 /**
  * Resolve the unified application key.
