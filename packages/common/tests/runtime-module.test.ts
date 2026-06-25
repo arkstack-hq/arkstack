@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
 import { join } from 'node:path'
-import { resolveRuntimeModule } from '../src/system'
+import { resolveRuntimeDir, resolveRuntimeModule } from '../src/system'
 import { tmpdir } from 'node:os'
 
 let root: string
@@ -67,5 +67,37 @@ describe('resolveRuntimeModule', () => {
 
         expect(resolveRuntimeModule('src/app/models/Missing'))
             .toBe(join(root, 'src/app/models/Missing'))
+    })
+})
+
+describe('resolveRuntimeDir', () => {
+    const mkdir = (dir: string) => mkdirSync(join(root, dir), { recursive: true })
+
+    test('development resolves the source directory', () => {
+        process.env.NODE_ENV = 'development'
+        mkdir('src/routes')
+
+        expect(resolveRuntimeDir('src/routes')).toBe(join(root, 'src/routes'))
+    })
+
+    test('production resolves the output directory, stripping the src segment', () => {
+        process.env.NODE_ENV = 'production'
+        mkdir('dist/routes')
+
+        expect(resolveRuntimeDir('src/routes')).toBe(join(root, 'dist/routes'))
+    })
+
+    test('production prefers the output directory even when source is present', () => {
+        process.env.NODE_ENV = 'production'
+        mkdir('src/routes')
+        mkdir('dist/routes')
+
+        expect(resolveRuntimeDir('src/routes')).toBe(join(root, 'dist/routes'))
+    })
+
+    test('returns the absolute source dir when neither exists', () => {
+        process.env.NODE_ENV = 'production'
+
+        expect(resolveRuntimeDir('src/routes')).toBe(join(root, 'src/routes'))
     })
 })

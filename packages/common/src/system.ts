@@ -307,6 +307,30 @@ export const resolveRuntimeModule = (sourcePath: string): string => {
 }
 
 /**
+ * Resolve an application source directory to the directory that exists at
+ * runtime.
+ *
+ * The directory counterpart of {@link resolveRuntimeModule}: it maps the source
+ * directory into {@link outputDir} (stripping the leading `src/` segment) but
+ * appends no file extension. Production prefers the build output, development
+ * prefers source, and the absolute source path is returned when neither exists.
+ *
+ * @param sourcePath  Absolute or root-relative source directory.
+ * @returns           An existing directory path, or the absolute source path when none exists.
+ */
+export const resolveRuntimeDir = (sourcePath: string): string => {
+    const root = Arkstack.rootDir()
+    const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
+    const mapped = toOutputPath(abs)
+
+    const ordered = nodeEnv() === 'prod'
+        ? [mapped, abs]
+        : [abs, mapped]
+
+    return ordered.find((candidate) => existsSync(candidate)) ?? abs
+}
+
+/**
  * Rebuild the application output (tsdown) into {@link outputDir}, wiping it first
  * so no stale emitted modules survive a source change. Standalone — it does NOT
  * boot the app — so the console kernel can call it to self-heal a stale or
