@@ -6,7 +6,7 @@ Arkstack applications are written in TypeScript under `src/` and compiled to pla
 
 Running the build compiles `src/` into the output directory, **stripping the leading `src/` segment**:
 
-```
+```txt
 src/app/models/User.ts   ->   dist/app/models/User.js
 src/routes/api.ts        ->   dist/routes/api.js
 src/config/app.ts        ->   dist/config/app.js
@@ -14,10 +14,10 @@ src/config/app.ts        ->   dist/config/app.js
 
 The output directory depends on `NODE_ENV`:
 
-| Environment            | `NODE_ENV`    | Output directory   | Override          |
-| ---------------------- | ------------- | ------------------ | ----------------- |
-| Production             | `production`  | `dist`             | `OUTPUT_DIR`      |
-| Development            | anything else | `.arkstack/build`  | `OUTPUT_DIR_DEV`  |
+| Environment | `NODE_ENV`    | Output directory  | Override         |
+| ----------- | ------------- | ----------------- | ---------------- |
+| Production  | `production`  | `dist`            | `OUTPUT_DIR`     |
+| Development | anything else | `.arkstack/build` | `OUTPUT_DIR_DEV` |
 
 ::: warning Set `NODE_ENV=production`
 In production you must set `NODE_ENV=production`. The framework keys configuration loading and module resolution off it; without it, Arkstack assumes development and looks for the dev build directory.
@@ -77,7 +77,7 @@ Map a source path to its build-output counterpart: strips the leading `src/` and
 import { toOutputPath } from '@arkstack/common';
 
 toOutputPath('src/app/models/User.ts'); // <root>/dist/app/models/User.js (prod)
-toOutputPath('src/routes');             // <root>/dist/routes (prod)
+toOutputPath('src/routes'); // <root>/dist/routes (prod)
 ```
 
 > `resolveRuntimeModule` / `resolveRuntimeDir` consult the filesystem and pick the existing file/dir for the current environment; `toOutputPath` just computes the mapped location.
