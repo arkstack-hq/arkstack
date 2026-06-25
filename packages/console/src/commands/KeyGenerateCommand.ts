@@ -15,14 +15,13 @@ export class KeyGenerateCommand extends Command {
     protected signature = `key:generate
         {--show : Display the generated key instead of writing it to the .env file.}
         {--force : Overwrite the existing APP_KEY without confirmation.}
-        {--ignore : Ignore existing APP_KEY without confirmation.}
     `
 
     protected description = 'Set the application key (APP_KEY).'
 
     async handle() {
         const key = this.generateKey()
-        const ignore = this.option('ignore')
+        const ignore = !this.option('interaction')
 
         if (this.option('show')) {
             return void this.line(key)
