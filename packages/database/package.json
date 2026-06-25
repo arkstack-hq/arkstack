@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/database",
-    "version": "0.14.3",
+    "version": "0.14.14",
     "type": "module",
     "description": "Database module for Arkstack, providing core database integration and data layer features.",
     "homepage": "https://arkstack.toneflix.net",
