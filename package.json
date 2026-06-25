@@ -1,7 +1,7 @@
 {
   "name": "arkstack",
   "type": "module",
-  "version": "0.14.14",
+  "version": "0.14.15",
   "publishConfig": {
     "access": "restricted"
   },
