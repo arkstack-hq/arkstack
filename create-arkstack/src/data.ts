@@ -68,13 +68,23 @@ export const depsList: Record<string, string> = {
 
 export const environment = {
     min: [
+        'PORT',
+        'HOST',
         'APP_URL',
         'APP_KEY',
         'APP_ENV',
         'APP_HOST',
         'APP_PORT',
         'APP_NAME',
+        'APP_DEBUG',
+        'APP_LOCALE',
+        'APP_TIMEZONE',
+        'NODE_ENV',
+        'FRONTEND_URL',
+        'NGROK_DOMAIN',
         'NGROK_AUTHTOKEN',
+        'APP_FAKER_LOCALE',
+        'APP_FALLBACK_LOCALE'
     ],
     max: [
         'FILESYSTEM_DISK',

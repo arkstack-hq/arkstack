@@ -29,9 +29,9 @@ export interface EnvRegistry {
     APP_PORT: number
     APP_DEBUG: boolean
     APP_TIMEZONE: string
-    APP_LOCALE: string
-    APP_FALLBACK_LOCALE: string
-    APP_FAKER_LOCALE: string
+    APP_LOCALE: typeof locales[number]
+    APP_FALLBACK_LOCALE: typeof locales[number]
+    APP_FAKER_LOCALE: typeof locales[number]
     NODE_ENV: 'development' | 'production' | 'test'
     PORT: number
     HOST: string
@@ -42,6 +42,8 @@ export interface EnvRegistry {
     OUTPUT_DIR_DEV: string
     CONFIG_PATH: string
     TUNNEL: boolean
+    NGROK_AUTHTOKEN: string
+    NGROK_DOMAIN: string
 
     // Filesystem
     FILESYSTEM_DISK: string
@@ -108,9 +110,9 @@ export interface AppConfig {
     frontend_url: string
     debug: boolean
     timezone: string
-    locale: typeof locales
-    fallback_locale: string
-    faker_locale: string
+    locale: typeof locales[number]
+    fallback_locale: typeof locales[number]
+    faker_locale: typeof locales[number]
 }
 
 /** 
@@ -195,7 +197,7 @@ export type EnvReturn<X, K extends string, D> =
     : [D] extends [undefined] ? X : X | D
 
 export interface GlobalEnv {
-    <X = never, D = undefined, K extends string = string>(
+    <X = never, D = undefined, K extends (keyof EnvRegistry | (string & {})) = keyof EnvRegistry>(
         env: K,
         defaultValue?: D,
     ): EnvReturn<X, K, D>
