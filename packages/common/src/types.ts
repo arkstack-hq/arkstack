@@ -102,6 +102,7 @@ export interface EnvRegistry {
  * App Confifuration
  */
 export interface AppConfig {
+    [key: string]: any
     env: string
     key: string
     url: string
