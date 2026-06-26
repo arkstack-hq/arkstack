@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@faker-js/faker':
+      specifier: ^10.4.0
+      version: 10.4.0
     '@h3ravel/musket':
       specifier: ^2.2.1
       version: 2.2.1
@@ -280,6 +283,9 @@ importers:
       '@h3ravel/support':
         specifier: 'catalog:'
         version: 2.2.0(@types/node@25.6.2)
+      '@pictwo/faker':
+        specifier: ^1.1.0
+        version: 1.1.0
       arkormx:
         specifier: ^2.10.1
         version: 2.10.1(@types/node@25.6.2)
@@ -304,6 +310,10 @@ importers:
       pino:
         specifier: ^10.3.1
         version: 10.3.1
+    optionalDependencies:
+      '@faker-js/faker':
+        specifier: 'catalog:'
+        version: 10.4.0
 
   packages/console:
     dependencies:
@@ -1895,6 +1905,12 @@ packages:
   '@parcel/watcher@2.5.6':
     resolution: {integrity: sha512-tmmZ3lQxAe/k/+rNnXQRawJ4NjxO2hqiOLTHvWchtGZULp4RyFeh6aU4XdOYBFe2KE1oShQTv4AblOs2iOrNnQ==}
     engines: {node: '>= 10.0.0'}
+
+  '@pictwo/core@1.1.0':
+    resolution: {integrity: sha512-ztbVNrNYRA5KKsOUNsQ0sznvoVCfYKjgsX0/Nn6v2KZKfQq9G3Tbcm4cR15VtsIKeqLCznhl9CWwtp/OtTIkrw==}
+
+  '@pictwo/faker@1.1.0':
+    resolution: {integrity: sha512-9h1Y+Yb+EDxsQG/KOY/Z5wjII2Sr0lCZlQ2389m6T8mfF6TUfHscCmTswBe8mRNmo5Lsvq2tnwNK8q4P9q44mw==}
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
@@ -7096,6 +7112,12 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.6
       '@parcel/watcher-win32-x64': 2.5.6
     optional: true
+
+  '@pictwo/core@1.1.0': {}
+
+  '@pictwo/faker@1.1.0':
+    dependencies:
+      '@pictwo/core': 1.1.0
 
   '@pinojs/redact@0.4.0': {}
 

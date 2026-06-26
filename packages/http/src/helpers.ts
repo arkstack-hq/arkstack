@@ -1,9 +1,20 @@
 import { FunctionMiddleware, HeaderMap, HeaderSource, HeaderValue, RequestSource } from './types/Http'
 import { MiddlewareClass, MiddlewareInstance } from 'clear-router/types/basic'
 
-import { isClass } from '@arkstack/common'
+/**
+ * Checks and asserts if target is a class
+ * 
+ * @param target 
+ * @returns 
+ */
+const isClass = <T = unknown>(
+    target: unknown
+): target is new (...args: any[]) => T => {
+    return typeof target === 'function'
+        && /^class\s/.test(Function.prototype.toString.call(target))
+}
 
-export const unwrapRequestSource = <TUser> (
+export const unwrapRequestSource = <TUser>(
     source: RequestSource<TUser>
 ): RequestSource<TUser> => {
     if (source.original) {
@@ -81,7 +92,7 @@ export const isRecord = (value: unknown): value is Record<PropertyKey, any> => {
  * @param middleware 
  * @returns 
  */
-export const resolveMiddleware = <T extends FunctionMiddleware | MiddlewareClass | MiddlewareInstance> (
+export const resolveMiddleware = <T extends FunctionMiddleware | MiddlewareClass | MiddlewareInstance>(
     middleware: T
 ): T extends MiddlewareClass<FunctionMiddleware>
     ? InstanceType<T>['handle']
