@@ -30,6 +30,9 @@ describe('BuildInterfaces.envRegistryFromEnv', () => {
         expect(out).toContain('JWT_EXPIRES_IN: string')
         expect(out).toContain('EMPTY: string')
         expect(out).toContain('QUOTED: string')
+        // The `export {}` module marker is added by env() when combining files,
+        // not by the pure block, so two blocks never produce a duplicate.
+        expect(out).not.toContain('export {}')
     })
 
     test('skips framework-owned (and any provided) keys', () => {

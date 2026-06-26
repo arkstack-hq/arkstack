@@ -27,7 +27,7 @@ export class EnvLoader {
         this.loaded = true
 
         try {
-            loadEnvFile()
+            loadEnvFile({ quiet: true })
         } catch {
             /** No .env file (or dotenv unavailable); use process.env as-is. */
         }

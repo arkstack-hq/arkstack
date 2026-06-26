@@ -14,7 +14,7 @@ export class BuildInterfaces {
      * 
      * @param configDir 
      */
-    static configs (configDir?: string) {
+    static configs(configDir?: string) {
         configDir ??= path.join(Arkstack.rootDir(), 'src/config')
 
         const declaration = this.generateConfig(configDir)
@@ -22,7 +22,7 @@ export class BuildInterfaces {
         writeFileSync(path.join(Arkstack.rootDir(), '.arkstack/ark.d.ts'), declaration, 'utf8')
     }
 
-    static tsconfig () {
+    static tsconfig() {
         const configs = {
             '.arkstack/tsconfig.json': JSON.stringify(TSConfig, undefined, 2),
             'tsconfig.json': JSON.stringify(BaseTCConfig, undefined, 2),
@@ -42,7 +42,7 @@ export class BuildInterfaces {
      *
      * @param envFile  Explicit `.env` path; defaults to `.env.example` then `.env`.
      */
-    static env (envFile?: string) {
+    static env(envFile?: string) {
         const root = Arkstack.rootDir()
         const file = envFile ?? BuildInterfaces.resolveEnvFile(root)
 
@@ -58,7 +58,15 @@ export class BuildInterfaces {
         const target = path.join(root, '.arkstack/ark.d.ts')
         const existing = existsSync(target) ? readFileSync(target, 'utf8') : ''
 
-        writeFileSync(target, `${existing}\n${declaration}\n`, 'utf8')
+        let content = `${existing}\n${declaration}\n`
+
+        // `declare module` augmentation only works in a module; ensure exactly
+        // one `export {}` (configs() already emits one when it runs first).
+        if (!/^\s*export\s|\bimport\s/m.test(content)) {
+            content += '\nexport {}\n'
+        }
+
+        writeFileSync(target, content, 'utf8')
     }
 
     /**
@@ -69,7 +77,7 @@ export class BuildInterfaces {
      * @param skip      Variable names to omit (e.g. framework-owned keys).
      * @returns         The `declare module` block, or `''` when nothing to emit.
      */
-    static envRegistryFromEnv (contents: string, skip: string[] = []): string {
+    static envRegistryFromEnv(contents: string, skip: string[] = []): string {
         const skipped = new Set(skip)
 
         const properties = Object.entries(BuildInterfaces.parseEnvFile(contents))
@@ -84,13 +92,16 @@ export class BuildInterfaces {
             ...properties,
             '    }',
             '}',
-            '',
-            'export {}',
         ].join('\n')
     }
 
-    /** Prefer `.env.example` (the documented schema), then `.env`. */
-    private static resolveEnvFile (root: string): string | undefined {
+    /** 
+     * Prefer `.env.example` (the documented schema), then `.env`. 
+     * 
+     * @param root 
+     * @returns 
+     */
+    private static resolveEnvFile(root: string): string | undefined {
         for (const name of ['.env.example', '.env']) {
             const file = path.join(root, name)
 
@@ -98,8 +109,13 @@ export class BuildInterfaces {
         }
     }
 
-    /** Parse `KEY=VALUE` lines, skipping blanks, comments and invalid names. */
-    private static parseEnvFile (contents: string): Record<string, string> {
+    /** 
+     * Parse `KEY=VALUE` lines, skipping blanks, comments and invalid names. 
+    * 
+    * @param contents 
+    * @returns 
+    */
+    private static parseEnvFile(contents: string): Record<string, string> {
         const entries: Record<string, string> = {}
 
         for (const raw of contents.split(/\r?\n/)) {
@@ -127,8 +143,13 @@ export class BuildInterfaces {
         return entries
     }
 
-    /** Infer a TS type from a value, mirroring env()'s runtime coercion. */
-    private static inferEnvType (value: string): 'string' | 'number' | 'boolean' {
+    /** 
+     * Infer a TS type from a value, mirroring env()'s runtime coercion.      
+     *  
+     * @param value 
+     * @returns 
+     */
+    private static inferEnvType(value: string): 'string' | 'number' | 'boolean' {
         if (value === '') return 'string'
         if (['true', 'false', 'on', 'off'].includes(value)) return 'boolean'
         if (!Number.isNaN(Number(value))) return 'number'
@@ -136,8 +157,12 @@ export class BuildInterfaces {
         return 'string'
     }
 
-    /** Resolve the framework's own `EnvRegistry` keys to skip during generation. */
-    private static frameworkEnvKeys (): Set<string> {
+    /** 
+     * Resolve the framework's own `EnvRegistry` keys to skip during generation.  
+     * 
+     * @returns 
+     */
+    private static frameworkEnvKeys(): Set<string> {
         try {
             const project = new Project({
                 tsConfigFilePath: path.join(Arkstack.rootDir(), 'tsconfig.json'),
@@ -164,7 +189,7 @@ export class BuildInterfaces {
         }
     }
 
-    private static generateConfig (
+    private static generateConfig(
         configDir: string = path.join(process.cwd(), 'src/config'),
     ) {
         BuildInterfaces.project = new Project({
@@ -226,7 +251,7 @@ export class BuildInterfaces {
         ].join('\n')
     }
 
-    private static resolveReturnTypeAnnotation (
+    private static resolveReturnTypeAnnotation(
         sourceFile: ReturnType<Project['addSourceFileAtPath']>,
         expr: Node,
         imports: Map<string, Set<string>>,
@@ -266,7 +291,7 @@ export class BuildInterfaces {
         return returnType.getText(!!sourceFile)
     }
 
-    private static findNamedTypeImport (
+    private static findNamedTypeImport(
         sourceFile: ReturnType<Project['addSourceFileAtPath']>,
         name: string,
     ) {
@@ -287,7 +312,7 @@ export class BuildInterfaces {
         }
     }
 
-    private static renderImports (imports: Map<string, Set<string>>) {
+    private static renderImports(imports: Map<string, Set<string>>) {
         return [...imports.entries()]
             .sort(([left], [right]) => left.localeCompare(right))
             .map(([moduleSpecifier, specifiers]) => {
@@ -304,11 +329,11 @@ export class BuildInterfaces {
      * @param type 
      * @returns 
      */
-    private static isDynamicMap (type: Type): boolean {
+    private static isDynamicMap(type: Type): boolean {
         return /^\{ \[x: (string|number)\]:/.test(type.getText())
     }
 
-    private static resolveType (type: Type, indent: number): string {
+    private static resolveType(type: Type, indent: number): string {
         const pad = '    '.repeat(indent)
         const innerPad = '    '.repeat(indent + 1)
 
