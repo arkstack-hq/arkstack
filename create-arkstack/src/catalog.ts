@@ -6,6 +6,7 @@
 export const catalog: Record<string, string> = {
     "@h3ravel/musket": "^2.2.1",
     "@h3ravel/support": "^2.2.0",
+    "@faker-js/faker": "^10.4.0",
     "dotenv": "^17.4.2"
 }
 
