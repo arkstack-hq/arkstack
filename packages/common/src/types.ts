@@ -1,7 +1,8 @@
-import { JitiOptions, JitiResolveOptions } from 'jiti'
+import type { JitiOptions, JitiResolveOptions } from 'jiti'
 
-import { ChalkInstance } from 'chalk'
+import type { ChalkInstance } from 'chalk'
 import type { Logger } from './Logger'
+import type { locales } from './locales'
 
 export interface ConfigRegistry { }
 
@@ -26,6 +27,11 @@ export interface EnvRegistry {
     APP_URL: string
     APP_HOST: string
     APP_PORT: number
+    APP_DEBUG: boolean
+    APP_TIMEZONE: string
+    APP_LOCALE: string
+    APP_FALLBACK_LOCALE: string
+    APP_FAKER_LOCALE: string
     NODE_ENV: 'development' | 'production' | 'test'
     PORT: number
     HOST: string
@@ -90,7 +96,26 @@ export interface EnvRegistry {
     AWS_ENDPOINT: string
 }
 
-/** Known environment variable names. */
+/**
+ * App Confifuration
+ */
+export interface AppConfig {
+    env: string
+    key: string
+    url: string
+    host: string
+    name: string
+    frontend_url: string
+    debug: boolean
+    timezone: string
+    locale: typeof locales
+    fallback_locale: string
+    faker_locale: string
+}
+
+/** 
+ * Known environment variable names. 
+ */
 export type EnvKey = keyof EnvRegistry & string
 
 /** The registered type for a known key, or `string` for an unknown one. */

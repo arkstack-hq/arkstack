@@ -25,7 +25,7 @@ type ModelModule = Record<string, unknown> & {
  * @param target 
  * @returns 
  */
-export const isClass = <T = unknown> (
+export const isClass = <T = unknown>(
     target: unknown
 ): target is new (...args: any[]) => T => {
     return typeof target === 'function'
@@ -55,13 +55,13 @@ export const perPage = (query: { limit?: number; perPage?: number }) => {
  * 
  * @param modelName 
  */
-export async function getModel<TName extends ModelName> (
+export async function getModel<TName extends ModelName>(
     modelName: TName
 ): Promise<ModelRegistry[TName]>
-export async function getModel<TModel extends AbstractModelConstructor = ModelConstructor> (
+export async function getModel<TModel extends AbstractModelConstructor = ModelConstructor>(
     modelName: string
 ): Promise<TModel>
-export async function getModel (modelName: string) {
+export async function getModel(modelName: string) {
     const resolveModelExport = (module: ModelModule | unknown, modelName: string) => {
         if (!isModelModule(module)) {
             return module
@@ -133,7 +133,7 @@ export const abort = (
  * @param code 
  * @throws {RequestException} Throws if the boolean condition is true.
  */
-export const abortIf = <T> (
+export const abortIf = <T>(
     boolean: T,
     message: string = 'Request Aborted',
     code: number = 404,
@@ -149,7 +149,7 @@ export const abortIf = <T> (
  * @param code 
  * @throws {RequestException} Throws if the value is null or undefined.
  */
-export const assertFound = <T> (
+export const assertFound = <T>(
     value: T | null | undefined,
     message: string,
     code: number = 404,
