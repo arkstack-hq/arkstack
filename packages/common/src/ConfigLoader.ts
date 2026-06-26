@@ -61,9 +61,19 @@ export class ConfigLoader {
             (configs, file) => {
                 const configName = path.basename(file.name, path.extname(file.name))
 
-                configs[configName] = require(
-                    path.join(file.parentPath, file.name),
-                ).default(typeof globalThis.app === 'function' ? globalThis.app() : {})
+                try {
+                    configs[configName] = require(
+                        path.join(file.parentPath, file.name),
+                    ).default(typeof globalThis.app === 'function' ? globalThis.app() : {})
+                } catch (error) {
+                    // A single config module that can't be loaded (e.g. not yet
+                    // built for this environment) must not crash app boot — skip
+                    // it, matching the tolerance already applied to a missing
+                    // config directory above.
+                    console.warn(
+                        `[arkstack] Skipped config "${configName}": ${(error as Error).message}`,
+                    )
+                }
 
                 return configs
             },
