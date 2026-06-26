@@ -312,7 +312,11 @@ importers:
         version: 10.3.1
     optionalDependencies:
       '@faker-js/faker':
+<<<<<<< HEAD
         specifier: 'catalog:'
+=======
+        specifier: ^10.4.0
+>>>>>>> d6baabdbbd1b871c19b58a01bb24fc398c5cf88a
         version: 10.4.0
 
   packages/console:
