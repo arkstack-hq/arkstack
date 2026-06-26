@@ -38,9 +38,8 @@ export class ConfigLoader {
         }
 
         let files: Dirent<string>[]
-        const dist = path.relative(Arkstack.rootDir(), outputDir())
         const require = createRequire(import.meta.url)
-        const configDir = env('CONFIG_PATH', path.join(Arkstack.rootDir(), `${dist}/config`))
+        const configDir = this.resolveConfigDir()
 
         try {
             files = readdirSync(configDir, {
@@ -79,6 +78,40 @@ export class ConfigLoader {
             },
             {} as Record<string, any>,
         ))
+    }
+
+    /**
+     * Resolve the directory to load config modules from.
+     *
+     * Prefers an explicit `CONFIG_PATH`, then the environment-selected output
+     * directory. Falls back to the other build output (`dist` ⇄
+     * `.arkstack/build`) so config still loads if the selected directory is
+     * missing or transiently emptied — e.g. a concurrent rebuild (`clean: true`)
+     * during a test run.
+     */
+    private resolveConfigDir(): string {
+        const root = Arkstack.rootDir()
+        const explicit = env('CONFIG_PATH')
+
+        if (explicit) return explicit
+
+        const candidates = [
+            path.join(outputDir(), 'config'),
+            path.join(root, env('OUTPUT_DIR', 'dist'), 'config'),
+            path.join(root, env('OUTPUT_DIR_DEV', '.arkstack/build'), 'config'),
+        ]
+
+        const populated = candidates.find((dir) => {
+            try {
+                return readdirSync(dir).some(
+                    (file) => file.endsWith('.js') || file.endsWith('.ts'),
+                )
+            } catch {
+                return false
+            }
+        })
+
+        return populated ?? candidates[0]
     }
 
     /**
