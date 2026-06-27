@@ -8,7 +8,7 @@ This page covers the basics you need to start using Arkormˣ in an Arkstack app.
 
 Set your database connection in `.env`:
 
-```env
+```txt
 DATABASE_URL="postgres://postgres:postgres@localhost:5432/arkstack_dev?schema=public"
 ```
 
