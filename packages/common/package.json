@@ -46,7 +46,8 @@
         "dotenv": "catalog:",
         "jiti": "^2.7.0",
         "otpauth": "^9.5.1",
-        "pino": "^10.3.1"
+        "pino": "^10.3.1",
+        "selfsigned": "^2.4.1"
     },
     "peerDependencies": {
         "@arkstack/contract": "workspace:^",
@@ -56,5 +57,10 @@
     },
     "optionalDependencies": {
         "@faker-js/faker": "catalog:"
+    },
+    "inlinedDependencies": {
+        "clear-router": "2.9.0",
+        "dayjs": "1.11.20",
+        "kanun": "1.2.0"
     }
 }

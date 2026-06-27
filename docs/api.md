@@ -109,6 +109,12 @@ Runs development mode by executing:
 pnpm exec tsdown --log-level silent
 ```
 
+Options:
+
+- `--t|tunnel` — tunnel the dev server through Ngrok
+- `--h|host` — expose the dev server on the local network (binds `0.0.0.0` and prints the network URL; otherwise binds `127.0.0.1`)
+- `--s|secure` — serve the dev server over HTTPS with an auto-generated self-signed certificate
+
 ### `build`
 
 Runs production build by executing:

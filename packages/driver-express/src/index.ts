@@ -1,7 +1,8 @@
 import express, { type ErrorRequestHandler, type Express, type Handler } from 'express'
 
 import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
-import { Logger, env } from '@arkstack/common'
+import { Logger, devTlsCredentials, env, localNetworkAddress } from '@arkstack/common'
+import https from 'node:https'
 import { defaultErrorHandler } from './error-handler'
 import { Middleware, MiddlewareConfig } from './types'
 import { resolveMiddleware } from '@arkstack/http'
@@ -140,15 +141,12 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
      */
     async start(app: Express, port: number): Promise<void> {
         const host = env('APP_HOST', env('HOST', '0.0.0.0'))
+        const secure = env('APP_SECURE', false) === true
         const tunneled = env('TUNNEL', false)
+        const scheme = secure ? 'https' : 'http'
 
-        app.listen(port, host, async () => {
-            let log = [
-                Logger.log([
-                    ['Server is running on', 'white'],
-                    [`http://${host}:${port}`, 'cyan']
-                ], ' ', false)
-            ]
+        const onListen = async () => {
+            let log = startupLogLines(scheme, host, port)
 
             if (tunneled === true) {
                 const listener = await ngrok.forward({
@@ -172,8 +170,51 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
             }
 
             console.log(log.join('\n'))
-        })
+        }
+
+        if (secure) {
+            // Dev HTTPS: serve with an in-memory self-signed certificate.
+            const credentials = await devTlsCredentials()
+
+            https
+                .createServer({ key: credentials.key, cert: credentials.cert }, app)
+                .listen(port, host, onListen)
+
+            return
+        }
+
+        app.listen(port, host, onListen)
     }
+}
+
+/**
+ * Build the "Server is running" startup lines, adding a local-network URL when
+ * the server is bound to all interfaces (`0.0.0.0`/`::`) so it is reachable from
+ * other devices.
+ */
+const startupLogLines = (scheme: string, host: string, port: number): string[] => {
+    const bindsAll = host === '0.0.0.0' || host === '::'
+    const localHost = bindsAll ? 'localhost' : host
+
+    const lines = [
+        Logger.log([
+            ['Server is running on', 'white'],
+            [`${scheme}://${localHost}:${port}`, 'cyan']
+        ], ' ', false)
+    ]
+
+    if (bindsAll) {
+        const address = localNetworkAddress()
+
+        if (address) {
+            lines.push(Logger.log([
+                ['Network access via', 'white'],
+                [`${scheme}://${address}:${port}`, 'cyan']
+            ], ' ', false))
+        }
+    }
+
+    return lines
 }
 
 export * from './error-handler'

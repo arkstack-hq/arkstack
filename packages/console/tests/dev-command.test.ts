@@ -20,7 +20,7 @@ describe('DevCommand', () => {
 
         vi.mocked(spawn).mockReturnValueOnce(child as any)
 
-        const promise = DevCommand.prototype.handle.call({})
+        const promise = DevCommand.prototype.handle.call({ options: () => ({}) })
         child.emit('exit', 0)
 
         await expect(promise).resolves.toBeUndefined()
@@ -34,6 +34,7 @@ describe('DevCommand', () => {
                 env: {
                     ...process.env,
                     NODE_ENV: 'development',
+                    APP_HOST: '127.0.0.1',
                 }
             },
         )
@@ -49,9 +50,45 @@ describe('DevCommand', () => {
 
         vi.mocked(spawn).mockReturnValueOnce(child as any)
 
-        const promise = DevCommand.prototype.handle.call({})
+        const promise = DevCommand.prototype.handle.call({ options: () => ({}) })
         child.emit('exit', 1)
 
         await expect(promise).rejects.toThrow('tsdown exited with code 1')
+    })
+})
+
+describe('devServerEnv', () => {
+    it('binds localhost by default', async () => {
+        const { DevCommand } = await import('../src/commands/DevCommand')
+        const vars = DevCommand.devServerEnv({})
+
+        expect(vars.NODE_ENV).toBe('development')
+        expect(vars.APP_HOST).toBe('127.0.0.1')
+        expect(vars.TUNNEL).toBeUndefined()
+        expect(vars.APP_SECURE).toBeUndefined()
+    })
+
+    it('--host exposes on the local network', async () => {
+        const { DevCommand } = await import('../src/commands/DevCommand')
+
+        expect(DevCommand.devServerEnv({ host: true }).APP_HOST).toBe('0.0.0.0')
+    })
+
+    it('--secure flags HTTPS and --tunnel enables Ngrok', async () => {
+        const { DevCommand } = await import('../src/commands/DevCommand')
+
+        expect(DevCommand.devServerEnv({ secure: true }).APP_SECURE).toBe('true')
+        expect(DevCommand.devServerEnv({ tunnel: true }).TUNNEL).toBe('true')
+    })
+
+    it('combines all flags', async () => {
+        const { DevCommand } = await import('../src/commands/DevCommand')
+
+        expect(DevCommand.devServerEnv({ host: true, secure: true, tunnel: true })).toEqual({
+            NODE_ENV: 'development',
+            APP_HOST: '0.0.0.0',
+            TUNNEL: 'true',
+            APP_SECURE: 'true',
+        })
     })
 })

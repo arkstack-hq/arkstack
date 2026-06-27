@@ -1,6 +1,6 @@
 import { ArkstackKitDriver, PromiseOrValue } from '@arkstack/contract'
 import { H3, H3Event, serve, toResponse } from 'h3'
-import { Logger, env } from '@arkstack/common'
+import { Logger, devTlsCredentials, env, localNetworkAddress } from '@arkstack/common'
 import { Middleware, MiddlewareConfig } from './types'
 
 import { Middleware as H3BaseMiddleware } from 'clear-router/types/h3'
@@ -148,17 +148,21 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
      */
     async start(app: H3, port: number): Promise<void> {
         const host = env('APP_HOST', env('HOST', '0.0.0.0'))
+        const secure = env('APP_SECURE', false) === true
         const tunneled = env('TUNNEL', false)
+        const scheme = secure ? 'https' : 'http'
 
-        const server = await serve(app, { port, hostname: host, silent: true })
-            .ready()
+        // Dev HTTPS: serve with an in-memory self-signed certificate.
+        const tls = secure ? await devTlsCredentials() : undefined
 
-        let log = [
-            Logger.log([
-                ['Server is running on', 'white'],
-                [server.url ?? `http://${host}:${port}`, 'cyan']
-            ], ' ', false)
-        ]
+        await serve(app, {
+            port,
+            hostname: host,
+            silent: true,
+            ...(tls ? { protocol: 'https', tls: { cert: tls.cert, key: tls.key } } : {}),
+        } as never).ready()
+
+        let log = startupLogLines(scheme, host, port)
 
         if (tunneled === true) {
             const listener = await ngrok.forward({
@@ -183,6 +187,36 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
 
         console.log(log.join('\n'))
     }
+}
+
+/**
+ * Build the "Server is running" startup lines, adding a local-network URL when
+ * the server is bound to all interfaces (`0.0.0.0`/`::`) so it is reachable from
+ * other devices.
+ */
+const startupLogLines = (scheme: string, host: string, port: number): string[] => {
+    const bindsAll = host === '0.0.0.0' || host === '::'
+    const localHost = bindsAll ? 'localhost' : host
+
+    const lines = [
+        Logger.log([
+            ['Server is running on', 'white'],
+            [`${scheme}://${localHost}:${port}`, 'cyan']
+        ], ' ', false)
+    ]
+
+    if (bindsAll) {
+        const address = localNetworkAddress()
+
+        if (address) {
+            lines.push(Logger.log([
+                ['Network access via', 'white'],
+                [`${scheme}://${address}:${port}`, 'cyan']
+            ], ' ', false))
+        }
+    }
+
+    return lines
 }
 
 export * from './error-handler'
