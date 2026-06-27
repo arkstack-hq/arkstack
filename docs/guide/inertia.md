@@ -1,6 +1,6 @@
 # Inertia
 
-`@arkstack/inertia` is a runtime-agnostic [InertiaJS](https://inertiajs.com) server adapter. It lets you build a single-page app — Vue, React, or Svelte — without an API: your controllers return page components and props, and Inertia handles the client-side routing.
+`@arkstack/inertia` is a runtime-agnostic [InertiaJS](https://inertiajs.com) server adapter. It lets you build a single-page app, Vue, React, or Svelte without an API: your controllers return page components and props, and Inertia handles the client-side routing.
 
 It works with both the Express and H3 drivers and serves responses through the same `@arkstack/http` `Response` the rest of the framework uses, so there is no special send path to wire up.
 
@@ -16,7 +16,7 @@ pnpm add @arkstack/inertia
 
 On the first visit Arkstack returns a full HTML document with the page object embedded in a `data-page` attribute. The Inertia client boots from it and, on every subsequent visit, sends an XHR with an `X-Inertia` header; the adapter replies with a JSON page object instead of HTML and the client swaps the page — no full reload.
 
-```txt
+```json
 { "component": "Users/Index", "props": { ... }, "url": "/users", "version": "" }
 ```
 
@@ -36,10 +36,7 @@ import { MiddlewareConfig } from '@arkstack/driver-express/types';
 
 export default (): MiddlewareConfig => {
   return {
-    before: [
-      resora(),
-      inertia(),
-    ],
+    before: [resora(), inertia()],
   };
 };
 ```
@@ -52,10 +49,7 @@ import { MiddlewareConfig } from '@arkstack/driver-h3/types';
 
 export default (): MiddlewareConfig => {
   return {
-    before: [
-      resora(),
-      inertia(),
-    ],
+    before: [resora(), inertia()],
   };
 };
 ```
@@ -177,7 +171,7 @@ You can also set it at runtime: `Inertia.version(() => buildHash())`.
 ## Configuration
 
 | Key           | Default                         | Description                                                                            |
-| ------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
+| ------------- | ------------------------------- | -------------------------------------------------------------------------------------- |
 | `root_view`   | `app`                           | Edge template wrapping the SPA. Falls back to a minimal built-in document when absent. |
 | `root_id`     | `app`                           | Id of the DOM element the client mounts onto (carries `data-page`).                    |
 | `version`     | `null`                          | Asset version string, a resolver function, or `null` to disable.                       |
