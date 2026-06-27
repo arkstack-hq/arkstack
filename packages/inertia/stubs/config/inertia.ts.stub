@@ -1,0 +1,30 @@
+import type { InertiaConfig } from '@arkstack/inertia'
+import { env } from '@arkstack/common'
+
+/**
+ * Inertia adapter configuration.
+ *
+ * @see https://arkstack.toneflix.net/guide/inertia
+ */
+export default {
+    /**
+     * The root Edge template that wraps the SPA. It renders the `{{{ inertia }}}`
+     * mount element and loads your client bundle (e.g. via Vite tags).
+     */
+    root_view: 'app',
+
+    /** The id of the DOM element the Inertia client mounts onto. */
+    root_id: 'app',
+
+    /**
+     * Asset version used for cache-busting. When the client's version differs on
+     * a GET visit, Inertia forces a full reload so stale assets are replaced.
+     * Return a string (e.g. a build hash) or `null` to disable versioning.
+     */
+    version: env('INERTIA_VERSION', null),
+
+    /** Server-side rendering (not yet implemented). */
+    ssr: {
+        enabled: false,
+    },
+} satisfies InertiaConfig

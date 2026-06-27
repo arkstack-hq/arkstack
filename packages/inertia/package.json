@@ -1,0 +1,53 @@
+{
+    "name": "@arkstack/inertia",
+    "version": "0.14.21",
+    "type": "module",
+    "description": "InertiaJS server-side adapter for Arkstack, building the modern monolith with server-driven SPAs.",
+    "homepage": "https://arkstack.toneflix.net/guide/inertia",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/inertia"
+    },
+    "keywords": [
+        "inertia",
+        "inertiajs",
+        "spa",
+        "monolith",
+        "vue",
+        "react",
+        "svelte",
+        "arkstack"
+    ],
+    "files": [
+        "dist",
+        "stubs"
+    ],
+    "scripts": {
+        "build": "tsdown",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./setup": "./dist/setup.js",
+        "./package.json": "./package.json"
+    },
+    "dependencies": {
+        "@arkstack/common": "workspace:^"
+    },
+    "peerDependencies": {
+        "@arkstack/contract": "workspace:^",
+        "@arkstack/http": "workspace:^",
+        "@arkstack/view": "workspace:^"
+    },
+    "peerDependenciesMeta": {
+        "@arkstack/view": {
+            "optional": true
+        }
+    }
+}

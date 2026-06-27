@@ -423,6 +423,9 @@ importers:
       '@arkstack/foundry':
         specifier: workspace:^
         version: link:../foundry
+      '@arkstack/inertia':
+        specifier: workspace:^
+        version: link:../inertia
       '@ngrok/ngrok':
         specifier: ^1.7.0
         version: 1.7.0
@@ -466,6 +469,9 @@ importers:
       '@arkstack/foundry':
         specifier: workspace:^
         version: link:../foundry
+      '@arkstack/inertia':
+        specifier: workspace:^
+        version: link:../inertia
       '@ngrok/ngrok':
         specifier: ^1.7.0
         version: 1.7.0
@@ -538,6 +544,21 @@ importers:
       kanun:
         specifier: ^1.2.0
         version: 1.2.0
+
+  packages/inertia:
+    dependencies:
+      '@arkstack/common':
+        specifier: workspace:^
+        version: link:../common
+      '@arkstack/contract':
+        specifier: workspace:^
+        version: link:../contract
+      '@arkstack/http':
+        specifier: workspace:^
+        version: link:../http
+      '@arkstack/view':
+        specifier: workspace:^
+        version: link:../view
 
   packages/jobs:
     dependencies:

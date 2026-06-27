@@ -52,10 +52,14 @@
         "@arkstack/auth": "workspace:^",
         "@arkstack/common": "workspace:^",
         "@arkstack/foundry": "workspace:^",
+        "@arkstack/inertia": "workspace:^",
         "h3": "2.0.1-rc.22"
     },
     "peerDependenciesMeta": {
         "@arkstack/auth": {
+            "optional": true
+        },
+        "@arkstack/inertia": {
             "optional": true
         }
     }
