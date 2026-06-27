@@ -273,6 +273,7 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 - `Inertia.share(key, value)` / `Inertia.share(data)` — share props with every response (request-scoped inside a request, global outside).
 - `Inertia.shared()` — read the currently shared props.
 - `Inertia.version(version)` — set the asset version (string or resolver function).
+- `Inertia.configure(partial)` — override Inertia config at runtime (e.g. enable SSR).
 - `Inertia.location(url)` — `409` + `X-Inertia-Location` on an Inertia visit, otherwise a `302` redirect.
 - `Inertia.redirect(url, status?)` — redirect, upgrading `302` to `303` for `PUT`/`PATCH`/`DELETE`.
 - `Inertia.back(fallback?)` — redirect to the referring URL.

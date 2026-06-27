@@ -16,8 +16,8 @@ pnpm add @arkstack/inertia
 
 On the first visit Arkstack returns a full HTML document with the page object embedded in a `data-page` attribute. The Inertia client boots from it and, on every subsequent visit, sends an XHR with an `X-Inertia` header; the adapter replies with a JSON page object instead of HTML and the client swaps the page — no full reload.
 
-```
-{ "component": "Users/Index", "props": { ... }, "url": "/users", "version": "" }
+```json
+{ "component": "Users/Index", "props": { }, "url": "/users", "version": "" }
 ```
 
 ## Setup
@@ -179,8 +179,58 @@ You can also set it at runtime: `Inertia.version(() => buildHash())`.
 | `root_view` | `app` | Edge template wrapping the SPA. Falls back to a minimal built-in document when absent. |
 | `root_id` | `app` | Id of the DOM element the client mounts onto (carries `data-page`). |
 | `version` | `null` | Asset version string, a resolver function, or `null` to disable. |
-| `ssr.enabled` | `false` | Server-side rendering (not yet implemented). |
+| `ssr.enabled` | `false` | Render the initial page on a Node SSR server. |
+| `ssr.url` | `http://127.0.0.1:13714/render` | The SSR server's render endpoint. |
+
+You can also override config at runtime with `Inertia.configure({ ... })` — handy for programmatic setups and tests.
 
 ## Server-side rendering
 
-SSR is not implemented in this release. The adapter ships the non-SSR flow; SSR support is planned for a future version.
+With SSR enabled, the **initial** visit is rendered by a separate Node process (your app's SSR bundle) and the resulting markup + head tags are embedded in the response, so crawlers and the first paint get fully rendered HTML. The client then hydrates that markup. Subsequent Inertia visits are unchanged (client-side). If the SSR server is unreachable, the adapter falls back to client-side rendering rather than failing the request.
+
+### 1. Add an SSR entry
+
+Create a server entry that renders a page to `{ head, body }` and starts the SSR server. With `@inertiajs/vue3`:
+
+```ts
+// src/ssr.ts
+import { createInertiaApp } from '@inertiajs/vue3';
+import createServer from '@inertiajs/vue3/server';
+import { renderToString } from '@vue/server-renderer';
+import { createSSRApp, h } from 'vue';
+
+createServer((page) =>
+  createInertiaApp({
+    page,
+    render: renderToString,
+    resolve: (name) => {
+      const pages = import.meta.glob('./Pages/*.vue', { eager: true });
+      return pages[`./Pages/${name}.vue`];
+    },
+    setup ({ App, props, plugin }) {
+      return createSSRApp({ render: () => h(App, props) }).use(plugin);
+    },
+  }),
+);
+```
+
+On the client, hydrate the server-rendered markup by using `createSSRApp` (instead of `createApp`) in your client entry's `setup`.
+
+### 2. Build and run the SSR server
+
+Build the SSR bundle (for example with Vite: `vite build --ssr src/ssr.ts --outDir dist-ssr`) and run it alongside your app:
+
+```sh
+node dist-ssr/ssr.js
+```
+
+### 3. Enable SSR
+
+Set `ssr.enabled` in `src/config/inertia.ts` (or `INERTIA_SSR=true`). Point `ssr.url` at the SSR server if it isn't on the default port.
+
+```ts
+ssr: {
+    enabled: env('INERTIA_SSR', false),
+    url: env('INERTIA_SSR_URL', 'http://127.0.0.1:13714/render'),
+}
+```
