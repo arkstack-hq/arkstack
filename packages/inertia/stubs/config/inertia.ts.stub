@@ -1,12 +1,13 @@
-import type { InertiaConfig } from '@arkstack/inertia'
-import { env } from '@arkstack/common'
+import type { InertiaConfig } from '@arkstack/inertia';
+import { env } from '@arkstack/common';
 
 /**
  * Inertia adapter configuration.
  *
  * @see https://arkstack.toneflix.net/guide/inertia
  */
-export default {
+export default (): InertiaConfig => {
+  return {
     /**
      * The root Edge template that wraps the SPA. It renders the `{{{ inertia }}}`
      * mount element and loads your client bundle (e.g. via Vite tags).
@@ -27,10 +28,13 @@ export default {
      * Server-side rendering. When enabled, the initial page is rendered by an
      * external SSR server (your built SSR bundle) and the markup is embedded in
      * the response; if that server is unreachable the adapter falls back to
-     * client-side rendering. `url` is the SSR server's render endpoint.
+     * client-side rendering. `url` is the SSR server's render endpoint, and
+     * `bundle` is the built SSR entry run by `ark inertia:ssr`.
      */
     ssr: {
-        enabled: env('INERTIA_SSR', false),
-        url: env('INERTIA_SSR_URL', 'http://127.0.0.1:13714/render'),
+      enabled: env('INERTIA_SSR', false),
+      url: env('INERTIA_SSR_URL', 'http://127.0.0.1:13714/render'),
+      bundle: 'dist-ssr/ssr.js',
     },
-} satisfies InertiaConfig
+  };
+};
