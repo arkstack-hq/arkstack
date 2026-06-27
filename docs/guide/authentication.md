@@ -26,7 +26,7 @@ yarn add @arkstack/auth @arkstack/http
 
 Set the application key in `.env`. `APP_KEY` is the unified secret used to sign JWTs and encrypt values (exposed as `config('app.key')`):
 
-```env
+```txt
 APP_KEY="a-long-random-secret"
 JWT_EXPIRES_IN="1h"
 ```
@@ -271,7 +271,7 @@ pnpm ark migrate
 
 Authenticator secrets are encrypted with the application key (`APP_KEY`), so make sure it is set before storing them.
 
-```env
+```txt
 APP_KEY="a-long-random-secret"
 TWO_FACTOR_SMS_TTL_MINUTES="10"
 ```
