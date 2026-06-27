@@ -16,7 +16,7 @@ pnpm add @arkstack/inertia
 
 On the first visit Arkstack returns a full HTML document with the page object embedded in a `data-page` attribute. The Inertia client boots from it and, on every subsequent visit, sends an XHR with an `X-Inertia` header; the adapter replies with a JSON page object instead of HTML and the client swaps the page — no full reload.
 
-```
+```json
 { "component": "Users/Index", "props": { ... }, "url": "/users", "version": "" }
 ```
 
