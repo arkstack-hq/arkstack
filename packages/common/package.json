@@ -56,5 +56,10 @@
     },
     "optionalDependencies": {
         "@faker-js/faker": "catalog:"
+    },
+    "inlinedDependencies": {
+        "clear-router": "2.8.9",
+        "dayjs": "1.11.20",
+        "kanun": "1.2.0"
     }
 }
