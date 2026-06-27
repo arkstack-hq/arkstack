@@ -178,6 +178,12 @@ export class ErrorHandler {
             delete payload.stack
         }
 
+        // Merge any custom body last so an exception can add to — or override —
+        // the standard error shape (e.g. AppException subclasses).
+        if (detailedError?.body && typeof detailedError.body === 'object') {
+            Object.assign(payload, detailedError.body)
+        }
+
         return payload
     }
 

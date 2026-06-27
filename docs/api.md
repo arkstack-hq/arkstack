@@ -281,3 +281,22 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 - `Hook` — process-local hook registry with `set`, `has`, `get`, `getAll`, `unset`, and `clear`.
 - `getModel(name)` — typed app model resolver.
 - `perPage(query)` — pagination limit helper.
+
+### Custom error responses
+
+Uncaught exceptions are serialized to a standard payload — `{ status, code, message, errors?, stack? }`. To add fields to, or reshape, that response, set a `body` on an `AppException` (or a subclass). When present, `body` is merged **over** the standard payload, so it can both add custom fields and override the defaults (`status`, `code`, `message`, …).
+
+```ts
+import { AppException } from '@arkstack/common';
+
+// Add fields to the standard error payload
+class PaymentException extends AppException {
+  body = { error_code: 'PAYMENT_FAILED', retryable: true };
+}
+
+throw new PaymentException('Payment failed', 402);
+// → { status: 'error', code: 402, message: 'Payment failed',
+//     error_code: 'PAYMENT_FAILED', retryable: true }
+```
+
+`body` can also be assigned per-instance (`error.body = { ... }`), and works on any thrown error carrying a `body` property, not just `AppException`.

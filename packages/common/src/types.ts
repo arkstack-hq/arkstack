@@ -233,6 +233,8 @@ export type ArkstackErrorShape = Error & {
     getModelName?: () => string;
     status?: number;
     statusCode?: number;
+    /** Custom properties merged into the error response payload. */
+    body?: Record<string, unknown>;
 }
 
 export interface ArkstackErrorPayload {
@@ -241,6 +243,8 @@ export interface ArkstackErrorPayload {
     message: string;
     errors?: unknown;
     stack?: string;
+    /** Custom fields contributed by an exception's `body`. */
+    [key: string]: unknown;
 }
 
 // Augmentable Hooks Registry 
