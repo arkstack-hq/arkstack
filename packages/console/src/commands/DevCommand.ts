@@ -21,7 +21,7 @@ export interface DevServerOptions {
 export class DevCommand extends Command {
     protected signature = `dev
         {--t|tunnel : Tunnel the dev server through Ngrok}
-        {--h|host : Expose the dev server on the local network}
+        {--host : Expose the dev server on the local network}
         {--s|secure : Serve the dev server over HTTPS with a self-signed certificate}
     `
 
