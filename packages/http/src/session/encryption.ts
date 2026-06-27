@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 
-type LaravelEncryptedPayload = {
+type EncryptedPayload = {
     iv?: string
     value?: string
     mac?: string
@@ -38,7 +38,7 @@ export const encryptSessionValue = (value: string, secret: string) => {
         cipher.update(value, 'utf8'),
         cipher.final(),
     ]).toString('base64')
-    const payload: LaravelEncryptedPayload = {
+    const payload: EncryptedPayload = {
         iv: ivValue,
         value: encrypted,
         mac: macFor(ivValue, encrypted, key),
@@ -54,7 +54,7 @@ export const decryptSessionValue = (payload: string | undefined, secret: string)
     }
 
     try {
-        const decoded = JSON.parse(payload.startsWith('{') ? payload : Buffer.from(payload, 'base64').toString('utf8')) as LaravelEncryptedPayload
+        const decoded = JSON.parse(payload.startsWith('{') ? payload : Buffer.from(payload, 'base64').toString('utf8'))
 
         if (!decoded.iv || !decoded.value || !decoded.mac) {
             return undefined
