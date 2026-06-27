@@ -24,21 +24,40 @@ On the first visit Arkstack returns a full HTML document with the page object em
 
 ### 1. Register the middleware
 
-Add the `inertia()` middleware so the adapter can read the request and bind its context.
+Add the `inertia()` middleware to `src/config/middleware.ts` so the adapter can read the request and bind its context. Register it under `before` (alongside `resora()`) so the context is bound before your route handlers run.
 
 ::: code-group
 
 ```ts [Express]
-import { inertia } from '@arkstack/driver-express/middlewares';
+// src/config/middleware.ts
+import { inertia, resora } from '@arkstack/driver-express/middlewares';
 
-// in your middleware config / bootstrap
-app.use(inertia());
+import { MiddlewareConfig } from '@arkstack/driver-express/types';
+
+export default (): MiddlewareConfig => {
+  return {
+    before: [
+      resora(),
+      inertia(),
+    ],
+  };
+};
 ```
 
 ```ts [H3]
-import { inertia } from '@arkstack/driver-h3/middlewares';
+// src/config/middleware.ts
+import { inertia, resora } from '@arkstack/driver-h3/middlewares';
 
-app.use(inertia());
+import { MiddlewareConfig } from '@arkstack/driver-h3/types';
+
+export default (): MiddlewareConfig => {
+  return {
+    before: [
+      resora(),
+      inertia(),
+    ],
+  };
+};
 ```
 
 :::
@@ -144,36 +163,29 @@ Set `version` in `src/config/inertia.ts` to a build hash (a string or a function
 
 ```ts
 // src/config/inertia.ts
-export default {
-  root_view: 'app',
-  version: env('INERTIA_VERSION', null),
-  ssr: { enabled: false },
-} satisfies InertiaConfig;
+export default (): InertiaConfig => {
+  return {
+    root_view: 'app',
+    version: env('INERTIA_VERSION', null),
+    ssr: { enabled: false },
+  };
+};
 ```
 
 You can also set it at runtime: `Inertia.version(() => buildHash())`.
 
 ## Configuration
 
-<<<<<<< HEAD
-| Key | Default | Description |
-| --- | --- | --- |
-| `root_view` | `app` | Edge template wrapping the SPA. Falls back to a minimal built-in document when absent. |
-| `root_id` | `app` | Id of the DOM element the client mounts onto (carries `data-page`). |
-| `version` | `null` | Asset version string, a resolver function, or `null` to disable. |
-| `ssr.enabled` | `false` | Render the initial page on a Node SSR server. |
-| `ssr.url` | `http://127.0.0.1:13714/render` | The SSR server's render endpoint. |
+| Key           | Default                         | Description                                                                            |
+| ------------- | ------------------------------- | ------------------------------------------------------------------------------------- |
+| `root_view`   | `app`                           | Edge template wrapping the SPA. Falls back to a minimal built-in document when absent. |
+| `root_id`     | `app`                           | Id of the DOM element the client mounts onto (carries `data-page`).                    |
+| `version`     | `null`                          | Asset version string, a resolver function, or `null` to disable.                       |
+| `ssr.enabled` | `false`                         | Render the initial page on a Node SSR server.                                          |
+| `ssr.url`     | `http://127.0.0.1:13714/render` | The SSR server's render endpoint.                                                      |
+| `ssr.bundle`  | `dist-ssr/ssr.js`               | Path to the built SSR bundle run by `ark inertia:ssr`.                                 |
 
-# You can also override config at runtime with `Inertia.configure({ ... })` — handy for programmatic setups and tests.
-
-| Key           | Default | Description                                                                            |
-| ------------- | ------- | -------------------------------------------------------------------------------------- |
-| `root_view`   | `app`   | Edge template wrapping the SPA. Falls back to a minimal built-in document when absent. |
-| `root_id`     | `app`   | Id of the DOM element the client mounts onto (carries `data-page`).                    |
-| `version`     | `null`  | Asset version string, a resolver function, or `null` to disable.                       |
-| `ssr.enabled` | `false` | Server-side rendering (not yet implemented).                                           |
-
-> > > > > > > 37e6dac50acb01b9c9275c78aedb675c0dcf1472
+You can also override config at runtime with `Inertia.configure({ ... })` — handy for programmatic setups and tests.
 
 ## Server-side rendering
 
@@ -209,11 +221,13 @@ On the client, hydrate the server-rendered markup by using `createSSRApp` (inste
 
 ### 2. Build and run the SSR server
 
-Build the SSR bundle (for example with Vite: `vite build --ssr src/ssr.ts --outDir dist-ssr`) and run it alongside your app:
+Build the SSR bundle (for example with Vite: `vite build --ssr src/ssr.ts --outDir dist-ssr`), then run it alongside your app with the `inertia:ssr` command, which supervises the process and restarts it if it crashes:
 
 ```sh
-node dist-ssr/ssr.js
+ark inertia:ssr
 ```
+
+It runs `ssr.bundle` (default `dist-ssr/ssr.js`); override with `--bundle <path>`, or pass `--no-restart` to exit instead of restarting. You can also run the bundle directly with `node dist-ssr/ssr.js`.
 
 ### 3. Enable SSR
 

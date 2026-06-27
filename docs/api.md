@@ -297,6 +297,10 @@ import { inertia } from '@arkstack/driver-h3/middlewares';
 
 Register it in `src/config/middleware.ts` under `before` (alongside `resora()`). The middleware binds the Inertia request context and upgrades mutation redirects to `303`.
 
+### Commands
+
+- `ark inertia:ssr` — run and supervise the Inertia SSR server (the built SSR bundle), restarting it if it crashes. Options: `--bundle <path>`, `--no-restart`.
+
 ## HTTP
 
 `@arkstack/http` exposes framework-neutral wrappers:
