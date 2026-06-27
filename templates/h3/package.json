@@ -35,7 +35,7 @@
     "@h3ravel/support": "catalog:",
     "@kanun-hq/plugin-file": "^0.1.12",
     "arkormx": "^2.10.1",
-    "clear-router": "^2.8.9",
+    "clear-router": "^2.9.0",
     "dotenv": "catalog:",
     "h3": "2.0.1-rc.22",
     "kanun": "^1.2.0",
