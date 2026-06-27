@@ -39,6 +39,7 @@ export default defineConfig(
             'build/**',
             '.arkstack/**',
             'node_modules/**',
+            'packages/inertia/tests/e2e/**',
         ])
     ],
     {

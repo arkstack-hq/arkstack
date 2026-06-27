@@ -1,0 +1,20 @@
+{
+    "name": "inertia-e2e-fixture",
+    "private": true,
+    "type": "module",
+    "description": "Throwaway Playwright fixture verifying the @arkstack/inertia browser round-trip. Not part of the published package.",
+    "scripts": {
+        "build": "vite build",
+        "verify": "node run.mjs"
+    },
+    "dependencies": {
+        "@inertiajs/vue3": "^2.0.0",
+        "vue": "^3.5.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.2.0",
+        "express": "^5.2.1",
+        "playwright": "^1.61.1",
+        "vite": "^6.0.0"
+    }
+}
