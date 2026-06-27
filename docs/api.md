@@ -149,6 +149,7 @@ Core shared packages:
 - `@arkstack/auth`
 - `@arkstack/notifications`
 - `@arkstack/view`
+- `@arkstack/inertia`
 
 Driver packages:
 
@@ -256,6 +257,44 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 - `View.mount(path)` / `View.mount(name, path)` — mount view directories.
 - `View.raw(name, contents)` — register an in-memory Edge template.
 - Package scoped names use `~package-name.view` and `~org/package-name.view`.
+
+## Inertia
+
+`@arkstack/inertia` exposes a framework-neutral [InertiaJS](https://inertiajs.com) server adapter. See the [Inertia guide](/guide/inertia) for usage.
+
+### `inertia`
+
+- `inertia(component, props?)` — render an Inertia page (returns a `Response`).
+- `inertia()` — return the `Inertia` manager for chaining.
+
+### `Inertia`
+
+- `Inertia.render(component, props?)` — render a page: a JSON page object on Inertia visits, an HTML document on the first visit.
+- `Inertia.share(key, value)` / `Inertia.share(data)` — share props with every response (request-scoped inside a request, global outside).
+- `Inertia.shared()` — read the currently shared props.
+- `Inertia.version(version)` — set the asset version (string or resolver function).
+- `Inertia.location(url)` — `409` + `X-Inertia-Location` on an Inertia visit, otherwise a `302` redirect.
+- `Inertia.redirect(url, status?)` — redirect, upgrading `302` to `303` for `PUT`/`PATCH`/`DELETE`.
+- `Inertia.back(fallback?)` — redirect to the referring URL.
+- `Inertia.lazy(fn)` / `Inertia.optional(fn)` — a prop resolved only on a partial reload that requests it.
+- `Inertia.always(value)` — a prop always included, even on partial reloads.
+- `Inertia.defer(fn, group?)` — a prop excluded from the initial response and fetched by the client afterwards.
+
+### Driver Middleware
+
+Express:
+
+```ts
+import { inertia } from '@arkstack/driver-express/middlewares';
+```
+
+H3:
+
+```ts
+import { inertia } from '@arkstack/driver-h3/middlewares';
+```
+
+The middleware binds the Inertia request context and upgrades mutation redirects to `303`.
 
 ## HTTP
 

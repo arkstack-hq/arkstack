@@ -54,6 +54,7 @@ export default defineConfig({
           { text: 'Queue', link: '/guide/queue' },
           { text: 'Jobs', link: '/guide/jobs' },
           { text: 'Views', link: '/guide/views' },
+          { text: 'Inertia', link: '/guide/inertia' },
           { text: 'Hooks', link: '/guide/hooks' },
           { text: 'HTTP', link: '/guide/http' },
           { text: 'Database & Modeling', link: '/guide/database-modeling' },
