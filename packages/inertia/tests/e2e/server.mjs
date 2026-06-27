@@ -17,6 +17,13 @@ const port = Number(process.env.PORT ?? 3110)
 
 Arkstack.setRootDir(dir)
 
+// Opt into SSR for the SSR verification run (server posts pages to the SSR server).
+if (process.env.SSR === '1') {
+    Inertia.configure({
+        ssr: { enabled: true, url: process.env.SSR_URL ?? 'http://127.0.0.1:13714/render' },
+    })
+}
+
 // Build the root document from the Vite build output: pull its <script>/<link>
 // asset tags into the Inertia root template so the real client bundle loads.
 const builtHtml = await readFile(path.join(dir, 'dist/index.html'), 'utf8')

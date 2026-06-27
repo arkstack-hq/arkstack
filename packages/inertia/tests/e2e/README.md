@@ -29,8 +29,21 @@ npm run build              # build the Vue client with Vite
 #   pnpm --filter @arkstack/inertia --filter @arkstack/driver-express \
 #        --filter @arkstack/view --filter @arkstack/contract build
 
+# --- client-rendered round-trip ---
 node server.mjs &          # start the Express + @arkstack/inertia server
 npm run verify             # drive the browser round-trip (exits non-zero on failure)
+```
+
+### SSR mode
+
+Additionally verifies that the initial page is server-rendered and the client
+hydrates it:
+
+```bash
+npm run build:ssr          # build the SSR bundle (dist-ssr/ssr.js)
+node dist-ssr/ssr.js &     # start the Inertia SSR server on :13714
+SSR=1 node server.mjs &    # start the app server with SSR enabled
+SSR=1 npm run verify       # asserts server-rendered markup + hydration
 ```
 
 ## Layout

@@ -1,5 +1,5 @@
-import { createApp, h } from 'vue'
 import { Link, createInertiaApp } from '@inertiajs/vue3'
+import { createApp, createSSRApp, h } from 'vue'
 
 // A boot id that changes only on a full page (re)load — used by the Playwright
 // test to assert SPA navigations do NOT trigger a full reload.
@@ -12,10 +12,14 @@ createInertiaApp({
         return pages[`./Pages/${name}.vue`]
     },
     setup ({ el, App, props, plugin }) {
-        const app = createApp({ render: () => h(App, props) })
+        // Hydrate when the markup was server-rendered; mount fresh otherwise.
+        const hydrated = el.hasChildNodes()
+        const factory = hydrated ? createSSRApp : createApp
+        const app = factory({ render: () => h(App, props) })
         app.use(plugin)
         app.component('Link', Link)
         app.mount(el)
         window.__INERTIA_MOUNTED__ = true
+        window.__WAS_HYDRATED__ = hydrated
     },
 })

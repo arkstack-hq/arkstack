@@ -33,6 +33,15 @@ try {
     ok('initial HTML embeds the data-page element', initialHtml.includes('data-page='))
     ok('initial HTML embeds the Home component', initialHtml.includes('&quot;component&quot;:&quot;Home&quot;'))
 
+    if (process.env.SSR === '1') {
+        // The greeting rendered as element text content only appears when the
+        // page was server-rendered (client-only leaves an empty mount element).
+        ok('initial HTML is server-rendered (SSR markup present)', initialHtml.includes('id="greeting">Hello from Arkstack'))
+        ok('client hydrated the server-rendered markup', (await page.evaluate(() => window.__WAS_HYDRATED__)) === true)
+    } else {
+        ok('mount element is empty (client-rendered)', !initialHtml.includes('id="greeting">Hello from Arkstack'))
+    }
+
     await page.waitForSelector('#page')
     ok('client mounted the Home page', (await page.textContent('#page')) === 'Home')
     ok('Home received server props', (await page.textContent('#greeting')) === 'Hello from Arkstack')

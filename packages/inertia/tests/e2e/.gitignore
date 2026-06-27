@@ -1,4 +1,6 @@
 node_modules/
 dist/
+dist-ssr/
 server.log
+ssr.log
 package-lock.json
