@@ -24,40 +24,21 @@ On the first visit Arkstack returns a full HTML document with the page object em
 
 ### 1. Register the middleware
 
-Add the `inertia()` middleware to `src/config/middleware.ts` so the adapter can read the request and bind its context. Register it under `before` (alongside `resora()`) so the context is bound before your route handlers run.
+Add the `inertia()` middleware so the adapter can read the request and bind its context.
 
 ::: code-group
 
 ```ts [Express]
-// src/config/middleware.ts
-import { inertia, resora } from '@arkstack/driver-express/middlewares';
+import { inertia } from '@arkstack/driver-express/middlewares';
 
-import { MiddlewareConfig } from '@arkstack/driver-express/types';
-
-export default (): MiddlewareConfig => {
-  return {
-    before: [
-      resora(),
-      inertia(),
-    ],
-  };
-};
+// in your middleware config / bootstrap
+app.use(inertia());
 ```
 
 ```ts [H3]
-// src/config/middleware.ts
-import { inertia, resora } from '@arkstack/driver-h3/middlewares';
+import { inertia } from '@arkstack/driver-h3/middlewares';
 
-import { MiddlewareConfig } from '@arkstack/driver-h3/types';
-
-export default (): MiddlewareConfig => {
-  return {
-    before: [
-      resora(),
-      inertia(),
-    ],
-  };
-};
+app.use(inertia());
 ```
 
 :::
@@ -68,7 +49,7 @@ export default (): MiddlewareConfig => {
 ark publish --package @arkstack/inertia
 ```
 
-This writes `src/config/inertia.ts` and a root Edge template to `src/resources/views/app.edge`. Edit the template to load your client bundle (for example, your Vite tags) — it must render the `{{{ inertia }}}` mount element:
+This writes `src/config/inertia.ts` and a root Edge template to `src/resources/views/app.edge`. Edit the template to load your client bundle (for example, your Vite tags) — it must render the <span v-pre>`{{{ inertia }}}`</span> mount element:
 
 ```edge
 <!DOCTYPE html>
@@ -93,11 +74,11 @@ import { inertia } from '@arkstack/inertia';
 import { User } from '@app/models/User';
 
 export class UserController {
-    async index () {
-        return inertia('Users/Index', {
-            users: await User.all(),
-        });
-    }
+  async index() {
+    return inertia('Users/Index', {
+      users: await User.all(),
+    });
+  }
 }
 ```
 
@@ -123,23 +104,23 @@ Page props override shared props of the same name.
 
 Inertia can re-fetch a subset of props for the current component. The adapter honours the `only`/`except` filters automatically; you control which props participate using the prop wrappers:
 
-| Helper | Initial load | Partial reload |
-| --- | --- | --- |
-| plain value / callback | included | included unless filtered out |
-| `Inertia.always(value)` | included | **always** included, ignores filters |
-| `Inertia.lazy(fn)` (alias `optional`) | **excluded** | included only when requested |
-| `Inertia.defer(fn, group?)` | **excluded**, advertised | fetched by the client after load |
+| Helper                                | Initial load             | Partial reload                       |
+| ------------------------------------- | ------------------------ | ------------------------------------ |
+| plain value / callback                | included                 | included unless filtered out         |
+| `Inertia.always(value)`               | included                 | **always** included, ignores filters |
+| `Inertia.lazy(fn)` (alias `optional`) | **excluded**             | included only when requested         |
+| `Inertia.defer(fn, group?)`           | **excluded**, advertised | fetched by the client after load     |
 
 ```ts
 return inertia('Users/Index', {
-    // always evaluated
-    users: await User.all(),
-    // only evaluated on a partial reload that asks for `stats`
-    stats: Inertia.lazy(() => expensiveStats()),
-    // excluded from the first response, fetched automatically afterwards
-    chart: Inertia.defer(() => buildChart()),
-    // always present, even on partial reloads
-    auth: Inertia.always({ user: request.user }),
+  // always evaluated
+  users: await User.all(),
+  // only evaluated on a partial reload that asks for `stats`
+  stats: Inertia.lazy(() => expensiveStats()),
+  // excluded from the first response, fetched automatically afterwards
+  chart: Inertia.defer(() => buildChart()),
+  // always present, even on partial reloads
+  auth: Inertia.always({ user: request.user }),
 });
 ```
 
@@ -164,9 +145,9 @@ Set `version` in `src/config/inertia.ts` to a build hash (a string or a function
 ```ts
 // src/config/inertia.ts
 export default {
-    root_view: 'app',
-    version: env('INERTIA_VERSION', null),
-    ssr: { enabled: false },
+  root_view: 'app',
+  version: env('INERTIA_VERSION', null),
+  ssr: { enabled: false },
 } satisfies InertiaConfig;
 ```
 
@@ -174,12 +155,12 @@ You can also set it at runtime: `Inertia.version(() => buildHash())`.
 
 ## Configuration
 
-| Key | Default | Description |
-| --- | --- | --- |
-| `root_view` | `app` | Edge template wrapping the SPA. Falls back to a minimal built-in document when absent. |
-| `root_id` | `app` | Id of the DOM element the client mounts onto (carries `data-page`). |
-| `version` | `null` | Asset version string, a resolver function, or `null` to disable. |
-| `ssr.enabled` | `false` | Server-side rendering (not yet implemented). |
+| Key           | Default | Description                                                                            |
+| ------------- | ------- | -------------------------------------------------------------------------------------- |
+| `root_view`   | `app`   | Edge template wrapping the SPA. Falls back to a minimal built-in document when absent. |
+| `root_id`     | `app`   | Id of the DOM element the client mounts onto (carries `data-page`).                    |
+| `version`     | `null`  | Asset version string, a resolver function, or `null` to disable.                       |
+| `ssr.enabled` | `false` | Server-side rendering (not yet implemented).                                           |
 
 ## Server-side rendering
 
