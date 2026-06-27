@@ -34,6 +34,7 @@
     },
     "exports": {
         ".": "./dist/index.js",
+        "./commands/InertiaSsrCommand": "./dist/commands/InertiaSsrCommand.js",
         "./setup": "./dist/setup.js",
         "./package.json": "./package.json"
     },
@@ -43,10 +44,14 @@
     "peerDependencies": {
         "@arkstack/contract": "workspace:^",
         "@arkstack/http": "workspace:^",
-        "@arkstack/view": "workspace:^"
+        "@arkstack/view": "workspace:^",
+        "@h3ravel/musket": "catalog:"
     },
     "peerDependenciesMeta": {
         "@arkstack/view": {
+            "optional": true
+        },
+        "@h3ravel/musket": {
             "optional": true
         }
     }

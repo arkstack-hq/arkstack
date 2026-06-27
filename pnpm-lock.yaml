@@ -559,6 +559,9 @@ importers:
       '@arkstack/view':
         specifier: workspace:^
         version: link:../view
+      '@h3ravel/musket':
+        specifier: 'catalog:'
+        version: 2.2.1(@types/node@25.6.2)
 
   packages/jobs:
     dependencies:

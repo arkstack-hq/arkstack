@@ -52,10 +52,17 @@ export interface InertiaConfig {
      * reload. Defaults to `null` (versioning disabled).
      */
     version: string | null | (() => string | null | Promise<string | null>)
-    /** Server-side rendering options. SSR is not implemented in v1. */
+    /** Server-side rendering options. */
     ssr: {
+        /** Whether the initial visit is rendered by the external SSR server. */
         enabled: boolean
+        /** The SSR server's render endpoint. Defaults to the standard Inertia address. */
         url?: string
+        /**
+         * Path to the built SSR bundle run by `ark inertia:ssr`. Relative paths
+         * are resolved from the app root. Defaults to `dist-ssr/ssr.js`.
+         */
+        bundle?: string
     }
 }
 
