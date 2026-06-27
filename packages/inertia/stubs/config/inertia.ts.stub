@@ -23,8 +23,14 @@ export default {
      */
     version: env('INERTIA_VERSION', null),
 
-    /** Server-side rendering (not yet implemented). */
+    /**
+     * Server-side rendering. When enabled, the initial page is rendered by an
+     * external SSR server (your built SSR bundle) and the markup is embedded in
+     * the response; if that server is unreachable the adapter falls back to
+     * client-side rendering. `url` is the SSR server's render endpoint.
+     */
     ssr: {
-        enabled: false,
+        enabled: env('INERTIA_SSR', false),
+        url: env('INERTIA_SSR_URL', 'http://127.0.0.1:13714/render'),
     },
 } satisfies InertiaConfig

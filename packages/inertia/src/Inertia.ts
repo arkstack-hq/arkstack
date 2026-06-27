@@ -1,6 +1,6 @@
 import { AlwaysProp, DeferProp, LazyProp } from './props'
+import { configure, inertiaConfig, resolveVersion, setVersion } from './config'
 import { currentStore, shareData, sharedData } from './context'
-import { inertiaConfig, resolveVersion, setVersion } from './config'
 
 import { Response } from '@arkstack/http'
 import { SEE_OTHER_METHODS } from './protocol'
@@ -141,6 +141,11 @@ export class Inertia {
     /** Set the asset version used for cache-busting, overriding config. */
     static version (version: InertiaConfig['version']): void {
         setVersion(version)
+    }
+
+    /** Override Inertia configuration at runtime (e.g. enable SSR programmatically). */
+    static configure (partial: Partial<InertiaConfig>): void {
+        configure(partial)
     }
 
     /**

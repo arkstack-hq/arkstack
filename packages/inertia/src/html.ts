@@ -1,3 +1,4 @@
+import { renderViaSsr } from './ssr'
 import type { InertiaConfig, InertiaPage } from './types'
 
 /** Escape a string for safe inclusion in a double-quoted HTML attribute. */
@@ -21,13 +22,14 @@ export const renderDataPage = (page: InertiaPage, rootId: string): string => {
 }
 
 /** Minimal built-in root document used when the configured root view is absent. */
-export const builtInTemplate = (mount: string): string => {
+export const builtInTemplate = (mount: string, head: string = ''): string => {
     return [
         '<!DOCTYPE html>',
         '<html>',
         '<head>',
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        ...(head ? [head] : []),
         '</head>',
         '<body>',
         mount,
@@ -37,16 +39,29 @@ export const builtInTemplate = (mount: string): string => {
 }
 
 /**
- * Render the full HTML document for an initial (non-XHR) visit. When the
- * configured `root_view` Edge template exists it is rendered with the page data
- * and an `inertia` variable holding the mount element; otherwise a minimal
- * built-in document is returned.
+ * Render the full HTML document for an initial (non-XHR) visit.
+ *
+ * When SSR is enabled the page is rendered by the external SSR server and its
+ * markup + head tags are embedded; if the SSR server is unavailable it falls back
+ * to a client-rendered mount element. The result is wrapped by the configured
+ * `root_view` Edge template (which receives `inertia` and `inertiaHead`
+ * variables), or a minimal built-in document when that view is absent.
  */
 export const renderRootHtml = async (
     page: InertiaPage,
     config: InertiaConfig,
 ): Promise<string> => {
-    const mount = renderDataPage(page, config.root_id)
+    let mount = renderDataPage(page, config.root_id)
+    let head = ''
+
+    if (config.ssr?.enabled) {
+        const ssr = await renderViaSsr(page, config.ssr.url)
+
+        if (ssr) {
+            mount = ssr.body
+            head = ssr.head.join('\n')
+        }
+    }
 
     try {
         const { view } = await import('@arkstack/view')
@@ -56,12 +71,12 @@ export const renderRootHtml = async (
             return await view(config.root_view, {
                 page,
                 inertia: mount,
-                inertiaHead: '',
+                inertiaHead: head,
             }).render()
         }
     } catch {
         /** View layer unavailable; fall back to the built-in document. */
     }
 
-    return builtInTemplate(mount)
+    return builtInTemplate(mount, head)
 }

@@ -9,22 +9,51 @@ export const defaultConfig: InertiaConfig = {
     ssr: { enabled: false },
 }
 
+/** Runtime overrides applied on top of file config via {@link configure}. */
+let configOverrides: Partial<InertiaConfig> = {}
+
 /**
- * Read the merged Inertia configuration. Values from the app's
- * `src/config/inertia.ts` are layered over {@link defaultConfig}. Never throws —
- * a missing config file falls back entirely to the defaults.
+ * Override Inertia configuration at runtime, taking precedence over
+ * `src/config/inertia.ts`. Useful for programmatic setups and tests. Merges
+ * shallowly, with `ssr` merged one level deep.
+ */
+export const configure = (partial: Partial<InertiaConfig>): void => {
+    configOverrides = {
+        ...configOverrides,
+        ...partial,
+        ...(partial.ssr ? { ssr: { ...configOverrides.ssr, ...partial.ssr } } : {}),
+    }
+}
+
+/** Clear any runtime configuration overrides (primarily for tests). */
+export const resetConfig = (): void => {
+    configOverrides = {}
+}
+
+/**
+ * Read the merged Inertia configuration. Runtime overrides ({@link configure})
+ * are layered over the app's `src/config/inertia.ts`, which is layered over
+ * {@link defaultConfig}. Never throws — a missing config file falls back entirely
+ * to the defaults.
  */
 export const inertiaConfig = (): InertiaConfig => {
-    try {
-        const userConfig = config('inertia', {}) as Partial<InertiaConfig> | undefined
+    let userConfig: Partial<InertiaConfig> | undefined
 
-        return {
-            ...defaultConfig,
-            ...(userConfig ?? {}),
-            ssr: { ...defaultConfig.ssr, ...(userConfig?.ssr ?? {}) },
-        }
+    try {
+        userConfig = config('inertia', {}) as Partial<InertiaConfig> | undefined
     } catch {
-        return { ...defaultConfig }
+        userConfig = undefined
+    }
+
+    return {
+        ...defaultConfig,
+        ...(userConfig ?? {}),
+        ...configOverrides,
+        ssr: {
+            ...defaultConfig.ssr,
+            ...(userConfig?.ssr ?? {}),
+            ...(configOverrides.ssr ?? {}),
+        },
     }
 }
 
