@@ -294,7 +294,7 @@ H3:
 import { inertia } from '@arkstack/driver-h3/middlewares';
 ```
 
-The middleware binds the Inertia request context and upgrades mutation redirects to `303`.
+Register it in `src/config/middleware.ts` under `before` (alongside `resora()`). The middleware binds the Inertia request context and upgrades mutation redirects to `303`.
 
 ## HTTP
 

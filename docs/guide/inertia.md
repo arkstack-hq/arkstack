@@ -24,21 +24,40 @@ On the first visit Arkstack returns a full HTML document with the page object em
 
 ### 1. Register the middleware
 
-Add the `inertia()` middleware so the adapter can read the request and bind its context.
+Add the `inertia()` middleware to `src/config/middleware.ts` so the adapter can read the request and bind its context. Register it under `before` (alongside `resora()`) so the context is bound before your route handlers run.
 
 ::: code-group
 
 ```ts [Express]
-import { inertia } from '@arkstack/driver-express/middlewares';
+// src/config/middleware.ts
+import { inertia, resora } from '@arkstack/driver-express/middlewares';
 
-// in your middleware config / bootstrap
-app.use(inertia());
+import { MiddlewareConfig } from '@arkstack/driver-express/types';
+
+export default (): MiddlewareConfig => {
+  return {
+    before: [
+      resora(),
+      inertia(),
+    ],
+  };
+};
 ```
 
 ```ts [H3]
-import { inertia } from '@arkstack/driver-h3/middlewares';
+// src/config/middleware.ts
+import { inertia, resora } from '@arkstack/driver-h3/middlewares';
 
-app.use(inertia());
+import { MiddlewareConfig } from '@arkstack/driver-h3/types';
+
+export default (): MiddlewareConfig => {
+  return {
+    before: [
+      resora(),
+      inertia(),
+    ],
+  };
+};
 ```
 
 :::
