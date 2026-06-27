@@ -14,7 +14,7 @@ pnpm add @arkstack/inertia
 
 ## How it works
 
-On the first visit Arkstack returns a full HTML document with the page object embedded in a `data-page` attribute. The Inertia client boots from it and, on every subsequent visit, sends an XHR with an `X-Inertia` header; the adapter replies with a JSON page object instead of HTML and the client swaps the page — no full reload.
+On the first visit Arkstack returns a full HTML document with the page object embedded in a `data-page` attribute. The Inertia client boots from it and, on every subsequent visit, sends an XHR with an `X-Inertia` header; the adapter replies with a JSON page object instead of HTML and the client swaps the page without doing a full reload.
 
 ```json
 { "component": "Users/Index", "props": { ... }, "url": "/users", "version": "" }
@@ -62,7 +62,7 @@ export default (): MiddlewareConfig => {
 ark publish --package @arkstack/inertia
 ```
 
-This writes `src/config/inertia.ts` and a root Edge template to `src/resources/views/app.edge`. Edit the template to load your client bundle (for example, your Vite tags) — it must render the <span v-pre>`{{{ inertia }}}`</span> mount element:
+This writes `src/config/inertia.ts` and a root Edge template to `src/resources/views/app.edge`. Edit the template to load your client bundle (for example, your Vite tags), it must render the <span v-pre>`{{{ inertia }}}`</span> mount element:
 
 ```edge
 <!DOCTYPE html>
@@ -99,7 +99,7 @@ export class UserController {
 
 ## Shared data
 
-Share props with every response — globally at boot, or per request inside a handler:
+Share props with every response globally at boot, or per request inside a handler:
 
 ```ts
 import { inertia } from '@arkstack/inertia';
