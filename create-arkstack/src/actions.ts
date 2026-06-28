@@ -1,10 +1,11 @@
+import type { InertiaStackSpec, KitName } from './types'
 import { Logger, Resolver } from '@h3ravel/shared'
 import { catalog, catalogs } from './catalog'
-import { copyFile, readFile, readdir, rm, unlink, writeFile } from 'node:fs/promises'
+import { copyFile, cp, mkdir, readFile, readdir, rm, unlink, writeFile } from 'node:fs/promises'
 import { environment, filesToRemove, fullDependencies, leanDependencies } from './data'
-import path, { basename, join, relative } from 'node:path'
+import { findInertiaStack, sharedInertiaDeps, sharedInertiaFiles, transformInertiaStub } from './inertia'
+import path, { basename, dirname, join, relative } from 'node:path'
 
-import type { KitName } from './types'
 import { Str } from '@h3ravel/support'
 import { chdir } from 'node:process'
 import { depsList } from './data'
@@ -12,11 +13,13 @@ import { detectPackageManager } from '@antfu/install-pkg'
 import { downloadTemplate } from 'giget'
 import { existsSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
+import { tmpdir } from 'node:os'
 
 export default class {
   skipInstallation?: boolean
   packageJson: { [key: string]: any } = {}
   pkgPath?: string
+  inertiaStubsDir?: string
 
   constructor(
     private location?: string,
@@ -91,7 +94,7 @@ export default class {
     }
 
     const child = spawnSync(cmd, args, {
-      cwd: process.cwd(),
+      cwd: this.location ?? process.cwd(),
       stdio: 'ignore',
     })
 
@@ -390,6 +393,226 @@ export default class {
 
       await writeFile(filePath, content, 'utf-8')
     }
+  }
+
+  /**
+   * Stash `@arkstack/inertia`'s stubs out of the downloaded repo before the
+   * template directory is mounted (which deletes everything but `templates/`).
+   * They are reused later by {@link applyInertia} so the scaffold produces the
+   * exact same artifacts as `ark publish --package @arkstack/inertia`.
+   *
+   * @param repoDir  The freshly downloaded repository directory.
+   * @returns        `true` when the stubs were found and captured.
+   */
+  async captureInertiaStubs(repoDir: string) {
+    const source = join(repoDir, 'packages', 'inertia', 'stubs')
+
+    if (!existsSync(source)) {
+      return false
+    }
+
+    const dest = join(tmpdir(), `create-arkstack-inertia-${process.pid}`)
+
+    await rm(dest, { force: true, recursive: true })
+    await cp(source, dest, { recursive: true })
+
+    this.inertiaStubsDir = dest
+
+    return true
+  }
+
+  /**
+   * Layer Inertia onto the chosen runtime: copy the adapter config, root
+   * template and framework client files, add the required dependencies, and
+   * wire up the middleware, the root route and the TypeScript config — i.e.
+   * everything `ark publish --package @arkstack/inertia` does, plus the bits the
+   * publish step leaves to the developer, with no extra prompts.
+   *
+   * @param kit    The selected runtime (`express` | `h3`).
+   * @param stack  The selected front-end stack (`react` | `vue` | `svelte`).
+   */
+  async applyInertia(kit: KitName, stack: string) {
+    const spec = findInertiaStack(stack)
+
+    if (!spec) {
+      return
+    }
+
+    if (!this.inertiaStubsDir || !existsSync(this.inertiaStubsDir)) {
+      Logger.parse(
+        [
+          [' WARN ', 'bgYellow'],
+          ['Inertia stubs were not found; skipping Inertia setup.', 'white'],
+        ],
+        ' ',
+      )
+
+      return
+    }
+
+    if (!this.pkgPath) {
+      await this.makeProfile()
+    }
+
+    await this.writeInertiaFiles(spec)
+    await this.patchInertiaView(spec)
+    this.addInertiaDependencies(spec)
+    await this.patchInertiaMiddleware(kit)
+    await this.patchInertiaWeb()
+    await this.patchInertiaTsConfig(spec)
+
+    await this.saveProfile()
+  }
+
+  /** 
+   * Copy the shared + stack-specific stubs into the project, applying the 
+   * same transforms publish does. 
+   * 
+   * @param spec 
+   */
+  private async writeInertiaFiles(spec: InertiaStackSpec) {
+    for (const file of [...sharedInertiaFiles, ...spec.files]) {
+      const from = join(this.inertiaStubsDir!, file.from)
+
+      if (!existsSync(from)) {
+        continue
+      }
+
+      const content = transformInertiaStub(await readFile(from, 'utf-8'), spec)
+      const dest = join(this.location!, file.to)
+
+      await mkdir(dirname(dest), { recursive: true })
+      await writeFile(dest, content, 'utf-8')
+    }
+  }
+
+  /**
+   * Guarantee the root template is correct for the chosen stack, independent of
+   * the downloaded stub's version. Older stubs (e.g. from a registry/repo that
+   * predates the current contract) may ship without the `{{ext}}` /
+   * `{{reactRefresh}}` placeholders and a hardcoded client entry, which would
+   * leave React without its `@viteReactRefresh` preamble and pointing at the
+   * wrong entry extension. This normalizes both.
+   *
+   * @param spec  The selected stack.
+   */
+  private async patchInertiaView(spec: InertiaStackSpec) {
+    const file = join(this.location!, 'src/resources/views/app.edge')
+
+    if (!existsSync(file)) {
+      return
+    }
+
+    let content = await readFile(file, 'utf-8')
+
+    // Resolve any placeholders the transform missed (stub predates the contract).
+    content = content
+      .replaceAll('{{ext}}', spec.ext)
+      .replaceAll('{{reactRefresh}}', spec.reactRefresh ? '@viteReactRefresh\n    ' : '')
+
+    // Normalize the client entry extension to the stack (old stubs may hardcode
+    // `app.ts`/`app.js` even for React).
+    content = content.replace(/resources\/js\/app\.[jt]sx?/g, `resources/js/app.${spec.ext}`)
+
+    // React needs the Vite Refresh preamble before the entry tags.
+    if (spec.reactRefresh && !content.includes('@viteReactRefresh')) {
+      content = content.replace(/^([ \t]*)@vite\(/m, '$1@viteReactRefresh\n$1@vite(')
+    }
+
+    await writeFile(file, content, 'utf-8')
+  }
+
+  /** Merge the Inertia server + client dependencies into the project's package.json. */
+  private addInertiaDependencies(spec: InertiaStackSpec) {
+    this.packageJson.dependencies = {
+      ...(this.packageJson.dependencies ?? {}),
+      ...sharedInertiaDeps,
+      ...spec.deps,
+    }
+
+    this.packageJson.devDependencies = {
+      ...(this.packageJson.devDependencies ?? {}),
+      ...spec.devDeps,
+    }
+
+    // Vite drives the client bundle; run it alongside `ark dev`.
+    this.packageJson.scripts = {
+      ...(this.packageJson.scripts ?? {}),
+      'dev:client': 'vite',
+      'build:client': 'vite build',
+    }
+  }
+
+  /** 
+   * Register the `inertia()` middleware (after `resora()`) in the 
+   * runtime's middleware config. 
+   * 
+   * @param _kit 
+   * @returns 
+   */
+  private async patchInertiaMiddleware(_kit: KitName) {
+    const file = join(this.location!, 'src/config/middleware.ts')
+
+    if (!existsSync(file)) {
+      return
+    }
+
+    let content = await readFile(file, 'utf-8')
+
+    // Add `inertia` to the driver middlewares import (express & h3 both list
+    // `requestLogger, resora` there) and register it after `resora()`.
+    if (!content.includes('inertia(')) {
+      content = content
+        .replace('requestLogger, resora }', 'inertia, requestLogger, resora }')
+        .replace(/(\n(\s*)resora\(\),)/, '$1\n$2inertia(),')
+    }
+
+    await writeFile(file, content, 'utf-8')
+  }
+
+  /** 
+   * Point the root route at an Inertia page instead of the welcome view. 
+   * 
+   * @returns 
+   */
+  private async patchInertiaWeb() {
+    const file = join(this.location!, 'src/routes/web.ts')
+
+    if (!existsSync(file)) {
+      return
+    }
+
+    const content = (await readFile(file, 'utf-8'))
+      .replace('import { view } from \'@arkstack/view\'', 'import { inertia } from \'@arkstack/inertia\'')
+      .replace(/await view\(\s*'welcome'/, 'await inertia(\'Index\'')
+
+    await writeFile(file, content, 'utf-8')
+  }
+
+  /** 
+   * Enable JSX (React) and bring `resources/` into the TS program for the client code. 
+    * 
+    * @param spec 
+    * @returns 
+    */
+  private async patchInertiaTsConfig(spec: InertiaStackSpec) {
+    const file = join(this.location!, 'tsconfig.json')
+
+    if (!existsSync(file)) {
+      return
+    }
+
+    const json = JSON.parse(await readFile(file, 'utf-8'))
+
+    json.compilerOptions = json.compilerOptions ?? {}
+
+    if (spec.reactRefresh) {
+      json.compilerOptions.jsx = 'react-jsx'
+    }
+
+    json.include = ['.arkstack/*.d.ts', 'src', 'tests', 'resources']
+
+    await writeFile(file, JSON.stringify(json, null, 2) + '\n', 'utf-8')
   }
 
   async cleanup(kit: KitName) {

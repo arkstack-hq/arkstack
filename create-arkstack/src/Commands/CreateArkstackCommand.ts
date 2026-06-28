@@ -9,6 +9,7 @@ import type { KitName } from 'src/types'
 import { Logger } from '@h3ravel/shared'
 import { Str } from '@h3ravel/support'
 import { altLogo } from 'src/logo'
+import { inertiaStacks } from 'src/inertia'
 import inquirer from 'inquirer'
 
 export class CreateArkstackCommand extends Command {
@@ -19,6 +20,7 @@ export class CreateArkstackCommand extends Command {
         {--t|token?: Kit repo authentication token.}
         {--d|desc?: Project Description.}
         {--k|kit?: Runtime template. [${templates.map(e => e.alias).join(',')}]}
+        {--s|stack?: Inertia front-end stack. [${['none', ...inertiaStacks.map(e => e.value)].join(',')}]}
         {--l|lean: Make a lean project.}
         {--f|full: Make a full project (Ignored if lean is defined).}
         {--p|pre: Download prerelease version if available.}
@@ -96,7 +98,7 @@ export class CreateArkstackCommand extends Command {
         return err
       })
 
-    let { location } = await inquirer
+    let { location, stack } = await inquirer
       .prompt([
         {
           type: 'input',
@@ -104,6 +106,17 @@ export class CreateArkstackCommand extends Command {
           message: 'Installation location relative to the current dir:',
           default: Str.slugify(options.name ?? appName ?? basename(process.cwd()), '-'),
           when: () => !pathName,
+        },
+        {
+          type: 'list',
+          name: 'stack',
+          message: 'Add an Inertia front-end? (server-side adapter + client scaffolding):',
+          choices: [
+            { name: 'None - plain server-rendered views', value: 'none' },
+            ...inertiaStacks.map((e) => ({ name: `${e.name} - Inertia + ${e.name}`, value: e.value })),
+          ],
+          default: 'none',
+          when: () => !options.stack,
         },
       ])
       .catch((err) => {
@@ -160,6 +173,7 @@ export class CreateArkstackCommand extends Command {
     template = options.kit ?? template
     location = pathName ?? location
     description = options.description ?? description
+    stack = options.stack ?? stack ?? 'none'
 
     /**
      * Validate selected kit
@@ -176,7 +190,15 @@ export class CreateArkstackCommand extends Command {
 
     const result = await actions.download(source, install, token, options.overwrite)
 
+    const wantsInertia = stack && stack !== 'none'
+
     if (result.dir && kitName) {
+      // Stash the Inertia stubs before the template dir is mounted (which wipes
+      // everything but `templates/`).
+      if (wantsInertia) {
+        await actions.captureInertiaStubs(result.dir)
+      }
+
       await mountTemplatesDir(result.dir)
       await cleanDirectoryExcept(result.dir, kitName)
       await hoistDirectoryContents(result.dir, join(result.dir, kitName))
@@ -190,6 +212,14 @@ export class CreateArkstackCommand extends Command {
       await actions.makeLeanProfile(kitName)
     } else {
       await actions.makeFullProfile(kitName)
+    }
+
+    if (wantsInertia) {
+      spinner.info(Logger.parse([[
+        `Adding Inertia (${Str.title(stack)})...`,
+        'green',
+      ]], '', false)).start()
+      await actions.applyInertia(kitName, stack)
     }
 
     spinner.info(Logger.parse([['Cleaning Up...', 'green']], '', false)).start()
