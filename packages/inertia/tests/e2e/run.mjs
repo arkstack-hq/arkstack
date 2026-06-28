@@ -31,7 +31,7 @@ try {
 
     ok('initial response is HTML', (initial.headers()['content-type'] ?? '').includes('text/html'))
     ok('initial HTML embeds the data-page element', initialHtml.includes('data-page='))
-    ok('initial HTML embeds the Home component', initialHtml.includes('&quot;component&quot;:&quot;Home&quot;'))
+    ok('initial HTML embeds the Home component', initialHtml.includes('"component":"Home"'))
 
     if (process.env.SSR === '1') {
         // The greeting rendered as element text content only appears when the

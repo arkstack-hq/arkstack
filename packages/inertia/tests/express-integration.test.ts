@@ -56,8 +56,8 @@ describe('Express end-to-end Inertia protocol', () => {
 
         expect(response.status).toBe(200)
         expect(response.header['content-type']).toContain('text/html')
-        expect(response.text).toContain('<div id="app" data-page=')
-        expect(response.text).toContain('&quot;component&quot;:&quot;Home&quot;')
+        expect(response.text).toContain('<script data-page="app" type="application/json">')
+        expect(response.text).toContain('"component":"Home"')
         // lazy prop excluded from the initial load
         expect(response.text).not.toContain('heavy')
     })

@@ -25,8 +25,8 @@ const outputVariable = (name: string): Parameters<ViewFactory['tag']>[3] => {
 /**
  * Register the `@inertia` and `@inertiaHead` Edge tags on a view factory.
  *
- * - `@inertia` renders the root mount element (`<div data-page="…">`), or the
- *   server-rendered markup when SSR is enabled.
+ * - `@inertia` renders the root mount element (the JSON `<script data-page="…">`
+ *   plus the mount `<div>`), or the server-rendered markup when SSR is enabled.
  * - `@inertiaHead` renders the SSR head tags (empty without SSR).
  *
  * Both read the values the adapter passes to the root template, so they replace

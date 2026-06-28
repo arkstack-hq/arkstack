@@ -12,13 +12,20 @@ export const escapeHtmlAttribute = (value: string): string => {
 }
 
 /**
- * Build the root mount element carrying the serialized page object in its
- * `data-page` attribute — the element the Inertia client adapter hydrates.
+ * Build the elements the Inertia client adapter hydrates: the (empty) mount
+ * `<div id="…">` plus the JSON `<script type="application/json" data-page="…">`
+ * carrying the serialized page object.
+ *
+ * The client reads the initial page from the JSON script element
+ * (`script[data-page][type="application/json"]`), not from a `data-page`
+ * attribute on the mount div. Forward slashes are escaped to `\/` so an embedded
+ * `</script>` in the page payload cannot terminate the script element early
+ * (`\/` remains a valid JSON escape for `/`).
  */
 export const renderDataPage = (page: InertiaPage, rootId: string): string => {
-    const json = escapeHtmlAttribute(JSON.stringify(page))
+    const json = JSON.stringify(page).replace(/\//g, '\\/')
 
-    return `<div id="${rootId}" data-page="${json}"></div>`
+    return `<script data-page="${rootId}" type="application/json">${json}</script><div id="${rootId}"></div>`
 }
 
 /** Minimal built-in root document used when the configured root view is absent. */

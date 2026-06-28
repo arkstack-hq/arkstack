@@ -7,7 +7,7 @@ export const DEFAULT_SSR_URL = 'http://127.0.0.1:13714/render'
 export interface SsrResponse {
     /** HTML strings to inject into the document `<head>` (title, meta, style). */
     head: string[]
-    /** The rendered `<div id="app" data-page="…">…</div>` mount element. */
+    /** The rendered mount markup (JSON `<script data-page>` + server-rendered `<div>`). */
     body: string
 }
 

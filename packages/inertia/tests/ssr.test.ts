@@ -84,7 +84,8 @@ describe('renderRootHtml with SSR', () => {
 
         const html = await renderRootHtml(page, ssrConfig())
 
-        expect(html).toContain('<div id="app" data-page=')
+        expect(html).toContain('<script data-page="app" type="application/json">')
+        expect(html).toContain('<div id="app"></div>')
         expect(html).not.toContain('SSR CONTENT')
     })
 
@@ -95,6 +96,7 @@ describe('renderRootHtml with SSR', () => {
         const html = await renderRootHtml(page, ssrConfig({ enabled: false }))
 
         expect(fetchSpy).not.toHaveBeenCalled()
-        expect(html).toContain('<div id="app" data-page=')
+        expect(html).toContain('<script data-page="app" type="application/json">')
+        expect(html).toContain('<div id="app"></div>')
     })
 })

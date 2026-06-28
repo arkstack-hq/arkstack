@@ -8,8 +8,8 @@ export type PageProps = Record<string, unknown>
 
 /**
  * The page object Inertia exchanges with the client. It is serialized to JSON for
- * Inertia XHR visits and embedded in the root template's `data-page` attribute on
- * the initial full-page visit.
+ * Inertia XHR visits and embedded in the root template's `data-page` script
+ * element on the initial full-page visit.
  *
  * @see https://inertiajs.com/the-protocol
  */
@@ -36,13 +36,13 @@ export interface InertiaPage {
 export interface InertiaConfig {
     /**
      * The root Edge template that wraps the SPA and renders the `data-page`
-     * element. Defaults to `app`. When the view does not exist a minimal
-     * built-in template is used.
+     * script element and mount div. Defaults to `app`. When the view does not
+     * exist a minimal built-in template is used.
      */
     root_view: string
     /**
-     * The id of the root DOM element the client mounts onto (the element that
-     * carries the `data-page` attribute). Defaults to `app`.
+     * The id of the root DOM element the client mounts onto (and the `data-page`
+     * value on the JSON script element). Defaults to `app`.
      */
     root_id: string
     /**

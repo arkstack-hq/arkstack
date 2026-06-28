@@ -49,10 +49,11 @@ describe('Inertia.render', () => {
         const html = response.body as string
         expect(response.headers.get('content-type')).toContain('text/html')
         expect(response.headers.get('x-inertia')).toBeNull()
-        expect(html).toContain('<div id="app" data-page=')
-        // The embedded page JSON is HTML-attribute escaped.
-        expect(html).toContain('&quot;component&quot;:&quot;Users/Index&quot;')
-        expect(html).toContain('&quot;count&quot;:1')
+        expect(html).toContain('<script data-page="app" type="application/json">')
+        expect(html).toContain('<div id="app"></div>')
+        // The embedded page JSON lives in the script element, with `/` escaped to `\/`.
+        expect(html).toContain('"component":"Users\\/Index"')
+        expect(html).toContain('"count":1')
     })
 
     test('evaluates function and promise props', async () => {
