@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/common",
-    "version": "0.15.0",
+    "version": "0.15.1",
     "type": "module",
     "description": "Core utilities, primitives, and shared infrastructure for the Arkstack ecosystem.",
     "homepage": "https://arkstack.toneflix.net",
@@ -57,10 +57,5 @@
     },
     "optionalDependencies": {
         "@faker-js/faker": "catalog:"
-    },
-    "inlinedDependencies": {
-        "clear-router": "2.9.0",
-        "dayjs": "1.11.20",
-        "kanun": "1.2.0"
     }
 }
