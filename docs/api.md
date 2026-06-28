@@ -335,6 +335,7 @@ Register it in `src/config/middleware.ts` under `before` (alongside `resora()`).
 - `Hash` — password hashing and verification helper.
 - `Encryption` — encryption/decryption helper.
 - `Hook` — process-local hook registry with `set`, `has`, `get`, `getAll`, `unset`, and `clear`.
+- `Publisher` — registry for `ark publish`: `publishes(group)`, `publishables(filter?)`, `confirm(confirmation)`, `confirmables(package | true)`, and `clear()`. See the [publish guide](/guide/cli#publish).
 - `getModel(name)` — typed app model resolver.
 - `perPage(query)` — pagination limit helper.
 

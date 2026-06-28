@@ -38,3 +38,49 @@ describe('Publisher', () => {
         expect(Publisher.publishables()).toHaveLength(0)
     })
 })
+
+describe('Publisher confirmations', () => {
+    beforeEach(() => {
+        Publisher.clear()
+    })
+
+    test('registers a single confirmation and reads it back', () => {
+        Publisher.confirm({
+            package: '@arkstack/inertia',
+            message: 'Which framework?',
+            options: [{ name: 'Vue', value: 'inertia-vue' }],
+        })
+
+        const all = Publisher.confirmables(true)
+
+        expect(all).toHaveLength(1)
+        expect(all[0].message).toBe('Which framework?')
+    })
+
+    test('registers an array of confirmations', () => {
+        Publisher.confirm([
+            { package: '@arkstack/inertia', message: 'a', options: ['x'] },
+            { package: '@arkstack/cache', message: 'b', options: ['y'] },
+        ])
+
+        expect(Publisher.confirmables(true)).toHaveLength(2)
+    })
+
+    test('filters confirmations by package', () => {
+        Publisher.confirm([
+            { package: '@arkstack/inertia', message: 'a', options: ['x'] },
+            { package: '@arkstack/cache', message: 'b', options: ['y'] },
+        ])
+
+        expect(Publisher.confirmables('@arkstack/inertia')).toHaveLength(1)
+        expect(Publisher.confirmables('@arkstack/inertia')[0].package).toBe('@arkstack/inertia')
+        expect(Publisher.confirmables(true)).toHaveLength(2)
+    })
+
+    test('clear also empties confirmations', () => {
+        Publisher.confirm({ package: '@arkstack/inertia', message: 'a', options: ['x'] })
+        Publisher.clear()
+
+        expect(Publisher.confirmables(true)).toHaveLength(0)
+    })
+})

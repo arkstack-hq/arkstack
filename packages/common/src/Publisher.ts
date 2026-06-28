@@ -1,6 +1,7 @@
-import { PublishFilter, PublishGroup } from './types'
+import { PublishConfirmation, PublishFilter, PublishGroup } from './types'
 
 const REGISTRY_KEY = Symbol.for('arkstack.publishables')
+const CONFIRMATION_REGISTRY_KEY = Symbol.for('arkstack.confirmables')
 
 /**
  * Registry of artifacts packages want to publish into the consuming application.
@@ -11,9 +12,18 @@ const REGISTRY_KEY = Symbol.for('arkstack.publishables')
  * shared instance even across duplicated module copies.
  */
 export class Publisher {
-    /** The shared, global-symbol-backed registry of publishable groups. */
+    /** 
+     * The shared, global-symbol-backed registry of publishable groups confirmations. 
+     */
+    private static get confirmations(): PublishConfirmation[] {
+        return ((globalThis as any)[CONFIRMATION_REGISTRY_KEY] ??= [])
+    }
+
+    /** 
+     * The shared, global-symbol-backed registry of publishable groups. 
+     */
     private static get registry(): PublishGroup[] {
-        return ((globalThis as any)[REGISTRY_KEY] ??= [] as PublishGroup[])
+        return ((globalThis as any)[REGISTRY_KEY] ??= [])
     }
 
     /**
@@ -48,8 +58,35 @@ export class Publisher {
         )
     }
 
-    /** Remove every registered publishable group (primarily for tests). */
+    /**
+     * Remove every registered publishable group and confirmation (primarily for
+     * tests).
+     */
     static clear(): void {
         this.registry.length = 0
+        this.confirmations.length = 0
+    }
+
+    /** 
+     * Ask to confirm what tag needs to be published. 
+     * 
+     * @param confirmation 
+     */
+    static confirm(confirmation: PublishConfirmation | PublishConfirmation[]): void {
+        this.confirmations.push(...Array.isArray(confirmation)
+            ? confirmation
+            : [confirmation]
+        )
+    }
+
+    /**
+     * Read the registered confirmable groups
+     *
+     * @param pkg  The package for which to find confirmations.
+     * @returns    The matching confirmables groups.
+     */
+    static confirmables(pkg: string | true): PublishConfirmation[] {
+        return this.confirmations.filter((group) =>
+            typeof pkg === 'boolean' ? pkg : pkg === group.package)
     }
 }

@@ -122,6 +122,37 @@ Publisher.publishes({
 
 Source artifacts may be named with a trailing `.stub` extension (e.g. `Model.ts.stub`) so they are ignored by the package's own linting, type-checking and tests. The `.stub` suffix is stripped automatically when the file is published, restoring its real extension.
 
+#### Interactive confirmations
+
+A package can take more control over **what** and **how** it publishes by registering a confirmation with `Publisher.confirm()`. When you run `ark publish`, the user is prompted to choose an option; the chosen value selects which tagged group is published, and an optional `callback` post-processes each published stub.
+
+```ts
+import { Publisher } from '@arkstack/common';
+
+// Register the framework-specific groups behind tags…
+Publisher.publishes({ package: '@arkstack/inertia', tag: 'inertia-vue', entries: [/* … */] });
+Publisher.publishes({ package: '@arkstack/inertia', tag: 'inertia-react', entries: [/* … */] });
+
+// …then let the user pick one.
+Publisher.confirm({
+  package: '@arkstack/inertia',
+  message: 'What front-end framework are you using with Inertia?',
+  options: [
+    { name: 'Vue', value: 'inertia-vue' },
+    { name: 'React', value: 'inertia-react' },
+  ],
+  // Transform every stub this package publishes based on the choice.
+  callback: (choice, stub) => stub.replaceAll('{{ext}}', choice === 'inertia-react' ? '.tsx' : '.ts'),
+});
+```
+
+How it behaves:
+
+- A tag listed in a confirmation's `options` is **gated** — it is published only when the user (or `--tag`) selects it. Groups not referenced by any confirmation publish unconditionally.
+- The selected value is passed to `callback(choice, stub)` along with each stub's contents; whatever it returns is written out. Use it to fill placeholders, swap extensions, etc.
+- `--tag <tag>` skips the prompt and publishes that tag directly (still applying the callback if the tag belongs to a confirmation).
+- `--no-interaction` (`-n`) skips the prompt; gated tags are left unpublished, so pass `--tag` in non-interactive environments.
+
 ## Arkormˣ-powered commands
 
 Arkstack also exposes Arkormˣ database/modeling commands via the same CLI:

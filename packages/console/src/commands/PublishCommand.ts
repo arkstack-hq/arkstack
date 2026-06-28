@@ -1,11 +1,17 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, statSync } from 'node:fs'
+import type { Choice, Choices, PublishConfirmation, PublishGroup } from '@arkstack/common'
 import { dirname, join } from 'node:path'
-import type { PublishGroup } from '@arkstack/common'
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
 import { Command } from '@h3ravel/musket'
-import { pathToFileURL } from 'node:url'
 import { Publisher } from '@arkstack/common'
+import { pathToFileURL } from 'node:url'
+
+/** A choice the user made for a package's confirmation: the picked tag + transform. */
+interface PublishChoice {
+    tag: string
+    callback?: PublishConfirmation['callback']
+}
 
 /** Suffix that marks a file as a publishable stub; stripped on publish. */
 const STUB_SUFFIX = '.stub'
@@ -36,7 +42,7 @@ export class PublishCommand extends Command {
 
     protected description = 'Publish package artifacts into your application.'
 
-    async handle () {
+    async handle() {
         // Installed packages register their publishables from their `setup`
         // module — load them before reading the registry.
         await this.loadPackageSetups()
@@ -45,7 +51,21 @@ export class PublishCommand extends Command {
             package: this.option('package'),
             tag: this.option('tag'),
         }
-        const groups = Publisher.publishables(filter)
+
+        // `--list` shows everything available without prompting or gating.
+        if (this.option('list')) {
+            return void this.listGroups(Publisher.publishables(filter))
+        }
+
+        // Resolve any package confirmations: a package can ask the user to pick a
+        // tag (or any value), which decides what — and how — gets published.
+        const { choices, gated } = await this.resolveConfirmations(filter)
+
+        const groups = Publisher.publishables(filter).filter((group) =>
+            // A tag offered behind a confirmation is published only when chosen;
+            // every other group publishes unconditionally.
+            !gated.has(group.tag ?? '') || choices.get(group.package)?.tag === group.tag,
+        )
 
         if (groups.length < 1) {
             return void this.warn(
@@ -53,14 +73,12 @@ export class PublishCommand extends Command {
             )
         }
 
-        if (this.option('list')) {
-            return void this.listGroups(groups)
-        }
-
         let published = 0
         let skipped = 0
 
         for (const group of groups) {
+            const choice = choices.get(group.package)
+
             for (const entry of group.entries) {
                 if (!existsSync(entry.from)) {
                     this.warn(`[${group.package}] Source not found, skipping: ${entry.from}`)
@@ -77,8 +95,15 @@ export class PublishCommand extends Command {
                     continue
                 }
 
+                let content = readFileSync(entry.from, 'utf-8')
+
+                // Let the package post-process the stub based on the user's choice.
+                if (choice?.callback) {
+                    content = await choice.callback(choice.tag, content)
+                }
+
                 mkdirSync(dirname(dest), { recursive: true })
-                cpSync(entry.from, dest, { recursive: true })
+                writeFileSync(dest, content, { encoding: 'utf-8' })
 
                 // A published directory may itself contain `.stub` files.
                 if (statSync(dest).isDirectory()) {
@@ -94,12 +119,76 @@ export class PublishCommand extends Command {
     }
 
     /**
+     * Resolve package confirmations into the user's choices.
+     *
+     * Each confirmation lets a package prompt for a value (typically a tag); the
+     * picked tag selects which gated group publishes, and the confirmation's
+     * `callback` transforms the published stubs. An explicit `--tag` bypasses the
+     * prompt (and still applies the matching callback); `--no-interaction` skips
+     * prompting, so gated tags are left unpublished.
+     *
+     * @param filter  The active package/tag filter.
+     * @returns       The per-package choices and the set of gated tags.
+     */
+    private async resolveConfirmations(filter: { package?: string, tag?: string }) {
+        const confirmations = Publisher.confirmables(filter.package ?? true)
+        const choices = new Map<string, PublishChoice>()
+        const gated = new Set<string>()
+
+        const interactive = this.option('interaction') !== false
+
+        for (const confirmation of confirmations) {
+            const values = this.choiceValues(confirmation.options)
+            values.forEach((value) => gated.add(value))
+
+            if (filter.tag) {
+                // Explicit tag: no prompt, but still apply the callback if this
+                // confirmation offers that tag.
+                if (values.includes(filter.tag)) {
+                    choices.set(confirmation.package, {
+                        tag: filter.tag,
+                        callback: confirmation.callback
+                    })
+                }
+
+                continue
+            }
+
+            if (!interactive) {
+                this.warn(`[${confirmation.package}] Skipped "${confirmation.message}" (no-interaction); pass --tag to publish a specific option.`)
+                continue
+            }
+
+            const tag = await this.choice(
+                `[${confirmation.package}] ${confirmation.message}`,
+                confirmation.options as Choices,
+            )
+
+            choices.set(confirmation.package, { tag, callback: confirmation.callback })
+        }
+
+        return { choices, gated }
+    }
+
+    /** 
+     * Extract the selectable values from a confirmation's choices. 
+     * 
+     * @param options 
+     * @returns 
+     */
+    private choiceValues(options: Choices): string[] {
+        return (options as ReadonlyArray<string | Choice<string>>).map((option) =>
+            typeof option === 'string' ? option : option.value,
+        )
+    }
+
+    /**
      * Recursively rename `*.stub` files within a published directory to their
      * real extension.
      *
      * @param dir
      */
-    private stripStubsInTree (dir: string) {
+    private stripStubsInTree(dir: string) {
         for (const item of readdirSync(dir, { recursive: true, withFileTypes: true })) {
             if (item.isFile() && item.name.endsWith(STUB_SUFFIX)) {
                 const current = join(item.parentPath, item.name)
@@ -114,7 +203,7 @@ export class PublishCommand extends Command {
      *
      * @param groups
      */
-    private listGroups (groups: PublishGroup[]) {
+    private listGroups(groups: PublishGroup[]) {
         this.info('Publishable artifacts:')
 
         for (const group of groups) {
@@ -131,7 +220,7 @@ export class PublishCommand extends Command {
      * `publishes()` registrations run. Errors (missing build, side effects) are
      * ignored so one bad package cannot break publishing.
      */
-    private async loadPackageSetups () {
+    private async loadPackageSetups() {
         const scope = join(Arkstack.rootDir(), 'node_modules', '@arkstack')
 
         if (!existsSync(scope)) {
@@ -153,7 +242,7 @@ export class PublishCommand extends Command {
         }
     }
 
-    private describeFilter (filter: { package?: string, tag?: string }): string {
+    private describeFilter(filter: { package?: string, tag?: string }): string {
         const parts = [
             filter.package ? `package "${filter.package}"` : '',
             filter.tag ? `tag "${filter.tag}"` : '',

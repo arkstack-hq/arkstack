@@ -282,6 +282,17 @@ export type HookArgs<N extends string, P extends string> = N extends keyof HookR
     : any[]
     : any[]
 
+export type Choice<Value> = {
+    value: Value;
+    name?: string;
+    description?: string;
+    short?: string;
+    disabled?: boolean | string;
+    type?: never;
+};
+
+export type Choices = readonly string[] | readonly Choice<string>[];
+
 /**
 * A single source → destination mapping a package wants to publish into the
 * consuming application.
@@ -300,7 +311,9 @@ export interface PublishEntry {
  * A group of publishable artifacts registered by a package.
  */
 export interface PublishGroup {
-    /** The package registering the artifacts, e.g. `@arkstack/cache`. */
+    /** 
+     * The package registering the artifacts, e.g. `@arkstack/cache`. 
+     */
     package: string
     /**
      * Optional tag for selective publishing (`ark publish --tag <tag>`). A
@@ -315,4 +328,32 @@ export interface PublishGroup {
 export interface PublishFilter {
     package?: string
     tag?: string
+}
+
+/** Optional filter applied when reading the registry. */
+export interface PublishConfirmation {
+    /** 
+     * The package registering the confirmation, e.g. `@arkstack/cache`. 
+     */
+    package: string
+    /**
+     * A message describing what the confirmation is 
+     * for, e.g. "Are you sure you want to publish the cache migrations?"
+     */
+    message: string
+    /** 
+     * Options to choose from.
+     */
+    options: Choices
+    /**
+     * A callback function to handle the selected choice and the stub file.
+     * 
+     * @param choice 
+     * @param stub 
+     * @returns 
+     */
+    callback?: (
+        choice: Choice<string>['value'],
+        stub: string
+    ) => string | Promise<string>
 }
