@@ -44,16 +44,16 @@
     "dependencies": {
         "@arkstack/contract": "workspace:^",
         "@ngrok/ngrok": "^1.7.0",
-        "@resora/plugin-clear-router": "^1.0.66",
-        "clear-router": "^2.9.0",
-        "resora": "^1.3.27"
+        "@resora/plugin-clear-router": "catalog:",
+        "clear-router": "catalog:",
+        "resora": "catalog:"
     },
     "peerDependencies": {
         "@arkstack/auth": "workspace:^",
         "@arkstack/common": "workspace:^",
         "@arkstack/foundry": "workspace:^",
         "@arkstack/inertia": "workspace:^",
-        "h3": "2.0.1-rc.22"
+        "h3": "catalog:"
     },
     "peerDependenciesMeta": {
         "@arkstack/auth": {

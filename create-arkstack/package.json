@@ -77,7 +77,7 @@
     "giget": "^2.0.0",
     "inquirer": "^12.9.6",
     "dotenv": "catalog:",
-    "tsdown": "^0.22.0",
+    "tsdown": "catalog:",
     "unrun": "^0.3.0"
   },
   "devDependencies": {
