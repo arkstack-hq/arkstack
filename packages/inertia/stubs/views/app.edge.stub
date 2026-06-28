@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @inertiaHead
-    {{reactRefresh}}@vite('resources/js/app.{{ext}}')
+    {{reactRefresh}}@vite(['resources/js/app.{{ext}}', 'resources/css/app.css'])
 </head>
 <body>
     @inertia

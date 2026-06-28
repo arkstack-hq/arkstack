@@ -36,7 +36,8 @@ describe('Inertia.render', () => {
 
         const page = response.body as InertiaPage
         expect(page.component).toBe('Users/Index')
-        expect(page.props).toEqual({ count: 3 })
+        // `appName` is shared on every page from `config('app.name')`.
+        expect(page.props).toEqual({ appName: 'Arcstack', count: 3 })
         expect(page.url).toBe('/users?page=2')
         expect(page.version).toBe('')
     })
@@ -66,6 +67,7 @@ describe('Inertia.render', () => {
         }))
 
         expect((response.body as InertiaPage).props).toEqual({
+            appName: 'Arcstack',
             sync: 'a',
             async: 'b',
             nested: { deep: 'c' },

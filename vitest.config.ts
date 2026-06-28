@@ -1,9 +1,11 @@
 import { ViteUserConfig, defineConfig } from 'vitest/config'
 
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
 import swc from 'unplugin-swc'
 
 export default defineConfig({
+
     plugins: [
         swc.vite({
             jsc: {
@@ -32,7 +34,7 @@ export default defineConfig({
             {
                 find: /^@app\/models\/([^/]+)$/,
                 replacement: '$1',
-                customResolver (source, importer) {
+                customResolver(source, importer) {
                     const pkgRoot = (importer ?? '').split('/src/').at(0)!
 
                     return path.resolve(pkgRoot, 'src/Contracts', `${source}.ts`)
@@ -43,7 +45,10 @@ export default defineConfig({
     } as ViteUserConfig['resolve'],
     test: {
         // setup file is at the root of the project, so we need to resolve it not from the current package, but from the root
-        setupFiles: path.resolve(__dirname, 'tests/setup.ts'),
+        setupFiles: [
+            path.resolve(__dirname, 'tests/setup.ts'),
+            pathToFileURL('testsSetup.ts').href
+        ],
         root: './',
         passWithNoTests: true,
         environment: 'node',

@@ -2,5 +2,6 @@
   "editor.formatOnSave": true,
   "[typescript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
-  }
+  },
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

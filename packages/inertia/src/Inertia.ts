@@ -1,4 +1,5 @@
 import { AlwaysProp, DeferProp, LazyProp } from './props'
+import type { InertiaConfig, InertiaPage, InertiaRequest, PageProps } from './types'
 import { configure, inertiaConfig, resolveVersion, setVersion } from './config'
 import { currentStore, shareData, sharedData } from './context'
 
@@ -6,7 +7,6 @@ import { Response } from '@arkstack/http'
 import { SEE_OTHER_METHODS } from './protocol'
 import { renderRootHtml } from './html'
 import { resolveProps } from './resolve'
-import type { InertiaConfig, InertiaPage, InertiaRequest, PageProps } from './types'
 
 const isInertiaRequest = (request: InertiaRequest) => request.header('x-inertia') === 'true'
 
@@ -34,7 +34,7 @@ const htmlResponse = (html: string): Response<string> => {
  */
 export class Inertia {
     /** Require an active request context, throwing a clear error otherwise. */
-    private static request (): InertiaRequest {
+    private static request(): InertiaRequest {
         const store = currentStore()
 
         if (!store) {
@@ -54,10 +54,19 @@ export class Inertia {
      * @param component  The client component name, e.g. `Users/Index`.
      * @param props      Props for the component (plain values, callbacks, or prop wrappers).
      */
-    static async render (component: string, props: PageProps = {}): Promise<Response> {
+    static async render(component: string, props: PageProps = {}): Promise<Response> {
         const request = Inertia.request()
         const config = inertiaConfig()
         const version = await resolveVersion()
+
+        // Make the app name available to every page, without clobbering an
+        // explicitly shared value or adding an empty key when no app config is
+        // loaded (e.g. outside a booted app).
+        const appName = globalThis.config?.('app.name')
+
+        if (appName !== undefined && Inertia.shared().appName === undefined) {
+            Inertia.share('appName', appName)
+        }
 
         // Asset-version mismatch on a GET visit: tell the client to hard-reload.
         if (
@@ -91,7 +100,7 @@ export class Inertia {
      * an `X-Inertia-Location` header so the client performs a full page visit;
      * otherwise it issues a normal `302` redirect.
      */
-    static location (url: string): Response {
+    static location(url: string): Response {
         if (isInertiaRequest(Inertia.request())) {
             return Inertia.conflict(url)
         }
@@ -104,7 +113,7 @@ export class Inertia {
      * upgraded to `303 See Other` (per the Inertia protocol) unless an explicit
      * status is given, so the client follows the redirect with a `GET`.
      */
-    static redirect (url: string, status?: number): Response {
+    static redirect(url: string, status?: number): Response {
         const method = Inertia.request().method
         const code = status ?? (SEE_OTHER_METHODS.has(method) ? 303 : 302)
 
@@ -112,14 +121,14 @@ export class Inertia {
     }
 
     /** Redirect back to the referring URL (or `fallback`). */
-    static back (fallback: string = '/'): Response {
+    static back(fallback: string = '/'): Response {
         const request = Inertia.request()
 
         return Inertia.redirect(request.header('referer') || request.header('referrer') || fallback)
     }
 
     /** A `409` response carrying an `X-Inertia-Location` header. */
-    private static conflict (url: string): Response {
+    private static conflict(url: string): Response {
         return new Response({ statusCode: 409, body: null }).header('X-Inertia-Location', url) as Response
     }
 
@@ -127,24 +136,24 @@ export class Inertia {
      * Share props with every Inertia response. Called inside a request the data
      * is scoped to that request; called outside (e.g. at boot) it applies globally.
      */
-    static share (key: string, value: unknown): void
-    static share (data: PageProps): void
-    static share (keyOrData: string | PageProps, value?: unknown): void {
+    static share(key: string, value: unknown): void
+    static share(data: PageProps): void
+    static share(keyOrData: string | PageProps, value?: unknown): void {
         shareData(typeof keyOrData === 'string' ? { [keyOrData]: value } : keyOrData)
     }
 
     /** Read the currently shared props (request-scoped when in a request). */
-    static shared (): PageProps {
+    static shared(): PageProps {
         return { ...sharedData() }
     }
 
     /** Set the asset version used for cache-busting, overriding config. */
-    static version (version: InertiaConfig['version']): void {
+    static version(version: InertiaConfig['version']): void {
         setVersion(version)
     }
 
     /** Override Inertia configuration at runtime (e.g. enable SSR programmatically). */
-    static configure (partial: Partial<InertiaConfig>): void {
+    static configure(partial: Partial<InertiaConfig>): void {
         configure(partial)
     }
 
@@ -152,17 +161,17 @@ export class Inertia {
      * A prop only resolved on a partial reload that explicitly requests it.
      * Excluded from the initial page load.
      */
-    static lazy (callback: () => unknown): LazyProp {
+    static lazy(callback: () => unknown): LazyProp {
         return new LazyProp(callback)
     }
 
     /** Alias of {@link Inertia.lazy} matching the modern Inertia client naming. */
-    static optional (callback: () => unknown): LazyProp {
+    static optional(callback: () => unknown): LazyProp {
         return new LazyProp(callback)
     }
 
     /** A prop always included in the response, even on partial reloads. */
-    static always (value: unknown): AlwaysProp {
+    static always(value: unknown): AlwaysProp {
         return new AlwaysProp(value)
     }
 
@@ -170,7 +179,7 @@ export class Inertia {
      * A prop excluded from the initial response and fetched by the client after
      * load. Deferred props sharing a `group` are fetched together.
      */
-    static defer (callback: () => unknown, group: string = 'default'): DeferProp {
+    static defer(callback: () => unknown, group: string = 'default'): DeferProp {
         return new DeferProp(callback, group)
     }
 }

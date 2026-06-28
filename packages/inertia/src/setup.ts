@@ -22,6 +22,10 @@ Publisher.publishes({
             from: join(root, 'stubs/config/inertia.ts.stub'),
             to: 'src/config/inertia.ts',
         },
+        {
+            from: join(root, 'stubs/config/app.css.stub'),
+            to: 'resources/css/app.css',
+        },
     ],
 })
 
@@ -51,7 +55,11 @@ Publisher.publishes({
         {
             from: join(root, 'stubs/react/resources/js/Pages/Index.tsx.stub'),
             to: 'resources/js/Pages/Index.tsx',
-        }
+        },
+        {
+            from: join(root, 'stubs/shared/resources/js/vite-env.d.ts.stub'),
+            to: 'resources/js/vite-env.d.ts',
+        },
     ],
 })
 
@@ -70,7 +78,11 @@ Publisher.publishes({
         {
             from: join(root, 'stubs/svelte/resources/js/Pages/Index.svelte.stub'),
             to: 'resources/js/Pages/Index.svelte',
-        }
+        },
+        {
+            from: join(root, 'stubs/shared/resources/js/vite-env.d.ts.stub'),
+            to: 'resources/js/vite-env.d.ts',
+        },
     ],
 })
 
@@ -89,7 +101,11 @@ Publisher.publishes({
         {
             from: join(root, 'stubs/vue/resources/js/Pages/Index.vue.stub'),
             to: 'resources/js/Pages/Index.vue',
-        }
+        },
+        {
+            from: join(root, 'stubs/shared/resources/js/vite-env.d.ts.stub'),
+            to: 'resources/js/vite-env.d.ts',
+        },
     ],
 })
 

@@ -25,7 +25,8 @@ describe('partial reloads', () => {
     test('full Inertia load excludes lazy and deferred props', async () => {
         const { body } = await render(partialRequest('Users/Index', {}))
 
-        expect(Object.keys(body.props).sort()).toEqual(['settings', 'stats', 'users'])
+        // `appName` is shared on every full load from `config('app.name')`.
+        expect(Object.keys(body.props).sort()).toEqual(['appName', 'settings', 'stats', 'users'])
         expect(body.props.heavy).toBeUndefined()
         expect(body.props.chart).toBeUndefined()
     })
@@ -75,6 +76,7 @@ describe('partial reloads', () => {
             'x-inertia-partial-data': 'users',
         }))
 
-        expect(Object.keys(body.props).sort()).toEqual(['settings', 'stats', 'users'])
+        // A mismatched partial is a full load, so shared `appName` is included.
+        expect(Object.keys(body.props).sort()).toEqual(['appName', 'settings', 'stats', 'users'])
     })
 })

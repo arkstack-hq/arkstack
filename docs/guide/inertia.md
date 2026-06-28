@@ -120,7 +120,7 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: 'public/build',
-    rollupOptions: { input: 'resources/js/app.ts' },
+    rolldownOptions: { input: 'resources/js/app.ts' },
   },
 });
 ```
@@ -134,7 +134,7 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: 'public/build',
-    rollupOptions: { input: 'resources/js/app.tsx' },
+    rolldownOptions: { input: 'resources/js/app.tsx' },
   },
 });
 ```
@@ -148,7 +148,7 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: 'public/build',
-    rollupOptions: { input: 'resources/js/app.ts' },
+    rolldownOptions: { input: 'resources/js/app.ts' },
   },
 });
 ```
