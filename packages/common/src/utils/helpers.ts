@@ -1,4 +1,4 @@
-import { getUserConfig, type Model, type ModelStatic } from 'arkormx'
+import type { Model, ModelStatic } from 'arkormx'
 import { importFile, resolveRuntimeModule } from '../system'
 import path from 'node:path'
 import { Arkstack } from '@arkstack/contract'
@@ -74,6 +74,7 @@ export async function getModel(modelName: string) {
         typeof value === 'object' && value !== null
     )
 
+    const { getUserConfig } = await import('arkormx')
     const modelPath = getUserConfig().paths?.models || './src/models'
     const sourcePath = path.join(
         path.isAbsolute(modelPath) ? modelPath : path.join(Arkstack.rootDir(), modelPath),

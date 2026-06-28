@@ -2,7 +2,7 @@ import { HeaderMap, RequestOptions, RequestSource } from './types/Http'
 import { isRecord, normalizeHeaders, unwrapRequestSource } from './helpers'
 
 import { Request as BaseRequest } from 'clear-router'
-import { User } from '@app/models/User'
+import type { User } from '@app/models/User'
 
 /**
  * Represents an HTTP request, providing a consistent interface for accessing request data.

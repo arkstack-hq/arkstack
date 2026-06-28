@@ -1,5 +1,4 @@
 import { ArkstackConsoleApp } from '../app'
-import { CliApp } from 'arkormx'
 import { Command } from '@h3ravel/musket'
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -16,13 +15,14 @@ export class MakeController extends Command<ArkstackConsoleApp<any>> {
 
     protected description = 'Create a new controller file'
 
-    async handle () {
+    async handle() {
         this.app.command = this
 
         if (!this.argument('name')) return void this.error('Error: Controller name is required.')
 
         const name = this.app.makeController(this.argument('name'), this.options())
 
+        const { CliApp } = await import('arkormx')
         const app = new CliApp()
         app.command = this
 

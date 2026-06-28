@@ -1,5 +1,4 @@
 import { ArkstackConsoleApp } from '../app'
-import { CliApp } from 'arkormx'
 import { Command } from '@h3ravel/musket'
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -16,7 +15,7 @@ export class MakeFullResource extends Command<ArkstackConsoleApp<any>> {
     protected description =
         'Create a full new set of API resources (Controller, Resource, Collection)'
 
-    async handle () {
+    async handle() {
         this.app.command = this
 
         const res = this.app.makeResource(this.argument('prefix'), {
@@ -33,6 +32,7 @@ export class MakeFullResource extends Command<ArkstackConsoleApp<any>> {
             Object.assign({}, this.options(), { api: true, force: this.option('force') }),
         )
 
+        const { CliApp } = await import('arkormx')
         const app = new CliApp()
 
         const model = this.option('model')
