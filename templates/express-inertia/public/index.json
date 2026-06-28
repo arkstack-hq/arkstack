@@ -1,0 +1,21 @@
+{
+  "html": {
+    "lang": "en",
+    "head": {
+      "title": "Weyham API",
+      "meta": [
+        {
+          "charset": "utf-8"
+        },
+        {
+          "name": "viewport",
+          "content": "width=device-width, initial-scale=1"
+        }
+      ]
+    },
+    "body": {
+      "h1": "Hello World!",
+      "p": "See the world through our own eyes."
+    }
+  }
+}

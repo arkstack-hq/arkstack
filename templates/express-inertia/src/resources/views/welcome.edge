@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Dark theme (default) ── */
+    :root {
+      --gold-light: #f0c040;
+      --gold-mid: #c9960c;
+      --gold-dark: #8a6400;
+      --bg: #0b0c0e;
+      --bg-card: #111317;
+      --bg-snippet: #0d0f12;
+      --border: rgba(201, 150, 12, 0.18);
+      --text: #f5f0e8;
+      --muted: #7a7567;
+      --radius: 10px;
+      --card-hover: #161820;
+      --kw: #8a9ad6;
+      --fn: #e8c56a;
+      --str: #88c99a;
+      --cm: #4a5060;
+      --code-base: #d4b86a;
+    }
+
+    /* ── Light theme ── */
+    [data-theme="light"] {
+      --gold-light: #a06800;
+      --gold-mid: #8a5a00;
+      --gold-dark: #6b4400;
+      --bg: #f5f3ef;
+      --bg-card: #ffffff;
+      --bg-snippet: #f0ede8;
+      --border: rgba(160, 104, 0, 0.16);
+      --text: #1a1714;
+      --muted: #9a9080;
+      --card-hover: #f9f7f3;
+      --kw: #5460a0;
+      --fn: #8a6000;
+      --str: #2e7d52;
+      --cm: #aaa090;
+      --code-base: #7a5c20;
+    }
+
+    /* ── OS preference fallback (no JS) ── */
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --gold-light: #a06800;
+        --gold-mid: #8a5a00;
+        --gold-dark: #6b4400;
+        --bg: #f5f3ef;
+        --bg-card: #ffffff;
+        --bg-snippet: #f0ede8;
+        --border: rgba(160, 104, 0, 0.16);
+        --text: #1a1714;
+        --muted: #9a9080;
+        --card-hover: #f9f7f3;
+        --kw: #5460a0;
+        --fn: #8a6000;
+        --str: #2e7d52;
+        --cm: #aaa090;
+        --code-base: #7a5c20;
+      }
+    }
+
+    html,
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .page {
+      max-width: 580px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.8rem;
+    }
+
+    /* ── Brand block ── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .logo-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .logo-wrap img {
+      width: 55px;
+      height: 55px;
+      display: block;
+      filter: drop-shadow(0 0 18px rgba(201, 150, 12, 0.35));
+      animation: floatLogo 4s ease-in-out infinite;
+    }
+
+    .halo {
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201, 150, 12, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes floatLogo {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.5;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.08);
+      }
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .wordmark {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .wordmark span {
+      color: var(--gold-light);
+    }
+
+    .tagline {
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    /* ── Status pill ── */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201, 150, 12, 0.06);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 16px 6px 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      color: var(--gold-light);
+      margin-top: 1rem;
+      margin-bottom: 2.8rem;
+      transition: border-color 0.25s;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4caf74;
+      box-shadow: 0 0 6px #4caf74;
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin-bottom: 2.8rem;
+    }
+
+    /* ── Feature cards ── */
+    .cards {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 2.4rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--gold-mid);
+      background: var(--card-hover);
+    }
+
+    .card-icon {
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+      opacity: 0.85;
+      width: 20px;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .card-desc {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── Code snippet ── */
+    .snippet {
+      width: 100%;
+      background: var(--bg-snippet);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 2.4rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.25s, border-color 0.25s;
+    }
+
+    .snippet::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+    }
+
+    .snippet-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.7rem;
+    }
+
+    .snippet code {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--code-base);
+      display: block;
+      line-height: 1.9;
+    }
+
+    .kw {
+      color: var(--kw);
+    }
+
+    .fn {
+      color: var(--fn);
+    }
+
+    .str {
+      color: var(--str);
+    }
+
+    .cm {
+      color: var(--cm);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: 0.06em;
+      line-height: 2;
+    }
+
+    .footer a {
+      color: var(--gold-mid);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      color: var(--gold-light);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="brand">
+      <div class="logo-wrap">
+        <div class="halo"></div>
+        <img src="https://arkstack.toneflix.net/logo.png" alt="Arkstack logo" />
+      </div>
+      <div class="brand-text">
+        <h1 class="wordmark">Ark<span>stack</span></h1>
+        <p class="tagline">Node.js Framework &mdash; Runtime Agnostic</p>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="dot"></div>
+      {{ message }}
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M13 10H20L11 23V14H4L13 1V10Z"></path>
+          </svg>
+        </div>
+        <div class="card-title">Fast by default</div>
+        <div class="card-desc">Zero-bloat core. Ships only what you need.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M13 18V20H19V22H13C11.8954 22 11 21.1046 11 20V18H8C5.79086 18 4 16.2091 4 14V10H20V14C20 16.2091 18.2091 18 16 18H13ZM16 6H19C19.5523 6 20 6.44772 20 7V9H4V7C4 6.44772 4.44772 6 5 6H8V2H10V6H14V2H16V6ZM12 14.5C12.5523 14.5 13 14.0523 13 13.5C13 12.9477 12.5523 12.5 12 12.5C11.4477 12.5 11 12.9477 11 13.5C11 14.0523 11.4477 14.5 12 14.5Z">
+            </path>
+          </svg>
+        </div>
+        <div class="card-title">Adapters</div>
+        <div class="card-desc">Express, Fastify, Hono, Koa — swap runtimes freely.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M20.0833 10.4999L21.2854 11.2212C21.5221 11.3633 21.5989 11.6704 21.4569 11.9072C21.4146 11.9776 21.3557 12.0365 21.2854 12.0787L11.9999 17.6499L2.71451 12.0787C2.47772 11.9366 2.40093 11.6295 2.54301 11.3927C2.58523 11.3223 2.64413 11.2634 2.71451 11.2212L3.9166 10.4999L11.9999 15.3499L20.0833 10.4999ZM20.0833 15.1999L21.2854 15.9212C21.5221 16.0633 21.5989 16.3704 21.4569 16.6072C21.4146 16.6776 21.3557 16.7365 21.2854 16.7787L12.5144 22.0412C12.1977 22.2313 11.8021 22.2313 11.4854 22.0412L2.71451 16.7787C2.47772 16.6366 2.40093 16.3295 2.54301 16.0927C2.58523 16.0223 2.64413 15.9634 2.71451 15.9212L3.9166 15.1999L11.9999 20.0499L20.0833 15.1999ZM12.5144 1.30864L21.2854 6.5712C21.5221 6.71327 21.5989 7.0204 21.4569 7.25719C21.4146 7.32757 21.3557 7.38647 21.2854 7.42869L11.9999 12.9999L2.71451 7.42869C2.47772 7.28662 2.40093 6.97949 2.54301 6.7427C2.58523 6.67232 2.64413 6.61343 2.71451 6.5712L11.4854 1.30864C11.8021 1.11864 12.1977 1.11864 12.5144 1.30864Z">
+            </path>
+          </svg>
+        </div>
+        <div class="card-title">Structured</div>
+        <div class="card-desc">Modular conventions for Node.js.</div>
+      </div>
+    </div>
+
+    <div class="snippet">
+      <div class="snippet-label">get started</div>
+      <code>
+      <span class="cm">// src/routes/api.ts</span><br/>
+      <span class="kw">import</span> { Router } <span class="kw">from</span> <span class="str">'@arkstack/driver-express'</span><br/><br/>
+      Router.<span class="fn">get</span>(<span class="str">'/'</span>, () =&gt; {<br/>
+      &nbsp;&nbsp;<span class="kw">return</span> { status: <span class="str">'ok'</span> }<br/>
+      })</code>
+    </div>
+
+    <p class="footer">
+      <a href="https://arkstack.toneflix.net/">Docs</a> &nbsp;&middot;&nbsp;
+      <a href="https://github.com/arkstack-hq/arkstack">GitHub</a> &nbsp;&middot;&nbsp;
+      <a href="https://discord.gg/jmQybxKQ7R">Discord</a><br />
+      Arkstack &copy; {{ new Date().getFullYear() }} &mdash; By Toneflix Technologies
+    </p>
+
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  </script>
+</body>
+
+</html>

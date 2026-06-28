@@ -1,0 +1,18 @@
+node_modules
+dist
+# Keep environment variables out of version control
+.env
+
+/src/models/**/*.ts
+/database/**/*.ts
+
+/public/storage
+/storage/*.key
+/storage/framework
+
+# ArkStack specific files and directories
+.arkstack
+.arkormx
+.DS_Store
+.idea
+.vscode
