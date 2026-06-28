@@ -1,5 +1,5 @@
-import type { InertiaConfig } from '@arkstack/inertia';
-import { env } from '@arkstack/common';
+import type { InertiaConfig } from '@arkstack/inertia'
+import { env } from '@arkstack/common'
 
 /**
  * Inertia adapter configuration.
@@ -36,5 +36,5 @@ export default (): InertiaConfig => {
       url: env('INERTIA_SSR_URL', 'http://127.0.0.1:13714/render'),
       bundle: 'dist-ssr/ssr.js',
     },
-  };
-};
+  }
+}
