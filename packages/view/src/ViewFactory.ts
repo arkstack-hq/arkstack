@@ -1,3 +1,4 @@
+import type { ParserTagDefinitionContract, TagContract } from 'edge.js/types'
 import type { ViewComposer, ViewComposerName, ViewData, ViewFactoryOptions, ViewName } from './types'
 import { mergeData, normalizeViewData, runComposer, runComposerSync } from './helpers'
 import { parsePackageViewName, resolvePackageViewsPath } from './packageViews'
@@ -22,7 +23,14 @@ export class ViewFactory {
         this.mount(options.viewsPath ?? resolve(Arkstack.rootDir(), 'src', 'resources', 'views'))
     }
 
-    make (name: ViewName, data: ViewData = {}) {
+    /**
+     * Create a new view instance for the given view name and data.
+     * 
+     * @param name 
+     * @param data 
+     * @returns 
+     */
+    make(name: ViewName, data: ViewData = {}) {
         const edgeName = this.resolveName(name)
 
         return new ViewInstance(
@@ -35,7 +43,14 @@ export class ViewFactory {
         )
     }
 
-    first (names: ViewName[], data: ViewData = {}) {
+    /**
+     * Render the first view that exists from the given list of names.
+     * 
+     * @param names 
+     * @param data 
+     * @returns 
+     */
+    first(names: ViewName[], data: ViewData = {}) {
         const name = names.find(candidate => this.exists(candidate))
 
         if (!name) {
@@ -45,7 +60,13 @@ export class ViewFactory {
         return this.make(name, data)
     }
 
-    exists (name: ViewName) {
+    /**
+     * Check if a view exists.
+     * 
+     * @param name 
+     * @returns 
+     */
+    exists(name: ViewName) {
         const edgeName = this.resolveName(name)
 
         if (this.edge.loader.templates[edgeName]) {
@@ -59,15 +80,31 @@ export class ViewFactory {
         }
     }
 
-    share (key: string, value: any): this
-    share (data: ViewData): this
-    share (...data: any[]): this {
+    /**
+     * Share data with all views. 
+     * This data will be available in every view rendered by the factory.
+     * 
+     * @param key 
+     * @param value 
+     */
+    share(key: string, value: any): this
+    share(data: ViewData): this
+    share(...data: any[]): this {
         mergeData(this.sharedData, data)
 
         return this
     }
 
-    composer (names: ViewComposerName, composer: ViewComposer): this {
+    /**
+     * Register a view composer for the given view name(s). 
+     * A view composer is a function or object that is called when a view is 
+     * rendered, allowing you to modify the view's data or perform other actions.
+     * 
+     * @param names 
+     * @param composer 
+     * @returns 
+     */
+    composer(names: ViewComposerName, composer: ViewComposer): this {
         for (const name of Array.isArray(names) ? names : [names]) {
             this.composers.set(name, [
                 ...(this.composers.get(name) ?? []),
@@ -78,9 +115,17 @@ export class ViewFactory {
         return this
     }
 
-    mount (viewsDirectory: string | URL): this
-    mount (diskName: string, viewsDirectory: string | URL): this
-    mount (diskName: string | URL, viewsDirectory?: string | URL): this {
+    /**
+     * Mount a directory containing views. 
+     * If only one argument is provided, it will be treated as the views directory. 
+     * If two arguments are provided, the first will be treated as the disk name and 
+     * the second as the views directory.
+     * 
+     * @param viewsDirectory 
+     */
+    mount(viewsDirectory: string | URL): this
+    mount(diskName: string, viewsDirectory: string | URL): this
+    mount(diskName: string | URL, viewsDirectory?: string | URL): this {
         if (viewsDirectory === undefined) {
             this.edge.mount(diskName)
 
@@ -92,25 +137,82 @@ export class ViewFactory {
         return this
     }
 
-    raw (name: ViewName, contents: string): this {
+    /**
+     * Register a raw template with the given name and contents.
+     * 
+     * @param name 
+     * @param contents 
+     * @returns 
+     */
+    raw(name: ViewName, contents: string): this {
         this.edge.registerTemplate(name, { template: contents })
 
         return this
     }
 
-    flushShared () {
+    /**
+     * Register a custom tag with the given name, block type, seekable type, 
+     * and compiler function.
+     * 
+     * @param tagName 
+     * @param block 
+     * @param seekable 
+     * @param compiler 
+     */
+    tag(
+        /**
+         * The tag name
+         */
+        tagName: string,
+        /**
+         * Tag accepts content within the opening and
+         * closing tags
+         */
+        block: boolean,
+
+        /**
+         * Tag accepts parameters
+         */
+        seekable: boolean,
+        /**
+         * The parser needs the `compile` method on every tag
+         */
+        compiler: ParserTagDefinitionContract['compile']
+    ) {
+        const tag: TagContract = {
+            block,
+            seekable,
+            tagName,
+            compile: compiler,
+        }
+
+        this.edge.registerTag(tag)
+    }
+
+    /**
+     * Flush all shared data. This will remove all data that has been shared with all views.
+     * 
+     * @returns 
+     */
+    flushShared() {
         this.sharedData = {}
 
         return this
     }
 
-    flushComposers () {
+    /**
+     * Flush all registered composers. This will remove all composers that have 
+     * been registered for any view.
+     * 
+     * @returns 
+     */
+    flushComposers() {
         this.composers.clear()
 
         return this
     }
 
-    private getComposers (name: ViewName) {
+    private getComposers(name: ViewName) {
         const edgeName = this.resolveName(name)
 
         return [
@@ -120,19 +222,19 @@ export class ViewFactory {
         ]
     }
 
-    private async runComposers (name: ViewName, view: ViewInstance) {
+    private async runComposers(name: ViewName, view: ViewInstance) {
         for (const composer of this.getComposers(name)) {
             await runComposer(composer, view)
         }
     }
 
-    private runComposersSync (name: ViewName, view: ViewInstance) {
+    private runComposersSync(name: ViewName, view: ViewInstance) {
         for (const composer of this.getComposers(name)) {
             runComposerSync(composer, view)
         }
     }
 
-    private resolveName (name: ViewName) {
+    private resolveName(name: ViewName) {
         const packageView = parsePackageViewName(name)
 
         if (!packageView) {
