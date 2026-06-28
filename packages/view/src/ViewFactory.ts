@@ -8,6 +8,7 @@ import { Edge } from 'edge.js'
 import { ViewInstance } from './ViewInstance'
 import { existsSync } from 'node:fs'
 import { getViewData } from './viewContext'
+import { registerViteTag } from './vite'
 import { resolve } from 'node:path'
 
 export class ViewFactory {
@@ -21,6 +22,7 @@ export class ViewFactory {
         this.edge = options.edge ?? Edge.create({ cache: options.cache })
         this.packageViewsPath = options.packageViewsPath ?? 'resources/views'
         this.mount(options.viewsPath ?? resolve(Arkstack.rootDir(), 'src', 'resources', 'views'))
+        registerViteTag(this)
     }
 
     /**

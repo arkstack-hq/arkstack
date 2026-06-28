@@ -6,6 +6,8 @@ export { parsePackageViewName, resolvePackageViewsPath } from './packageViews'
 export type * from './types'
 export { Edge, default as edge } from 'edge.js'
 
+export { viteTags, registerViteTag } from './vite'
+export type { ViteTagOptions } from './vite'
 export { clearRouterViewPlugin } from './plugins'
 export { ViewErrorBag, normalizeViewErrors } from './ViewErrorBag'
 export { clearViewData, collectViewData, enterViewData, getViewData, runWithViewData } from './viewContext'
