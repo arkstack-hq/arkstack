@@ -9,15 +9,18 @@ vi.mock('node:child_process', () => {
     }
 })
 
+const makeChild = () => new EventEmitter() as EventEmitter & {
+    on: (event: string, listener: (...args: any[]) => void) => EventEmitter;
+}
+
 describe('DevCommand', () => {
-    it('spawns tsdown with silent log level', async () => {
+    it('runs tsdown directly with node when its bin resolves (no pnpm wrapper)', async () => {
         const { spawn } = await import('node:child_process')
         const { DevCommand } = await import('../src/commands/DevCommand')
 
-        const child = new EventEmitter() as EventEmitter & {
-            on: (event: string, listener: (...args: any[]) => void) => EventEmitter;
-        }
+        vi.spyOn(DevCommand, 'resolveTsdownBin').mockReturnValue('/pkgs/tsdown/dist/run.js')
 
+        const child = makeChild()
         vi.mocked(spawn).mockReturnValueOnce(child as any)
 
         const promise = DevCommand.prototype.handle.call({ options: () => ({}) })
@@ -26,8 +29,8 @@ describe('DevCommand', () => {
         await expect(promise).resolves.toBeUndefined()
 
         expect(spawn).toHaveBeenCalledWith(
-            process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm',
-            ['exec', 'tsdown', '--log-level', 'silent'],
+            process.execPath,
+            ['/pkgs/tsdown/dist/run.js', '--log-level', 'silent'],
             {
                 cwd: process.cwd(),
                 stdio: 'inherit',
@@ -38,22 +41,52 @@ describe('DevCommand', () => {
                 }
             },
         )
+
+        vi.mocked(DevCommand.resolveTsdownBin).mockRestore()
+    })
+
+    it('falls back to pnpm exec when the tsdown bin cannot be resolved', async () => {
+        const { spawn } = await import('node:child_process')
+        const { DevCommand } = await import('../src/commands/DevCommand')
+
+        vi.spyOn(DevCommand, 'resolveTsdownBin').mockReturnValue(undefined)
+
+        const child = makeChild()
+        vi.mocked(spawn).mockReturnValueOnce(child as any)
+
+        const promise = DevCommand.prototype.handle.call({ options: () => ({}) })
+        child.emit('exit', 0)
+
+        await expect(promise).resolves.toBeUndefined()
+
+        expect(spawn).toHaveBeenCalledWith(
+            process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm',
+            ['exec', 'tsdown', '--log-level', 'silent'],
+            expect.objectContaining({ cwd: process.cwd(), stdio: 'inherit' }),
+        )
+
+        vi.mocked(DevCommand.resolveTsdownBin).mockRestore()
     })
 
     it('rejects when tsdown exits with a non-zero code', async () => {
         const { spawn } = await import('node:child_process')
         const { DevCommand } = await import('../src/commands/DevCommand')
 
-        const child = new EventEmitter() as EventEmitter & {
-            on: (event: string, listener: (...args: any[]) => void) => EventEmitter;
-        }
-
+        const child = makeChild()
         vi.mocked(spawn).mockReturnValueOnce(child as any)
 
         const promise = DevCommand.prototype.handle.call({ options: () => ({}) })
         child.emit('exit', 1)
 
         await expect(promise).rejects.toThrow('tsdown exited with code 1')
+    })
+
+    it('resolveTsdownBin resolves tsdown from the workspace', async () => {
+        const { DevCommand } = await import('../src/commands/DevCommand')
+
+        const bin = DevCommand.resolveTsdownBin(process.cwd())
+        expect(bin).toMatch(/tsdown/)
+        expect(bin).toMatch(/\.[mc]?js$/)
     })
 })
 

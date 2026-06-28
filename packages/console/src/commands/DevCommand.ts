@@ -1,5 +1,9 @@
+import { dirname, join } from 'node:path'
+
 import { Arkstack } from '@arkstack/contract'
 import { Command } from '@h3ravel/musket'
+import { createRequire } from 'node:module'
+import { readFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 
 export interface DevServerOptions {
@@ -29,13 +33,22 @@ export class DevCommand extends Command {
 
     async handle() {
         const vars = DevCommand.devServerEnv(this.options())
+        const rootDir = Arkstack.rootDir()
+        const bin = DevCommand.resolveTsdownBin(rootDir)
+
+        // Run tsdown directly with node when we can resolve its bin — this avoids
+        // the extra `pnpm exec` wrapper process. Fall back to `pnpm exec tsdown`
+        // when resolution fails (e.g. an unusual install layout).
+        const [command, args] = bin
+            ? [process.execPath, [bin, '--log-level', 'silent']]
+            : [
+                process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm',
+                ['exec', 'tsdown', '--log-level', 'silent'],
+            ]
 
         await new Promise<void>((resolve, reject) => {
-            const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
-            const child = spawn(command, [
-                'exec', 'tsdown', '--log-level', 'silent'
-            ], {
-                cwd: Arkstack.rootDir(),
+            const child = spawn(command, args, {
+                cwd: rootDir,
                 stdio: 'inherit',
                 env: Object.assign(process.env, vars),
             })
@@ -54,6 +67,29 @@ export class DevCommand extends Command {
                 reject(new Error(`tsdown exited with code ${code}`))
             })
         })
+    }
+
+    /**
+     * Resolve the absolute path to tsdown's executable so it can be run directly
+     * with `node`, skipping the `pnpm exec` wrapper process. Returns `undefined`
+     * when tsdown cannot be resolved from the app root, letting the caller fall
+     * back to `pnpm exec`.
+     *
+     * @param rootDir  The application root to resolve tsdown from.
+     */
+    static resolveTsdownBin (rootDir: string): string | undefined {
+        try {
+            const require = createRequire(join(rootDir, 'noop.js'))
+            const pkgPath = require.resolve('tsdown/package.json')
+            const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as {
+                bin?: string | Record<string, string>;
+            }
+            const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.tsdown
+
+            return bin ? join(dirname(pkgPath), bin) : undefined
+        } catch {
+            return undefined
+        }
     }
 
     /**
