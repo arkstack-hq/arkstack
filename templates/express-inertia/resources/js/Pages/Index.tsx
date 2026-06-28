@@ -7,9 +7,9 @@ export default function Index({
   title: string;
   message: string;
 }) {
-  const root = document.documentElement;
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  const root = document.documentElement
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  root.setAttribute('data-theme', prefersDark ? 'dark' : 'light')
 
   return (
     <html lang="en">
@@ -138,5 +138,5 @@ export default function Index({
         </div>
       </body>
     </html>
-  );
+  )
 }
