@@ -1,0 +1,7 @@
+<script lang="ts">
+  export let appName: string;
+</script>
+
+<div>
+  <h1>Hello, {appName}!</h1>
+</div>

@@ -11,9 +11,6 @@ const dist = path.relative(Arkstack.rootDir(), outputDir())
 export default defineConfig([
   {
     unbundle: true,
-    // Wipe the output dir on build/prepare so a renamed/removed/added source file
-    // can't leave a stale emitted module behind (which would wedge the next boot).
-    // Skipped for the live dev watcher so its running server isn't disrupted.
     clean: env !== 'dev' || process.env.CLI_BUILD === 'true',
     tsconfig: 'tsconfig.json',
     entry: ['src/**/*.ts'],
@@ -40,13 +37,13 @@ export default defineConfig([
         ]
         : [
         ],
-    outExtensions: (e) => {
+    outExtensions: () => {
       return {
-        js: e.format === 'es' ? '.js' : '.cjs',
+        js: '.js',
         dts: '.d.ts',
       }
     },
-    hooks (e) {
+    hooks(e) {
       e.hook('build:done', async (e) => {
         for (let i = 0; i < e.chunks.length; i++) {
           const chunk = e.chunks[i]

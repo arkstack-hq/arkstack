@@ -15,13 +15,13 @@ export default defineConfig({
     dts: true,
     clean: true,
     outDir: 'dist',
-    outExtensions (ctx) {
+    outExtensions() {
         return {
-            'js': ctx.format === 'cjs' ? '.cjs' : '.js',
+            'js': '.js',
             'd.ts': '.ts',
         }
     },
-    hooks (e) {
+    hooks(e) {
         e.hook('build:done', async (e) => {
             for (let i = 0; i < e.chunks.length; i++) {
                 const chunk = e.chunks[i]

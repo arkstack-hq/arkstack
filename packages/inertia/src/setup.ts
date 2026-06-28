@@ -35,3 +35,79 @@ Publisher.publishes({
         },
     ],
 })
+
+Publisher.publishes({
+    package: '@arkstack/inertia',
+    tag: 'inertia-react',
+    entries: [
+        {
+            from: join(root, 'stubs/react/resources/js/app.tsx.stub'),
+            to: 'resources/js/app.tsx',
+        },
+        {
+            from: join(root, 'stubs/react/vite.config.ts.stub'),
+            to: 'vite.config.ts',
+        },
+        {
+            from: join(root, 'stubs/react/resources/js/Pages/Index.tsx.stub'),
+            to: 'resources/js/Pages/Index.tsx',
+        }
+    ],
+})
+
+Publisher.publishes({
+    package: '@arkstack/inertia',
+    tag: 'inertia-svelte',
+    entries: [
+        {
+            from: join(root, 'stubs/svelte/resources/js/app.ts.stub'),
+            to: 'resources/js/app.ts',
+        },
+        {
+            from: join(root, 'stubs/svelte/vite.config.ts.stub'),
+            to: 'vite.config.ts',
+        },
+        {
+            from: join(root, 'stubs/svelte/resources/js/Pages/Index.svelte.stub'),
+            to: 'resources/js/Pages/Index.svelte',
+        }
+    ],
+})
+
+Publisher.publishes({
+    package: '@arkstack/inertia',
+    tag: 'inertia-vue',
+    entries: [
+        {
+            from: join(root, 'stubs/vue/resources/js/app.ts.stub'),
+            to: 'resources/js/app.ts',
+        },
+        {
+            from: join(root, 'stubs/vue/vite.config.ts.stub'),
+            to: 'vite.config.ts',
+        },
+        {
+            from: join(root, 'stubs/vue/resources/js/Pages/Index.vue.stub'),
+            to: 'resources/js/Pages/Index.vue',
+        }
+    ],
+})
+
+Publisher.confirm({
+    package: '@arkstack/inertia',
+    message: 'What front-end framework are you using with Inertia?',
+    options: [
+        { name: 'React', value: 'inertia-react' },
+        { name: 'Svelte', value: 'inertia-svelte' },
+        { name: 'Vue', value: 'inertia-vue' },
+    ],
+    callback: (tag, stub) => {
+        const exts: Record<string, string> = {
+            'inertia-react': 'tsx',
+            'inertia-svelte': 'ts',
+            'inertia-vue': 'ts',
+        }
+
+        return stub.replaceAll('{{ext}}', exts[tag] ?? 'ts')
+    }
+})

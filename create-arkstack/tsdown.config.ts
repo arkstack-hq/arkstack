@@ -17,9 +17,9 @@ export default defineConfig({
         ]
     },
     clean: true,
-    outExtensions: (e) => {
+    outExtensions: () => {
         return ({
-            js: e.format === 'es' ? '.js' : '.cjs',
+            js: '.js',
             dts: '.d.ts'
         })
     },

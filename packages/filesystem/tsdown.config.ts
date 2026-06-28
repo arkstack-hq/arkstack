@@ -8,9 +8,9 @@ export default defineConfig({
     dts: true,
     clean: true,
     outDir: 'dist',
-    outExtensions (ctx) {
+    outExtensions() {
         return {
-            'js': ctx.format === 'cjs' ? '.cjs' : '.js',
+            'js': '.js',
             'd.ts': '.ts',
         }
     }

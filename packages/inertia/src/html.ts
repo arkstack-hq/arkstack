@@ -1,5 +1,6 @@
-import { renderViaSsr } from './ssr'
 import type { InertiaConfig, InertiaPage } from './types'
+
+import { renderViaSsr } from './ssr'
 
 /** Escape a string for safe inclusion in a double-quoted HTML attribute. */
 export const escapeHtmlAttribute = (value: string): string => {

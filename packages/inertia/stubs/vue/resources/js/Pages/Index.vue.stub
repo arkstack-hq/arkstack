@@ -1,0 +1,11 @@
+<script setup lang="ts">
+defineProps<{
+  appName: string
+}>()
+</script>
+
+<template>
+  <div>
+    <h1>Hello, {{ appName }}!</h1>
+  </div>
+</template>

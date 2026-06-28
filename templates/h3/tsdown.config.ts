@@ -40,13 +40,13 @@ export default defineConfig([
           }),
         ]
         : [],
-    outExtensions: (e) => {
+    outExtensions: () => {
       return {
-        js: e.format === 'es' ? '.js' : '.cjs',
+        js: '.js',
         dts: '.d.ts',
       }
     },
-    hooks (e) {
+    hooks(e) {
       e.hook('build:done', async (e) => {
         for (let i = 0; i < e.chunks.length; i++) {
           const chunk = e.chunks[i]

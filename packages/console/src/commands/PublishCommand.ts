@@ -130,8 +130,10 @@ export class PublishCommand extends Command {
      * @param filter  The active package/tag filter.
      * @returns       The per-package choices and the set of gated tags.
      */
-    private async resolveConfirmations(filter: { package?: string, tag?: string }) {
-        const confirmations = Publisher.confirmables(filter.package ?? true)
+    private async resolveConfirmations(
+        { package: pkg, tag }: { package?: string, tag?: string }
+    ) {
+        const confirmations = Publisher.confirmables(pkg || true)
         const choices = new Map<string, PublishChoice>()
         const gated = new Set<string>()
 
@@ -141,12 +143,12 @@ export class PublishCommand extends Command {
             const values = this.choiceValues(confirmation.options)
             values.forEach((value) => gated.add(value))
 
-            if (filter.tag) {
+            if (tag) {
                 // Explicit tag: no prompt, but still apply the callback if this
                 // confirmation offers that tag.
-                if (values.includes(filter.tag)) {
+                if (values.includes(tag)) {
                     choices.set(confirmation.package, {
-                        tag: filter.tag,
+                        tag: tag,
                         callback: confirmation.callback
                     })
                 }
@@ -159,12 +161,12 @@ export class PublishCommand extends Command {
                 continue
             }
 
-            const tag = await this.choice(
+            const _tag = await this.choice(
                 `[${confirmation.package}] ${confirmation.message}`,
                 confirmation.options as Choices,
             )
 
-            choices.set(confirmation.package, { tag, callback: confirmation.callback })
+            choices.set(confirmation.package, { tag: _tag, callback: confirmation.callback })
         }
 
         return { choices, gated }
