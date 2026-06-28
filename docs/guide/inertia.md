@@ -10,7 +10,7 @@ It works with both the Express and H3 drivers and serves responses through the s
 pnpm add @arkstack/inertia
 ```
 
-`@arkstack/http` and `@arkstack/view` are peer dependencies (apps already have `@arkstack/http`; `@arkstack/view` is only needed to render the root template). On the client, install the Inertia adapter for your framework, e.g. `@inertiajs/vue3`.
+`@arkstack/http` and `@arkstack/view` are peer dependencies (apps already have `@arkstack/http`; `@arkstack/view` is only needed to render the root template). On the client, install the Inertia adapter for your framework — `@inertiajs/vue3`, `@inertiajs/react`, or `@inertiajs/svelte`; see **Set up the client** under Setup below.
 
 ## How it works
 
@@ -77,6 +77,148 @@ This writes `src/config/inertia.ts` and a root Edge template to `src/resources/v
 </body>
 </html>
 ```
+
+### 3. Set up the client
+
+The front-end is a standard [Vite](https://vitejs.dev) project. Keep your client code **outside `src/`** (the build only compiles `src/**/*.ts` for Node) — `resources/js/` is a good home.
+
+Install Vite, the Inertia client adapter, and the framework plugin:
+
+::: code-group
+
+```sh [Vue]
+pnpm add vue @inertiajs/vue3
+pnpm add -D vite @vitejs/plugin-vue
+```
+
+```sh [React]
+pnpm add react react-dom @inertiajs/react
+pnpm add -D vite @vitejs/plugin-react
+```
+
+```sh [Svelte]
+pnpm add svelte @inertiajs/svelte
+pnpm add -D vite @sveltejs/vite-plugin-svelte
+```
+
+:::
+
+Add a `vite.config.ts` pointing at your client entry:
+
+::: code-group
+
+```ts [Vue]
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+  build: {
+    manifest: true,
+    outDir: 'public/build',
+    rollupOptions: { input: 'resources/js/app.ts' },
+  },
+})
+```
+
+```ts [React]
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    manifest: true,
+    outDir: 'public/build',
+    rollupOptions: { input: 'resources/js/app.tsx' },
+  },
+})
+```
+
+```ts [Svelte]
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
+
+export default defineConfig({
+  plugins: [svelte()],
+  build: {
+    manifest: true,
+    outDir: 'public/build',
+    rollupOptions: { input: 'resources/js/app.ts' },
+  },
+})
+```
+
+:::
+
+Wire the root Edge template to your bundle. In development load Vite's dev server; in production load the built entry:
+
+```edge
+<head>
+    <meta charset="utf-8">
+    {{{ inertiaHead }}}
+    {{-- Development: Vite dev server. In production, reference the hashed file
+         from public/build/.vite/manifest.json instead. --}}
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/resources/js/app.ts"></script>
+</head>
+```
+
+Create the client entry that boots Inertia and resolves your pages from `resources/js/Pages`:
+
+::: code-group
+
+```ts [Vue]
+// resources/js/app.ts
+import { createApp, h } from 'vue'
+import { createInertiaApp } from '@inertiajs/vue3'
+
+createInertiaApp({
+  resolve: (name) => {
+    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
+    return pages[`./Pages/${name}.vue`]
+  },
+  setup ({ el, App, props, plugin }) {
+    createApp({ render: () => h(App, props) }).use(plugin).mount(el)
+  },
+})
+```
+
+```tsx [React]
+// resources/js/app.tsx
+import { createInertiaApp } from '@inertiajs/react'
+import { createRoot } from 'react-dom/client'
+
+createInertiaApp({
+  resolve: (name) => {
+    const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
+    return pages[`./Pages/${name}.tsx`]
+  },
+  setup ({ el, App, props }) {
+    createRoot(el).render(<App {...props} />)
+  },
+})
+```
+
+```ts [Svelte]
+// resources/js/app.ts
+import { createInertiaApp } from '@inertiajs/svelte'
+import { mount } from 'svelte'
+
+createInertiaApp({
+  resolve: (name) => {
+    const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true })
+    return pages[`./Pages/${name}.svelte`]
+  },
+  setup ({ el, App, props }) {
+    mount(App, { target: el, props })
+  },
+})
+```
+
+:::
+
+Run Vite alongside `ark dev` during development (e.g. `vite`), and `vite build` for production.
 
 ## Rendering pages
 
@@ -187,35 +329,75 @@ With SSR enabled, the **initial** visit is rendered by a separate Node process (
 
 ### 1. Add an SSR entry
 
-Create a server entry that renders a page to `{ head, body }` and starts the SSR server. With `@inertiajs/vue3`:
+Create a server entry (`resources/js/ssr.ts`) that renders a page to `{ head, body }` and starts the SSR server:
 
-```ts
-// src/ssr.ts
-import { createInertiaApp } from '@inertiajs/vue3';
-import createServer from '@inertiajs/vue3/server';
-import { renderToString } from '@vue/server-renderer';
-import { createSSRApp, h } from 'vue';
+::: code-group
+
+```ts [Vue]
+// resources/js/ssr.ts
+import { createInertiaApp } from '@inertiajs/vue3'
+import createServer from '@inertiajs/vue3/server'
+import { renderToString } from '@vue/server-renderer'
+import { createSSRApp, h } from 'vue'
 
 createServer((page) =>
   createInertiaApp({
     page,
     render: renderToString,
     resolve: (name) => {
-      const pages = import.meta.glob('./Pages/*.vue', { eager: true });
-      return pages[`./Pages/${name}.vue`];
+      const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
+      return pages[`./Pages/${name}.vue`]
     },
-    setup({ App, props, plugin }) {
-      return createSSRApp({ render: () => h(App, props) }).use(plugin);
+    setup ({ App, props, plugin }) {
+      return createSSRApp({ render: () => h(App, props) }).use(plugin)
     },
   }),
-);
+)
 ```
 
-On the client, hydrate the server-rendered markup by using `createSSRApp` (instead of `createApp`) in your client entry's `setup`.
+```tsx [React]
+// resources/js/ssr.tsx
+import { createInertiaApp } from '@inertiajs/react'
+import createServer from '@inertiajs/react/server'
+import ReactDOMServer from 'react-dom/server'
+
+createServer((page) =>
+  createInertiaApp({
+    page,
+    render: ReactDOMServer.renderToString,
+    resolve: (name) => {
+      const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
+      return pages[`./Pages/${name}.tsx`]
+    },
+    setup: ({ App, props }) => <App {...props} />,
+  }),
+)
+```
+
+```ts [Svelte]
+// resources/js/ssr.ts
+import { createInertiaApp } from '@inertiajs/svelte'
+import createServer from '@inertiajs/svelte/server'
+
+createServer((page) =>
+  createInertiaApp({
+    page,
+    resolve: (name) => {
+      const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true })
+      return pages[`./Pages/${name}.svelte`]
+    },
+    setup: ({ App, props }) => App.render(props),
+  }),
+)
+```
+
+:::
+
+On the client, hydrate the server-rendered markup instead of mounting fresh: Vue uses `createSSRApp`, React uses `hydrateRoot`, and Svelte uses `hydrate`.
 
 ### 2. Build and run the SSR server
 
-Build the SSR bundle (for example with Vite: `vite build --ssr src/ssr.ts --outDir dist-ssr`), then run it alongside your app with the `inertia:ssr` command, which supervises the process and restarts it if it crashes:
+Build the SSR bundle (for example with Vite: `vite build --ssr resources/js/ssr.ts --outDir dist-ssr`), then run it alongside your app with the `inertia:ssr` command, which supervises the process and restarts it if it crashes:
 
 ```sh
 ark inertia:ssr
