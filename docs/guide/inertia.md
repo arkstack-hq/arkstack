@@ -62,18 +62,22 @@ export default (): MiddlewareConfig => {
 ark publish --package @arkstack/inertia
 ```
 
-This writes `src/config/inertia.ts` and a root Edge template to `src/resources/views/app.edge`. Edit the template to load your client bundle (for example, your Vite tags), it must render the <span v-pre>`{{{ inertia }}}`</span> mount element:
+This writes `src/config/inertia.ts` and a root Edge template to `src/resources/views/app.edge`. The template uses three Edge tags the adapter registers for you:
+
+- `@inertiaHead` — SSR head tags (empty without SSR).
+- `@vite(...)` — your client bundle (dev-server tags in development, hashed manifest assets in production); see **Set up the client** below.
+- `@inertia` — the mount element the client hydrates.
 
 ```edge
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    {{{ inertiaHead }}}
-    <!-- your Vite client + entry tags here -->
+    @inertiaHead
+    @vite('resources/js/app.ts')
 </head>
 <body>
-    {{{ inertia }}}
+    @inertia
 </body>
 </html>
 ```
@@ -108,8 +112,8 @@ Add a `vite.config.ts` pointing at your client entry:
 ::: code-group
 
 ```ts [Vue]
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   plugins: [vue()],
@@ -118,12 +122,12 @@ export default defineConfig({
     outDir: 'public/build',
     rollupOptions: { input: 'resources/js/app.ts' },
   },
-})
+});
 ```
 
 ```ts [React]
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
@@ -132,12 +136,12 @@ export default defineConfig({
     outDir: 'public/build',
     rollupOptions: { input: 'resources/js/app.tsx' },
   },
-})
+});
 ```
 
 ```ts [Svelte]
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
   plugins: [svelte()],
@@ -146,23 +150,22 @@ export default defineConfig({
     outDir: 'public/build',
     rollupOptions: { input: 'resources/js/app.ts' },
   },
-})
+});
 ```
 
 :::
 
-Wire the root Edge template to your bundle. In development load Vite's dev server; in production load the built entry:
+The published root template already loads your bundle with the `@vite` tag, which emits the Vite dev-server tags in development and the hashed manifest assets in production, no manual `<script>` wiring or dev/prod branching:
 
 ```edge
 <head>
     <meta charset="utf-8">
-    {{{ inertiaHead }}}
-    {{-- Development: Vite dev server. In production, reference the hashed file
-         from public/build/.vite/manifest.json instead. --}}
-    <script type="module" src="http://localhost:5173/@vite/client"></script>
-    <script type="module" src="http://localhost:5173/resources/js/app.ts"></script>
+    @inertiaHead
+    @vite('resources/js/app.ts')
 </head>
 ```
+
+Pass an array to include a stylesheet entry, e.g. `@vite(['resources/css/app.css', 'resources/js/app.ts'])`. Override the dev server URL with `VITE_DEV_URL`; in production the manifest is read from `public/build/.vite/manifest.json`.
 
 Create the client entry that boots Inertia and resolves your pages from `resources/js/Pages`:
 
@@ -170,50 +173,52 @@ Create the client entry that boots Inertia and resolves your pages from `resourc
 
 ```ts [Vue]
 // resources/js/app.ts
-import { createApp, h } from 'vue'
-import { createInertiaApp } from '@inertiajs/vue3'
+import { createApp, h } from 'vue';
+import { createInertiaApp } from '@inertiajs/vue3';
 
 createInertiaApp({
   resolve: (name) => {
-    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
-    return pages[`./Pages/${name}.vue`]
+    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
+    return pages[`./Pages/${name}.vue`];
   },
-  setup ({ el, App, props, plugin }) {
-    createApp({ render: () => h(App, props) }).use(plugin).mount(el)
+  setup({ el, App, props, plugin }) {
+    createApp({ render: () => h(App, props) })
+      .use(plugin)
+      .mount(el);
   },
-})
+});
 ```
 
 ```tsx [React]
 // resources/js/app.tsx
-import { createInertiaApp } from '@inertiajs/react'
-import { createRoot } from 'react-dom/client'
+import { createInertiaApp } from '@inertiajs/react';
+import { createRoot } from 'react-dom/client';
 
 createInertiaApp({
   resolve: (name) => {
-    const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
-    return pages[`./Pages/${name}.tsx`]
+    const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
+    return pages[`./Pages/${name}.tsx`];
   },
-  setup ({ el, App, props }) {
-    createRoot(el).render(<App {...props} />)
+  setup({ el, App, props }) {
+    createRoot(el).render(<App {...props} />);
   },
-})
+});
 ```
 
 ```ts [Svelte]
 // resources/js/app.ts
-import { createInertiaApp } from '@inertiajs/svelte'
-import { mount } from 'svelte'
+import { createInertiaApp } from '@inertiajs/svelte';
+import { mount } from 'svelte';
 
 createInertiaApp({
   resolve: (name) => {
-    const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true })
-    return pages[`./Pages/${name}.svelte`]
+    const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true });
+    return pages[`./Pages/${name}.svelte`];
   },
-  setup ({ el, App, props }) {
-    mount(App, { target: el, props })
+  setup({ el, App, props }) {
+    mount(App, { target: el, props });
   },
-})
+});
 ```
 
 :::
@@ -335,60 +340,60 @@ Create a server entry (`resources/js/ssr.ts`) that renders a page to `{ head, bo
 
 ```ts [Vue]
 // resources/js/ssr.ts
-import { createInertiaApp } from '@inertiajs/vue3'
-import createServer from '@inertiajs/vue3/server'
-import { renderToString } from '@vue/server-renderer'
-import { createSSRApp, h } from 'vue'
+import { createInertiaApp } from '@inertiajs/vue3';
+import createServer from '@inertiajs/vue3/server';
+import { renderToString } from '@vue/server-renderer';
+import { createSSRApp, h } from 'vue';
 
 createServer((page) =>
   createInertiaApp({
     page,
     render: renderToString,
     resolve: (name) => {
-      const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
-      return pages[`./Pages/${name}.vue`]
+      const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
+      return pages[`./Pages/${name}.vue`];
     },
-    setup ({ App, props, plugin }) {
-      return createSSRApp({ render: () => h(App, props) }).use(plugin)
+    setup({ App, props, plugin }) {
+      return createSSRApp({ render: () => h(App, props) }).use(plugin);
     },
   }),
-)
+);
 ```
 
 ```tsx [React]
 // resources/js/ssr.tsx
-import { createInertiaApp } from '@inertiajs/react'
-import createServer from '@inertiajs/react/server'
-import ReactDOMServer from 'react-dom/server'
+import { createInertiaApp } from '@inertiajs/react';
+import createServer from '@inertiajs/react/server';
+import ReactDOMServer from 'react-dom/server';
 
 createServer((page) =>
   createInertiaApp({
     page,
     render: ReactDOMServer.renderToString,
     resolve: (name) => {
-      const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
-      return pages[`./Pages/${name}.tsx`]
+      const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
+      return pages[`./Pages/${name}.tsx`];
     },
     setup: ({ App, props }) => <App {...props} />,
   }),
-)
+);
 ```
 
 ```ts [Svelte]
 // resources/js/ssr.ts
-import { createInertiaApp } from '@inertiajs/svelte'
-import createServer from '@inertiajs/svelte/server'
+import { createInertiaApp } from '@inertiajs/svelte';
+import createServer from '@inertiajs/svelte/server';
 
 createServer((page) =>
   createInertiaApp({
     page,
     resolve: (name) => {
-      const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true })
-      return pages[`./Pages/${name}.svelte`]
+      const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true });
+      return pages[`./Pages/${name}.svelte`];
     },
     setup: ({ App, props }) => App.render(props),
   }),
-)
+);
 ```
 
 :::

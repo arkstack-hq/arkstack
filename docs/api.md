@@ -262,7 +262,13 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 - `View.composer(names, callbackOrComposer)` — register a view composer function, class, or instance with `compose()`.
 - `View.mount(path)` / `View.mount(name, path)` — mount view directories.
 - `View.raw(name, contents)` — register an in-memory Edge template.
+- `view().tag(name, block, seekable, compile)` — register a custom Edge tag.
 - Package scoped names use `~package-name.view` and `~org/package-name.view`.
+
+### Vite assets
+
+- `@vite('resources/js/app.ts')` — Edge tag that emits the Vite dev-server tags in development and the hashed manifest assets in production. Accepts a single entry or an array.
+- `viteTags(entries, options?)` — the function backing the tag (`hot`, `devUrl`, `manifest`, `buildDir` options).
 
 ## Inertia
 
