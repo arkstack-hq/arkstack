@@ -98,19 +98,72 @@ export const viteTags = (
 }
 
 /**
- * Register the `@vite(...)` tag (and its backing global) on a view factory so
- * templates can emit Vite asset tags: `@vite('resources/js/app.ts')` or
- * `@vite(['resources/css/app.css', 'resources/js/app.ts'])`.
- * 
- * @param factory 
+ * Resolve the React Refresh preamble for `@vitejs/plugin-react`.
+ *
+ * When Vite serves the HTML itself it injects this preamble automatically; here
+ * the page is rendered by Edge and the dev tags are emitted manually, so the
+ * preamble must be added by hand — otherwise React throws "can't detect
+ * preamble". It must precede the `@vite(...)` tags. Emits nothing in production.
+ *
+ * @param options
+ * @returns
+ */
+export const viteReactRefresh = (options: ViteTagOptions = {}): string => {
+    const dev = options.hot ?? (nodeEnv() !== 'prod')
+
+    if (!dev) {
+        return ''
+    }
+
+    const base = trimTrailingSlash(options.devUrl ?? env('VITE_DEV_URL', 'http://localhost:5173'))
+
+    return [
+        '<script type="module">',
+        `import RefreshRuntime from '${base}/@react-refresh'`,
+        'RefreshRuntime.injectIntoGlobalHook(window)',
+        'window.$RefreshReg$ = () => {}',
+        'window.$RefreshSig$ = () => (type) => type',
+        'window.__vite_plugin_react_preamble_installed__ = true',
+        '</script>',
+    ].join('\n')
+}
+
+/**
+ * Register the `@vite(...)` and `@viteReactRefresh` tags (and their backing
+ * globals) on a view factory so templates can emit Vite asset tags:
+ * `@vite('resources/js/app.ts')` or `@vite(['resources/css/app.css',
+ * 'resources/js/app.ts'])`, and the React Refresh preamble via
+ * `@viteReactRefresh` (placed before `@vite`).
+ *
+ * @param factory
  */
 export const registerViteTag = (factory: ViewFactory): void => {
     factory.edge.global('__arkViteTags', (entries: string | string[], options?: ViteTagOptions) =>
         viteTags(entries, options),
     )
 
+    factory.edge.global('__arkViteReactRefresh', (options?: ViteTagOptions) =>
+        viteReactRefresh(options),
+    )
+
     factory.tag('vite', false, true, (parser, buffer, token) => {
         const expression = `__arkViteTags(${token.properties.jsArg})`
+        const ast = parser.utils.transformAst(
+            parser.utils.generateAST(expression, token.loc, token.filename),
+            token.filename,
+            parser,
+        )
+
+        buffer.outputExpression(
+            parser.utils.stringify(ast),
+            token.filename,
+            token.loc.start.line,
+            false
+        )
+    })
+
+    factory.tag('viteReactRefresh', false, false, (parser, buffer, token) => {
+        const expression = '__arkViteReactRefresh()'
         const ast = parser.utils.transformAst(
             parser.utils.generateAST(expression, token.loc, token.filename),
             token.filename,

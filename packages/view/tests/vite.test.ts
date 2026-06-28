@@ -1,7 +1,7 @@
+import { ViewFactory, viteReactRefresh, viteTags } from '../src'
 import { afterEach, describe, expect, test } from 'vitest'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 
-import { ViewFactory, viteTags } from '../src'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -74,6 +74,25 @@ describe('viteTags (production)', () => {
     })
 })
 
+describe('viteReactRefresh', () => {
+    test('emits the React Refresh preamble in development', () => {
+        const html = viteReactRefresh({ hot: true })
+
+        expect(html).toContain('import RefreshRuntime from \'http://localhost:5173/@react-refresh\'')
+        expect(html).toContain('window.__vite_plugin_react_preamble_installed__ = true')
+    })
+
+    test('honours a custom dev URL', () => {
+        const html = viteReactRefresh({ hot: true, devUrl: 'http://127.0.0.1:3001/' })
+
+        expect(html).toContain('import RefreshRuntime from \'http://127.0.0.1:3001/@react-refresh\'')
+    })
+
+    test('emits nothing in production', () => {
+        expect(viteReactRefresh({ hot: false })).toBe('')
+    })
+})
+
 describe('@vite tag', () => {
     test('renders dev tags through the Edge tag', async () => {
         const factory = new ViewFactory()
@@ -83,5 +102,15 @@ describe('@vite tag', () => {
 
         expect(html).toContain('http://localhost:5173/@vite/client')
         expect(html).toContain('http://localhost:5173/resources/js/app.ts')
+    })
+
+    test('renders the React Refresh preamble through the @viteReactRefresh tag', async () => {
+        const factory = new ViewFactory()
+        factory.raw('with-refresh', '@viteReactRefresh')
+
+        const html = await factory.make('with-refresh').render()
+
+        expect(html).toContain('import RefreshRuntime from \'http://localhost:5173/@react-refresh\'')
+        expect(html).toContain('window.__vite_plugin_react_preamble_installed__ = true')
     })
 })

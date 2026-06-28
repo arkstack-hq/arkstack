@@ -167,6 +167,17 @@ The published root template already loads your bundle with the `@vite` tag, whic
 
 Pass an array to include a stylesheet entry, e.g. `@vite(['resources/css/app.css', 'resources/js/app.ts'])`. Override the dev server URL with `VITE_DEV_URL`; in production the manifest is read from `public/build/.vite/manifest.json`.
 
+**React only:** `@vitejs/plugin-react` needs the React Refresh preamble injected before your entry loads. Add `@viteReactRefresh` immediately above `@vite` in the root template, otherwise React throws "can't detect preamble" in development (the tag emits nothing in production). The `inertia-react` publish target adds it for you.
+
+```edge
+<head>
+    <meta charset="utf-8">
+    @inertiaHead
+    @viteReactRefresh
+    @vite('resources/js/app.tsx')
+</head>
+```
+
 Create the client entry that boots Inertia and resolves your pages from `resources/js/Pages`:
 
 ::: code-group

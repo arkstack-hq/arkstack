@@ -108,6 +108,12 @@ Publisher.confirm({
             'inertia-vue': 'ts',
         }
 
-        return stub.replaceAll('{{ext}}', exts[tag] ?? 'ts')
+        // React needs the Vite Refresh preamble emitted before the entry tags;
+        // the other frameworks don't, so the placeholder collapses to nothing.
+        const reactRefresh = tag === 'inertia-react' ? '@viteReactRefresh\n    ' : ''
+
+        return stub
+            .replaceAll('{{ext}}', exts[tag] ?? 'ts')
+            .replaceAll('{{reactRefresh}}', reactRefresh)
     }
 })

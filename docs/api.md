@@ -268,7 +268,9 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 ### Vite assets
 
 - `@vite('resources/js/app.ts')` — Edge tag that emits the Vite dev-server tags in development and the hashed manifest assets in production. Accepts a single entry or an array.
-- `viteTags(entries, options?)` — the function backing the tag (`hot`, `devUrl`, `manifest`, `buildDir` options).
+- `@viteReactRefresh` — Edge tag that emits the React Refresh preamble in development (place it **before** `@vite`). Required when using `@vitejs/plugin-react`, since the page is rendered by Edge rather than Vite; otherwise React throws "can't detect preamble". Emits nothing in production.
+- `viteTags(entries, options?)` — the function backing the `@vite` tag (`hot`, `devUrl`, `manifest`, `buildDir` options).
+- `viteReactRefresh(options?)` — the function backing the `@viteReactRefresh` tag (`hot`, `devUrl` options).
 
 ## Inertia
 
