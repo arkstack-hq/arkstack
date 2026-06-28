@@ -1,4 +1,4 @@
-import { ViteUserConfig, defineConfig } from 'vitest/config'
+import { ViteUserConfig, configDefaults, defineConfig } from 'vitest/config'
 
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -53,6 +53,7 @@ export default defineConfig({
         passWithNoTests: true,
         environment: 'node',
         include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+        exclude: [...configDefaults.exclude, 'templates/**'],
         env: {
             NODE_ENV: 'test',
             VERBOSITY: '0'
