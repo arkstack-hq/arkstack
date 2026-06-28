@@ -1,63 +1,68 @@
 {
-    "name": "@arkstack/console",
-    "version": "0.15.3",
-    "type": "module",
-    "description": "Console module for Arkstack, providing the command-line runtime and console integration layer.",
-    "homepage": "https://arkstack.toneflix.net/guide/cli",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/console"
+  "name": "@arkstack/console",
+  "version": "0.15.3",
+  "type": "module",
+  "description": "Console module for Arkstack, providing the command-line runtime and console integration layer.",
+  "homepage": "https://arkstack.toneflix.net/guide/cli",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/console"
+  },
+  "keywords": [
+    "console",
+    "cli",
+    "command-line",
+    "interface",
+    "runtime",
+    "application",
+    "framework",
+    "stubs",
+    "musket",
+    "h3ravel"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "ark": "./dist/index.js",
+    "prepare": "./dist/prepare.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
-    "keywords": [
-        "console",
-        "cli",
-        "command-line",
-        "interface",
-        "runtime",
-        "application",
-        "framework",
-        "stubs",
-        "musket",
-        "h3ravel"
-    ],
-    "files": [
-        "dist"
-    ],
-    "scripts": {
-        "build": "tsdown",
-        "test": "vitest",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "bin": {
-        "ark": "./dist/index.js",
-        "prepare": "./dist/prepare.js"
-    },
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js"
-        },
-        "./app": {
-            "types": "./dist/app.d.ts",
-            "import": "./dist/app.js"
-        }
-    },
-    "peerDependencies": {
-        "arkormx": "catalog:",
-        "clear-router": "catalog:"
-    },
-    "dependencies": {
-        "@arkstack/common": "workspace:^",
-        "@arkstack/contract": "workspace:^",
-        "@h3ravel/musket": "catalog:",
-        "@h3ravel/support": "catalog:",
-        "chalk": "^5.6.2",
-        "resora": "catalog:",
-        "ts-morph": "^28.0.0"
+    "./app": {
+      "types": "./dist/app.d.ts",
+      "import": "./dist/app.js"
     }
+  },
+  "peerDependencies": {
+    "arkormx": "catalog:",
+    "clear-router": "catalog:"
+  },
+  "dependencies": {
+    "@arkstack/common": "workspace:^",
+    "@arkstack/contract": "workspace:^",
+    "@h3ravel/musket": "catalog:",
+    "@h3ravel/support": "catalog:",
+    "chalk": "^5.6.2",
+    "resora": "catalog:",
+    "ts-morph": "^28.0.0"
+  },
+  "peerDependenciesMeta": {
+    "arkormx": {
+      "optional": true
+    }
+  }
 }

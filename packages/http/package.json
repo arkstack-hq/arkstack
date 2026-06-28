@@ -41,5 +41,10 @@
     "peerDependencies": {
         "arkormx": "catalog:",
         "kanun": "catalog:"
+    },
+    "peerDependenciesMeta": {
+        "arkormx": {
+            "optional": true
+        }
     }
 }

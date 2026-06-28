@@ -57,5 +57,10 @@
     },
     "optionalDependencies": {
         "@faker-js/faker": "catalog:"
+    },
+    "peerDependenciesMeta": {
+        "arkormx": {
+            "optional": true
+        }
     }
 }
