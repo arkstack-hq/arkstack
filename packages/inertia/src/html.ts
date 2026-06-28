@@ -65,7 +65,10 @@ export const renderRootHtml = async (
 
     try {
         const { view } = await import('@arkstack/view')
+        const { registerInertiaTags } = await import('./tags')
         const factory = view()
+
+        registerInertiaTags(factory)
 
         if (factory.exists(config.root_view)) {
             return await view(config.root_view, {

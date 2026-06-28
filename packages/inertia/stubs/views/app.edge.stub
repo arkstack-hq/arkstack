@@ -3,12 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {{{ inertiaHead }}}
-    {{-- Replace with your Vite client + entry tags, e.g.: --}}
-    {{-- <script type="module" src="http://localhost:5173/@@vite/client"></script> --}}
-    {{-- <script type="module" src="http://localhost:5173/src/main.ts"></script> --}}
+    @inertiaHead
+    @vite('resources/js/app.ts')
 </head>
 <body>
-    {{{ inertia }}}
+    @inertia
 </body>
 </html>
