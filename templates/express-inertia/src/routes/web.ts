@@ -1,8 +1,8 @@
 import { Router } from '@arkstack/driver-express'
-import { view } from '@arkstack/view'
+import { inertia } from '@arkstack/inertia'
 
 Router.get('/', async () => {
-  return await view('welcome', {
+  return await inertia('Index', {
     title: 'Welcome to Arkstack',
     message: 'Server running — ready for requests',
   })

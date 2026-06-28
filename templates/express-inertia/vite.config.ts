@@ -5,7 +5,7 @@ export default defineConfig({
     plugins: [react()],
     build: {
         manifest: true,
-        outDir: 'public/build',
-        rollupOptions: { input: 'resources/js/app.tsx' },
+        outDir: 'build',
+        rolldownOptions: { input: 'resources/js/app.tsx' },
     },
 })

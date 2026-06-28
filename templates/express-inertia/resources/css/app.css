@@ -1,0 +1,343 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Dark theme (default) ── */
+:root {
+    --gold-light: #f0c040;
+    --gold-mid: #c9960c;
+    --gold-dark: #8a6400;
+    --bg: #0b0c0e;
+    --bg-card: #111317;
+    --bg-snippet: #0d0f12;
+    --border: rgba(201, 150, 12, 0.18);
+    --text: #f5f0e8;
+    --muted: #7a7567;
+    --radius: 10px;
+    --card-hover: #161820;
+    --kw: #8a9ad6;
+    --fn: #e8c56a;
+    --str: #88c99a;
+    --cm: #4a5060;
+    --code-base: #d4b86a;
+}
+
+/* ── Light theme ── */
+[data-theme="light"] {
+    --gold-light: #a06800;
+    --gold-mid: #8a5a00;
+    --gold-dark: #6b4400;
+    --bg: #f5f3ef;
+    --bg-card: #ffffff;
+    --bg-snippet: #f0ede8;
+    --border: rgba(160, 104, 0, 0.16);
+    --text: #1a1714;
+    --muted: #9a9080;
+    --card-hover: #f9f7f3;
+    --kw: #5460a0;
+    --fn: #8a6000;
+    --str: #2e7d52;
+    --cm: #aaa090;
+    --code-base: #7a5c20;
+}
+
+/* ── OS preference fallback (no JS) ── */
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+    --gold-light: #a06800;
+    --gold-mid: #8a5a00;
+    --gold-dark: #6b4400;
+    --bg: #f5f3ef;
+    --bg-card: #ffffff;
+    --bg-snippet: #f0ede8;
+    --border: rgba(160, 104, 0, 0.16);
+    --text: #1a1714;
+    --muted: #9a9080;
+    --card-hover: #f9f7f3;
+    --kw: #5460a0;
+    --fn: #8a6000;
+    --str: #2e7d52;
+    --cm: #aaa090;
+    --code-base: #7a5c20;
+    }
+}
+
+html,
+body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    transition: background 0.25s, color 0.25s;
+}
+
+.page {
+    max-width: 580px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ── Top bar ── */
+.topbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.8rem;
+}
+
+/* ── Brand block ── */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.logo-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.logo-wrap img {
+    width: 55px;
+    height: 55px;
+    display: block;
+    filter: drop-shadow(0 0 18px rgba(201, 150, 12, 0.35));
+    animation: floatLogo 4s ease-in-out infinite;
+}
+
+.halo {
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201, 150, 12, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes floatLogo {
+
+    0%,
+    100% {
+    transform: translateY(0);
+    }
+
+    50% {
+    transform: translateY(-5px);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+    opacity: 0.5;
+    transform: scale(1);
+    }
+
+    50% {
+    opacity: 1;
+    transform: scale(1.08);
+    }
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wordmark {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1;
+}
+
+.wordmark span {
+    color: var(--gold-light);
+}
+
+.tagline {
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1;
+}
+
+/* ── Status pill ── */
+.status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201, 150, 12, 0.06);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px 6px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--gold-light);
+    margin-top: 1rem;
+    margin-bottom: 2.8rem;
+    transition: border-color 0.25s;
+}
+
+.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4caf74;
+    box-shadow: 0 0 6px #4caf74;
+    animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+    opacity: 1;
+    }
+
+    50% {
+    opacity: 0.4;
+    }
+}
+
+/* ── Divider ── */
+.divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin-bottom: 2.8rem;
+}
+
+/* ── Feature cards ── */
+.cards {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 2.4rem;
+}
+
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.card:hover {
+    border-color: var(--gold-mid);
+    background: var(--card-hover);
+}
+
+.card-icon {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    opacity: 0.85;
+    width: 20px;
+}
+
+.card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--text);
+}
+
+.card-desc {
+    font-size: 0.68rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+/* ── Code snippet ── */
+.snippet {
+    width: 100%;
+    background: var(--bg-snippet);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 2.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.25s, border-color 0.25s;
+}
+
+.snippet::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+}
+
+.snippet-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+}
+
+.snippet code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--code-base);
+    display: block;
+    line-height: 1.9;
+}
+
+.kw {
+    color: var(--kw);
+}
+
+.fn {
+    color: var(--fn);
+}
+
+.str {
+    color: var(--str);
+}
+
+.cm {
+    color: var(--cm);
+}
+
+/* ── Footer ── */
+.footer {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.06em;
+    line-height: 2;
+}
+
+.footer a {
+    color: var(--gold-mid);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    color: var(--gold-light);
+}

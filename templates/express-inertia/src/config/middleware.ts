@@ -1,4 +1,4 @@
-import { formdata, requestLogger, resora } from '@arkstack/driver-express/middlewares'
+import { formdata, inertia, requestLogger, resora } from '@arkstack/driver-express/middlewares'
 
 import { MiddlewareConfig } from '@arkstack/driver-express/types'
 import cors from 'cors'
@@ -11,7 +11,6 @@ export default (): MiddlewareConfig => {
 
   return {
     global: [
-      // Parse application/json
       express.json({
         verify: (req, _res, buffer) => {
           req.rawBody = Buffer.from(buffer)
@@ -26,8 +25,9 @@ export default (): MiddlewareConfig => {
     ],
     before: [
       resora(),
+      inertia(),
       (req, _res, next) => {
-        useExpressUploadContext(req as never)
+        useExpressUploadContext(req)
         next()
       }
     ],
