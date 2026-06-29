@@ -1,15 +1,11 @@
 import { Arkstack } from '@arkstack/contract'
-
 import { SessionConfig } from '@arkstack/http'
 import { Str } from '@h3ravel/support'
-import appConfig from './app'
 import { join } from 'node:path'
 
 export default (): SessionConfig => {
-    const app = appConfig()
-
     return {
-        secret: env('SESSION_SECRET', app.key),
+        secret: env('SESSION_SECRET', env('APP_KEY', 'change-me')),
 
         /**
          * Session Driver

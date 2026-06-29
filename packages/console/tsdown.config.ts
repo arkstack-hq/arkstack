@@ -8,12 +8,23 @@ const safeRegions = [
 ]
 
 export default defineConfig({
-    entry: ['src/index.ts', 'src/app.ts', 'src/prepare.ts'],
+    entry: [
+        'src/index.ts',
+        'src/app.ts',
+        'src/prepare.ts',
+        'src/helpers.ts'
+    ],
     format: 'esm',
     minify: false,
     dts: true,
     clean: true,
     outDir: 'dist',
+    exports: {
+        bin: {
+            ark: 'src/index.ts',
+            prepare: 'src/prepare.ts',
+        }
+    },
     outExtensions() {
         return {
             'js': '.js',

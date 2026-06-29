@@ -9,13 +9,16 @@ describe('@arkstack/cache setup', () => {
 
         const groups = Publisher.publishables({ package: '@arkstack/cache' })
 
-        expect(groups).toHaveLength(1)
-        expect(groups[0].tag).toBe('cache-migrations')
-
-        const entry = groups[0].entries[0]
+        const migrations = groups.find((g) => g.tag === 'cache-migrations')!
+        const entry = migrations.entries[0]
 
         expect(entry.to).toBe('src/database/migrations/20260601000000_create_cache_table.ts')
         // The shipped stub the entry points to must actually exist.
         expect(existsSync(entry.from)).toBe(true)
+
+        // The cache config is publishable too, from a stub that exists.
+        const config = groups.find((g) => g.tag === 'cache-config')!
+        expect(config.entries[0].to).toBe('src/config/cache.ts')
+        expect(existsSync(config.entries[0].from)).toBe(true)
     })
 })

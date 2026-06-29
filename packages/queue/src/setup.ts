@@ -23,3 +23,14 @@ Publisher.publishes({
         },
     ],
 })
+
+Publisher.publishes({
+    package: '@arkstack/queue',
+    tag: 'queue-config',
+    entries: [
+        {
+            from: join(root, 'stubs/config/queue.ts.stub'),
+            to: 'src/config/queue.ts',
+        },
+    ],
+})

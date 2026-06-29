@@ -9,13 +9,16 @@ describe('@arkstack/queue setup', () => {
 
         const groups = Publisher.publishables({ package: '@arkstack/queue' })
 
-        expect(groups).toHaveLength(1)
-        expect(groups[0].tag).toBe('queue-migrations')
-
-        const entry = groups[0].entries[0]
+        const migrations = groups.find((g) => g.tag === 'queue-migrations')!
+        const entry = migrations.entries[0]
 
         expect(entry.to).toBe('src/database/migrations/20260601000001_create_jobs_table.ts')
         // The shipped stub the entry points to must actually exist.
         expect(existsSync(entry.from)).toBe(true)
+
+        // The queue config is publishable too, from a stub that exists.
+        const config = groups.find((g) => g.tag === 'queue-config')!
+        expect(config.entries[0].to).toBe('src/config/queue.ts')
+        expect(existsSync(config.entries[0].from)).toBe(true)
     })
 })

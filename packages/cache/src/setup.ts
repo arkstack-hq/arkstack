@@ -23,3 +23,14 @@ Publisher.publishes({
         },
     ],
 })
+
+Publisher.publishes({
+    package: '@arkstack/cache',
+    tag: 'cache-config',
+    entries: [
+        {
+            from: join(root, 'stubs/config/cache.ts.stub'),
+            to: 'src/config/cache.ts',
+        },
+    ],
+})

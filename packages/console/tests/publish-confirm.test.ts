@@ -36,7 +36,6 @@ const registerInertia = () => {
 
 const makeCtx = (opts: Record<string, any>, choice?: any) => {
     const ctx: any = Object.create(PublishCommand.prototype)
-    ctx.loadPackageSetups = async () => undefined
     ctx.option = (key: string) => opts[key]
     ctx.choice = choice ?? vi.fn(async () => 'inertia-vue')
     ctx.warn = vi.fn()
@@ -56,13 +55,16 @@ describe('publish confirmations', () => {
         registerInertia()
     })
 
-    test('prompts, publishes only the chosen gated tag, and runs the callback', async () => {
-        const choice = vi.fn(async () => 'inertia-vue')
+    test('prompts for the package, then the gated tag, and runs the callback', async () => {
+        // First prompt picks the package, second picks the framework tag.
+        const choice = vi.fn()
+            .mockResolvedValueOnce('@arkstack/inertia')
+            .mockResolvedValueOnce('inertia-vue')
         const ctx = makeCtx({ interaction: true }, choice)
 
         await ctx.handle()
 
-        expect(choice).toHaveBeenCalledOnce()
+        expect(choice).toHaveBeenCalledTimes(2)
         // unconditional group + the chosen (vue) group
         expect(wrote('src/config/inertia.ts')).toBeDefined()
         expect(wrote('resources/js/app.ts')).toBeDefined()

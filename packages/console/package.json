@@ -30,22 +30,19 @@
     "version:patch": "pnpm version patch",
     "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
   },
-  "publishConfig": {
-    "access": "public"
+  "exports": {
+    ".": "./dist/index.js",
+    "./app": "./dist/app.js",
+    "./helpers": "./dist/helpers.js",
+    "./prepare": "./dist/prepare.js",
+    "./package.json": "./package.json"
   },
   "bin": {
     "ark": "./dist/index.js",
     "prepare": "./dist/prepare.js"
   },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./app": {
-      "types": "./dist/app.d.ts",
-      "import": "./dist/app.js"
-    }
+  "publishConfig": {
+    "access": "public"
   },
   "peerDependencies": {
     "arkormx": "catalog:",

@@ -9,3 +9,9 @@ export interface Core {
 export interface ConsoleAppOptions {
     stubsDir?: string;
 }
+
+export interface GroupedOption {
+    name: string;
+    value: string;
+    description: string;
+};

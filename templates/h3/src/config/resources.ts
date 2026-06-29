@@ -1,5 +1,4 @@
 import type { ResoraConfig } from 'resora'
-import appConfig from './app'
 
 /**
  * Resora configuration, applied per request by the `resora()` middleware and at
@@ -10,8 +9,6 @@ import appConfig from './app'
  * resora accepts at runtime but doesn't surface in its narrower config type.
  */
 export default (): ResoraConfig => {
-    const app = appConfig()
-
     return {
         preferredCase: 'camel',
         responseStructure: {
@@ -19,7 +16,7 @@ export default (): ResoraConfig => {
             rootKey: 'data',
         },
         paginatedExtras: ['meta', 'links'],
-        baseUrl: app.url ?? 'https://localhost',
+        baseUrl: env('APP_URL', 'http://localhost'),
         pageName: 'page',
         paginatedLinks: {
             first: 'first',

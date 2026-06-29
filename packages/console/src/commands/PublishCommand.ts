@@ -1,11 +1,11 @@
 import type { Choice, Choices, PublishConfirmation, PublishGroup } from '@arkstack/common'
 import { dirname, join } from 'node:path'
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs'
+import { groupPublishables, loadPackageSetups } from '../helpers'
 
 import { Arkstack } from '@arkstack/contract'
 import { Command } from '@h3ravel/musket'
 import { Publisher } from '@arkstack/common'
-import { pathToFileURL } from 'node:url'
 
 /** A choice the user made for a package's confirmation: the picked tag + transform. */
 interface PublishChoice {
@@ -45,11 +45,23 @@ export class PublishCommand extends Command {
     async handle() {
         // Installed packages register their publishables from their `setup`
         // module — load them before reading the registry.
-        await this.loadPackageSetups()
+        await loadPackageSetups()
 
+
+        const interactive = this.option('interaction') !== false
         const filter = {
             package: this.option('package'),
             tag: this.option('tag'),
+        }
+
+        /**
+         * When nothing is targeted explicitly, ask which package to publish.
+         * An explicit `--tag` (or `--package`) is already a target, so it skips
+         * the prompt — and `--no-interaction` never prompts.
+         */
+        if (!filter.package && !filter.tag && interactive && !this.option('list')) {
+            const groups = groupPublishables('package')
+            filter.package = await this.choice('Choose a package to publish', groups)
         }
 
         // `--list` shows everything available without prompting or gating.
@@ -213,33 +225,6 @@ export class PublishCommand extends Command {
 
             for (const entry of group.entries) {
                 this.line(`    - ${stripStubSuffix(entry.to)}`)
-            }
-        }
-    }
-
-    /**
-     * Import the `setup` module of every installed `@arkstack/*` package so its
-     * `publishes()` registrations run. Errors (missing build, side effects) are
-     * ignored so one bad package cannot break publishing.
-     */
-    private async loadPackageSetups() {
-        const scope = join(Arkstack.rootDir(), 'node_modules', '@arkstack')
-
-        if (!existsSync(scope)) {
-            return
-        }
-
-        for (const pkg of readdirSync(scope)) {
-            const setup = join(scope, pkg, 'dist', 'setup.js')
-
-            if (!existsSync(setup)) {
-                continue
-            }
-
-            try {
-                await import(pathToFileURL(setup).href)
-            } catch {
-                /** Ignore packages whose setup cannot be loaded in this context. */
             }
         }
     }
