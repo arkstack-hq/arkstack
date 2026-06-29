@@ -5,7 +5,9 @@
 /** The default workspace catalog (`catalog:`). */
 export const catalog: Record<string, string> = {
     "@h3ravel/musket": "^2.2.1",
-    "@h3ravel/support": "^2.2.0",
+    "@h3ravel/shared": "^2.2.1",
+    "@h3ravel/support": "^2.2.1",
+    "@h3ravel/collect.js": "^5.3.7",
     "@faker-js/faker": "^10.4.0",
     "@arkormx/plugin-clear-router": "^0.1.49",
     "@resora/plugin-clear-router": "^1.0.66",
