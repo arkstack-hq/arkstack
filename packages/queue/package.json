@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/queue",
-    "version": "1.16.3",
+    "version": "0.16.4",
     "type": "module",
     "description": "Queue module for Arkstack, providing a driver based queue transport and worker for background processing.",
     "homepage": "https://arkstack.toneflix.net/guide/queue",

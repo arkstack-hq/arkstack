@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/notifications",
-    "version": "1.16.3",
+    "version": "0.16.4",
     "type": "module",
     "description": "Framework-agnostic notification module for Arkstack and Nodejs, providing support for multi-channel notification delivery.",
     "homepage": "https://arkstack.toneflix.net/guide/notifications",
