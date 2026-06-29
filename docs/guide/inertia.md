@@ -107,7 +107,7 @@ pnpm add -D vite @sveltejs/vite-plugin-svelte
 
 :::
 
-Add a `vite.config.ts` pointing at your client entry:
+Add a `vite.config.ts`. Build into `public/build` (the framework serves `public/`), list every entry you reference from `@vite(...)` as an input so each lands in the manifest, and set `publicDir: false` so Vite doesn't try to copy `public/` into itself:
 
 ::: code-group
 
@@ -117,10 +117,11 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   plugins: [vue()],
+  publicDir: false,
   build: {
     manifest: true,
     outDir: 'public/build',
-    rolldownOptions: { input: 'resources/js/app.ts' },
+    rolldownOptions: { input: ['resources/css/app.css', 'resources/js/app.ts'] },
   },
 });
 ```
@@ -131,10 +132,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  publicDir: false,
   build: {
     manifest: true,
     outDir: 'public/build',
-    rolldownOptions: { input: 'resources/js/app.tsx' },
+    rolldownOptions: { input: ['resources/css/app.css', 'resources/js/app.tsx'] },
   },
 });
 ```
@@ -145,27 +147,28 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
   plugins: [svelte()],
+  publicDir: false,
   build: {
     manifest: true,
     outDir: 'public/build',
-    rolldownOptions: { input: 'resources/js/app.ts' },
+    rolldownOptions: { input: ['resources/css/app.css', 'resources/js/app.ts'] },
   },
 });
 ```
 
 :::
 
-The published root template already loads your bundle with the `@vite` tag, which emits the Vite dev-server tags in development and the hashed manifest assets in production, no manual `<script>` wiring or dev/prod branching:
+The published root template loads your bundle with the `@vite` tag, which **handles both modes for you**. Vite dev-server tags in development, and the hashed manifest assets in production:
 
 ```edge
 <head>
     <meta charset="utf-8">
     @inertiaHead
-    @vite('resources/js/app.ts')
+    @vite(['resources/js/app.ts', 'resources/css/app.css'])
 </head>
 ```
 
-Pass an array to include a stylesheet entry, e.g. `@vite(['resources/css/app.css', 'resources/js/app.ts'])`. Override the dev server URL with `VITE_DEV_URL`; in production the manifest is read from `public/build/.vite/manifest.json`.
+Every path passed to `@vite(...)` must be a Vite build input (see the configs above) so it resolves from the manifest in production. Override the dev server URL with `VITE_DEV_URL`; in production the manifest is read from `public/build/.vite/manifest.json`, and the build assets are served from `public/build`. Run `vite build` (e.g. `pnpm build:client`) before deploying.
 
 **React only:** `@vitejs/plugin-react` needs the React Refresh preamble injected before your entry loads. Add `@viteReactRefresh` immediately above `@vite` in the root template, otherwise React throws "can't detect preamble" in development (the tag emits nothing in production). The `inertia-react` publish target adds it for you.
 
