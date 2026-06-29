@@ -23,7 +23,8 @@
         "h3ravel"
     ],
     "files": [
-        "dist"
+        "dist",
+        "stubs"
     ],
     "scripts": {
         "build": "tsdown --config-loader unrun",

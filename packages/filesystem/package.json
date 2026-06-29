@@ -20,7 +20,8 @@
         "flydrive"
     ],
     "files": [
-        "dist"
+        "dist",
+        "stubs"
     ],
     "scripts": {
         "build": "tsdown",
