@@ -189,6 +189,21 @@ export class BuildInterfaces {
         }
     }
 
+    /**
+     * Render a config name as a valid interface property key. Config file names
+     * become `ConfigRegistry` keys verbatim (they're the same key `config()`
+     * resolves by at runtime, e.g. `config('rate-limit.max')`), so a hyphenated
+     * or otherwise non-identifier name must be quoted — otherwise the generated
+     * `.d.ts` is a syntax error and the whole registry augmentation is dropped.
+     *
+     * @param name  The config file base name (without `.ts`).
+     */
+    private static propertyKey(name: string): string {
+        return /^[A-Za-z_$][\w$]*$/.test(name)
+            ? name
+            : `'${name.replace(/\\/g, '\\\\').replace(/'/g, '\\\'')}'`
+    }
+
     private static generateConfig(
         configDir: string = path.join(process.cwd(), 'src/config'),
     ) {
@@ -222,7 +237,7 @@ export class BuildInterfaces {
             const annotatedType = BuildInterfaces.resolveReturnTypeAnnotation(sourceFile, expr, imports)
 
             if (annotatedType) {
-                properties.push(`        ${configName}: ${annotatedType}`)
+                properties.push(`        ${BuildInterfaces.propertyKey(configName)}: ${annotatedType}`)
 
                 continue
             }
@@ -236,7 +251,7 @@ export class BuildInterfaces {
                 : type
 
             const typeStr = BuildInterfaces.resolveType(resolvedType, 2)
-            properties.push(`        ${configName}: ${typeStr}`)
+            properties.push(`        ${BuildInterfaces.propertyKey(configName)}: ${typeStr}`)
         }
 
         return [

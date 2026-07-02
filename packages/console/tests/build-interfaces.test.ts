@@ -50,4 +50,26 @@ describe('BuildInterfaces', () => {
         expect(declaration).toContain('middleware: {')
         expect(declaration).toContain('global: Function[]')
     })
+
+    it('quotes hyphenated config file names so the registry stays valid TS', async () => {
+        root = await mkdtemp(join(tmpdir(), 'arkstack-build-interfaces-'))
+        const configDir = join(root, 'src', 'config')
+
+        await mkdir(configDir, { recursive: true })
+        await mkdir(join(root, '.arkstack'), { recursive: true })
+        await writeFile(join(root, 'tsconfig.json'), JSON.stringify({
+            compilerOptions: { module: 'es2022', moduleResolution: 'bundler', target: 'es2022' },
+        }))
+        await writeFile(join(configDir, 'rate-limit.ts'), 'export default () => ({ max: 60 })')
+
+        Arkstack.setRootDir(root)
+        BuildInterfaces.configs(configDir)
+
+        const declaration = await readFile(join(root, '.arkstack', 'ark.d.ts'), 'utf8')
+
+        // The key must be quoted (a bare `rate-limit:` is a syntax error), not
+        // emitted raw.
+        expect(declaration).toContain('\'rate-limit\': {')
+        expect(declaration).not.toMatch(/^\s*rate-limit:/m)
+    })
 })
