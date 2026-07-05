@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/database",
-    "version": "0.16.5",
+    "version": "0.16.6",
     "type": "module",
     "description": "Database module for Arkstack, providing core database integration and data layer features.",
     "homepage": "https://arkstack.toneflix.net",
@@ -37,6 +37,7 @@
     },
     "exports": {
         ".": "./dist/index.js",
+        "./DbCommand": "./dist/commands/DbCommand.js",
         "./MakeFactoryCommand": "./dist/commands/MakeFactoryCommand.js",
         "./MakeMigrationCommand": "./dist/commands/MakeMigrationCommand.js",
         "./MakeModelCommand": "./dist/commands/MakeModelCommand.js",

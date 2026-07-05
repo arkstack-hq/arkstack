@@ -2,7 +2,7 @@
   "name": "express-app",
   "description": "Arkstack framework application running on the Express driver.",
   "type": "module",
-  "version": "0.16.5",
+  "version": "0.16.6",
   "scripts": {
     "predev": "pnpm -w run build:packages --log-level silent",
     "prebuild": "pnpm -w run build:packages --log-level silent",
