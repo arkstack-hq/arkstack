@@ -24,7 +24,7 @@ export class MakeController extends Command<ArkstackConsoleApp<any>> {
 
         const { CliApp } = await import('arkormx')
         const app = new CliApp()
-        app.command = this
+        app.command = this as never
 
         const model = this.option('model')
             ? app.makeModel(this.option('model'), this.options())

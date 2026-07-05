@@ -31,8 +31,8 @@ catalogs:
       specifier: ^1.0.66
       version: 1.0.66
     arkormx:
-      specifier: ^2.10.1
-      version: 2.10.1
+      specifier: ^2.11.2
+      version: 2.11.2
     clear-router:
       specifier: ^2.9.0
       version: 2.9.0
@@ -134,7 +134,7 @@ importers:
         version: 4.1.5(vitest@4.1.5)
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -333,7 +333,7 @@ importers:
         version: 1.1.0
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
@@ -379,7 +379,7 @@ importers:
         version: 2.2.1(@types/node@25.6.2)
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -433,7 +433,7 @@ importers:
         version: link:../contract
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -582,7 +582,7 @@ importers:
         version: link:../contract
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -745,7 +745,7 @@ importers:
         version: 0.1.12(kanun@1.2.0)
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -887,7 +887,7 @@ importers:
         version: 0.1.12(kanun@1.2.0)
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -1041,7 +1041,7 @@ importers:
         version: 0.1.12(kanun@1.2.0)
       arkormx:
         specifier: 'catalog:'
-        version: 2.10.1(@types/node@25.6.2)
+        version: 2.11.2(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -1394,6 +1394,10 @@ packages:
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
 
+  '@cli-prompts/multiline@1.0.0':
+    resolution: {integrity: sha512-Jl9c1dra6M1I+yRDHC5FB2LtF/gWN9FmYX9/IKKtA6nQI2cuRde52/0E6f0D6CZffLExLvhvuKbfYrPbnBPBug==}
+    engines: {node: '>=18'}
+
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
@@ -1679,8 +1683,8 @@ packages:
   '@h3ravel/collect.js@5.3.7':
     resolution: {integrity: sha512-qsdkxy4uLhKmQ1m7PMnGg3xRyWQleFv+tFuiRliLWdrQZaOsOZab/OGvzV+RXl09VY3O+tJDvc6nxrwsgVGtwA==}
 
-  '@h3ravel/contracts@2.2.0':
-    resolution: {integrity: sha512-oDIuxoxtSFiI2wLFzdrm5M7LYrc39bnq9hc+pprZoMSw07Y3X/c2ficAO4bOfqUiy4OSM9x+K8N80EvyKM3A1A==}
+  '@h3ravel/collect.js@5.4.0':
+    resolution: {integrity: sha512-0PS7Yl30tQf3daHF0akEZ5XV5MnOq6BEsdtksCZl473bGJmrd0RQAdRIA34MEw9h+ilLhE2OhNIlYateffMvBA==}
 
   '@h3ravel/contracts@2.2.1':
     resolution: {integrity: sha512-l1v++lRkxq1L10TEfLEDrECPDUcTZAb4J5d0ZAncgprKDssmXw+1D9GUQVg9NbS+6gNWaUtGVVkjrCo87wFNjw==}
@@ -1689,14 +1693,18 @@ packages:
     resolution: {integrity: sha512-zLw+ATzc2gEc9BwIpsGdrSD9qTsZE0HdqrRVVNzBPPnrFdlGOI6mkmDBitdt+nJITVrMyxhl+FtPIzxoa2n1XA==}
     engines: {node: ^20.19.0 || >=22.12.0}
 
+  '@h3ravel/musket@2.2.2':
+    resolution: {integrity: sha512-waXWZeJduuZcDvIsLaTMTEDnpuQKFpb8l8CYCh8HVJ5IctaW6UMlkUFXt8UgkyjHzjWzwqiLjvCtOmAnMCfx5A==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+
   '@h3ravel/shared@2.2.0':
     resolution: {integrity: sha512-c53qkEe5a80KN1esC6yZuXbhki6n4hvB8Uxh9GphLTO/tsCK56t4dIzyqtMNAX8BhAIzR4xJf0wcKy1mOKg8oQ==}
 
   '@h3ravel/shared@2.2.1':
     resolution: {integrity: sha512-0hTbVo4LoIUtxEWULGmpfiVaCNNn9XChXhIs8zrTSDYl5RTbpHyyL4MBlX2W9tdRPSSiBfN3GvEQ9ts7pM1bkg==}
 
-  '@h3ravel/support@2.2.0':
-    resolution: {integrity: sha512-5TGbRtPpNZofgqCZoqBD8MWxPNPtOcYX8gfkaEwFxBSHulOd8EyOBuhQWE5k7vF/YucSStYzevKSvr780d8obg==}
+  '@h3ravel/shared@2.2.4':
+    resolution: {integrity: sha512-h8DrvKK54ar69DH2Np7J5y1mLVBPHktFgwqLH8VMv6OIlSfRYjApCd5YUkmfNdm55aEqdZ03Q4UItMRw/QS6iQ==}
 
   '@h3ravel/support@2.2.1':
     resolution: {integrity: sha512-+7TCcas+cESqslX4hljjoR/+1BdTjQXaqNXwDQ0U6fER4XdEaxfUA0wRehRnyAns2uk2aSO7MYe+InKYz+++BA==}
@@ -3317,6 +3325,10 @@ packages:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
     engines: {node: '>=8'}
 
+  ansi-escapes@7.3.0:
+    resolution: {integrity: sha512-BvU8nYgGQBxcmMuEeUEmNTvrMVjJNSH7RgW24vXexN4Ven6qCvy4TntnvlnwnMLTVlcRQQdbRY8NKnaIoeWDNg==}
+    engines: {node: '>=18'}
+
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
@@ -3345,8 +3357,8 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  arkormx@2.10.1:
-    resolution: {integrity: sha512-tux7WpXIu4HdyzlFId5CoB6pWrriERyw25ZmE2tVoU3oW25nYOMPgEFc5chZGUBYa2BBBPStNtYkzU0ez78dHw==}
+  arkormx@2.11.2:
+    resolution: {integrity: sha512-7nKC3efMOGi0JZUnYNYeS4FcVX23mRCxS42lTGHufN8jLNyNOij57BssJ0+wKGJyGjNFvSkhr4TuJu+KScc31w==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
@@ -3610,6 +3622,9 @@ packages:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
     engines: {node: ^14.18.0 || >=16.10.0}
 
+  console-table-printer@2.16.1:
+    resolution: {integrity: sha512-Sc9FRJ4O9xKGNrvulNdPfK5SyBcZ6lcaRnDE4AQ/uw6IDtjHhsqyzzqcnMikjyGaiOOF2tNOKoBhbVjRvFy9Lw==}
+
   content-disposition@1.0.1:
     resolution: {integrity: sha512-oIXISMynqSqm241k6kcQ5UwttDILMK4BiurCfGEREw6+X9jkkpEe5T9FZaApyLGGOnFuyMWZpdolTXMtvEJ08Q==}
     engines: {node: '>=18'}
@@ -3783,6 +3798,10 @@ packages:
   entities@7.0.1:
     resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
+
+  environment@1.1.0:
+    resolution: {integrity: sha512-xUtoPkMggbz0MPyPiIWr1Kp4aeWJjDZ6SMvURhimjdZgsRuDplF5/s9hcgGhyXMhs+6vpnuoiZ2kFiu3FMnS8Q==}
+    engines: {node: '>=18'}
 
   es-define-property@1.0.1:
     resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
@@ -5561,6 +5580,9 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
+  simple-wcswidth@1.1.2:
+    resolution: {integrity: sha512-j7piyCjAeTDSjzTSQ7DokZtMNwNlEAyxqSZeCS+CXH7fJ4jx3FuJ/mTW3mE+6JLs4VJBbcll0Kjn+KXI5t21Iw==}
+
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
@@ -6192,7 +6214,7 @@ snapshots:
 
   '@arkormx/plugin-clear-router@0.1.49(@types/node@25.6.2)(clear-router@2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))':
     dependencies:
-      arkormx: 2.10.1(@types/node@25.6.2)
+      arkormx: 2.11.2(@types/node@25.6.2)
       clear-router: 2.9.0(@h3ravel/support@2.2.1(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       reflect-metadata: 0.2.2
     transitivePeerDependencies:
@@ -6846,6 +6868,10 @@ snapshots:
       human-id: 4.1.3
       prettier: 2.8.8
 
+  '@cli-prompts/multiline@1.0.0':
+    dependencies:
+      ansi-escapes: 7.3.0
+
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
@@ -7098,11 +7124,7 @@ snapshots:
 
   '@h3ravel/collect.js@5.3.7': {}
 
-  '@h3ravel/contracts@2.2.0':
-    dependencies:
-      h3: 2.0.1-rc.5
-    transitivePeerDependencies:
-      - crossws
+  '@h3ravel/collect.js@5.4.0': {}
 
   '@h3ravel/contracts@2.2.1':
     dependencies:
@@ -7113,6 +7135,22 @@ snapshots:
   '@h3ravel/musket@2.2.1(@types/node@25.6.2)':
     dependencies:
       '@h3ravel/shared': 2.2.0(@types/node@25.6.2)
+      chalk: 5.6.2
+      commander: 14.0.3
+      dayjs: 1.11.20
+      execa: 9.6.1
+      glob: 13.0.6
+      preferred-pm: 4.1.1
+      radashi: 12.7.1
+      resolve-from: 5.0.0
+      tsx: 4.21.0
+    transitivePeerDependencies:
+      - '@types/node'
+      - crossws
+
+  '@h3ravel/musket@2.2.2(@types/node@25.6.2)':
+    dependencies:
+      '@h3ravel/shared': 2.2.4(@types/node@25.6.2)
       chalk: 5.6.2
       commander: 14.0.3
       dayjs: 1.11.20
@@ -7156,13 +7194,19 @@ snapshots:
       - '@types/node'
       - crossws
 
-  '@h3ravel/support@2.2.0(@types/node@25.6.2)':
+  '@h3ravel/shared@2.2.4(@types/node@25.6.2)':
     dependencies:
-      '@h3ravel/collect.js': 5.3.7
-      '@h3ravel/contracts': 2.2.0
-      '@h3ravel/shared': 2.2.0(@types/node@25.6.2)
-      dayjs: 1.11.20
-      luxon: 3.7.2
+      '@cli-prompts/multiline': 1.0.0
+      '@inquirer/prompts': 7.10.1(@types/node@25.6.2)
+      chalk: 5.6.2
+      console-table-printer: 2.16.1
+      edge.js: 6.5.0
+      escalade: 3.2.0
+      h3: 2.0.1-rc.22
+      inquirer-autocomplete-standalone: 0.8.1
+      jiti: 2.7.0
+      ora: 9.3.0
+      preferred-pm: 4.1.1
     transitivePeerDependencies:
       - '@types/node'
       - crossws
@@ -8743,6 +8787,10 @@ snapshots:
     dependencies:
       type-fest: 0.21.3
 
+  ansi-escapes@7.3.0:
+    dependencies:
+      environment: 1.1.0
+
   ansi-regex@5.0.1: {}
 
   ansi-regex@6.2.2: {}
@@ -8763,12 +8811,12 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  arkormx@2.10.1(@types/node@25.6.2):
+  arkormx@2.11.2(@types/node@25.6.2):
     dependencies:
-      '@h3ravel/collect.js': 5.3.7
-      '@h3ravel/musket': 2.2.1(@types/node@25.6.2)
-      '@h3ravel/shared': 2.2.0(@types/node@25.6.2)
-      '@h3ravel/support': 2.2.0(@types/node@25.6.2)
+      '@h3ravel/collect.js': 5.4.0
+      '@h3ravel/musket': 2.2.2(@types/node@25.6.2)
+      '@h3ravel/shared': 2.2.1(@types/node@25.6.2)
+      '@h3ravel/support': 2.2.1(@types/node@25.6.2)
       dotenv: 17.4.2
       jiti: 2.7.0
       kysely: 0.28.16
@@ -8995,6 +9043,10 @@ snapshots:
 
   consola@3.4.2: {}
 
+  console-table-printer@2.16.1:
+    dependencies:
+      simple-wcswidth: 1.1.2
+
   content-disposition@1.0.1: {}
 
   content-type@1.0.5: {}
@@ -9142,6 +9194,8 @@ snapshots:
       strip-ansi: 6.0.1
 
   entities@7.0.1: {}
+
+  environment@1.1.0: {}
 
   es-define-property@1.0.1: {}
 
@@ -11189,6 +11243,8 @@ snapshots:
   siginfo@2.0.0: {}
 
   signal-exit@4.1.0: {}
+
+  simple-wcswidth@1.1.2: {}
 
   slash@3.0.0: {}
 

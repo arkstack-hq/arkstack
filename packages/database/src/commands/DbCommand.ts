@@ -1,8 +1,8 @@
-import { CliApp, SeedCommand as Command } from 'arkormx'
+import { CliApp, DbCommand as Command } from 'arkormx'
 
 import { bootArkorm } from '../arkorm'
 
-export class SeedCommand extends Command {
+export class DbCommand extends Command {
     async handle() {
         try {
             bootArkorm()
