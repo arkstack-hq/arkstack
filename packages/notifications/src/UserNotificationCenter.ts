@@ -1,3 +1,5 @@
+import type { ArkormCollection, LengthAwarePaginator } from 'arkormx'
+
 import type { DbNotificationPayload } from './types'
 import { Notification } from './Notification'
 import type { User } from '@app/models/User'
@@ -53,13 +55,37 @@ export class UserNotificationCenter {
         return await Model.query().where({ userId: user.id }).get()
     }
 
-    static async unreadForUser(user: User) {
+    /**
+     * Fetch all the users unread messages
+     * 
+     * @param user 
+     */
+    static async unreadForUser(user: User): Promise<ArkormCollection<UserNotification, UserNotification[]>>
+    /**
+     * Fetch all the users unread messages with a lenght aware paginator instance
+     * 
+     * @param user 
+     * @param perPage 
+     */
+    static async unreadForUser(user: User, perPage: number): Promise<LengthAwarePaginator<UserNotification>>
+    static async unreadForUser(user: User, perPage?: number): Promise<unknown> {
         const Model = await this.getModel()
 
-        return await Model.query().where({ userId: user.id, readAt: null }).get()
+        const query = Model.query().where({ userId: user.id, readAt: null })
+
+        if (perPage) {
+            return await query.paginate()
+        }
+
+        return await query.get()
     }
 
-    static async markRead(notification: UserNotification | UserNotification['id']) {
+    /**
+     * Mark the notification as read
+     * 
+     * @param notification 
+     */
+    static async markRead(notification: UserNotification | string | number) {
         const Model = await this.getModel()
         const id = typeof notification === 'object' ? notification.id : notification
         const readAt = new Date()
@@ -71,16 +97,40 @@ export class UserNotificationCenter {
         }
     }
 
-    static async markAllRead(user: User) {
+    /**
+     * Mark all unread notifications as read
+     * 
+     * @param user 
+     */
+    static async markAllRead(user: User, ids?: string[] | number[]) {
         const Model = await this.getModel()
 
-        await Model.query().where({ userId: user.id, readAt: null }).update({ readAt: new Date() })
+        const query = Model.query().where({ userId: user.id, readAt: null })
+
+        if (ids) {
+            query.whereIn('id', ids)
+        }
+
+        await query.update({ readAt: new Date() })
     }
 
-    static async delete(notification: UserNotification | UserNotification['id']) {
+    /**
+     * Delete the indicated notifications
+     * 
+     * @param notification 
+     */
+    static async delete(notification: UserNotification | string | number | UserNotification[] | string[] | number[]) {
         const Model = await this.getModel()
-        const id = typeof notification === 'object' ? notification.id : notification
 
-        await Model.query().where({ id }).delete()
+        if (Array.isArray(notification)) {
+            const ids = notification.map(e => typeof e === 'object' ? e.id : e)
+
+            await Model.query().whereIn('id', ids).delete()
+        } else {
+            const id = typeof notification === 'object' ? notification.id : notification
+
+            await Model.query().where({ id }).delete()
+        }
+
     }
 }
