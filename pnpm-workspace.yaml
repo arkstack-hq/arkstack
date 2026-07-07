@@ -18,6 +18,7 @@ catalog:
   '@arkormx/plugin-clear-router': ^0.1.52
   '@resora/plugin-clear-router': ^1.0.67
   '@kanun-hq/plugin-file': ^0.1.12
+  '@kanun-hq/plugin-phone': ^0.1.8
   arkormx: ^2.11.4
   clear-router: ^2.9.1
   dotenv: ^17.4.2

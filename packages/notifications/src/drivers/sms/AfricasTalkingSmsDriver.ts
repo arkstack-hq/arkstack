@@ -1,8 +1,8 @@
-import { env } from '@arkstack/common'
-import africastalking from 'africastalking'
-
-import { interpolate } from '../../utils/template'
 import type { NotificationData, NotificationRecipient, SmsDriverOptions } from '../../types'
+
+import africastalking from 'africastalking'
+import { env } from '@arkstack/common'
+import { interpolate } from '../../utils/template'
 
 export class AfricasTalkingSmsDriver {
     private driver: {
@@ -12,16 +12,15 @@ export class AfricasTalkingSmsDriver {
     private senderId?: string
 
     constructor(options: SmsDriverOptions['africastalking'] = {}) {
-        const username = options.username ?? env('AFRICASTALKING_USERNAME', 'sandbox')
-        const apiKey = options.apiKey ?? env('AFRICASTALKING_API_KEY', 'sandbox')
+        const username: string = options.username ?? env('AFRICASTALKING_USERNAME', 'sandbox')
+        const apiKey: string = options.apiKey ?? env('AFRICASTALKING_API_KEY', 'sandbox')
 
         this.senderId = options.senderId ?? env('AFRICASTALKING_SENDER_ID', env('SMS_FROM', 'Arkstack'))
-        this.driver = (africastalking as (config: { username: string; apiKey: string }) => {
-            SMS: AfricasTalkingSmsDriver['driver']
-        })({ username, apiKey }).SMS
+
+        this.driver = africastalking({ username, apiKey }).SMS
     }
 
-    async send (message: string, recipient: NotificationRecipient, data: NotificationData = {}) {
+    async send(message: string, recipient: NotificationRecipient, data: NotificationData = {}) {
         const recipients = Array.isArray(recipient) ? recipient : [recipient]
         const resolvedMessage = interpolate(message, data)
 

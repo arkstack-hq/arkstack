@@ -43,10 +43,11 @@
         "twilio": "^6.0.0"
     },
     "peerDependencies": {
-        "@arkstack/database": "workspace:^",
         "@arkstack/contract": "workspace:^",
-        "pusher": "^5.2.0",
-        "firebase-admin": "^13.0.0"
+        "@arkstack/database": "workspace:^",
+        "@kanun-hq/plugin-phone": "catalog:",
+        "firebase-admin": "^13.0.0",
+        "pusher": "^5.2.0"
     },
     "peerDependenciesMeta": {
         "pusher": {
@@ -54,9 +55,13 @@
         },
         "firebase-admin": {
             "optional": true
+        },
+        "@kanun-hq/plugin-phone": {
+            "optional": true
         }
     },
     "devDependencies": {
+        "@types/africastalking": "^0.8.0",
         "@types/nodemailer": "^7.0.11"
     }
 }

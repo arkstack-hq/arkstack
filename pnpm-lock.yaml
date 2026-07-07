@@ -637,6 +637,9 @@ importers:
       '@arkstack/database':
         specifier: workspace:^
         version: link:../database
+      '@kanun-hq/plugin-phone':
+        specifier: 'catalog:'
+        version: 0.1.8(kanun@1.2.0)
       africastalking:
         specifier: ^0.8.0
         version: 0.8.0
@@ -653,6 +656,9 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
     devDependencies:
+      '@types/africastalking':
+        specifier: ^0.8.0
+        version: 0.8.0
       '@types/nodemailer':
         specifier: ^7.0.11
         version: 7.0.11
@@ -2226,6 +2232,11 @@ packages:
     peerDependencies:
       kanun: ^1.2.0
 
+  '@kanun-hq/plugin-phone@0.1.8':
+    resolution: {integrity: sha512-nTCvlPX84XqpSRf3AkXZ51FA+m2VjNZtiDQl9g3LjqVmMYfLCkRSrSFKQIHrk5yB3eNEPLzt+bfzw3GnbXdKdQ==}
+    peerDependencies:
+      kanun: ^1.2.0
+
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
 
@@ -3238,6 +3249,9 @@ packages:
 
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
+
+  '@types/africastalking@0.8.0':
+    resolution: {integrity: sha512-zQNRJuLwAUj3pBv+P3/8gMb0UL80/Iy/b7M0NOxHeWU7Uzea3Inv29ABUyeEegcKa0VjxYsGSAjI/GieoBnpGw==}
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
@@ -4908,6 +4922,9 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  libphonenumber-js@1.13.8:
+    resolution: {integrity: sha512-80xal1m93rADejw2pMp2MSzFhHCPLEspjHxnH2UtqI+DgAmElsbmLMiqk9niwH9NWAfjsRtaJI+qBrOEmRx9nQ==}
 
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
@@ -8303,6 +8320,11 @@ snapshots:
       image-size: 2.0.2
       kanun: 1.2.0
 
+  '@kanun-hq/plugin-phone@0.1.8(kanun@1.2.0)':
+    dependencies:
+      kanun: 1.2.0
+      libphonenumber-js: 1.13.8
+
   '@manypkg/find-root@1.1.0':
     dependencies:
       '@babel/runtime': 7.28.6
@@ -9202,6 +9224,8 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@types/africastalking@0.8.0': {}
 
   '@types/body-parser@1.19.6':
     dependencies:
@@ -11055,6 +11079,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libphonenumber-js@1.13.8: {}
 
   lightningcss-android-arm64@1.32.0:
     optional: true

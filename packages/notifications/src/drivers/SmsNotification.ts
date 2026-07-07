@@ -2,6 +2,7 @@ import type { NotificationData, NotificationRecipient, SmsDriverOptions } from '
 
 import { AfricasTalkingSmsDriver } from './sms/AfricasTalkingSmsDriver'
 import { NotificationContract } from '../Contracts/NotificationContract'
+import type { PhoneNumber } from '@kanun-hq/plugin-phone'
 import { TwilioSmsDriver } from './sms/TwilioSmsDriver'
 import { configure } from '../config'
 import { env } from '@arkstack/common'
@@ -10,7 +11,7 @@ type SmsProvider = AfricasTalkingSmsDriver | TwilioSmsDriver
 
 export class SmsNotification extends NotificationContract {
     driver: SmsProvider
-    private recipients?: NotificationRecipient
+    private recipients?: NotificationRecipient | PhoneNumber | PhoneNumber[]
     private fromValue?: string
 
     constructor(options: SmsDriverOptions = {}) {
@@ -35,31 +36,33 @@ export class SmsNotification extends NotificationContract {
             })
     }
 
-    from (from: string): this {
+    from(from: string): this {
         this.fromValue = from
 
         return this
     }
 
-    subject (_subject: string): this {
+    subject(_subject: string): this {
         return this
     }
 
-    recipient (recipient: NotificationRecipient): this {
+    recipient(
+        recipient: NotificationRecipient | PhoneNumber | PhoneNumber[]
+    ): this {
         this.recipients = recipient
 
         return this
     }
 
-    async send (
+    async send(
         message: string,
         _subject?: string,
-        recipient?: NotificationRecipient,
+        recipient?: NotificationRecipient | PhoneNumber | PhoneNumber[],
         data?: NotificationData
     ) {
-        const resolvedRecipient = recipient ?? this.recipients
+        const resolvedRecipient = this.resolveRecipient(recipient ?? this.recipients ?? [])
 
-        if (!resolvedRecipient) {
+        if (!resolvedRecipient || (Array.isArray(resolvedRecipient) && resolvedRecipient.length === 0)) {
             throw new Error('No recipient provided for SMS notification')
         }
 
@@ -68,5 +71,15 @@ export class SmsNotification extends NotificationContract {
             from: this.fromValue,
             ...this.mergeData(data),
         })
+    }
+
+    private resolveRecipient(
+        recipient: NotificationRecipient | PhoneNumber | PhoneNumber[]
+    ): NotificationRecipient {
+        if (Array.isArray(recipient)) {
+            return recipient.map((r) => typeof r === 'string' ? r : r.toString())
+        }
+
+        return typeof recipient === 'string' ? recipient : recipient.toString()
     }
 }
