@@ -151,7 +151,7 @@ await Notification.realtime()
 
 `.store()` is opt-in: when enabled the notification is written via `UserNotificationCenter` (giving it a real id and timestamps) **and** broadcast; otherwise it is broadcast only. Broadcast on an explicit channel with `.channel('team.updates')`, or change the client event name with `.event('alert')`.
 
-Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.pusher` / `transports.firebase`. The `pusher` / `firebase-admin` SDKs are optional — install only the one you use:
+Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.pusher` / `transports.firebase`. The `pusher` / `firebase-admin` SDKs are optional, install only the one you use:
 
 ```sh
 pnpm add pusher          # Pusher transport
@@ -167,7 +167,11 @@ import { createRealtime } from '@arkstack/realtime';
 
 const realtime = createRealtime({
   transport: 'pusher',
-  pusher: { key: import.meta.env.VITE_PUSHER_KEY, cluster: 'mt1', authEndpoint: '/broadcasting/auth' },
+  pusher: {
+    key: import.meta.env.VITE_PUSHER_KEY,
+    cluster: 'mt1',
+    authEndpoint: '/broadcasting/auth',
+  },
 });
 
 const unsubscribe = await realtime.forUser(user.id, (notification) => {
@@ -183,9 +187,17 @@ React and Vue bindings accumulate notifications for you (newest first):
 import { useNotifications } from '@arkstack/realtime/react';
 
 function Bell({ realtime, userId }) {
-  const { notifications, latest, clear } = useNotifications(realtime, realtime.channelFor(userId), { limit: 20 });
+  const { notifications, latest, clear } = useNotifications(
+    realtime,
+    realtime.channelFor(userId),
+    { limit: 20 },
+  );
 
-  return <span>{notifications.length} · {latest?.title}</span>;
+  return (
+    <span>
+      {notifications.length} · {latest?.title}
+    </span>
+  );
 }
 ```
 
@@ -194,7 +206,11 @@ function Bell({ realtime, userId }) {
 import { useNotifications } from '@arkstack/realtime/vue';
 
 const props = defineProps(['realtime', 'userId']);
-const { notifications, latest } = useNotifications(props.realtime, props.realtime.channelFor(props.userId), { limit: 20 });
+const { notifications, latest } = useNotifications(
+  props.realtime,
+  props.realtime.channelFor(props.userId),
+  { limit: 20 },
+);
 </script>
 
 <template>
