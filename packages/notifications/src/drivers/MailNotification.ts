@@ -18,7 +18,7 @@ import { Arkstack } from '@arkstack/contract'
 
 export class MailNotification extends NotificationContract {
     driver: Transporter
-    private fromAddress?: string
+    private fromAddress?: string | { name: string; address: string }
     private subjectLine?: string
     private recipients?: MailRecipient
     private ViewName: string = '~arkstack/notifications.mail'
@@ -88,7 +88,7 @@ export class MailNotification extends NotificationContract {
         })
     }
 
-    from (from: string): this {
+    from(from: string): this {
         this.fromAddress = from
 
         return this
@@ -100,7 +100,7 @@ export class MailNotification extends NotificationContract {
      * @param subject
      * @returns
      */
-    subject (subject: string): this {
+    subject(subject: string): this {
         this.subjectLine = subject
 
         return this
@@ -112,7 +112,7 @@ export class MailNotification extends NotificationContract {
      * @param recipient string or array of email addresses
      * @returns
      */
-    recipient (recipient: MailRecipient): this {
+    recipient(recipient: MailRecipient): this {
         this.recipients = recipient
 
         return this
@@ -124,7 +124,7 @@ export class MailNotification extends NotificationContract {
      * @param view view name
      * @returns
      */
-    view (view: string): this {
+    view(view: string): this {
         this.ViewName = view
 
         return this
@@ -136,7 +136,7 @@ export class MailNotification extends NotificationContract {
      * @param content view name
      * @returns
      */
-    html (content: string): this {
+    html(content: string): this {
         this.htmlTemplate = content
 
         return this
@@ -148,7 +148,7 @@ export class MailNotification extends NotificationContract {
      * @param content view name
      * @returns
      */
-    text (content: string): this {
+    text(content: string): this {
         this.textTemplate = content
 
         return this
@@ -159,7 +159,7 @@ export class MailNotification extends NotificationContract {
      *
      * @param user The recipient user(s) for the notification.
      */
-    prepare (
+    prepare(
         user?: null | string | string[] | User,
         data: Record<string, any> = {},
     ) {
@@ -185,7 +185,7 @@ export class MailNotification extends NotificationContract {
      * @param data Additioal context data
      * @returns
      */
-    async send (
+    async send(
         message: string,
         subject?: string,
         recipient?: MailRecipient,
@@ -235,7 +235,7 @@ export class MailNotification extends NotificationContract {
         return result
     }
 
-    private async storeFileMail (
+    private async storeFileMail(
         payload: Record<string, any>,
         result: Record<string, any>,
     ) {
@@ -281,7 +281,7 @@ export class MailNotification extends NotificationContract {
         return path
     }
 
-    private resolveRecipients (recipient?: MailRecipient) {
+    private resolveRecipients(recipient?: MailRecipient) {
         const recipients = recipient ?? this.recipients
         const resolved = (
             Array.isArray(recipients)
@@ -312,7 +312,7 @@ export class MailNotification extends NotificationContract {
         return resolved
     }
 
-    private normalizeRecipient (recipient: string | MailRecipientAddress) {
+    private normalizeRecipient(recipient: string | MailRecipientAddress) {
         if (typeof recipient === 'string') {
             return [recipient]
         }
