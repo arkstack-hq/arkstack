@@ -11,18 +11,21 @@ export class DbNotification extends NotificationContract<UserNotification> {
     private user?: User
     private payload: Partial<DbNotificationPayload> = {}
 
-    from (_from: string): this {
+    from(_from: string): this {
         return this
     }
 
-    subject (subject: string): this {
+    subject(subject: string): this {
         this.payload.title = subject
 
         return this
     }
 
-    recipient (recipient: NotificationRecipient | User): this {
-        if (typeof recipient === 'object' && !Array.isArray(recipient) && 'id' in recipient) {
+    recipient(recipient: NotificationRecipient | User): this {
+        if (
+            typeof recipient === 'object' &&
+            !Array.isArray(recipient) &&
+            typeof recipient.id !== 'undefined') {
             this.user = recipient
 
             return this
@@ -31,32 +34,32 @@ export class DbNotification extends NotificationContract<UserNotification> {
         throw new Error('Database notifications require a user recipient')
     }
 
-    type (type: DbNotificationPayload['type']): this {
+    type(type: DbNotificationPayload['type']): this {
         this.payload.type = type
 
         return this
     }
 
-    action (text?: string | null, link?: string | null): this {
+    action(text?: string | null, link?: string | null): this {
         this.payload.actionText = text
         this.payload.actionLink = link
 
         return this
     }
 
-    meta (meta?: NotificationData | null): this {
+    meta(meta?: NotificationData | null): this {
         this.payload.meta = meta
 
         return this
     }
 
-    async create (user: User, payload: DbNotificationPayload) {
+    async create(user: User, payload: DbNotificationPayload) {
         await getModel<typeof UserNotification>('UserNotification')
 
         return await UserNotificationCenter.create(user, payload)
     }
 
-    async send (
+    async send(
         message: string,
         subject?: string,
         _recipient?: NotificationRecipient,
