@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/inertia",
-    "version": "0.16.7",
+    "version": "0.16.8",
     "type": "module",
     "description": "InertiaJS server-side adapter for Arkstack, building the modern monolith with server-driven SPAs.",
     "homepage": "https://arkstack.toneflix.net/guide/inertia",
