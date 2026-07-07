@@ -63,5 +63,10 @@
         "arkormx": {
             "optional": true
         }
+    },
+    "inlinedDependencies": {
+        "clear-router": "2.9.0",
+        "dayjs": "1.11.20",
+        "kanun": "1.2.0"
     }
 }
