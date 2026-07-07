@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/jobs",
-    "version": "0.16.7",
+    "version": "0.16.8",
     "type": "module",
     "description": "Jobs module for Arkstack, providing dispatchable job classes and a dispatcher on top of @arkstack/queue.",
     "homepage": "https://arkstack.toneflix.net/guide/jobs",
