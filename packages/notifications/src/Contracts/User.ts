@@ -7,7 +7,6 @@ export abstract class User extends Model {
     declare password: string
     declare createdAt: Date
     declare updatedAt: Date
-    declare pushTokens?: string[] | null
 
     protected static table?: string | undefined = 'users'
 }

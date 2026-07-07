@@ -126,6 +126,22 @@ await Notification.db()
   .send('A new login was detected.', 'Security alert');
 ```
 
+You can also broacast the new database notifcation using the configured realtime driver by channing the `broadcast` method.
+
+```ts
+await Notification.db()
+  .broadcast()
+  .recipient(user)
+  .type('security')
+  .action('Review login', '/account/security')
+  .meta({ device: 'Chrome on macOS' })
+  .send('A new login was detected.', 'Security alert');
+```
+
+For this to work, your `User` model needs to have a `pushTokens` property/column, this can be a `string` and array of `string[]` or and object with a `token` property (`pushTokens.token`), an array of `pushTokens` object should also work (`{ pushTokens: { token: string } }[]`)
+
+The default behaviour for a missing `pushTokens` on the `User` model is no-op, so you don't have to worry about your app breaking.
+
 Use `UserNotificationCenter` when you need to list, mark, or delete stored notifications:
 
 ```ts

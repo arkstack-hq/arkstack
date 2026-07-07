@@ -162,6 +162,15 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
         throw new Error('No channel resolved for realtime notification (provide a user or channel)')
     }
 
+    /**
+     * Send a realtime notification using the default realtime driver
+     * 
+     * @param message 
+     * @param subject 
+     * @param _recipient 
+     * @param data 
+     * @returns 
+     */
     async send(
         message: string,
         subject?: string,

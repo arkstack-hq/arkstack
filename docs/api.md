@@ -265,9 +265,10 @@ The `pusher-js` / `firebase` SDKs (and `react` / `vue` for the bindings) are opt
 
 ### `UserNotificationCenter`
 
+- `send(user, payload)` — store a database notification then broadcast it using a configured realtime driver.
 - `create(user, payload)` — store a database notification.
 - `forUser(user)` — list stored notifications for a user.
-- `unreadForUser(user)` — list unread notifications for a user.
+- `unreadForUser(user, perPage?)` — list unread notifications for a user.
 - `markAllRead(user)` — mark every unread notification for a user as read.
 - `markRead(notification)` — mark a notification as read.
 - `delete(notification)` — delete a notification.

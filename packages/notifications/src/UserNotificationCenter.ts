@@ -4,6 +4,7 @@ import type { DbNotificationPayload } from './types'
 import { Notification } from './Notification'
 import type { User } from '@app/models/User'
 import type { UserNotification } from '@app/models/UserNotification'
+import { UserPushToken } from './Contracts/UserPushToken'
 import { getModel } from '@arkstack/common'
 
 export class UserNotificationCenter {
@@ -20,13 +21,23 @@ export class UserNotificationCenter {
     static async send(user: User, payload: DbNotificationPayload, channel: string[] = []) {
         return await Notification.realtime()
             .store()
-            .channel(user.pushTokens ?? channel)
+            .channel(this.resolvePushTokens(user.pushTokens ?? channel))
             .meta(payload.meta)
             .type(payload.type)
             .subject(payload.title)
             .action(payload.actionText, payload.actionLink)
             .send(payload.description, payload.title, undefined, payload)
 
+    }
+
+    private static resolvePushTokens(pushTokens?: string | string | UserPushToken | UserPushToken[]) {
+        if (!pushTokens) return []
+
+        if (Array.isArray(pushTokens)) {
+            return pushTokens.map(e => typeof e === 'string' ? e : e.token)
+        }
+
+        return [typeof pushTokens === 'string' ? pushTokens : pushTokens.token]
     }
 
     /**

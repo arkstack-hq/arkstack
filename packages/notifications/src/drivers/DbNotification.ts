@@ -10,6 +10,7 @@ import { interpolate } from '../utils/template'
 export class DbNotification extends NotificationContract<UserNotification> {
     private user?: User
     private payload: Partial<DbNotificationPayload> = {}
+    private realtime: boolean = false
 
     from(_from: string): this {
         return this
@@ -50,12 +51,34 @@ export class DbNotification extends NotificationContract<UserNotification> {
         return this
     }
 
+    /**
+     * Broadcast the notification using the default realtime driver.
+     * 
+     * @param realtime Set to false to disable realtime broadcast
+     */
+    broadcast(realtime = true) {
+        this.realtime = realtime
+    }
+
     async create(user: User, payload: DbNotificationPayload) {
         await getModel<typeof UserNotification>('UserNotification')
+
+        if (this.realtime) {
+            return await UserNotificationCenter.send(user, payload) as never
+        }
 
         return await UserNotificationCenter.create(user, payload)
     }
 
+    /**
+     * Send the database notification
+     * 
+     * @param message 
+     * @param subject 
+     * @param _recipient 
+     * @param data 
+     * @returns 
+     */
     async send(
         message: string,
         subject?: string,
