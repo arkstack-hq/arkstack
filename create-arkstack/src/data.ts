@@ -46,22 +46,22 @@ export const leanDependencies = [
 ]
 
 export const depsList: Record<string, string> = {
-    '@arkstack/auth': '^0.16.12',
-    '@arkstack/cache': '^0.16.12',
-    '@arkstack/common': '^0.16.12',
-    '@arkstack/console': '^0.16.12',
-    '@arkstack/foundry': '^0.16.12',
-    '@arkstack/jobs': '^0.16.12',
-    // '@arkstack/console-slim': '^0.16.12', Depracated
-    '@arkstack/contract': '^0.16.12',
-    '@arkstack/database': '^0.16.12',
-    '@arkstack/driver-express': '^0.16.12',
-    '@arkstack/driver-h3': '^0.16.12',
-    '@arkstack/filesystem': '^0.16.12',
-    '@arkstack/http': '^0.16.12',
-    '@arkstack/view': '^0.16.12',
-    '@arkstack/queue': '^0.16.12',
-    '@arkstack/notifications': '^0.16.12',
+    '@arkstack/auth': '^0.16.13',
+    '@arkstack/cache': '^0.16.13',
+    '@arkstack/common': '^0.16.13',
+    '@arkstack/console': '^0.16.13',
+    '@arkstack/foundry': '^0.16.13',
+    '@arkstack/jobs': '^0.16.13',
+    // '@arkstack/console-slim': '^0.16.13', Depracated
+    '@arkstack/contract': '^0.16.13',
+    '@arkstack/database': '^0.16.13',
+    '@arkstack/driver-express': '^0.16.13',
+    '@arkstack/driver-h3': '^0.16.13',
+    '@arkstack/filesystem': '^0.16.13',
+    '@arkstack/http': '^0.16.13',
+    '@arkstack/view': '^0.16.13',
+    '@arkstack/queue': '^0.16.13',
+    '@arkstack/notifications': '^0.16.13',
     '@h3ravel/musket': '^2.2.2',
     '@h3ravel/support': '^2.2.4',
 }
