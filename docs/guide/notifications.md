@@ -136,6 +136,74 @@ await UserNotificationCenter.markRead(unread[0]);
 await UserNotificationCenter.delete(unread[0]);
 ```
 
+## Realtime Notifications
+
+The `realtime` driver broadcasts a notification to connected clients over [Pusher Channels](https://pusher.com/channels) or [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging). Each user has their own channel (`${channel_prefix}${user.id}`, e.g. `user.7`).
+
+```ts
+await Notification.realtime()
+  .recipient(user)
+  .type('transaction')
+  .action('View', '/wallet')
+  .store() // also persist so the client can load history
+  .send('You received $20.00', 'Payment received');
+```
+
+`.store()` is opt-in: when enabled the notification is written via `UserNotificationCenter` (giving it a real id and timestamps) **and** broadcast; otherwise it is broadcast only. Broadcast on an explicit channel with `.channel('team.updates')`, or change the client event name with `.event('alert')`.
+
+Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.pusher` / `transports.firebase`. The `pusher` / `firebase-admin` SDKs are optional — install only the one you use:
+
+```sh
+pnpm add pusher          # Pusher transport
+pnpm add firebase-admin  # Firebase transport
+```
+
+### Consuming on the client
+
+Install `@arkstack/realtime` in your front-end and the matching client SDK (`pusher-js` or `firebase`):
+
+```ts
+import { createRealtime } from '@arkstack/realtime';
+
+const realtime = createRealtime({
+  transport: 'pusher',
+  pusher: { key: import.meta.env.VITE_PUSHER_KEY, cluster: 'mt1', authEndpoint: '/broadcasting/auth' },
+});
+
+const unsubscribe = await realtime.forUser(user.id, (notification) => {
+  console.log(notification.title, notification.description);
+});
+```
+
+React and Vue bindings accumulate notifications for you (newest first):
+
+::: code-group
+
+```tsx [React]
+import { useNotifications } from '@arkstack/realtime/react';
+
+function Bell({ realtime, userId }) {
+  const { notifications, latest, clear } = useNotifications(realtime, realtime.channelFor(userId), { limit: 20 });
+
+  return <span>{notifications.length} · {latest?.title}</span>;
+}
+```
+
+```vue [Vue]
+<script setup>
+import { useNotifications } from '@arkstack/realtime/vue';
+
+const props = defineProps(['realtime', 'userId']);
+const { notifications, latest } = useNotifications(props.realtime, props.realtime.channelFor(props.userId), { limit: 20 });
+</script>
+
+<template>
+  <span>{{ notifications.length }} · {{ latest?.title }}</span>
+</template>
+```
+
+:::
+
 ## Prepared Recipients
 
 `Notification.prepare()` can derive the recipient from a user-like object:

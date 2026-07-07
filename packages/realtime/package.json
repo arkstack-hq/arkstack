@@ -1,0 +1,65 @@
+{
+    "name": "@arkstack/realtime",
+    "version": "0.16.6",
+    "type": "module",
+    "description": "Client for consuming Arkstack realtime notifications (Pusher/Firebase), with framework-agnostic core plus React and Vue bindings.",
+    "homepage": "https://arkstack.toneflix.net/guide/notifications",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/realtime"
+    },
+    "keywords": [
+        "realtime",
+        "notifications",
+        "pusher",
+        "firebase",
+        "websocket",
+        "react",
+        "vue",
+        "arkstack"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsdown",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./react": "./dist/react/index.js",
+        "./vue": "./dist/vue/index.js",
+        "./package.json": "./package.json"
+    },
+    "peerDependencies": {
+        "pusher-js": "^8.4.0",
+        "firebase": "^11.0.0",
+        "react": ">=18",
+        "vue": "^3.4.0"
+    },
+    "peerDependenciesMeta": {
+        "pusher-js": {
+            "optional": true
+        },
+        "firebase": {
+            "optional": true
+        },
+        "react": {
+            "optional": true
+        },
+        "vue": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@types/react": "^19.2.3",
+        "react": "^19.2.3",
+        "vue": "^3.5.0"
+    }
+}

@@ -154,6 +154,7 @@ Core shared packages:
 - `@arkstack/http`
 - `@arkstack/auth`
 - `@arkstack/notifications`
+- `@arkstack/realtime` (client)
 - `@arkstack/view`
 - `@arkstack/inertia`
 
@@ -219,10 +220,21 @@ Both middlewares expect an `Authorization: Bearer <token>` header.
 - `Notification.mail(options?)` / `Notification.email(options?)` — create a mail notification driver.
 - `Notification.sms(options?)` — create an SMS notification driver.
 - `Notification.db()` — create a database notification driver.
+- `Notification.realtime(options?)` — create a realtime (Pusher/Firebase) broadcast driver.
 - `Notification.channel(channel?, options?)` — create a driver from a channel or `notifications.default_driver`.
 - `new Notification(channel, options?).prepare(recipient, data?)` — prepare a driver using a user-like recipient or direct address.
 
 Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'Name' }`, and arrays of named address objects.
+
+### `RealtimeNotification`
+
+Broadcasts a notification to connected clients over Pusher Channels or Firebase Cloud Messaging.
+
+- `.recipient(user | channel)` — a `User` (channel is `${channel_prefix}${user.id}`) or an explicit channel string.
+- `.channel(name)` / `.event(name)` — override the channel and the client event name (default `notification`).
+- `.type(type)` / `.action(text, link)` / `.meta(data)` — build the payload.
+- `.store(enabled?)` — also persist the notification (requires a `User` recipient) so clients can load history.
+- `.send(message, subject?, recipient?, data?)` — broadcast; resolves to `{ channel, event, payload, stored? }`.
 
 ### Notification Config
 
@@ -230,9 +242,26 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 - `notifications.drivers.mail.transport` — mail transport name, usually `smtp`.
 - `notifications.drivers.sms.transport` — SMS transport name, `africastalking` or `twilio`.
 - `notifications.drivers.db.table` — database notifications table name.
+- `notifications.drivers.realtime` — realtime `transport` (`pusher` | `firebase`), `channel_prefix`, `event`, and default `store`.
 - `notifications.transports.smtp` — SMTP connection options.
 - `notifications.transports.africastalking` — AfricasTalking credentials.
 - `notifications.transports.twilio` — Twilio credentials.
+- `notifications.transports.pusher` — Pusher app credentials (`app_id`, `key`, `secret`, `cluster`, `use_tls`).
+- `notifications.transports.firebase` — Firebase service-account credentials (`project_id`, `client_email`, `private_key`).
+
+The `pusher` / `firebase-admin` SDKs are optional peer dependencies, imported lazily only when the realtime transport is used.
+
+### `@arkstack/realtime` (client)
+
+The framework-neutral client for consuming realtime notifications, with React and Vue bindings.
+
+- `createRealtime(config)` — create a `RealtimeClient` (config: `transport`, `event`, `channelPrefix`, `pusher`/`firebase`, or a custom `transportFactory`).
+- `client.subscribe(channel, handler)` / `client.forUser(userId, handler)` — subscribe; returns an unsubscribe function.
+- `client.channelFor(userId)` — the per-user channel name; `client.disconnect()` — tear down the connection.
+- `@arkstack/realtime/react` — `useNotifications(client, channel, { limit? })` → `{ notifications, latest, clear }`.
+- `@arkstack/realtime/vue` — `useNotifications(client, channel, { limit? })` → `{ notifications, latest, clear, stop }`.
+
+The `pusher-js` / `firebase` SDKs (and `react` / `vue` for the bindings) are optional peer dependencies.
 
 ### `UserNotificationCenter`
 
