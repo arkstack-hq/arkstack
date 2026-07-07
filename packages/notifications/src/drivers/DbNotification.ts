@@ -22,10 +22,7 @@ export class DbNotification extends NotificationContract<UserNotification> {
     }
 
     recipient(recipient: NotificationRecipient | User): this {
-        if (
-            typeof recipient === 'object' &&
-            !Array.isArray(recipient) &&
-            typeof recipient.id !== 'undefined') {
+        if (typeof recipient === 'object' && !Array.isArray(recipient) && typeof recipient.id !== 'undefined') {
             this.user = recipient
 
             return this

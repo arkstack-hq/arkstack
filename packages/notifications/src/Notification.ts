@@ -17,40 +17,34 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
         this.driver = Notification.createDriver(driver, options) as DriverMap[D]
     }
 
-    static mail (options?: MailDriverOptions) {
+    static mail(options?: MailDriverOptions) {
         return new MailNotification(options)
     }
 
-    static email (options?: MailDriverOptions) {
+    static email(options?: MailDriverOptions) {
         return this.mail(options)
     }
 
-    static sms (options?: SmsDriverOptions) {
+    static sms(options?: SmsDriverOptions) {
         return new SmsNotification(options)
     }
 
-    static db () {
+    static db() {
         return new DbNotification()
     }
 
-    static realtime (options?: RealtimeDriverOptions) {
+    static realtime(options?: RealtimeDriverOptions) {
         return new RealtimeNotification(options)
     }
 
-    static channel (
-        channel?: NotificationChannel | 'email',
-        options?: DriverOptions
-    ) {
+    static channel(channel?: NotificationChannel | 'email', options?: DriverOptions) {
         return Notification.createDriver(channel ?? configure('default_driver', 'mail'), options)
     }
 
-    prepare (
-        recipient?: null | MailRecipient | NotificationRecipient | User,
-        data: NotificationData = {}
-    ) {
+    prepare(recipient?: null | MailRecipient | NotificationRecipient | User, data: NotificationData = {}) {
         this.driver.data(data)
 
-        if (recipient && typeof recipient === 'object' && !Array.isArray(recipient) && 'id' in recipient) {
+        if (recipient && typeof recipient === 'object' && !Array.isArray(recipient) && typeof recipient.id !== 'undefined') {
             if (this.driver instanceof MailNotification) {
                 if (recipient.email) {
                     this.driver.recipient(recipient.email)
@@ -73,7 +67,7 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
         return this.driver
     }
 
-    private static createDriver (
+    private static createDriver(
         driver: NotificationChannel | 'email',
         options: DriverOptions = {}
     ) {

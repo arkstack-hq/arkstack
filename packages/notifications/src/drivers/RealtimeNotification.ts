@@ -75,7 +75,7 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
      * @returns 
      */
     recipient(recipient: NotificationRecipient | User): this {
-        if (typeof recipient === 'object' && !Array.isArray(recipient) && 'id' in recipient) {
+        if (typeof recipient === 'object' && !Array.isArray(recipient) && typeof recipient.id !== 'undefined') {
             this.user = recipient
 
             return this
