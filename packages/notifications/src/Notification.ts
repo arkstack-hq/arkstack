@@ -1,16 +1,19 @@
-import type { MailDriverOptions, MailRecipient, NotificationChannel, NotificationData, NotificationRecipient, SmsDriverOptions } from './types'
+import type { MailDriverOptions, MailRecipient, NotificationChannel, NotificationData, NotificationRecipient, RealtimeDriverOptions, SmsDriverOptions } from './types'
 
 import { DbNotification } from './drivers/DbNotification'
 import { DriverMap } from './Contracts/Maps'
 import { MailNotification } from './drivers/MailNotification'
+import { RealtimeNotification } from './drivers/RealtimeNotification'
 import { SmsNotification } from './drivers/SmsNotification'
 import type { User } from '@app/models/User'
 import { configure } from './config'
 
+type DriverOptions = MailDriverOptions | SmsDriverOptions | RealtimeDriverOptions
+
 export class Notification<D extends keyof DriverMap = keyof DriverMap> {
     private driver: DriverMap[D]
 
-    constructor(driver: D, options: MailDriverOptions | SmsDriverOptions = {}) {
+    constructor(driver: D, options: DriverOptions = {}) {
         this.driver = Notification.createDriver(driver, options) as DriverMap[D]
     }
 
@@ -30,9 +33,13 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
         return new DbNotification()
     }
 
+    static realtime (options?: RealtimeDriverOptions) {
+        return new RealtimeNotification(options)
+    }
+
     static channel (
         channel?: NotificationChannel | 'email',
-        options?: MailDriverOptions | SmsDriverOptions
+        options?: DriverOptions
     ) {
         return Notification.createDriver(channel ?? configure('default_driver', 'mail'), options)
     }
@@ -68,7 +75,7 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
 
     private static createDriver (
         driver: NotificationChannel | 'email',
-        options: MailDriverOptions | SmsDriverOptions = {}
+        options: DriverOptions = {}
     ) {
         switch (driver) {
             case 'mail':
@@ -78,6 +85,8 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
                 return new SmsNotification(options as SmsDriverOptions)
             case 'db':
                 return new DbNotification()
+            case 'realtime':
+                return new RealtimeNotification(options as RealtimeDriverOptions)
             default:
                 throw new Error(`Unsupported notification driver: ${driver}`)
         }

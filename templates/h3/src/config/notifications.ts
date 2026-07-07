@@ -19,7 +19,10 @@ export default (): NotificationConfig => {
         drivers: {
             mail: {
                 transport: env('MAIL_TRANSPORT', 'smtp') as 'smtp' | 'file',
-                from: env('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
+                from: {
+                    name: env('MAIL_FROM_NAME', 'Arcstack'),
+                    address: env('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
+                },
                 test_address: env('MAIL_TEST_ADDRESS'),
             },
             sms: {
@@ -28,6 +31,12 @@ export default (): NotificationConfig => {
             },
             db: {
                 table: 'user_notifications',
+            },
+            realtime: {
+                transport: env('REALTIME_TRANSPORT', 'pusher') as 'pusher' | 'firebase',
+                channel_prefix: env('REALTIME_CHANNEL_PREFIX', 'user.'),
+                event: env('REALTIME_EVENT', 'notification'),
+                store: env('REALTIME_STORE', false),
             },
         },
         transports: {
@@ -81,6 +90,30 @@ export default (): NotificationConfig => {
                 accountSid: env('TWILIO_ACCOUNT_SID'),
                 authToken: env('TWILIO_AUTH_TOKEN'),
                 from: env('TWILIO_FROM', env('SMS_FROM')),
+            },
+
+            /**
+             * Pusher Realtime Transport
+             *
+             * Realtime notifications will be broadcast over Pusher Channels.
+             */
+            pusher: {
+                app_id: env('PUSHER_APP_ID', ''),
+                key: env('PUSHER_KEY', ''),
+                secret: env('PUSHER_SECRET', ''),
+                cluster: env('PUSHER_CLUSTER', 'mt1'),
+                use_tls: env('PUSHER_USE_TLS', true),
+            },
+
+            /**
+             * Firebase Realtime Transport
+             *
+             * Realtime notifications will be broadcast over Firebase Cloud Messaging topics.
+             */
+            firebase: {
+                project_id: env('FIREBASE_PROJECT_ID', ''),
+                client_email: env('FIREBASE_CLIENT_EMAIL', ''),
+                private_key: env('FIREBASE_PRIVATE_KEY', ''),
             },
         }
     }

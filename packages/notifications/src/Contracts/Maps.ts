@@ -1,5 +1,6 @@
 import type { DbNotification } from '../drivers/DbNotification'
 import type { MailNotification } from '../drivers/MailNotification'
+import type { RealtimeNotification } from '../drivers/RealtimeNotification'
 import type { SmsNotification } from '../drivers/SmsNotification'
 
 export type DriverMap = {
@@ -7,4 +8,5 @@ export type DriverMap = {
     email: MailNotification
     sms: SmsNotification
     db: DbNotification
+    realtime: RealtimeNotification
 }

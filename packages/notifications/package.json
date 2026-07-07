@@ -44,7 +44,17 @@
     },
     "peerDependencies": {
         "@arkstack/database": "workspace:^",
-        "@arkstack/contract": "workspace:^"
+        "@arkstack/contract": "workspace:^",
+        "pusher": "^5.2.0",
+        "firebase-admin": "^13.0.0"
+    },
+    "peerDependenciesMeta": {
+        "pusher": {
+            "optional": true
+        },
+        "firebase-admin": {
+            "optional": true
+        }
     },
     "devDependencies": {
         "@types/nodemailer": "^7.0.11"
