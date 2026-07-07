@@ -131,7 +131,7 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
         return this
     }
 
-    type(type: DbNotificationType | null): this {
+    type(type?: DbNotificationType | null): this {
         this.payload.type = type
 
         return this
@@ -198,7 +198,8 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
             created_at: stored?.createdAt ? new Date(stored.createdAt).toISOString() : new Date().toISOString(),
         }
 
-        await this.driver.broadcast(channel, this.eventName, payload)
+        if (channel && channel.length > 0)
+            await this.driver.broadcast(channel, this.eventName, payload)
 
         return { channel, event: this.eventName, payload, stored }
     }
