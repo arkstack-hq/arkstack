@@ -3,6 +3,7 @@ import { ConfigRegistry, DotPath } from './types'
 import { Dirent, readdirSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
+import { EnvLoader } from './EnvLoader'
 import { createRequire } from 'module'
 import { outputDir } from './system'
 import path from 'node:path'
@@ -126,9 +127,7 @@ export class ConfigLoader {
         defaultValue?: any
     ): any {
         if (typeof globalThis.env === 'undefined') {
-            globalThis.env = (k?: string, def?: any): any => k
-                ? process.env[k] ?? def
-                : process.env
+            globalThis.env = (k?: string, def?: any): any => new EnvLoader().get(k ?? '', def)
         }
 
         this.load()
