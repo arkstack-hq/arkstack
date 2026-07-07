@@ -2,14 +2,14 @@ import type { NotificationHandler, PusherClientConfig, RealtimeTransport } from 
 
 /** The slice of the `pusher-js` client this transport uses. */
 interface PusherChannel {
-    bind (event: string, handler: (data: unknown) => void): void
-    unbind (event: string, handler: (data: unknown) => void): void
+    bind(event: string, handler: (data: unknown) => void): void
+    unbind(event: string, handler: (data: unknown) => void): void
 }
 
 interface PusherClient {
-    subscribe (channel: string): PusherChannel
-    unsubscribe (channel: string): void
-    disconnect (): void
+    subscribe(channel: string): PusherChannel
+    unsubscribe(channel: string): void
+    disconnect(): void
 }
 
 type PusherConstructor = new (key: string, options: Record<string, unknown>) => PusherClient
@@ -36,7 +36,7 @@ export const createPusherTransport = async (config: PusherClientConfig): Promise
     })
 
     const transport: RealtimeTransport = {
-        subscribe (channel: string, event: string, handler: NotificationHandler) {
+        subscribe(channel: string, event: string, handler: NotificationHandler) {
             const subscription = client.subscribe(channel)
             const listener = (data: unknown) => handler(data as never)
 
@@ -44,13 +44,13 @@ export const createPusherTransport = async (config: PusherClientConfig): Promise
 
             return {
                 channel,
-                unsubscribe () {
+                unsubscribe() {
                     subscription.unbind(event, listener)
                     client.unsubscribe(channel)
                 },
             }
         },
-        disconnect () {
+        disconnect() {
             client.disconnect()
         },
     }

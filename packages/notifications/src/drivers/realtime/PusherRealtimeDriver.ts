@@ -28,8 +28,9 @@ export class PusherRealtimeDriver implements RealtimeDriver {
     constructor(private options: PusherTransportConfig = {}) { }
 
     private client(): Promise<PusherClient> {
+        const specifier = 'pusher'
         this.clientPromise ??= (async () => {
-            const mod = await import(('pusher')).catch(() => {
+            const mod = await import(specifier).catch(() => {
                 throw new Error(
                     'The "pusher" package is required for the Pusher realtime transport. Install it with `npm i pusher`.',
                 )
@@ -49,9 +50,10 @@ export class PusherRealtimeDriver implements RealtimeDriver {
         return this.clientPromise
     }
 
-    async broadcast(channel: string, event: string, payload: RealtimeNotificationPayload) {
+    async broadcast(channel: string | string[], event: string, payload: RealtimeNotificationPayload) {
         const client = await this.client()
 
+        // Pusher's `trigger` fans out to multiple channels when given an array.
         return await client.trigger(channel, event, payload)
     }
 }

@@ -38,7 +38,7 @@ export const createFirebaseTransport = async (config: FirebaseClientConfig): Pro
     const onMessage = messagingMod.onMessage as OnMessage
 
     const transport: RealtimeTransport = {
-        subscribe (channel: string, event: string, handler: NotificationHandler) {
+        subscribe(channel: string, event: string, handler: NotificationHandler) {
             const off = onMessage(messaging, (payload) => {
                 if (payload.data?.event !== event || !payload.data.payload) {
                     return
@@ -53,7 +53,7 @@ export const createFirebaseTransport = async (config: FirebaseClientConfig): Pro
 
             return { channel, unsubscribe: off }
         },
-        disconnect () { },
+        disconnect() { },
     }
 
     return transport

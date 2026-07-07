@@ -30,7 +30,7 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
      */
     driver: RealtimeDriver
     private user?: User
-    private channelName?: string
+    private channelName?: string | string[]
     private eventName: string
     private channelPrefix: string
     private shouldStore: boolean
@@ -68,11 +68,12 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
         return this
     }
 
-    /** 
-     * Set the recipient: a `User` (derives the channel) or an explicit channel string. 
-     * 
-     * @param recipient 
-     * @returns 
+    /**
+     * Set the recipient: a `User` (derives the channel), an explicit channel
+     * string, or an array of channels (Pusher) / device tokens (Firebase).
+     *
+     * @param recipient
+     * @returns
      */
     recipient(recipient: NotificationRecipient | User): this {
         if (typeof recipient === 'object' && !Array.isArray(recipient) && typeof recipient.id !== 'undefined') {
@@ -81,7 +82,7 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
             return this
         }
 
-        if (typeof recipient === 'string') {
+        if (typeof recipient === 'string' || Array.isArray(recipient)) {
             this.channelName = recipient
 
             return this
@@ -91,12 +92,16 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
     }
 
     /**
-     * Broadcast on an explicit channel/topic instead of the per-user default. 
-      * 
-      * @param channel 
-      * @returns 
-      */
-    channel(channel: string): this {
+     * Broadcast on an explicit channel/topic instead of the per-user default.
+     * An array broadcasts to multiple Pusher channels, or — for Firebase — to a
+     * list of device registration tokens (multicast).
+     *
+     * @param channel
+     * @returns
+     */
+    channel(channel: string): this
+    channel(channel: string[]): this
+    channel(channel: string | string[]): this {
         this.channelName = channel
 
         return this
@@ -145,8 +150,8 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
         return this
     }
 
-    private resolveChannel(): string {
-        if (this.channelName) {
+    private resolveChannel(): string | string[] {
+        if (this.channelName !== undefined) {
             return this.channelName
         }
 

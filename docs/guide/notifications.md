@@ -151,12 +151,22 @@ await Notification.realtime()
 
 `.store()` is opt-in: when enabled the notification is written via `UserNotificationCenter` (giving it a real id and timestamps) **and** broadcast; otherwise it is broadcast only. Broadcast on an explicit channel with `.channel('team.updates')`, or change the client event name with `.event('alert')`.
 
+`.channel()` (and `.recipient()`) also accept an **array**. For Pusher it fans out to multiple channels; for Firebase it is treated as a list of **device registration tokens** and delivered via a chunked multicast (500 tokens per call). The Firebase multicast returns `{ successCount, failureCount, invalidTokens }` — delete `invalidTokens` from your store, since FCM reports which are unregistered:
+
+```ts
+await Notification.realtime({ transport: 'firebase' })
+  .channel(user.deviceTokens) // string[] of FCM registration tokens
+  .send('You have a new message');
+```
+
 Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.pusher` / `transports.firebase`. The `pusher` / `firebase-admin` SDKs are optional, install only the one you use:
 
 ```sh
 pnpm add pusher          # Pusher transport
 pnpm add firebase-admin  # Firebase transport
 ```
+
+**Firebase credentials** can be provided two ways. Point `admin_sdk_path` (`FIREBASE_ADMINSDK`, default `firebase-adminsdk.json`, resolved from the project root) at a downloaded service-account JSON file; if that file is absent, the driver falls back to the inline `project_id` / `client_email` / `private_key` values (`FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY`). `app_name` (`FIREBASE_APP_NAME`, default your `APP_NAME`) names the Firebase Admin app instance so repeated broadcasts reuse it.
 
 ### Consuming on the client
 

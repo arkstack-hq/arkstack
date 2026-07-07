@@ -114,6 +114,8 @@ export default (): NotificationConfig => {
                 project_id: env('FIREBASE_PROJECT_ID', ''),
                 client_email: env('FIREBASE_CLIENT_EMAIL', ''),
                 private_key: env('FIREBASE_PRIVATE_KEY', ''),
+                app_name: env('APP_NAME', 'Arkstack'),
+                admin_sdk_path: env('FIREBASE_ADMINSDK', 'firebase-adminsdk.json'),
             },
         }
     }

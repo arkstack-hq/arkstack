@@ -1,4 +1,4 @@
-import { Notification, RealtimeNotification, UserNotificationCenter } from '../src'
+import { FirebaseRealtimeDriver, Notification, RealtimeNotification, UserNotificationCenter } from '../src'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { RealtimeDriver } from '../src'
@@ -100,5 +100,65 @@ describe('RealtimeNotification', () => {
         const rt = withDriver(Notification.realtime(), driver)
 
         await expect(rt.send('nowhere')).rejects.toThrow(/channel/i)
+    })
+
+    it('passes an array channel through to the transport (multi-channel / tokens)', async () => {
+        const { driver, calls } = fakeDriver()
+        const rt = withDriver(Notification.realtime(), driver)
+
+        const result = await rt.channel(['token-a', 'token-b']).send('Hi')
+
+        expect(calls[0].channel).toEqual(['token-a', 'token-b'])
+        expect(result.channel).toEqual(['token-a', 'token-b'])
+    })
+})
+
+describe('FirebaseRealtimeDriver multicast', () => {
+    /** Inject a fake `firebase-admin` messaging into the lazy promise. */
+    const withMessaging = (messaging: unknown) => {
+        const driver = new FirebaseRealtimeDriver()
+        ;(driver as unknown as { messagingPromise: Promise<unknown> }).messagingPromise = Promise.resolve(messaging)
+
+        return driver
+    }
+
+    const payload = () => ({
+        id: '1', type: null, title: 'T', description: 'D', read_at: null, created_at: '2026-01-01T00:00:00.000Z',
+    })
+
+    it('sends a single channel as an FCM topic', async () => {
+        const send = vi.fn(async () => 'msg-id')
+        const driver = withMessaging({ send, sendEachForMulticast: vi.fn() })
+
+        await driver.broadcast('user.7', 'notification', payload())
+
+        expect(send).toHaveBeenCalledWith(expect.objectContaining({ topic: 'user.7' }))
+    })
+
+    it('chunks tokens to 500 per multicast and reports dead tokens to prune', async () => {
+        const tokens = Array.from({ length: 501 }, (_, i) => `t${i}`)
+        const sendEachForMulticast = vi.fn(async ({ tokens: batch }: { tokens: string[] }) => ({
+            successCount: batch.length - (batch.includes('t0') ? 1 : 0),
+            failureCount: batch.includes('t0') ? 1 : 0,
+            responses: batch.map((t) => t === 't0'
+                ? { success: false, error: { code: 'messaging/registration-token-not-registered' } }
+                : { success: true }),
+        }))
+        const driver = withMessaging({ send: vi.fn(), sendEachForMulticast })
+
+        const result = await driver.broadcast(tokens, 'notification', payload()) as {
+            successCount: number
+            failureCount: number
+            invalidTokens: string[]
+        }
+
+        // 501 tokens → two batches (500 + 1).
+        expect(sendEachForMulticast).toHaveBeenCalledTimes(2)
+        expect(sendEachForMulticast.mock.calls[0][0].tokens).toHaveLength(500)
+        expect(sendEachForMulticast.mock.calls[1][0].tokens).toHaveLength(1)
+        // The dead token is surfaced for pruning.
+        expect(result.invalidTokens).toEqual(['t0'])
+        expect(result.failureCount).toBe(1)
+        expect(result.successCount).toBe(500)
     })
 })

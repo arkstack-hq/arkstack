@@ -54,6 +54,8 @@ export type FirebaseTransportConfig = {
     project_id?: string
     client_email?: string
     private_key?: string
+    app_name?: string
+    admin_sdk_path?: string
 }
 
 export type RealtimeDriverOptions = {
@@ -83,7 +85,7 @@ export type RealtimeNotificationPayload = {
 
 /** The result of a realtime broadcast (plus the stored record when `store` is on). */
 export type RealtimeBroadcastResult = {
-    channel: string
+    channel: string | string[]
     event: string
     payload: RealtimeNotificationPayload
     stored?: UserNotification
@@ -186,7 +188,11 @@ export interface NotificationConfig {
         firebase?: {
             project_id: string;
             client_email: string;
-            private_key: string
+            private_key: string;
+            app_name?: string;
+        } | {
+            app_name?: string;
+            admin_sdk_path: string
         }
     }
 }

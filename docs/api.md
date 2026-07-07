@@ -230,8 +230,8 @@ Mail recipients support strings, arrays of strings, `{ 'address@example.com': 'N
 
 Broadcasts a notification to connected clients over Pusher Channels or Firebase Cloud Messaging.
 
-- `.recipient(user | channel)` — a `User` (channel is `${channel_prefix}${user.id}`) or an explicit channel string.
-- `.channel(name)` / `.event(name)` — override the channel and the client event name (default `notification`).
+- `.recipient(user | channel)` — a `User` (channel is `${channel_prefix}${user.id}`), a channel string, or a `string[]`.
+- `.channel(name | names[])` / `.event(name)` — override the channel(s) and the client event name (default `notification`). An array fans out to multiple Pusher channels, or is treated as Firebase device tokens (multicast, chunked to 500, returning `invalidTokens` to prune).
 - `.type(type)` / `.action(text, link)` / `.meta(data)` — build the payload.
 - `.store(enabled?)` — also persist the notification (requires a `User` recipient) so clients can load history.
 - `.send(message, subject?, recipient?, data?)` — broadcast; resolves to `{ channel, event, payload, stored? }`.
@@ -247,7 +247,7 @@ Broadcasts a notification to connected clients over Pusher Channels or Firebase 
 - `notifications.transports.africastalking` — AfricasTalking credentials.
 - `notifications.transports.twilio` — Twilio credentials.
 - `notifications.transports.pusher` — Pusher app credentials (`app_id`, `key`, `secret`, `cluster`, `use_tls`).
-- `notifications.transports.firebase` — Firebase service-account credentials (`project_id`, `client_email`, `private_key`).
+- `notifications.transports.firebase` — Firebase credentials: inline (`project_id`, `client_email`, `private_key`) or a service-account JSON file via `admin_sdk_path`; `app_name` names the Admin app instance.
 
 The `pusher` / `firebase-admin` SDKs are optional peer dependencies, imported lazily only when the realtime transport is used.
 
