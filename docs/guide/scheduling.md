@@ -44,7 +44,7 @@ Schedule.exec('backup.sh').daily().onOneServer();
 
 The scheduler evaluates due tasks once a minute. In production, add **one** cron entry that calls `schedule:run` every minute:
 
-```
+```sh
 * * * * * cd /path/to/app && npx ark schedule:run >> /dev/null 2>&1
 ```
 

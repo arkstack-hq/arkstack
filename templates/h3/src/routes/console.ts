@@ -12,5 +12,5 @@ import { Schedule } from '@arkstack/scheduler'
  */
 
 // Schedule.command('cache:prune').hourly()
-// Schedule.call(() => console.log('tick')).everyFiveMinutes().withoutOverlapping()
+Schedule.call(() => console.log('tick')).everyFiveMinutes().withoutOverlapping()
 // Schedule.exec('backup.sh').dailyAt('01:30').onOneServer()

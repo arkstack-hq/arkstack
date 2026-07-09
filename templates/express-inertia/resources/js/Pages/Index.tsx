@@ -1,7 +1,7 @@
 export default function Index({
+  appName: appName_,
   message,
-  appName,
-  title,
+  title: title_,
 }: {
   appName: string;
   title: string;
@@ -11,7 +11,7 @@ export default function Index({
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   root.setAttribute('data-theme', prefersDark ? 'dark' : 'light')
 
-  return ( 
+  return (
     <div className="page">
       <div className="brand">
         <div className="logo-wrap">
@@ -25,9 +25,7 @@ export default function Index({
           <h1 className="wordmark">
             Ark<span>stack</span>
           </h1>
-          <p className="tagline">
-            Node.js Framework &mdash; Runtime Agnostic
-          </p>
+          <p className="tagline">Node.js Framework &mdash; Runtime Agnostic</p>
         </div>
       </div>
 
@@ -106,8 +104,7 @@ export default function Index({
       </div>
 
       <p className="footer">
-        <a href="https://arkstack.toneflix.net/">Docs</a>{' '}
-        &nbsp;&middot;&nbsp;
+        <a href="https://arkstack.toneflix.net/">Docs</a> &nbsp;&middot;&nbsp;
         <a href="https://github.com/arkstack-hq/arkstack">GitHub</a>{' '}
         &nbsp;&middot;&nbsp;
         <a href="https://discord.gg/jmQybxKQ7R">Discord</a>
@@ -115,6 +112,6 @@ export default function Index({
         Arkstack &copy; {new Date().getFullYear()} &mdash; By Toneflix
         Technologies
       </p>
-    </div> 
+    </div>
   )
 }
