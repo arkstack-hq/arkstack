@@ -1,5 +1,6 @@
 import { Command } from '@h3ravel/musket'
 import { Queue } from '../QueueManager'
+import { bootArkorm } from '@arkstack/database'
 
 /**
  * Delete all of the jobs from a queue.
@@ -11,12 +12,16 @@ export class QueueClearCommand extends Command {
     `
     protected description = 'Delete all of the jobs from the specified queue.'
 
-    async handle () {
+    async handle() {
         const connection = this.argument('connection') as string | undefined
         const queue = this.option('queue') as string | undefined
+
+        try {
+            bootArkorm()
+        } catch {/** */ }
 
         const count = await Queue.connection(connection).clear(queue)
 
         this.info(`Cleared ${count} job(s) from the [${connection ?? 'default'}] connection.`)
     }
-}
+} 

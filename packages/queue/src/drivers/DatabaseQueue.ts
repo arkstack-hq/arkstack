@@ -23,11 +23,11 @@ export class DatabaseQueue extends QueueContract {
         super()
     }
 
-    private get defaultQueue (): string {
+    private get defaultQueue(): string {
         return this.options.queue ?? 'default'
     }
 
-    private async database (): Promise<DatabaseFacade> {
+    private async database(): Promise<DatabaseFacade> {
         if (this.db) {
             return this.db
         }
@@ -42,11 +42,11 @@ export class DatabaseQueue extends QueueContract {
         return this.db
     }
 
-    async push (job: Queueable, queue?: string): Promise<string> {
+    async push(job: Queueable, queue?: string): Promise<string> {
         return this.pushRaw(serializeJob(job), queue ?? job.queue)
     }
 
-    async pushRaw (
+    async pushRaw(
         payload: JobPayload,
         queue?: string,
         availableAt: number = now()
@@ -65,7 +65,7 @@ export class DatabaseQueue extends QueueContract {
         return payload.id
     }
 
-    async later (delay: number | Date, job: Queueable, queue?: string): Promise<string> {
+    async later(delay: number | Date, job: Queueable, queue?: string): Promise<string> {
         const availableAt = delay instanceof Date
             ? Math.floor(delay.getTime() / 1000)
             : now() + delay
@@ -73,7 +73,7 @@ export class DatabaseQueue extends QueueContract {
         return this.pushRaw(serializeJob(job), queue ?? job.queue, availableAt)
     }
 
-    async pop (queue?: string): Promise<Job | null> {
+    async pop(queue?: string): Promise<Job | null> {
         const db = await this.database()
         const name = queue ?? this.defaultQueue
 
@@ -106,13 +106,13 @@ export class DatabaseQueue extends QueueContract {
         })
     }
 
-    async size (queue?: string): Promise<number> {
+    async size(queue?: string): Promise<number> {
         const db = await this.database()
 
         return db.table(this.options.table).where({ queue: queue ?? this.defaultQueue }).count()
     }
 
-    async clear (queue?: string): Promise<number> {
+    async clear(queue?: string): Promise<number> {
         const db = await this.database()
         const name = queue ?? this.defaultQueue
         const count = await this.size(name)
@@ -130,10 +130,10 @@ export class DatabaseQueue extends QueueContract {
      * @param queue 
      * @returns 
      */
-    private availableQuery (db: DatabaseFacade, queue: string): Query {
+    private availableQuery(db: DatabaseFacade, queue: string): Query {
         return db.table(this.options.table)
             .where({ queue })
             .whereNull('reserved_at')
-            .where('available_at', '<=', now())
+            .whereRaw('available_at <= ' + now())
     }
 }

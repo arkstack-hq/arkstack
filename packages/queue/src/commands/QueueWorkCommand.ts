@@ -1,5 +1,6 @@
 import { Command } from '@h3ravel/musket'
 import { Queue } from '../QueueManager'
+import { bootArkorm } from '@arkstack/database'
 
 /**
  * Process jobs from a queue connection.
@@ -15,7 +16,7 @@ export class QueueWorkCommand extends Command {
     `
     protected description = 'Start processing jobs on the queue as a daemon.'
 
-    async handle () {
+    async handle() {
         const connection = this.argument('connection') as string | undefined
         const worker = Queue.worker(connection)
         const queue = this.option('queue') as string | undefined
@@ -29,6 +30,10 @@ export class QueueWorkCommand extends Command {
         }
 
         this.info(`Processing jobs from [${connection ?? 'default'}] connection.`)
+
+        try {
+            bootArkorm()
+        } catch {/** */ }
 
         await worker.daemon({
             queue,

@@ -7,7 +7,7 @@
  */
 export interface Queueable {
     /** Perform the work for this job. */
-    handle (): unknown | Promise<unknown>
+    handle(): unknown | Promise<unknown>
     /** Serialize the job's state for storage. Defaults to a shallow copy. */
     serialize?(): Record<string, unknown>
     /** Override the queue this job is pushed onto. */
@@ -101,8 +101,8 @@ export type QueueConnectionFactory =
  * acknowledge or retry it without knowing the driver's internals.
  */
 export interface JobHandlers {
-    delete (): Promise<void>
-    release (delay: number): Promise<void>
+    delete(): Promise<void>
+    release(delay: number): Promise<void>
 }
 
 
@@ -122,19 +122,19 @@ export interface JobRow {
  * optional peer dependency).
  */
 export interface Query {
-    where (where: Record<string, unknown>): Query
-    where (column: string, operator: string, value: unknown): Query
-    whereNull (column: string): Query
-    orderBy (orderBy: Record<string, 'asc' | 'desc'>): Query
-    first (): Promise<JobRow | null>
-    update (values: Record<string, unknown>): Promise<unknown>
-    delete (): Promise<unknown>
-    count (): Promise<number>
+    where(where: Record<string, unknown>): Query
+    whereRaw(sql: string, bindings?: unknown[] | undefined): Query
+    whereNull(column: string): Query
+    orderBy(orderBy: Record<string, 'asc' | 'desc'>): Query
+    first(): Promise<JobRow | null>
+    update(values: Record<string, unknown>): Promise<unknown>
+    delete(): Promise<unknown>
+    count(): Promise<number>
 }
 
 export interface DatabaseFacade {
-    table (table: string): Query & {
-        insert (values: Record<string, unknown>): Promise<unknown>
+    table(table: string): Query & {
+        insert(values: Record<string, unknown>): Promise<unknown>
     }
 }
 
@@ -143,13 +143,13 @@ export interface DatabaseFacade {
  * package needn't depend on ioredis at build time (optional peer dependency).
  */
 export interface RedisClient {
-    rpush (key: string, ...values: string[]): Promise<number>
-    lpop (key: string): Promise<string | null>
-    llen (key: string): Promise<number>
-    del (...keys: string[]): Promise<number>
-    zadd (key: string, score: number, member: string): Promise<unknown>
-    zrem (key: string, member: string): Promise<number>
-    zcard (key: string): Promise<number>
-    zrangebyscore (key: string, min: string | number, max: string | number): Promise<string[]>
-    quit (): Promise<unknown>
+    rpush(key: string, ...values: string[]): Promise<number>
+    lpop(key: string): Promise<string | null>
+    llen(key: string): Promise<number>
+    del(...keys: string[]): Promise<number>
+    zadd(key: string, score: number, member: string): Promise<unknown>
+    zrem(key: string, member: string): Promise<number>
+    zcard(key: string): Promise<number>
+    zrangebyscore(key: string, min: string | number, max: string | number): Promise<string[]>
+    quit(): Promise<unknown>
 }
