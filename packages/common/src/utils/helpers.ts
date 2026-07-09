@@ -33,14 +33,24 @@ export const isClass = <T = unknown>(
 }
 
 /**
- * Determine the number of items to return per page based on the provided query parameters.
+ * Resolves the number of items to return per page based on the provided query parameters.
  * 
  * @param query 
  * @returns 
  */
-export const perPage = (query: { limit?: number; perPage?: number }) => {
+export const perPage = (query: {
+    limit?: number;
+    perPage?: number;
+    per_page: number;
+    'per-page'?: number;
+}) => {
 
-    const requestedPerPage = Number(query.limit ?? query.perPage ?? 15)
+    const requestedPerPage = Number(
+        query.limit ??
+        query.perPage ??
+        query['per-page'] ??
+        query.per_page ?? 15
+    )
 
     return Number.isFinite(requestedPerPage) && requestedPerPage > 0
         ? Math.min(requestedPerPage, 50)
