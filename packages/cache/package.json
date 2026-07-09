@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/cache",
-    "version": "0.16.13",
+    "version": "0.17.0",
     "type": "module",
     "description": "Cache module for Arkstack, providing a unified, driver based caching layer for the framework.",
     "homepage": "https://arkstack.toneflix.net/guide/cache",
