@@ -41,7 +41,7 @@ export const isClass = <T = unknown>(
 export const perPage = (query: {
     limit?: number;
     perPage?: number;
-    per_page: number;
+    per_page?: number;
     'per-page'?: number;
 }) => {
 
