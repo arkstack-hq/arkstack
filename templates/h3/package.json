@@ -30,6 +30,7 @@
     "@arkstack/jobs": "workspace:^",
     "@arkstack/notifications": "workspace:^",
     "@arkstack/queue": "workspace:^",
+    "@arkstack/scheduler": "workspace:^",
     "@arkstack/view": "workspace:^",
     "@h3ravel/musket": "catalog:",
     "@h3ravel/support": "catalog:",

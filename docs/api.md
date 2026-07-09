@@ -155,6 +155,7 @@ Core shared packages:
 - `@arkstack/auth`
 - `@arkstack/notifications`
 - `@arkstack/realtime` (client)
+- `@arkstack/scheduler`
 - `@arkstack/view`
 - `@arkstack/inertia`
 
@@ -272,6 +273,32 @@ The `pusher-js` / `firebase` SDKs (and `react` / `vue` for the bindings) are opt
 - `markAllRead(user)` — mark every unread notification for a user as read.
 - `markRead(notification)` — mark a notification as read.
 - `delete(notification)` — delete a notification.
+
+## Task Scheduling
+
+`@arkstack/scheduler` provides fluent, code-defined scheduling. Define tasks in `src/routes/console.ts`; see the [scheduling guide](/guide/scheduling).
+
+### `Schedule`
+
+- `Schedule.command(name, args?)` — schedule an Arkstack CLI command.
+- `Schedule.call(fn)` — schedule a callback.
+- `Schedule.job(job)` — schedule a queued job (dispatched via `@arkstack/jobs`).
+- `Schedule.exec(cmd, args?)` — schedule a shell command.
+- `Schedule.events()` / `Schedule.dueEvents(date?)` — inspect registered / due events.
+
+### `ScheduledEvent`
+
+- **Frequency:** `everyMinute`, `everyFiveMinutes` (…`Thirty`), `hourly`, `hourlyAt`, `daily`, `dailyAt`, `twiceDaily`, `weekly`, `weeklyOn`, `monthly`, `monthlyOn`, `quarterly`, `yearly`, `cron`.
+- **Days:** `weekdays`, `weekends`, `mondays`…`sundays`, `days`.
+- **Constraints:** `timezone`, `when`, `skip`, `environments`, `between`, `unlessBetween`.
+- **Overlap / servers:** `withoutOverlapping`, `onOneServer`, `runInBackground` (locks via `@arkstack/cache`).
+- **Hooks:** `before`, `after`, `onSuccess`, `onFailure`. Also `description`, `name`.
+
+### Commands
+
+- `ark schedule:run` — run the due tasks (call once a minute from system cron).
+- `ark schedule:work` — evaluate the schedule every minute in the foreground (development).
+- `ark schedule:list` — list scheduled tasks with their next run time.
 
 ## Views
 

@@ -61,6 +61,7 @@ export const depsList: Record<string, string> = {
     '@arkstack/http': '^0.16.13',
     '@arkstack/view': '^0.16.13',
     '@arkstack/queue': '^0.16.13',
+    '@arkstack/scheduler': '^0.16.13',
     '@arkstack/notifications': '^0.16.13',
     '@h3ravel/musket': '^2.2.2',
     '@h3ravel/support': '^2.2.4',
