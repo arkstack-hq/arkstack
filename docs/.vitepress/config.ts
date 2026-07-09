@@ -53,6 +53,7 @@ export default defineConfig({
           { text: 'Cache', link: '/guide/cache' },
           { text: 'Queue', link: '/guide/queue' },
           { text: 'Jobs', link: '/guide/jobs' },
+          { text: 'Task Scheduling', link: '/guide/scheduling' },
           { text: 'Views', link: '/guide/views' },
           { text: 'Inertia', link: '/guide/inertia' },
           { text: 'Hooks', link: '/guide/hooks' },

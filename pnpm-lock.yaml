@@ -27,6 +27,9 @@ catalogs:
     '@kanun-hq/plugin-file':
       specifier: ^0.1.12
       version: 0.1.12
+    '@kanun-hq/plugin-phone':
+      specifier: ^0.1.8
+      version: 0.1.8
     '@resora/plugin-clear-router':
       specifier: ^1.0.67
       version: 1.0.67
@@ -700,6 +703,27 @@ importers:
         specifier: ^3.5.0
         version: 3.5.34(typescript@6.0.3)
 
+  packages/scheduler:
+    dependencies:
+      '@arkstack/cache':
+        specifier: workspace:^
+        version: link:../cache
+      '@arkstack/common':
+        specifier: workspace:^
+        version: link:../common
+      '@arkstack/contract':
+        specifier: workspace:^
+        version: link:../contract
+      '@arkstack/jobs':
+        specifier: workspace:^
+        version: link:../jobs
+      '@h3ravel/musket':
+        specifier: 'catalog:'
+        version: 2.2.2(@types/node@25.6.2)
+      croner:
+        specifier: ^9.0.0
+        version: 9.1.0
+
   packages/view:
     dependencies:
       '@arkstack/common':
@@ -762,6 +786,9 @@ importers:
       '@arkstack/queue':
         specifier: workspace:^
         version: link:../../packages/queue
+      '@arkstack/scheduler':
+        specifier: workspace:^
+        version: link:../../packages/scheduler
       '@arkstack/view':
         specifier: workspace:^
         version: link:../../packages/view
@@ -901,6 +928,9 @@ importers:
       '@arkstack/queue':
         specifier: workspace:^
         version: link:../../packages/queue
+      '@arkstack/scheduler':
+        specifier: workspace:^
+        version: link:../../packages/scheduler
       '@arkstack/view':
         specifier: workspace:^
         version: link:../../packages/view
@@ -1058,6 +1088,9 @@ importers:
       '@arkstack/queue':
         specifier: workspace:^
         version: link:../../packages/queue
+      '@arkstack/scheduler':
+        specifier: workspace:^
+        version: link:../../packages/scheduler
       '@arkstack/view':
         specifier: workspace:^
         version: link:../../packages/view
@@ -4003,6 +4036,10 @@ packages:
 
   create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  croner@9.1.0:
+    resolution: {integrity: sha512-p9nwwR4qyT5W996vBZhdvBCnMhicY5ytZkR4D1Xj0wuTDEiMnjwR57Q3RXYY/s0EpX6Ay3vgIcfaR+ewGHsi+g==}
+    engines: {node: '>=18.0'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -9989,6 +10026,8 @@ snapshots:
     optional: true
 
   create-require@1.1.1: {}
+
+  croner@9.1.0: {}
 
   cross-spawn@7.0.6:
     dependencies:

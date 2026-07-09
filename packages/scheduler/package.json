@@ -1,0 +1,58 @@
+{
+    "name": "@arkstack/scheduler",
+    "version": "0.16.13",
+    "type": "module",
+    "description": "Task scheduling for Arkstack: fluent frequencies, cron, overlap/one-server locks, hooks, and schedule:run/work/list commands.",
+    "homepage": "https://arkstack.toneflix.net/guide/scheduling",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/scheduler"
+    },
+    "keywords": [
+        "scheduler",
+        "cron",
+        "task-scheduling",
+        "schedule",
+        "arkstack"
+    ],
+    "files": [
+        "dist",
+        "stubs"
+    ],
+    "scripts": {
+        "build": "tsdown",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "exports": {
+        ".": "./dist/index.js",
+        "./commands/ScheduleListCommand": "./dist/commands/ScheduleListCommand.js",
+        "./commands/ScheduleRunCommand": "./dist/commands/ScheduleRunCommand.js",
+        "./commands/ScheduleWorkCommand": "./dist/commands/ScheduleWorkCommand.js",
+        "./setup": "./dist/setup.js",
+        "./package.json": "./package.json"
+    },
+    "dependencies": {
+        "@arkstack/common": "workspace:^",
+        "croner": "^9.0.0"
+    },
+    "peerDependencies": {
+        "@arkstack/contract": "workspace:^",
+        "@h3ravel/musket": "catalog:",
+        "@arkstack/cache": "workspace:^",
+        "@arkstack/jobs": "workspace:^"
+    },
+    "peerDependenciesMeta": {
+        "@arkstack/cache": {
+            "optional": true
+        },
+        "@arkstack/jobs": {
+            "optional": true
+        }
+    }
+}
