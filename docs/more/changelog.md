@@ -8,7 +8,7 @@ The format follows semantic versioning principles.
 
 No unreleased changes are documented yet.
 
-## [0.17.2] - 2026-07-14
+## [0.17.3] - 2026-07-14
 
 ### Added
 
@@ -35,11 +35,11 @@ No unreleased changes are documented yet.
 
 ### Docs
 
-- Restored the missing changelog history from `0.4.1` through `0.17.1`.
+- Restored the missing changelog history from `0.4.1` through `0.17.2`.
 
-## [0.17.0 - 0.17.1] - 2026-07-09
+## [0.17.0 - 0.17.2] - 2026-07-09
 
-Released versions: `0.17.0`, `0.17.1`.
+Released versions: `0.17.0`, `0.17.1`, `0.17.2`.
 
 ### Added
 
