@@ -11,7 +11,10 @@ Application code
 routes, controllers, models, views, config, commands
 
 Shared packages
-auth, notifications, view, http, common, console, contract
+Resora, Arkormˣ, Kanun, auth, notifications, view, http, common
+
+Development tools
+Parasito, console, generators
 
 Runtime drivers
 @arkstack/driver-express, @arkstack/driver-h3
@@ -30,6 +33,17 @@ This split lets Arkstack keep project ergonomics without binding business logic 
 - **Extension points are explicit.** Commands, hooks, view composers, package views, and driver middleware expose the places where packages and apps can plug in.
 
 ## Package Map
+
+### Application Essentials
+
+Arkstack presents several framework-agnostic packages as one application workflow:
+
+- **Resora** is the preferred JSON response boundary for controller resources and collections.
+- **Arkormˣ** is the database, model, query, migration, factory, and seeder layer.
+- **Kanun** validates request and domain data and integrates validation failures with Arkstack HTTP sessions.
+- **Parasito** drives HTTP integration tests against an Arkstack app without coupling tests to Express or H3.
+
+Each package remains independently useful, but Arkstack templates configure their integration and expose a consistent project structure around them. Start with [Responses & Resources](/guide/responses), [Database & Modeling](/guide/database-modeling), [Validation](/guide/validation), and [HTTP Testing](/guide/http-testing) before moving into their package-level references.
 
 ### Contracts
 

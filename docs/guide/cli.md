@@ -175,7 +175,7 @@ pnpm ark models:sync
 pnpm ark seed
 ```
 
-For advanced database workflows and options, see [Arkormˣ Documentation](https://arkorm.toneflix.net/).
+For advanced database workflows and options, see the [Arkormˣ documentation](https://arkormx.toneflix.net/guide/getting-started).
 
 ## Custom app commands
 

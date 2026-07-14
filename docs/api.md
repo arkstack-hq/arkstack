@@ -374,7 +374,7 @@ Register it in `src/config/middleware.ts` under `before` (alongside `resora()`).
 
 ## HTTP
 
-`@arkstack/http` exposes framework-neutral wrappers:
+`@arkstack/http` exposes framework-neutral, request-scoped HTTP objects:
 
 - `Request.from(source?)`
 - `request.header(name)`
@@ -383,7 +383,15 @@ Register it in `src/config/middleware.ts` under `before` (alongside `resora()`).
 - `request.user`
 - `Response.from(source?)`
 - `response.status(code)`
+- `response.header(name, value)`
 - `response.json(body)`
+- `response.send(body)`
+- `Session` — the current request's session container.
+- `arkstackHttpPlugin` — Clear Router plugin that binds Arkstack HTTP objects to a route scope. Express and H3 drivers install it automatically.
+
+Clear Router route contexts expose the bindings as `clearRequest` and `clearResponse`. The global `request()`, `response()`, and `session()` helpers resolve the same active request-scoped instances.
+
+Decorating a controller method with `@Bind()` enables typed injection of `Request`, `Response`, `Session`, and other container bindings. Arkstack's standard HTTP setup enables decorator metadata and automatic container discovery. See the [HTTP guide](/guide/http#controller-injection).
 
 ## Common Utilities
 

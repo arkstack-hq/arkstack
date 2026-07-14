@@ -111,6 +111,17 @@ Use **lean** templates when you want a minimal HTTP starter without database dep
 - `src/routes/api.ts`
 - Arkormˣ/database runtime files and dependencies
 
+## Application Essentials
+
+Arkstack combines focused, framework-agnostic packages behind one application structure. These are the preferred tools used by generated applications:
+
+- [Responses & Resources](/guide/responses) — return Resora resources and collections from API controllers.
+- [Database & Modeling](/guide/database-modeling) — define models and query data with Arkormˣ.
+- [Validation](/guide/validation) — validate request and domain data with Kanun.
+- [HTTP Testing](/guide/http-testing) — test complete Arkstack applications and routes with Parasito.
+
+The Arkstack guides cover the normal application workflow. Each page links to the package's full reference when you need advanced features or lower-level integration details.
+
 ## Monorepo Packages (Concept)
 
 Arkstack kits build on shared packages:
@@ -121,4 +132,4 @@ Arkstack kits build on shared packages:
 
 For architecture details, see [Architecture Overview](/architecture/overview).
 
-If you are using a full template with database features, continue with [Database & Modeling](/guide/database-modeling).
+If you are using a full template, continue with [Responses & Resources](/guide/responses) and [Database & Modeling](/guide/database-modeling).

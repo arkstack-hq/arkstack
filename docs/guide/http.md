@@ -1,8 +1,8 @@
 # HTTP
 
-`@arkstack/http` provides small framework-neutral request and response wrappers used by shared packages such as `@arkstack/auth`.
+`@arkstack/http` provides framework-neutral request and response wrappers used by shared packages such as `@arkstack/auth`.
 
-Runtime drivers still expose their native framework objects. The HTTP package is for shared code that should work with Express, H3, tests, or custom drivers without importing framework-specific request and response types.
+The Express and H3 drivers automatically bind these wrappers to each Clear Router request. Runtime drivers still expose their native framework objects, so application code can choose the unified Arkstack objects or the underlying Express and H3 APIs.
 
 ## Request
 
@@ -50,9 +50,65 @@ response.status(201);
 response.json({ ok: true });
 ```
 
+## Route Context
+
+Every route context receives one Arkstack request and response instance for the lifetime of that request:
+
+```ts
+Router.put('/api/users/:id', ({ clearRequest, clearResponse }) => {
+  const id = clearRequest.param('id');
+
+  return clearResponse.status(200).json({ id });
+});
+```
+
+`clearRequest` and `clearResponse` are the unified Arkstack HTTP objects. Native objects remain available alongside them: Express handlers receive `req` and `res`, while H3 handlers retain the native H3 request and event context.
+
+## Controller Injection
+
+Arkstack enables Clear Router's container, decorator metadata, and automatic discovery during normal application boot. Decorate a controller method with `@Bind()` to resolve its typed arguments from the current request scope:
+
+```ts
+import { Request, Response, Session } from '@arkstack/http';
+import { Bind } from 'clear-router/decorators';
+
+export default class ProfileController {
+  @Bind()
+  async show(request: Request, response: Response, session: Session) {
+    session.put('profile', request.param('id'));
+
+    return response.status(200).json({ id: request.param('id') });
+  }
+}
+```
+
+Register decorated controller methods with the regular controller tuple syntax:
+
+```ts
+Router.get('/profiles/:id', [ProfileController, 'show']);
+```
+
+Repeated resolution of `Request`, `Response`, or `Session` within one route returns the same instance. Each concurrent request receives its own instances.
+
+Applications using Clear Router outside the Arkstack drivers can install the integration manually with `await Router.use(arkstackHttpPlugin)` from `@arkstack/http`.
+
+## Global Helpers
+
+The global helpers resolve against the active request scope:
+
+```ts
+request();          // current Request
+request('email');   // one input value
+response();         // current Response
+session();          // current Session
+session('notice');  // one session value
+```
+
+The helpers are safe across concurrent routed requests. Resolve them where they are used rather than storing a request-scoped value for later reuse.
+
 ## Session
 
-The HTTP package includes a small request session container for framework-neutral route handlers. Import the setup entry once during application boot so Clear Router can attach the session to each HTTP context:
+The HTTP package includes a request session container for framework-neutral route handlers. Arkstack starters import the setup entry during application boot. Custom bootstraps should import it once so sessions, validation integration, and decorator support are initialized:
 
 ```ts
 import '@arkstack/http/setup';
@@ -187,6 +243,6 @@ When `@arkstack/view/setup` is also imported, the current session and error bag 
 
 ## When To Use It
 
-Use `@arkstack/http` inside shared packages, reusable services, and tests.
+Use `@arkstack/http` in controllers, shared packages, reusable services, and tests that should work across runtimes.
 
-Use native Express or H3 request objects in framework-specific route handlers and middleware. Driver middleware can translate native objects into normalized requests when it calls shared packages.
+Use native Express or H3 objects when a route handler or middleware needs a framework-specific API. Both object sets are available in the same route context, so native middleware can hand work to services built against the unified Arkstack request and response types.

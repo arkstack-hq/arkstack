@@ -46,6 +46,61 @@ export default defineConfig({
               { text: 'Trait System', link: '/guide/utilities/trait-system' },
             ]
           },
+          {
+            text: 'Responses & Resources',
+            link: '/guide/responses',
+            collapsed: true,
+            items: [
+              { text: 'Introduction', link: '/guide/responses' },
+              { text: 'Resources', link: 'https://arkstack-hq.github.io/resora/guide/resources' },
+              { text: 'Collections', link: 'https://arkstack-hq.github.io/resora/guide/collections' },
+              { text: 'Generating Resources', link: 'https://arkstack-hq.github.io/resora/guide/generating-resources' },
+              { text: 'Resora Reference', link: 'https://arkstack-hq.github.io/resora/guide/getting-started' },
+            ],
+          },
+          {
+            text: 'Database & Modeling',
+            link: '/guide/database-modeling',
+            collapsed: true,
+            items: [
+              { text: 'Introduction', link: '/guide/database-modeling' },
+              { text: 'Models', link: 'https://arkormx.toneflix.net/guide/models' },
+              { text: 'Mutators & Accessors', link: 'https://arkormx.toneflix.net/guide/mutators' },
+              { text: 'Casting', link: 'https://arkormx.toneflix.net/guide/casting' },
+              { text: 'Query Builder', link: 'https://arkormx.toneflix.net/guide/query-builder' },
+              { text: 'Expressions & Aggregation', link: 'https://arkormx.toneflix.net/guide/expressions' },
+              { text: 'Collections', link: 'https://arkormx.toneflix.net/guide/collections' },
+              { text: 'Transactions', link: 'https://arkormx.toneflix.net/guide/transactions' },
+              { text: 'Pagination', link: 'https://arkormx.toneflix.net/guide/pagination' },
+              { text: 'Relationships', link: 'https://arkormx.toneflix.net/guide/relationships' },
+              { text: 'Factories and Seeders', link: 'https://arkormx.toneflix.net/guide/factories-seeders' },
+              { text: 'Arkormˣ Reference', link: 'https://arkormx.toneflix.net/guide/getting-started' },
+            ],
+          },
+          {
+            text: 'Application Essentials',
+            collapsed: true,
+            items: [
+              {
+                text: 'Validation',
+                link: '/guide/validation',
+                collapsed: true,
+                items: [
+                  { text: 'Introduction', link: '/guide/validation' },
+                  { text: 'Kanun Reference', link: 'https://arkstack-hq.github.io/kanun/guide/getting-started' },
+                ],
+              },
+              {
+                text: 'HTTP Testing',
+                link: '/guide/http-testing',
+                collapsed: true,
+                items: [
+                  { text: 'Introduction', link: '/guide/http-testing' },
+                  { text: 'Parasito Reference', link: 'https://github.com/arkstack-hq/parasito#readme' },
+                ],
+              },
+            ],
+          },
           { text: 'CLI', link: '/guide/cli' },
           { text: 'Middleware', link: '/guide/middleware' },
           { text: 'Authentication', link: '/guide/authentication' },
@@ -58,7 +113,6 @@ export default defineConfig({
           { text: 'Inertia', link: '/guide/inertia' },
           { text: 'Hooks', link: '/guide/hooks' },
           { text: 'HTTP', link: '/guide/http' },
-          { text: 'Database & Modeling', link: '/guide/database-modeling' },
           { text: 'Deployment', link: '/guide/deployment' },
           { text: 'API Reference', link: '/api' },
         ]

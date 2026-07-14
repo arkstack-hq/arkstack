@@ -90,6 +90,23 @@ await app.boot(3000);
 await app.shutdown();
 ```
 
+## Unified HTTP Context
+
+The H3 driver automatically installs `arkstackHttpPlugin`. Clear Router handlers retain the native H3 request and event context while also receiving request-scoped Arkstack `clearRequest` and `clearResponse` objects:
+
+```ts
+Router.get('/account', ({ req, clearRequest, clearResponse }) => {
+  const token = clearRequest.bearerToken();
+
+  return clearResponse.status(200).json({
+    method: req.method,
+    token,
+  });
+});
+```
+
+Controllers decorated with `@Bind()` can inject `Request`, `Response`, and `Session` from `@arkstack/http`. The injected values are the same instances exposed on the route context and by the global HTTP helpers. See the [HTTP guide](/guide/http#controller-injection).
+
 ## Static Assets
 
 H3 mounts the `public` directory automatically during `app.boot(port)` through `H3Driver`.

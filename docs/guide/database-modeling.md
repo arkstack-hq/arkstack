@@ -1,6 +1,6 @@
 # Database & Modeling
 
-Arkstack uses **Arkormˣ** as its modeling layer, so you can work with models and query builders using its reliable schema/migration workflow.
+Arkstack uses **Arkormˣ** as its database and modeling layer. In full applications, prefer Arkorm models, query builders, migrations, factories, and seeders instead of reaching directly for a runtime-specific database client.
 
 This page covers the basics you need to start using Arkormˣ in an Arkstack app.
 
@@ -48,7 +48,7 @@ npx ark migrate --name add-users-table ## Or use `pnpm ark migrate --all` for sh
 npx ark models:sync ## Sync model files with database schema (optional, for type safety)
 ```
 
-For advanced Arkstack CLI model generation options, see [Arkstack CLI](/guide/cli#arkormx-powered-commands) or the [Arkormˣ documentation](https://arkorm.toneflix.net/guide/migrations-cli.html#generate-files).
+For advanced Arkstack CLI model generation options, see [Arkstack CLI](/guide/cli#arkormx-powered-commands) or the [Arkormˣ documentation](https://arkormx.toneflix.net/guide/migrations-cli#generate-files).
 
 ## Query data with Arkormˣ
 
@@ -99,4 +99,8 @@ declare module '@arkstack/common' {
 
 For relationships, advanced query patterns, factories, seeders, and full Arkormˣ capabilities, see the official documentation:
 
-- [Arkormˣ Documentation](https://arkorm.toneflix.net/)
+- [Arkormˣ Getting Started](https://arkormx.toneflix.net/guide/getting-started)
+- [Models](https://arkormx.toneflix.net/guide/models)
+- [Query Builder](https://arkormx.toneflix.net/guide/query-builder)
+- [Relationships](https://arkormx.toneflix.net/guide/relationships)
+- [Migrations & CLI](https://arkormx.toneflix.net/guide/migrations-cli)

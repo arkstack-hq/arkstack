@@ -35,6 +35,8 @@ No unreleased changes are documented yet.
 
 ### Docs
 
+- Added integrated Arkstack guides and sidebar references for Resora responses, Arkormˣ database access, Kanun validation, and Parasito HTTP testing.
+- Documented request-scoped HTTP objects, controller injection, global helpers, automatic driver registration, and native framework interoperability.
 - Restored the missing changelog history from `0.4.1` through `0.17.2`.
 
 ## [0.17.0 - 0.17.2] - 2026-07-09

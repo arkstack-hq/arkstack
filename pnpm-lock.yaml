@@ -34,8 +34,8 @@ catalogs:
       specifier: ^1.0.68
       version: 1.0.68
     arkormx:
-      specifier: ^2.11.4
-      version: 2.11.4
+      specifier: ^2.11.6
+      version: 2.11.6
     clear-router:
       specifier: ^2.9.2
       version: 2.9.2
@@ -137,7 +137,7 @@ importers:
         version: 4.1.5(vitest@4.1.5)
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -336,7 +336,7 @@ importers:
         version: 1.1.0
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       bcryptjs:
         specifier: ^3.0.3
         version: 3.0.3
@@ -382,7 +382,7 @@ importers:
         version: 2.2.4(@types/node@25.6.2)
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -436,7 +436,7 @@ importers:
         version: link:../contract
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -591,7 +591,7 @@ importers:
         version: link:../contract
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -809,7 +809,7 @@ importers:
         version: 0.1.12(kanun@1.2.0)
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -954,7 +954,7 @@ importers:
         version: 0.1.12(kanun@1.2.0)
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -1111,7 +1111,7 @@ importers:
         version: 0.1.12(kanun@1.2.0)
       arkormx:
         specifier: 'catalog:'
-        version: 2.11.4(@types/node@25.6.2)
+        version: 2.11.6(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
         version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
@@ -2020,9 +2020,6 @@ packages:
   '@h3ravel/collect.js@5.4.0':
     resolution: {integrity: sha512-0PS7Yl30tQf3daHF0akEZ5XV5MnOq6BEsdtksCZl473bGJmrd0RQAdRIA34MEw9h+ilLhE2OhNIlYateffMvBA==}
 
-  '@h3ravel/contracts@2.2.1':
-    resolution: {integrity: sha512-l1v++lRkxq1L10TEfLEDrECPDUcTZAb4J5d0ZAncgprKDssmXw+1D9GUQVg9NbS+6gNWaUtGVVkjrCo87wFNjw==}
-
   '@h3ravel/contracts@2.2.4':
     resolution: {integrity: sha512-SjldqzDI/czPPA031xN1Wj9xSTI0jxdcV9mBRuKbKejSZ7qM9fWIl+mvORtyS0Ct+XrVzNaFUruW9J4Jm1C4hQ==}
 
@@ -2032,9 +2029,6 @@ packages:
 
   '@h3ravel/shared@2.2.4':
     resolution: {integrity: sha512-h8DrvKK54ar69DH2Np7J5y1mLVBPHktFgwqLH8VMv6OIlSfRYjApCd5YUkmfNdm55aEqdZ03Q4UItMRw/QS6iQ==}
-
-  '@h3ravel/support@2.2.1':
-    resolution: {integrity: sha512-+7TCcas+cESqslX4hljjoR/+1BdTjQXaqNXwDQ0U6fER4XdEaxfUA0wRehRnyAns2uk2aSO7MYe+InKYz+++BA==}
 
   '@h3ravel/support@2.2.4':
     resolution: {integrity: sha512-QZZZ44qm7Qj6yAcwu9FxYL3Ve+enPAId7rwdw6H8G/AQwZ257kMBet2z3EkfuqHkcxU5i0IlV2i6gI5IuLVAVQ==}
@@ -3737,11 +3731,6 @@ packages:
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
-
-  arkormx@2.11.4:
-    resolution: {integrity: sha512-L9ZmwBKEaejaVzMa/gdvcL/sFVAv8zRMo+stejAPjmHSP/ZqV9+5tEzlrltSyDxBEmMgzhF/XMV26TNx2exJ3A==}
-    engines: {node: '>=20.0.0'}
-    hasBin: true
 
   arkormx@2.11.6:
     resolution: {integrity: sha512-uxe0SkfmDHuCUJ6fIhWRXDtLqfD27lEwborGJspqUr1MjmXDeX5jFi7Df7Ihv+VxB0suOuGnEkorFD4SG/oQRQ==}
@@ -8069,12 +8058,6 @@ snapshots:
 
   '@h3ravel/collect.js@5.4.0': {}
 
-  '@h3ravel/contracts@2.2.1':
-    dependencies:
-      h3: 2.0.1-rc.22
-    transitivePeerDependencies:
-      - crossws
-
   '@h3ravel/contracts@2.2.4':
     dependencies:
       h3: 2.0.1-rc.22
@@ -8110,17 +8093,6 @@ snapshots:
       jiti: 2.7.0
       ora: 9.3.0
       preferred-pm: 4.1.1
-    transitivePeerDependencies:
-      - '@types/node'
-      - crossws
-
-  '@h3ravel/support@2.2.1(@types/node@25.6.2)':
-    dependencies:
-      '@h3ravel/collect.js': 5.4.0
-      '@h3ravel/contracts': 2.2.1
-      '@h3ravel/shared': 2.2.4(@types/node@25.6.2)
-      dayjs: 1.11.20
-      luxon: 3.7.2
     transitivePeerDependencies:
       - '@types/node'
       - crossws
@@ -9770,21 +9742,6 @@ snapshots:
       sprintf-js: 1.0.3
 
   argparse@2.0.1: {}
-
-  arkormx@2.11.4(@types/node@25.6.2):
-    dependencies:
-      '@h3ravel/collect.js': 5.4.0
-      '@h3ravel/musket': 2.2.2(@types/node@25.6.2)
-      '@h3ravel/shared': 2.2.4(@types/node@25.6.2)
-      '@h3ravel/support': 2.2.1(@types/node@25.6.2)
-      dotenv: 17.4.2
-      jiti: 2.7.0
-      kysely: 0.28.16
-      pg: 8.22.0
-    transitivePeerDependencies:
-      - '@types/node'
-      - crossws
-      - pg-native
 
   arkormx@2.11.6(@types/node@25.6.2):
     dependencies:
