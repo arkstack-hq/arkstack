@@ -60,7 +60,6 @@
     "tsdown": "catalog:",
     "typescript": "^6.0.0",
     "typescript-eslint": "^8.59.2",
-    "unplugin-swc": "^1.5.9",
     "unrun": "^0.3.0",
     "vitest": "^4.1.5"
   }
