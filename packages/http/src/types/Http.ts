@@ -36,6 +36,11 @@ export type ResponseSource = {
 }
 
 export type RequestOptions<TUser = unknown> = {
+    body?: Record<string, any>;
+    query?: Record<string, any>;
+    params?: Record<string, any>;
+    route?: any;
+    ctx?: any;
     headers?: HeaderSource;
     method?: string;
     url?: string;

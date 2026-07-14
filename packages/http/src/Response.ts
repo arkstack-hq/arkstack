@@ -4,6 +4,30 @@ import { isRecord, makeHeaders, normalizeHeaders } from './helpers'
 import { Response as BaseResponse } from 'clear-router'
 import { RequestData } from 'clear-router/types/basic'
 
+let fallbackResponse: Response<any> | undefined
+const responseResolvers = new Set<() => Response<any> | undefined>()
+
+const responseHelper = () => {
+    for (const resolver of responseResolvers) {
+        const response = resolver()
+
+        if (response) return response
+    }
+
+    return fallbackResponse
+}
+
+export const setResponseResolver = (resolver?: () => Response<any> | undefined) => {
+    if (resolver) responseResolvers.add(resolver)
+    else responseResolvers.clear()
+    globalThis.response = responseHelper as typeof globalThis.response
+}
+
+const setFallbackResponse = (response: Response<any>) => {
+    fallbackResponse = response
+    globalThis.response = responseHelper as typeof globalThis.response
+}
+
 /**
  * Represents an HTTP response, providing a consistent interface for accessing response data.
  * 
@@ -28,7 +52,7 @@ export class Response<TBody = unknown> extends BaseResponse {
         this.body = options.body ?? {} as TBody
         this.source = options.source
 
-        globalThis.response = () => this
+        setFallbackResponse(this)
     }
 
     static from<TBody extends RequestData = RequestData> (

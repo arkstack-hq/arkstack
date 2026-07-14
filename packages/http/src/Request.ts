@@ -4,6 +4,36 @@ import { isRecord, normalizeHeaders, unwrapRequestSource } from './helpers'
 import { Request as BaseRequest } from 'clear-router'
 import type { User } from '@app/models/User'
 
+let fallbackRequest: Request<any> | undefined
+const requestResolvers = new Set<() => Request<any> | undefined>()
+
+const currentRequest = () => {
+    for (const resolver of requestResolvers) {
+        const request = resolver()
+
+        if (request) return request
+    }
+
+    return fallbackRequest
+}
+
+const requestHelper = ((key?: string) => {
+    const request = currentRequest()
+
+    return key ? request?.input(key) : request
+}) as typeof globalThis.request
+
+export const setRequestResolver = (resolver?: () => Request<any> | undefined) => {
+    if (resolver) requestResolvers.add(resolver)
+    else requestResolvers.clear()
+    globalThis.request = requestHelper
+}
+
+const setFallbackRequest = (request: Request<any>) => {
+    fallbackRequest = request
+    globalThis.request = requestHelper
+}
+
 /**
  * Represents an HTTP request, providing a consistent interface for accessing request data.
  * 
@@ -72,7 +102,7 @@ export class Request<TUser = User> extends BaseRequest {
         this.authToken = options.authToken ?? sourceRequest?.authToken
         this.source = source
 
-        globalThis.request = (key?: string) => key ? this.input(key) : this
+        setFallbackRequest(this)
     }
 
     static from<TUser = unknown> (
@@ -87,8 +117,14 @@ export class Request<TUser = User> extends BaseRequest {
         }
 
         const request = unwrapRequestSource(source)
+        const unified = source as RequestSource<TUser> & Partial<Request<TUser>>
 
         return new Request<TUser>({
+            body: unified.body,
+            query: unified.query,
+            params: unified.params,
+            route: unified.route,
+            ctx: unified.ctx,
             headers: request.headers,
             method: request.method,
             url: request.originalUrl ?? request.url,
@@ -99,6 +135,7 @@ export class Request<TUser = User> extends BaseRequest {
             authUser: request.authUser,
             authToken: request.authToken,
             source: request,
+            original: unified.original,
         })
     }
 

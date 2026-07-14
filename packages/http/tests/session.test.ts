@@ -331,7 +331,7 @@ describe('HTTP Session', () => {
         expect(ctx.httpSession).toBeUndefined()
         expect(ctx.errors).toBeUndefined()
         expect(ctx.clearResponse.source.locals.session).toBeUndefined()
-        expect(globalThis.session).toBeUndefined()
+        expect(globalThis.session?.()).toBeUndefined()
     })
     it('reads old input directly from the current request input', () => {
         new Request({

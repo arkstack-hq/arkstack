@@ -9,6 +9,51 @@ import type {
 import { ErrorBag } from './ErrorBag'
 import { FlashBag } from './FlashBag'
 
+let fallbackSession: Session | undefined
+const sessionResolvers = new Set<() => Session | undefined>()
+
+const currentSession = () => {
+    for (const resolver of sessionResolvers) {
+        const session = resolver()
+
+        if (session) return session
+    }
+
+    return fallbackSession
+}
+const sessionHelperTarget = (key?: string) => {
+    const session = currentSession()
+
+    return key ? session?.get(key) : session
+}
+const sessionHelper = new Proxy(sessionHelperTarget, {
+    get (target, property, receiver) {
+        if (Reflect.has(target, property)) {
+            return Reflect.get(target, property, receiver)
+        }
+
+        const session = currentSession()
+        const value = session?.[property as keyof Session]
+
+        return typeof value === 'function' ? value.bind(session) : value
+    },
+}) as typeof globalThis.session
+
+export const setSessionResolver = (resolver?: () => Session | undefined) => {
+    if (resolver) sessionResolvers.add(resolver)
+    else sessionResolvers.clear()
+    globalThis.session = sessionHelper
+}
+
+export const clearFallbackSession = () => {
+    fallbackSession = undefined
+}
+
+const setFallbackSession = (session: Session) => {
+    fallbackSession = session
+    globalThis.session = sessionHelper
+}
+
 export class Session {
     public readonly errors: ErrorBag
     public readonly flashBag: FlashBag
@@ -44,28 +89,7 @@ export class Session {
                 ? state.flash
                 : new FlashBag(state.flash as Record<string, any> | undefined)
 
-        const helper = ((key?: string) =>
-            key ? this.get(key) : this) as typeof globalThis.session &
-            Partial<Session> &
-            Record<string, any>
-
-        Object.assign(helper, {
-            get: this.get.bind(this),
-            put: this.put.bind(this),
-            set: this.set.bind(this),
-            has: this.has.bind(this),
-            forget: this.forget.bind(this),
-            clear: this.clear.bind(this),
-            all: this.all.bind(this),
-            flash: this.flash.bind(this),
-            getFlash: this.getFlash.bind(this),
-            hasErrors: this.hasErrors.bind(this),
-            clearErrors: this.clearErrors.bind(this),
-            errors: this.errors,
-            flashBag: this.flashBag,
-        })
-
-        globalThis.session = helper as typeof globalThis.session
+        setFallbackSession(this)
     }
 
     private snapshot (): SessionPayload {

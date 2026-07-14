@@ -63,11 +63,10 @@ describe('Express auth integration', () => {
         const Router = createRouter('bound-request')
 
         await import('../../http/src/setup')
-        await (Router as any).pluginsReady()
+        await ClearRouter.use(arkstackHttpPlugin)
+        await (ClearRouter as any).pluginsReady()
 
-        expect(Container.has(ArkstackRequest)).toBe(true)
-
-        await Router.use(arkstackHttpPlugin)
+        expect((ClearRouter as any).container.has(ArkstackRequest)).toBe(true)
         Router.configure({
             container: {
                 enabled: true,

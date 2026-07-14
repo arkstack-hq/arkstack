@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import 'clear-router/decorators/setup'
 import type { OldHelper, RedirectHelper, RequestHelper, SessionHelper } from './types/Http'
 import { arkstackHttpPlugin, kanunSessionPlugin } from './session'
 

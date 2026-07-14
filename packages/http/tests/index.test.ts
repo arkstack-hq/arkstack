@@ -1,8 +1,12 @@
+import 'clear-router/decorators/setup'
+import { Bind, Container } from 'clear-router/decorators'
 import { Request, Response, arkstackHttpPlugin, normalizeHeaderValue, normalizeHeaders, unwrapRequestSource } from '../src'
 import { describe, expect, it, vi } from 'vitest'
+import express, { Router as ExpressRouter } from 'express'
 
-import { Container } from 'clear-router/decorators'
 import { CoreRouter } from 'clear-router/core'
+import { Router as ClearRouter } from 'clear-router/express'
+import request from 'parasito'
 
 describe('HTTP primitives', () => {
     it('normalizes request headers and reads bearer tokens consistently', () => {
@@ -88,7 +92,7 @@ describe('HTTP primitives', () => {
         source.authUser = user
         source.user = user
 
-        const resolved = await Container.resolve(Request, {
+        const resolved = await (CoreRouter as any).container.resolve(Request, {
             clearRequest: request,
             clearResponse: new Response(),
         })
@@ -168,5 +172,75 @@ describe('HTTP primitives', () => {
         expect(response.getHeaders()['x-test']).toBe('yes')
         expect(source.statusCode).toBe(418)
         expect(response.json({ ok: false })).toEqual({ ok: false })
+    })
+
+    it('resolves bare @Bind() arguments in the active request scope', async () => {
+        class HttpController {
+            @Bind()
+            async show (first: Request, second: Request, response: Response) {
+                const id = first.param('id')
+
+                await new Promise(resolve => setTimeout(resolve, id === 'first' ? 20 : 0))
+
+                return {
+                    helperId: globalThis.request().param('id'),
+                    id,
+                    sameRequest: first === second,
+                    sameRequestHelper: globalThis.request() === first,
+                    sameResponseHelper: globalThis.response() === response,
+                }
+            }
+        }
+
+        Container.clear()
+        ClearRouter.reset()
+        ClearRouter.setRequestProvider(Request)
+        ClearRouter.setResponseProvider(Response)
+        await ClearRouter.use(arkstackHttpPlugin)
+        const bindings = (ClearRouter as any).container.bindings()
+
+        expect(bindings.Request.scope).toBe('request')
+        expect(bindings.Response.scope).toBe('request')
+        expect(bindings.Session.scope).toBe('request')
+        expect([...((ClearRouter as any).container.entries() as Map<unknown, unknown>).keys()]
+            .find(token => (token as any)?.name === 'Request')).toBe(Request)
+        ClearRouter.configure({
+            container: {
+                enabled: true,
+                strict: true,
+            },
+        })
+        ClearRouter.get('/bound/:id', [HttpController, 'show'])
+
+        const app = express()
+        const router = ExpressRouter()
+
+        ClearRouter.apply(router)
+        app.use(router)
+        app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+            res.status(500).json({ message: error.message })
+        })
+
+        const [first, second] = await Promise.all([
+            request(app).get('/bound/first'),
+            request(app).get('/bound/second'),
+        ])
+
+        expect(first.status, first.text).toBe(200)
+        expect(second.status, second.text).toBe(200)
+        expect(first.body).toEqual({
+            helperId: 'first',
+            id: 'first',
+            sameRequest: true,
+            sameRequestHelper: true,
+            sameResponseHelper: true,
+        })
+        expect(second.body).toEqual({
+            helperId: 'second',
+            id: 'second',
+            sameRequest: true,
+            sameRequestHelper: true,
+            sameResponseHelper: true,
+        })
     })
 })

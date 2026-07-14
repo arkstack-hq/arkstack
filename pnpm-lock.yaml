@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     '@arkormx/plugin-clear-router':
-      specifier: ^0.1.52
-      version: 0.1.52
+      specifier: ^0.1.54
+      version: 0.1.54
     '@faker-js/faker':
       specifier: ^10.4.0
       version: 10.4.0
@@ -31,14 +31,14 @@ catalogs:
       specifier: ^0.1.8
       version: 0.1.8
     '@resora/plugin-clear-router':
-      specifier: ^1.0.67
-      version: 1.0.67
+      specifier: ^1.0.68
+      version: 1.0.68
     arkormx:
       specifier: ^2.11.4
       version: 2.11.4
     clear-router:
-      specifier: ^2.9.1
-      version: 2.9.1
+      specifier: ^2.9.2
+      version: 2.9.2
     dotenv:
       specifier: ^17.4.2
       version: 17.4.2
@@ -140,7 +140,7 @@ importers:
         version: 2.11.4(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -388,7 +388,7 @@ importers:
         version: 5.6.2
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       resora:
         specifier: 'catalog:'
         version: 1.3.28(@types/node@25.6.2)
@@ -412,7 +412,7 @@ importers:
         version: 5.6.2
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       resora:
         specifier: 'catalog:'
         version: 1.3.28(@types/node@25.6.2)
@@ -427,7 +427,7 @@ importers:
     dependencies:
       '@arkormx/plugin-clear-router':
         specifier: 'catalog:'
-        version: 0.1.52(@types/node@25.6.2)(clear-router@2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))
+        version: 0.1.54(@types/node@25.6.2)(clear-router@2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))
       '@arkstack/common':
         specifier: workspace:^
         version: link:../common
@@ -439,7 +439,7 @@ importers:
         version: 2.11.4(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -474,6 +474,9 @@ importers:
       '@arkstack/foundry':
         specifier: workspace:^
         version: link:../foundry
+      '@arkstack/http':
+        specifier: workspace:^
+        version: link:../http
       '@arkstack/inertia':
         specifier: workspace:^
         version: link:../inertia
@@ -482,10 +485,10 @@ importers:
         version: 1.7.0
       '@resora/plugin-clear-router':
         specifier: 'catalog:'
-        version: 1.0.67(@types/node@25.6.2)(clear-router@2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))
+        version: 1.0.68(@types/node@25.6.2)(clear-router@2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       express:
         specifier: 'catalog:'
         version: 5.2.1
@@ -520,6 +523,9 @@ importers:
       '@arkstack/foundry':
         specifier: workspace:^
         version: link:../foundry
+      '@arkstack/http':
+        specifier: workspace:^
+        version: link:../http
       '@arkstack/inertia':
         specifier: workspace:^
         version: link:../inertia
@@ -528,10 +534,10 @@ importers:
         version: 1.7.0
       '@resora/plugin-clear-router':
         specifier: 'catalog:'
-        version: 1.0.67(@types/node@25.6.2)(clear-router@2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))
+        version: 1.0.68(@types/node@25.6.2)(clear-router@2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       h3:
         specifier: 'catalog:'
         version: 2.0.1-rc.22
@@ -588,7 +594,7 @@ importers:
         version: 2.11.4(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -740,7 +746,7 @@ importers:
         version: 2.2.2(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       edge.js:
         specifier: ^6.5.0
         version: 6.5.0
@@ -806,7 +812,7 @@ importers:
         version: 2.11.4(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       cors:
         specifier: ^2.8.6
         version: 2.8.6
@@ -951,7 +957,7 @@ importers:
         version: 2.11.4(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       cors:
         specifier: ^2.8.6
         version: 2.8.6
@@ -1108,7 +1114,7 @@ importers:
         version: 2.11.4(@types/node@25.6.2)
       clear-router:
         specifier: 'catalog:'
-        version: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+        version: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       dotenv:
         specifier: 'catalog:'
         version: 17.4.2
@@ -1182,10 +1188,10 @@ packages:
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
 
-  '@arkormx/plugin-clear-router@0.1.52':
-    resolution: {integrity: sha512-f/6sBuhC8MPbHtm5YhQdxXV2DnC8nWSv6gwgjt5pPvYxo+JV0iiD/BDgbv2LpualOwh3QC8iPC181kUFOuqPaw==}
+  '@arkormx/plugin-clear-router@0.1.54':
+    resolution: {integrity: sha512-aIBeWL2Vc+KU+CikSHBHUgN1DWZ8pTq9BmEsrQgldkqoKgtHS5ft1A5Fa5sj26gcKqiw6sn5UJ8H3lHuUJIymw==}
     peerDependencies:
-      clear-router: ^2.9.0
+      clear-router: ^2.9.2
 
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
@@ -2555,10 +2561,10 @@ packages:
   '@quansync/fs@1.0.0':
     resolution: {integrity: sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ==}
 
-  '@resora/plugin-clear-router@1.0.67':
-    resolution: {integrity: sha512-U/0waISfEim48ZORP9YRPHqauFpnQc6JcN6I2fXoAXnheBLv0npL2iWHmw2h6bCLEFevEDO3ge08j1KZmVU2mQ==}
+  '@resora/plugin-clear-router@1.0.68':
+    resolution: {integrity: sha512-71zn2T8tpUJUUd27Yuy8HYxuIM99W6cnSvPf/O1+XO2F3b1zsF+iex2yIMXE0RY5MQkZgdMQz8/yMTBBAwEg/Q==}
     peerDependencies:
-      clear-router: ^2.9.0
+      clear-router: ^2.9.2
 
   '@rolldown/binding-android-arm64@1.0.0':
     resolution: {integrity: sha512-TWMZnRLMe63C2Lhyicviu7ZHaU4kxa6PS3rofvc9GmcvptzNN11BcfQ4Sl7MwTOsisQoa2keB/EBdNCAnUo8vA==}
@@ -3737,6 +3743,11 @@ packages:
     engines: {node: '>=20.0.0'}
     hasBin: true
 
+  arkormx@2.11.6:
+    resolution: {integrity: sha512-uxe0SkfmDHuCUJ6fIhWRXDtLqfD27lEwborGJspqUr1MjmXDeX5jFi7Df7Ihv+VxB0suOuGnEkorFD4SG/oQRQ==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
+
   array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
@@ -3905,8 +3916,8 @@ packages:
   citty@0.2.1:
     resolution: {integrity: sha512-kEV95lFBhQgtogAPlQfJJ0WGVSokvLr/UEoFPiKKOXF7pl98HfUVUD0ejsuTCld/9xH9vogSywZ5KqHzXrZpqg==}
 
-  clear-router@2.9.1:
-    resolution: {integrity: sha512-S4dc/Qii59xKOEoxWKYeWj1o/yubKn9hTJwX0ww3t8dK9ji00VTwKHFKqDQEZ9J73One608VGG19czGLe8A4mg==}
+  clear-router@2.9.2:
+    resolution: {integrity: sha512-pOlJ83EbfTAktfK4hUH+qmDvZpz3PFXWBKXQpAeXS4CA7mwgy3nfm7CTEWld4q/e7mM18o+RCgkP5zK2k2JCrw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       '@h3ravel/support': ^2.2.0
@@ -6743,10 +6754,10 @@ snapshots:
       package-manager-detector: 1.6.0
       tinyexec: 1.0.2
 
-  '@arkormx/plugin-clear-router@0.1.52(@types/node@25.6.2)(clear-router@2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))':
+  '@arkormx/plugin-clear-router@0.1.54(@types/node@25.6.2)(clear-router@2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))':
     dependencies:
-      arkormx: 2.11.4(@types/node@25.6.2)
-      clear-router: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+      arkormx: 2.11.6(@types/node@25.6.2)
+      clear-router: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       reflect-metadata: 0.2.2
     transitivePeerDependencies:
       - '@types/node'
@@ -8592,9 +8603,9 @@ snapshots:
     dependencies:
       quansync: 1.0.0
 
-  '@resora/plugin-clear-router@1.0.67(@types/node@25.6.2)(clear-router@2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))':
+  '@resora/plugin-clear-router@1.0.68(@types/node@25.6.2)(clear-router@2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))':
     dependencies:
-      clear-router: 2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
+      clear-router: 2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2)
       resora: 1.3.28(@types/node@25.6.2)
     transitivePeerDependencies:
       - '@types/node'
@@ -9775,6 +9786,21 @@ snapshots:
       - crossws
       - pg-native
 
+  arkormx@2.11.6(@types/node@25.6.2):
+    dependencies:
+      '@h3ravel/collect.js': 5.4.0
+      '@h3ravel/musket': 2.2.2(@types/node@25.6.2)
+      '@h3ravel/shared': 2.2.4(@types/node@25.6.2)
+      '@h3ravel/support': 2.2.4(@types/node@25.6.2)
+      dotenv: 17.4.2
+      jiti: 2.7.0
+      kysely: 0.28.16
+      pg: 8.22.0
+    transitivePeerDependencies:
+      - '@types/node'
+      - crossws
+      - pg-native
+
   array-union@2.1.0: {}
 
   arrify@2.0.1: {}
@@ -9937,7 +9963,7 @@ snapshots:
 
   citty@0.2.1: {}
 
-  clear-router@2.9.1(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2):
+  clear-router@2.9.2(@h3ravel/support@2.2.4(@types/node@25.6.2))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2):
     dependencies:
       jiti: 2.7.0
     optionalDependencies:

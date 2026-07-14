@@ -4,25 +4,288 @@ All notable Arkstack changes are documented in this file.
 
 The format follows semantic versioning principles.
 
-## [Unreleased] - Upcoming features and changes that are currently in development or planned for the next release.
+## [Unreleased]
+
+No unreleased changes are documented yet.
+
+## [0.17.2] - 2026-07-14
 
 ### Added
 
-- Added `APP_HOST` (with `HOST` fallback) to override the server bind host in the Express and H3 drivers, defaulting to `0.0.0.0` so the app is reachable on all network interfaces.
+- Added request-scoped Clear Router container bindings for Arkstack `Request`, `Response`, and `Session` instances.
+- Added automatic `arkstackHttpPlugin` registration to the Express and H3 drivers.
+- Added `clearRequest` and `clearResponse` context values backed by the unified Arkstack HTTP classes.
+- Added automatic Clear Router decorator setup through `@arkstack/http`, allowing controller arguments decorated with `@Bind()` to resolve without additional container setup.
 
 ### Changed
 
-- Prefer the platform-provided `PORT` env variable over `APP_PORT` when resolving the server port, so deployments on Railway, Heroku, and similar platforms bind to the expected port automatically.
-
-### Docs
-
-- Documented host and port binding for the Express and H3 runtimes, including Railway deployment guidance.
-- Documented that custom console commands are discovered from source and picked up without a build.
+- Resolve the global `request()`, `response()`, and `session()` helpers from the active request scope while retaining fallback instances outside a routed request.
+- Preserve unified request body, query, params, route, context, and original request data when creating an Arkstack `Request` from a framework request.
+- Updated Clear Router to `2.9.2`, `@arkormx/plugin-clear-router` to `0.1.54`, and `@resora/plugin-clear-router` to `1.0.68`.
 
 ### Fixed
 
-- Fixed deployments where the server bound to `localhost` and platform healthcheck proxies (e.g. Railway) could not reach the app.
-- Fixed custom console commands in `src/app/console/commands` only being discovered after a `build --dev`, and not reflecting edits afterwards. Commands are now loaded directly from TypeScript source via jiti (`discoverCommands`), so they appear and update on every CLI run, with the built output kept as a production fallback.
+- Fixed concurrent requests sharing stale global request, response, or session instances.
+- Fixed repeated dependency resolution returning different HTTP objects within the same request.
+- Fixed the database queue driver eligibility query by comparing `available_at` against the database's current timestamp.
+
+### Tests
+
+- Added integration coverage proving bare `@Bind()` controller arguments resolve the same request-scoped Arkstack HTTP instances, including across concurrent requests.
+
+### Docs
+
+- Restored the missing changelog history from `0.4.1` through `0.17.1`.
+
+## [0.17.0 - 0.17.1] - 2026-07-09
+
+Released versions: `0.17.0`, `0.17.1`.
+
+### Added
+
+- Added `@arkstack/scheduler` with Laravel-style scheduled tasks.
+- Added support for both `per_page` and `per-page` query parameters in pagination helpers.
+
+### Fixed
+
+- Made the `per_page` argument optional in `perPage()`.
+- Corrected queued-job `available_at` handling and resolved lint errors across the workspace.
+
+## [0.16.0 - 0.16.13] - 2026-06-28 to 2026-07-07
+
+Released versions: `0.16.0` through `0.16.13`.
+
+### Added
+
+- Added a complete React and Inertia starter, Inertia stack selection in `create-arkstack`, React Refresh support, and production Vite asset resolution.
+- Added `@arkstack/realtime` clients for core, React, and Vue applications.
+- Added Pusher and Firebase realtime notification drivers, Firebase service-account configuration, and multicast broadcasting.
+- Added `UserNotificationCenter.send()`, paginated unread notifications, database-notification push delivery, and `PhoneNumber` support for SMS recipients.
+- Added interactive package selection and package config publishing to the console.
+
+### Changed
+
+- Boot Arkorm before console commands run.
+- Published scaffolding stubs with their packages and made generated config interface keys valid TypeScript.
+- Resolved the global `env()` helper through `EnvLoader` and allowed named mail from-addresses.
+
+### Fixed
+
+- Fixed production Inertia assets, database and realtime notification recipient checks, and realtime push-token resolution.
+
+## [0.15.0 - 0.15.5] - 2026-06-27 to 2026-06-28
+
+Released versions: `0.15.0` through `0.15.5`.
+
+### Added
+
+- Added the `@arkstack/inertia` server adapter, server-side rendering, real HTTP and browser coverage, and the `ark inertia:ssr` command.
+- Added `--host` and `--secure` options to `ark dev`.
+- Added Edge tags for `@vite`, `@viteReactRefresh`, `@inertia`, and `@inertiaHead`.
+
+### Changed
+
+- Run tsdown directly from `ark dev` instead of through a package-manager wrapper.
+- Made Arkorm an optional peer dependency of common, console, and HTTP packages.
+- Moved shared dependencies into the workspace catalog.
+
+### Fixed
+
+- Fixed Inertia client hydration and loading common, console, and HTTP without Arkorm installed.
+
+## [0.14.0 - 0.14.22] - 2026-06-22 to 2026-06-27
+
+Released versions: `0.14.0` through `0.14.3`, and `0.14.14` through `0.14.22`.
+
+### Added
+
+- Unified application secrets under `APP_KEY` and added guaranteed key generation.
+- Added an ngrok-powered `tunnel` option and exposed the tunnel URL through the application globals and environment.
+- Added runtime-directory resolution for production builds and deployment guidance.
+- Added lazy `.env` loading, typed `env()` return values through `EnvRegistry`, and generated environment registry declarations.
+- Added the built-in Faker integration with Pictwo image support.
+- Allowed `AppException` to define a custom response body and `AppConfig` to be extended.
+
+### Changed
+
+- Replaced the key-generation ignore option with the global `--no-interaction` option.
+- Updated application module, resource, and config loading to resolve from production build output.
+- Updated Clear Router and its plugins to the `2.9` line.
+
+### Fixed
+
+- Made config loading resilient to individual module failures and alternate build layouts.
+- Prevented duplicate `export {}` declarations in generated types.
+
+## [0.13.0 - 0.13.2] - 2026-06-21 to 2026-06-22
+
+Released versions: `0.13.0`, `0.13.1`, `0.13.2`.
+
+### Added
+
+- Added the `@arkstack/cache`, `@arkstack/queue`, and `@arkstack/jobs` packages.
+- Added native Arkorm and Resora database configuration.
+- Added explicit `lean` and `full` project-creation options.
+
+### Fixed
+
+- Resolved workspace catalog dependencies when creating projects outside the monorepo.
+- Preserved comments and spacing when creating `.env` files.
+- Updated release preparation to keep Create Arkstack template metadata in sync.
+
+## [0.12.0 - 0.12.37] - 2026-05-28 to 2026-06-20
+
+Released versions: `0.12.0`, `0.12.1`, and `0.12.3` through `0.12.37`.
+
+### Added
+
+- Added `@arkstack/foundry` and centralized application lifecycle hooks and globals.
+- Added custom filesystem disk drivers, in-memory config updates, current disk and driver accessors, and Google Cloud Storage support.
+- Added `APP_ENV`, build development mode, class-based middleware, stateless route session opt-in, and package-model aliases.
+- Added `APP_HOST` with `HOST` fallback and support for the platform-provided `PORT` variable.
+- Added `VERBOSITY` support to the prepare script.
+
+### Changed
+
+- Centralized config typing and improved generated config interfaces.
+- Load custom console commands directly from TypeScript source through jiti, with build output retained as the production fallback.
+- Bind application servers to `0.0.0.0` by default and prefer `PORT` over `APP_PORT`.
+- Updated release tooling to synchronize workspace catalog dependency versions.
+
+### Fixed
+
+- Fixed authentication request synchronization and hydration of bound HTTP requests.
+- Fixed filesystem disk registration when disk and driver names differ.
+- Preserved conflicting trait methods and made invalid trait errors clearer.
+- Made console builds recover from stale `.arkstack/build` output and ensured config is ready before tsdown runs.
+- Improved route-loading errors and prevented dot-path config updates from replacing the entire store.
+
+## [0.11.0 - 0.11.6] - 2026-05-28
+
+Released versions: `0.11.0` through `0.11.6`.
+
+### Added
+
+- Added the `@arkstack/foundry` package and moved shared hook and lifecycle behavior into it.
+- Added Twilio to the typed SMS transport configuration.
+- Added options forwarding to `importFile()`.
+
+### Changed
+
+- Centralized application lifecycle handling, lifecycle globals, and generated config types.
+
+## [0.10.0 - 0.10.10] - 2026-05-27
+
+Released versions: `0.10.0` through `0.10.10`.
+
+### Added
+
+- Added an application-scoped root directory and made default framework paths resolve from it.
+- Expanded manual Create Arkstack options with kit choices, kit locking, and token requirements.
+
+### Changed
+
+- Moved request-body and session augmentations into `@arkstack/http` and shared Resora config types into common code.
+- Removed duplicated starter boilerplate and the retired `arkstack-express` workspace package.
+
+### Fixed
+
+- Lazy-load optional auth dependencies in runtime drivers.
+- Fixed manual project-creation overrides and lean-profile database setup.
+
+## [0.9.0 - 0.9.1] - 2026-05-26
+
+Released versions: `0.9.0`, `0.9.1`.
+
+### Changed
+
+- Refactored framework bootstrapping around self-initializing core packages to reduce starter boilerplate.
+- Hardened prepare and template build workflows for clean CI environments.
+
+## [0.8.0] - 2026-05-23
+
+### Added
+
+- Added persistent sessions, flash data, validation error bags, and automatic view error sharing.
+- Added encrypted session payloads and file-based SMTP transport support.
+
+### Changed
+
+- Restricted CORS origins to configured defaults and consolidated application configuration.
+
+## [0.7.0 - 0.7.20] - 2026-05-14 to 2026-05-22
+
+Released versions: `0.7.0` through `0.7.20`.
+
+### Added
+
+- Added JWT auth utilities, request rate limiting, Clear Router integration coverage, and custom HTML and text mail templates.
+- Added the trait composition system, including class roots, Arkorm model integration, and conflicting-method support.
+- Added a single entry point for global request, response, and context initialization.
+
+### Changed
+
+- Renamed `CurrentSession` and `currentSession()` to `Session` and `session()`.
+- Updated starter migrations to use UUID primary and foreign keys.
+- Renamed auth device payload types and aligned auth, notification, Clear Router, Arkorm, and Resora integrations.
+
+### Fixed
+
+- Ensured placeholder global request and response values are callable before runtime initialization.
+
+## [0.6.0 - 0.6.4] - 2026-05-13
+
+Released versions: `0.6.0` through `0.6.4`.
+
+### Added
+
+- Added the H3 application starter with routing and middleware.
+- Added template resource mounting during project creation.
+
+### Changed
+
+- Reworked package builds and publishing around generated templates and minified ESM output.
+
+### Fixed
+
+- Included package resources in published artifacts and corrected console binary exports and release paths.
+
+## [0.5.0 - 0.5.2] - 2026-05-11
+
+Released versions: `0.5.0`, `0.5.1`, `0.5.2`.
+
+### Added
+
+- Added the initial `@arkstack/database` package, migrations, model factories, and seeders.
+- Added CORS and form-data middleware and controller binding coverage.
+- Added project scope selection and clearer template hints to Create Arkstack.
+
+### Changed
+
+- Updated controllers to return Resora resources and collections.
+- Moved application models into the database model directory and removed obsolete core helpers and drivers.
+
+### Fixed
+
+- Await auth middleware hooks and standardized model identifier declarations.
+
+## [0.4.1 - 0.4.2] - 2026-05-08
+
+Released versions: `0.4.1`, `0.4.2`.
+
+### Added
+
+- Added authentication to global request and context objects.
+- Integrated View bootstrapping into the shared application bootstrap and test setup.
+
+### Changed
+
+- Made `View.boot()` return the factory when no view name is supplied.
+- Resolve router imports from the active runtime and improved package prepublish build handling.
+
+### Fixed
+
+- Corrected global view instance resolution and expanded notification test coverage.
 
 ## [0.4.0] - 2026-05-07
 

@@ -5,10 +5,12 @@ import { ArkstackRouteListOptions } from '@arkstack/contract'
 import { Router as ClearRouter } from 'clear-router/express'
 import { type Route } from 'clear-router'
 import { clearRouterExpressPlugin } from '@resora/plugin-clear-router'
+import { arkstackHttpPlugin } from '@arkstack/http'
 import { registerPlugin } from 'resora'
 import type { Handler, HttpContext, Middleware } from 'clear-router/types/express'
 
 registerPlugin(clearRouterExpressPlugin)
+void ClearRouter.use(arkstackHttpPlugin)
 ClearRouter.configure({
   inferParamName: true
 })

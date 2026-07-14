@@ -4,10 +4,12 @@ import { H3 } from 'h3'
 import type { H3App, Handler, HttpContext, Middleware } from 'clear-router/types/h3'
 import { type Route } from 'clear-router'
 import { clearRouterH3Plugin } from '@resora/plugin-clear-router'
+import { arkstackHttpPlugin } from '@arkstack/http'
 import { registerPlugin } from 'resora'
 import { resolveRuntimeModule } from '@arkstack/common'
 
 registerPlugin(clearRouterH3Plugin)
+void ClearRouter.use(arkstackHttpPlugin)
 ClearRouter.configure({
   inferParamName: true
 })

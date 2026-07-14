@@ -1,6 +1,6 @@
 import '../../http/src/setup'
 
-import { decodeSessionPayload, decryptSessionValue, web } from '../../http/src'
+import { arkstackHttpPlugin, decodeSessionPayload, decryptSessionValue, web } from '../../http/src'
 import { describe, expect, it } from 'vitest'
 
 import { Router as ClearRouter } from 'clear-router/express'
@@ -11,6 +11,8 @@ import request from 'parasito'
 const createRouter = (name: string) => class TestRouter extends ClearRouter {
     protected static routerStateNamespace = `express-web-validation:${name}`
 }
+
+void ClearRouter.use(arkstackHttpPlugin)
 
 const validationError = () => Object.assign(new Error('The given data was invalid.'), {
     statusCode: 422,
@@ -120,8 +122,8 @@ describe('Express web validation redirects', () => {
             .set('referer', '/register')
             .set('accept', 'text/html')
             .send({ email: 'ada@example.com' })
-            .expect(200)
 
+        expect(response.status, response.text).toBe(200)
         expect(response.raw.redirects).toContainEqual(expect.stringContaining('/register'))
         expect(response.body.redirectedTo).toBe('/register')
 
