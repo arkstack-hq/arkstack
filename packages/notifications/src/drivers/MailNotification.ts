@@ -303,7 +303,7 @@ export class MailNotification extends NotificationContract {
             driver.test_address ??
             transport.test_address ??
             transport.test_address ??
-            env<string | undefined>('MAIL_TEST_ADDRESS')
+            env('MAIL_TEST_ADDRESS')
 
         if (env('NODE_ENV') !== 'production' && testAddress) {
             resolved.push(testAddress)

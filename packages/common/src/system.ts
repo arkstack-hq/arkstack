@@ -90,11 +90,11 @@ export const config: GlobalConfig = <
  * @returns       The resolved key, or `undefined` when none is configured.
  */
 export const appKey = (legacy: string | string[] = []): string | undefined => {
-    const explicit = env<string>('APP_KEY')
+    const explicit = env('APP_KEY')
     if (explicit) return explicit
 
     for (const name of Array.isArray(legacy) ? legacy : [legacy]) {
-        const value = env<string>(name)
+        const value = env(name)
         if (value) return value
     }
 
