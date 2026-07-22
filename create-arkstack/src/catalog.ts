@@ -13,7 +13,7 @@ export const catalog: Record<string, string> = {
     "@resora/plugin-clear-router": "^1.0.68",
     "@kanun-hq/plugin-file": "^0.1.12",
     "@kanun-hq/plugin-phone": "^0.1.8",
-    "arkormx": "^2.11.4",
+    "arkormx": "^2.11.6",
     "clear-router": "^2.9.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
