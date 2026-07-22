@@ -43,9 +43,25 @@ export default () => ({
     },
   },
   transports: {
+    ses: {
+      region: env('MAIL_SES_REGION', env('AWS_DEFAULT_REGION', 'us-east-1')),
+      // SESCustomOptionsSetName: "my-config-set",
+      // SESCustomOptionsEmailTags: [{ Name: "tag_name", Value: "tag_value" }],
+    },
+    sendmail: {
+      path: env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail'),
+    }
     smtp: {
       host: env('MAIL_HOST', 'localhost'),
       port: env('MAIL_PORT', 1025),
+      auth: {
+        user: env('MAIL_USERNAME', ''),
+        pass: env('MAIL_PASSWORD', ''),
+      }
+      debug: env('MAIL_DEBUG', false),
+      secure: env('MAIL_SECURE', false),
+      logger: env('MAIL_LOGGER', false),
+      require_tls: env('MAIL_REQUIRE_TLS', false),
     },
     africastalking: {
       username: env('AFRICASTALKING_USERNAME', 'sandbox'),

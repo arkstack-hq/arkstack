@@ -186,7 +186,7 @@ export interface NotificationConfig {
             [key: string]: any
         }
         sendmail?: {
-            path?: string
+            path: string
             args?: string[]
         }
         file: {
