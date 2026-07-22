@@ -225,6 +225,10 @@ npm start
 
 ---
 
+## Testing
+
+This project is tested with BrowserStack
+
 ## Contributing
 
 Contributions are welcome.
