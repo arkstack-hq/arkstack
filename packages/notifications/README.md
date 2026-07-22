@@ -50,7 +50,7 @@ export default () => ({
     },
     sendmail: {
       path: env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail'),
-    }
+    },
     smtp: {
       host: env('MAIL_HOST', 'localhost'),
       port: env('MAIL_PORT', 1025),
