@@ -57,7 +57,7 @@ export default () => ({
       auth: {
         user: env('MAIL_USERNAME', ''),
         pass: env('MAIL_PASSWORD', ''),
-      }
+      },
       debug: env('MAIL_DEBUG', false),
       secure: env('MAIL_SECURE', false),
       logger: env('MAIL_LOGGER', false),
