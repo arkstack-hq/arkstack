@@ -150,7 +150,7 @@ describe('Notification', () => {
             id: 1,
             email: 'ada@example.com',
             phone: '+2348012345678',
-        }
+        } as never
 
         expect(new Notification('mail').prepare(user)).toBeInstanceOf(MailNotification)
         expect(new Notification('sms').prepare(user)).toBeInstanceOf(SmsNotification)
@@ -158,8 +158,8 @@ describe('Notification', () => {
     })
 
     it('leaves user recipients unset when channel-specific address fields are missing', async () => {
-        await expect(new Notification('mail').prepare({ id: 1 }).send('Hello')).rejects.toThrow('No recipient provided for mail notification')
-        await expect(new Notification('sms').prepare({ id: 1 }).send('Hello')).rejects.toThrow('No recipient provided for SMS notification')
+        await expect(new Notification('mail').prepare({ id: 1 } as never).send('Hello')).rejects.toThrow('No recipient provided for mail notification')
+        await expect(new Notification('sms').prepare({ id: 1 } as never).send('Hello')).rejects.toThrow('No recipient provided for SMS notification')
     })
 
     it('delivers mail with interpolated subject, body, sender, and recipients', async () => {
@@ -477,7 +477,8 @@ describe('Notification', () => {
         const user = {
             id: 7,
             email: 'ada@example.com',
-        }
+        } as never
+
         const notification = await Notification.db()
             .recipient(user)
             .type('security')
@@ -529,7 +530,7 @@ describe('Notification', () => {
     })
 
     it('queries and mutates user notifications through the center', async () => {
-        const user = { id: 12 }
+        const user = { id: 12 } as never
         const notification = new UserNotification()
         notification.id = 99
         notification.readAt = null

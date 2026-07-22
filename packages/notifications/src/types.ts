@@ -1,3 +1,4 @@
+import type { Logger } from 'nodemailer/lib/shared'
 import type { MergedConfig } from '@arkstack/common'
 import type { UserNotification } from '@app/models/UserNotification'
 
@@ -16,15 +17,26 @@ export type RealtimeDriverName = 'pusher' | 'firebase'
 export type NotificationChannel = 'mail' | 'sms' | 'db' | 'realtime'
 
 export type MailDriverOptions = {
-    transport?: 'africastalking' | 'twilio' | 'file' | 'smtp'
+    transport?: 'file' | 'smtp' | 'sendmail' | 'ses'
+    url?: string
     host?: string
     port?: number
-    secure?: boolean
     user?: string
     pass?: string
     from?: string
-    testAddress?: string
+    debug?: boolean
+    logger?: boolean | Logger
+    secure?: boolean
+    service?: string
+    sesRegion?: string
     directory?: string
+    ignoreTLS?: boolean
+    requireTLS?: boolean
+    authMethod?: 'PLAIN' | 'LOGIN' | 'CRAM-MD5'
+    testAddress?: string
+    sendmailArgs?: string[]
+    sendmailPath?: string
+    transactionLog?: boolean
 }
 
 export type SmsDriverOptions = {
@@ -115,7 +127,7 @@ export interface NotificationConfig {
     default_driver: 'mail' | 'sms' | 'db'
     drivers: {
         mail: {
-            transport: 'smtp' | 'file';
+            transport: 'smtp' | 'file' | 'sendmail' | 'ses';
             from: string | {
                 name: string;
                 address: string;
@@ -140,28 +152,42 @@ export interface NotificationConfig {
         }
     }
     transports: {
-        smtp: {
-            host: string;
-            port: number;
-            secure: boolean;
+        smtp: ({
+            host: string
+            port: number
+            secure: boolean
+            debug?: boolean
+            logger?: boolean | Logger
+            service?: string
+            ignore_tls?: boolean
+            require_tls?: boolean
+            auth_method?: 'PLAIN' | 'LOGIN' | 'CRAM-MD5'
+            test_address?: string
+            transaction_log?: boolean
+        } & ({
             auth: {
-                user: string;
+                user: string
                 pass: string
             }
             user?: string;
             pass?: string
-            test_address?: string
         } | {
-            host: string;
-            port: number;
-            secure: boolean;
             auth?: {
-                user: string;
+                user: string
                 pass: string
             }
-            user: string;
+            user: string
             pass: string
-            test_address?: string
+        })) | {
+            url: string
+        }
+        ses?: {
+            region: string
+            [key: string]: any
+        }
+        sendmail?: {
+            path?: string
+            args?: string[]
         }
         file: {
             directory: string;
@@ -197,4 +223,6 @@ export interface NotificationConfig {
     }
 }
 
-export type MergedTransportConfig = MergedConfig<NotificationConfig['transports'][NonNullable<MailDriverOptions['transport']>]>
+export type MergedTransportConfig = MergedConfig<Required<NotificationConfig['transports']>[
+    NonNullable<MailDriverOptions['transport']>
+]>

@@ -11,17 +11,22 @@ import type {
     MailRecipient,
     MailRecipientAddress,
     MergedTransportConfig,
+    NotificationConfig,
     NotificationData,
 } from '../types'
 import { User } from '@arkstack/auth'
 import { Arkstack } from '@arkstack/contract'
 
 export class MailNotification extends NotificationContract {
-    driver: Transporter
+    driver!: Transporter
+    private options: MailDriverOptions = {}
+    private ViewName: string = '~arkstack/notifications.mail'
+    private transport: NonNullable<MailDriverOptions['transport']> = 'smtp'
+    private sesOptions?: Record<string, any>
+    private recipients?: MailRecipient
     private fromAddress?: string | { name: string; address: string }
     private subjectLine?: string
-    private recipients?: MailRecipient
-    private ViewName: string = '~arkstack/notifications.mail'
+    private driverConfig: NotificationConfig['drivers']['mail']
     private htmlTemplate?: string
     private textTemplate?: string
     private fileDirectory?: string
@@ -29,14 +34,22 @@ export class MailNotification extends NotificationContract {
     constructor(options: MailDriverOptions = {}) {
         super()
 
-        const driver = configure('drivers.mail', {})
-        const trpt = driver.transport ?? 'smtp'
-        const transport = configure(
-            `transports.${trpt}`,
-            {},
-        ) as MergedTransportConfig
+        this.driverConfig = configure('drivers.mail', {})
+        this.transport = this.driverConfig.transport ?? 'smtp'
+        this.options = options
+    }
 
-        if (trpt === 'file') {
+    /**
+     * Prepare the mail driver so we can use it to relay the message
+     */
+    private async prepareDriver() {
+        const options = this.options
+        const transport = configure(`transports.${this.transport}`, {}) as MergedTransportConfig
+
+        /**
+         * Setup nodemailer to stream messages so we can store the mail to file
+         */
+        if (this.transport === 'file') {
             this.fileDirectory =
                 options.directory ??
                 transport.directory ??
@@ -44,7 +57,7 @@ export class MailNotification extends NotificationContract {
 
             this.fromAddress =
                 options.from ??
-                driver.from ??
+                this.driverConfig.from ??
                 transport.from ??
                 env('MAIL_FROM_ADDRESS', 'no-reply@example.com')
 
@@ -56,14 +69,53 @@ export class MailNotification extends NotificationContract {
             return
         }
 
-        const host =
-            options.host ?? transport.host ?? env('MAIL_HOST', 'localhost')
-        const port = options.port ?? transport.port ?? env('MAIL_PORT', 1025)
-        const secure =
-            options.secure ?? transport.secure ?? env('MAIL_SECURE', false)
+        /**
+         * Setup nodemailer to use sendmail
+         */
+        if (this.transport === 'sendmail') {
+            const path =
+                transport.path ??
+                options.sendmailPath ??
+                env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail')
 
-        const user =
-            options.user ??
+            this.driver = nodemailer.createTransport({
+                path,
+                sendmail: true,
+                args: transport.args ?? options.sendmailArgs
+            })
+
+            return
+        }
+
+        /**
+         * Setup nodemailer to use Amazon SES
+         */
+        if (this.transport === 'ses') {
+            try {
+                const sesv2ModuleName = '@aws-sdk/client-sesv2'
+                const { SESv2Client, SendEmailCommand } = await import(sesv2ModuleName)
+
+                const { region, ...sesOptions } = transport
+                const sesRegion =
+                    options.sesRegion ?? region ??
+                    env('MAIL_SES_REGION') ?? env('AWS_DEFAULT_REGION')
+
+                const sesClient = new SESv2Client({ region: sesRegion })
+
+                this.sesOptions = sesOptions
+                this.driver = nodemailer.createTransport({
+                    SES: { sesClient, SendEmailCommand },
+                })
+            } catch (error) {
+                throw new Error('Please install "@aws-sdk/client-sesv2" to use the ses transport', {
+                    cause: error
+                })
+            }
+
+            return
+        }
+
+        const user = options.user ??
             transport.auth?.user ??
             transport.user ??
             env('MAIL_USERNAME', '')
@@ -76,15 +128,22 @@ export class MailNotification extends NotificationContract {
 
         this.fromAddress =
             options.from ??
-            driver.from ??
+            this.driverConfig.from ??
             transport.from ??
             env('MAIL_FROM_ADDRESS', 'no-reply@example.com')
 
         this.driver = nodemailer.createTransport({
-            host,
-            port: Number(port),
-            secure: Boolean(secure),
+            url: transport.url ?? options.url ?? env('MAIL_URL'),
+            host: options.host ?? transport.host ?? env('MAIL_HOST', 'localhost'),
+            port: Number(options.port ?? transport.port ?? env('MAIL_PORT', 1025)),
             auth: user || pass ? { user, pass } : undefined,
+            debug: transport.debug ?? options.debug ?? env('MAIL_DEBUG', false),
+            secure: Boolean(options.secure ?? transport.secure ?? env('MAIL_SECURE', false)),
+            logger: transport.logger ?? options.logger ?? env('MAIL_LOGGER', false),
+            service: transport.service ?? options.service ?? env('MAIL_SERVICE'),
+            ignoreTLS: transport.ignore_tls ?? options.ignoreTLS ?? env('MAIL_IGNORE_TLS'),
+            requireTLS: transport.require_tls ?? options.requireTLS ?? env('MAIL_REQUIRE_TLS'),
+            authMethod: transport.auth_method ?? options.authMethod ?? env('MAIL_AUTH_METHOD'),
         })
     }
 
@@ -206,6 +265,8 @@ export class MailNotification extends NotificationContract {
             throw new Error('No recipient provided for mail notification')
         }
 
+        await this.prepareDriver()
+
         const templateData = {
             ...mergedData,
             message: resolvedMessage,
@@ -226,6 +287,11 @@ export class MailNotification extends NotificationContract {
                 ? interpolate(this.htmlTemplate, templateData)
                 : await globalThis.view(this.ViewName, templateData),
         }
+
+        if (this.transport === 'ses') {
+            (payload as any).ses = this.sesOptions
+        }
+
         const result = await this.driver.sendMail(payload)
 
         if (this.fileDirectory) {
