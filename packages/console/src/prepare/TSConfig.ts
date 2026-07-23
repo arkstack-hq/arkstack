@@ -27,7 +27,7 @@ export const TSConfig = {
             '@models/*': ['../src/app/models/*']
         }
     },
-    include: ['./*.d.ts', '../src', '../tests']
+    include: ['./*.d.ts', '../.arkormx/*.d.ts', '../src', '../tests']
 }
 
 export const BaseTCConfig = {
