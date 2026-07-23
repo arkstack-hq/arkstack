@@ -37,6 +37,7 @@ export default defineConfig(
             'bin/**',
             'dist/**',
             'build/**',
+            '.arkormx/**',
             '.arkstack/**',
             'node_modules/**',
             'packages/inertia/tests/e2e/**',
