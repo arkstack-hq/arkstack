@@ -9,11 +9,11 @@ export const catalog: Record<string, string> = {
     "@h3ravel/support": "^2.2.4",
     "@h3ravel/collect.js": "^5.4.0",
     "@faker-js/faker": "^10.4.0",
-    "@arkormx/plugin-clear-router": "^0.1.54",
-    "@resora/plugin-clear-router": "^1.0.68",
+    "@arkormx/plugin-clear-router": "^0.1.56",
+    "@resora/plugin-clear-router": "^1.0.70",
     "@kanun-hq/plugin-file": "^0.1.12",
     "@kanun-hq/plugin-phone": "^0.1.8",
-    "arkormx": "^2.11.6",
+    "arkormx": "^2.12.0",
     "clear-router": "^2.9.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -22,7 +22,7 @@ export const catalog: Record<string, string> = {
     "kanun": "^1.2.0",
     "parasito": "^0.2.6",
     "pg": "^8.22.0",
-    "resora": "^1.3.28",
+    "resora": "^1.3.32",
     "tsdown": "^0.22.3"
 }
 
