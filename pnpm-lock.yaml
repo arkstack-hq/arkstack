@@ -371,6 +371,9 @@ importers:
       '@arkstack/contract':
         specifier: workspace:^
         version: link:../contract
+      '@arkstack/database':
+        specifier: workspace:^
+        version: link:../database
       '@h3ravel/musket':
         specifier: 'catalog:'
         version: 2.2.2(@types/node@25.6.2)

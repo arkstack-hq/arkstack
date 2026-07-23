@@ -3,6 +3,7 @@
 import { existsSync, mkdirSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
+import { ArkormArtifacts } from './prepare/ArkormArtifacts'
 import { BuildInterfaces } from './prepare/BuildInterfaces'
 import chalk from 'chalk'
 import path from 'node:path'
@@ -17,6 +18,7 @@ if (!process.env.NODE_CI) {
 }
 
 BuildInterfaces.tsconfig()
+await ArkormArtifacts.sync()
 
 const LOG_LEVEL = parseInt(process.env.VERBOSITY ?? '0') > 0 ? [] : ['--log-level=silent']
 const NODE_ENV = process.env.NODE_ENV || 'development'
