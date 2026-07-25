@@ -12,7 +12,7 @@ import type {
 import { FirebaseRealtimeDriver } from './realtime/FirebaseRealtimeDriver'
 import { NotificationContract } from '../Contracts/NotificationContract'
 import { PusherRealtimeDriver } from './realtime/PusherRealtimeDriver'
-import type { RealtimeDriver } from '../Contracts/RealtimeDriver'
+import type { RealtimeNotificationDriver } from '../Contracts/RealtimeDriver'
 import type { User } from '@app/models/User'
 import { UserNotificationCenter } from '../UserNotificationCenter'
 import { configure } from '../config'
@@ -24,11 +24,12 @@ import { randomUUID } from 'node:crypto'
  * (Pusher or Firebase). The notification is delivered on a per-user channel and,
  * when `store` is enabled, is also persisted so the client can load history.
  */
-export class RealtimeNotification extends NotificationContract<RealtimeBroadcastResult> {
+export class RealtimeNotification
+    <T extends RealtimeDriverName = RealtimeDriverName> extends NotificationContract<RealtimeBroadcastResult> {
     /** 
      * The underlying transport; assignable so tests can inject a fake. 
      */
-    driver: RealtimeDriver
+    driver: RealtimeNotificationDriver<T>
     private user?: User
     private channelName?: string | string[]
     private eventName: string
@@ -36,7 +37,7 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
     private shouldStore: boolean
     private payload: Partial<DbNotificationPayload> = {}
 
-    constructor(options: RealtimeDriverOptions = {}) {
+    constructor(options: RealtimeDriverOptions<T> = {}) {
         super()
 
         const driverConfig = configure('drivers.realtime', {}) as {
@@ -53,17 +54,36 @@ export class RealtimeNotification extends NotificationContract<RealtimeBroadcast
         this.channelPrefix = driverConfig?.channel_prefix ?? 'user.'
         this.shouldStore = options.store ?? driverConfig?.store ?? false
 
-        this.driver = transport === 'firebase'
+        this.driver = (transport === 'firebase'
             ? new FirebaseRealtimeDriver({ ...transportConfig, ...options.firebase })
             : new PusherRealtimeDriver({ ...transportConfig, ...options.pusher })
+        ) as RealtimeNotificationDriver<T>
     }
 
-    from(_from: string): this {
+    from(_: string): this {
         return this
     }
 
     subject(subject: string): this {
         this.payload.title = subject
+
+        return this
+    }
+
+    /**
+     * Overide the default transport
+     * 
+     * @param transport 
+     * @param options 
+     * @returns 
+     */
+    transport(transport: T, options?: RealtimeDriverOptions[T]): this {
+        const transportConfig = configure(`transports.${transport}` as never, {}) as Record<string, never>
+
+        this.driver = (transport === 'firebase'
+            ? new FirebaseRealtimeDriver({ ...transportConfig, ...options as any })
+            : new PusherRealtimeDriver({ ...transportConfig, ...options as any })
+        ) as RealtimeNotificationDriver<T>
 
         return this
     }

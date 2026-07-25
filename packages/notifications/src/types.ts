@@ -1,5 +1,6 @@
 import type { Logger } from 'nodemailer/lib/shared'
 import type { MergedConfig } from '@arkstack/common'
+import { Transport } from 'nodemailer'
 import type { UserNotification } from '@app/models/UserNotification'
 
 export type NotificationRecipient = string | string[]
@@ -70,8 +71,8 @@ export type FirebaseTransportConfig = {
     admin_sdk_path?: string
 }
 
-export type RealtimeDriverOptions = {
-    transport?: RealtimeDriverName
+export type RealtimeDriverOptions<T extends RealtimeDriverName = RealtimeDriverName> = {
+    transport?: T
     /** Channel/topic to broadcast on. Defaults to `${channel_prefix}${user.id}`. */
     channel?: string
     /** Event name clients subscribe to. Defaults to config `event` or `notification`. */
@@ -123,11 +124,11 @@ export type NotificationDriverMap = {
     realtime: RealtimeBroadcastResult
 }
 
-export interface NotificationConfig {
+export interface NotificationConfig<T = any> {
     default_driver: 'mail' | 'sms' | 'db'
     drivers: {
         mail: {
-            transport: 'smtp' | 'file' | 'sendmail' | 'ses';
+            transport: 'smtp' | 'file' | 'sendmail' | 'ses' | Transport<T>;
             from: string | {
                 name: string;
                 address: string;
@@ -226,3 +227,7 @@ export interface NotificationConfig {
 export type MergedTransportConfig = MergedConfig<Required<NotificationConfig['transports']>[
     NonNullable<MailDriverOptions['transport']>
 ]>
+
+export type MailNotificationOptions = MailDriverOptions & {
+    transport?: MailDriverOptions['transport'] | Transport
+}

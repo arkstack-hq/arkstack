@@ -116,8 +116,8 @@ describe('RealtimeNotification', () => {
 describe('FirebaseRealtimeDriver multicast', () => {
     /** Inject a fake `firebase-admin` messaging into the lazy promise. */
     const withMessaging = (messaging: unknown) => {
-        const driver = new FirebaseRealtimeDriver()
-        ;(driver as unknown as { messagingPromise: Promise<unknown> }).messagingPromise = Promise.resolve(messaging)
+        const driver = new FirebaseRealtimeDriver();
+        (driver as any).messagingPromise = Promise.resolve(messaging)
 
         return driver
     }
