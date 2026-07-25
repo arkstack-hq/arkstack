@@ -1,6 +1,8 @@
+import type { TransportOptions, Transporter } from 'nodemailer'
+
 import type { Logger } from 'nodemailer/lib/shared'
+import MailMessage from 'nodemailer/lib/mailer/mail-message'
 import type { MergedConfig } from '@arkstack/common'
-import { Transport } from 'nodemailer'
 import type { UserNotification } from '@app/models/UserNotification'
 
 export type NotificationRecipient = string | string[]
@@ -16,6 +18,20 @@ export type SmsDriverName = 'africastalking' | 'twilio'
 export type RealtimeDriverName = 'pusher' | 'firebase'
 
 export type NotificationChannel = 'mail' | 'sms' | 'db' | 'realtime'
+
+export interface Transport<T = any, D extends TransportOptions = TransportOptions> {
+    mailer?: Transporter<T, D> | undefined;
+
+    name: string;
+    version: string;
+
+    send(mail: MailMessage<T>, callback: (err: Error | null, info: T) => void): void;
+
+    verify?(callback: (err: Error | null, success: true) => void): void;
+    verify?(): Promise<true>;
+
+    close?(): void;
+}
 
 export type MailDriverOptions = {
     transport?: 'file' | 'smtp' | 'sendmail' | 'ses'
