@@ -656,14 +656,14 @@ importers:
         specifier: ^13.0.0
         version: 13.10.0
       nodemailer:
-        specifier: ^8.0.7
-        version: 8.0.7
+        specifier: ^9.0.3
+        version: 9.0.3
       pusher:
         specifier: ^5.2.0
         version: 5.3.4
       twilio:
-        specifier: ^6.0.0
-        version: 6.0.0
+        specifier: ^6.0.2
+        version: 6.0.2
     devDependencies:
       '@types/africastalking':
         specifier: ^0.8.0
@@ -5388,8 +5388,8 @@ packages:
     resolution: {integrity: sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ==}
     engines: {node: '>= 6.13.0'}
 
-  nodemailer@8.0.7:
-    resolution: {integrity: sha512-pkjE4mkBzQjdJT4/UmlKl3pX0rC9fZmjh7c6C9o7lv66Ac6w9WCnzPzhbPNxwZAzlF4mdq4CSWB5+FbK6FWCow==}
+  nodemailer@9.0.3:
+    resolution: {integrity: sha512-n+YP+NKwR5zRWa60k3GiQ6Q3B4KXCoAw40dAKeCtYn020iNN74aWK2liXIC3ZEATeGql7we3tE3t8QwhY0eskw==}
     engines: {node: '>=6.0.0'}
 
   npm-run-path@6.0.0:
@@ -6334,8 +6334,8 @@ packages:
   tweetnacl@1.0.3:
     resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
 
-  twilio@6.0.0:
-    resolution: {integrity: sha512-MAie5DJ3KLpcKlDaYtNzsKMQXcCi+YHWKvZjuSpm27vJAO/l8PanJA0LkkJ03sbh+Kwe5NeL0Q2+y6IjNUYeUA==}
+  twilio@6.0.2:
+    resolution: {integrity: sha512-RN3TZxUtxLz2HBZVt62+LdZxQbrMVgYKtuzLgwmO7nqKvR+gQS5mCackD9hf4Y7MmoK/bX7tCm7kaJC8kC8zFA==}
     engines: {node: '>=20.0.0'}
 
   type-check@0.4.0:
@@ -11639,7 +11639,7 @@ snapshots:
 
   node-forge@1.4.0: {}
 
-  nodemailer@8.0.7: {}
+  nodemailer@9.0.3: {}
 
   npm-run-path@6.0.0:
     dependencies:
@@ -12607,7 +12607,7 @@ snapshots:
 
   tweetnacl@1.0.3: {}
 
-  twilio@6.0.0:
+  twilio@6.0.2:
     dependencies:
       axios: 1.16.0
       dayjs: 1.11.20
