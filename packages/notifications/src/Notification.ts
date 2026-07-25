@@ -13,34 +13,95 @@ type DriverOptions = MailDriverOptions | SmsDriverOptions | RealtimeDriverOption
 export class Notification<D extends keyof DriverMap = keyof DriverMap> {
     private driver: DriverMap[D]
 
-    constructor(driver: D, options: DriverOptions = {}) {
-        this.driver = Notification.createDriver(driver, options) as DriverMap[D]
+    constructor(driver: 'sms', options?: SmsDriverOptions)
+    constructor(driver: 'realtime', options?: RealtimeDriverOptions)
+    constructor(driver: 'mail' | 'email', options?: MailDriverOptions)
+    constructor(driver: 'db')
+    constructor(
+        driver: NotificationChannel | 'email',
+        options = {}
+    ) {
+        this.driver = Notification.createDriver(driver as never, options) as DriverMap[D]
     }
 
+    /**
+     * Send an email notification
+     * 
+     * @param options 
+     * @returns 
+     */
     static mail(options?: MailDriverOptions) {
         return new MailNotification(options)
     }
 
+    /**
+     * Send an email notification
+     * 
+     * @param options 
+     * @alias {@link mail}
+     * @returns 
+     */
     static email(options?: MailDriverOptions) {
         return this.mail(options)
     }
 
+    /**
+     * Send an sms notification
+     * 
+     * @param options 
+     * @returns 
+     */
     static sms(options?: SmsDriverOptions) {
         return new SmsNotification(options)
     }
 
+    /**
+     * Send a database notification
+     * 
+     * @param options 
+     * @returns 
+     */
     static db() {
         return new DbNotification()
     }
 
+    /**
+     * Send a realtime notification
+     * 
+     * @param options 
+     * @returns 
+     */
     static realtime(options?: RealtimeDriverOptions) {
         return new RealtimeNotification(options)
     }
 
-    static channel(channel?: NotificationChannel | 'email', options?: DriverOptions) {
-        return Notification.createDriver(channel ?? configure('default_driver', 'mail'), options)
+    /**
+     * Use a specific channel to send this notification
+     * 
+     * @param channel 
+     * @param options 
+     */
+    static channel(channel: 'sms', options?: SmsDriverOptions): SmsNotification
+    static channel(channel: 'realtime', options?: RealtimeDriverOptions): RealtimeNotification
+    static channel(channel: 'mail' | 'email', options?: MailDriverOptions): MailNotification
+    static channel(channel: 'db'): DbNotification
+    static channel(): MailNotification | SmsNotification | DbNotification | RealtimeNotification
+    static channel<D extends NotificationChannel | 'email'>(
+        channel?: D,
+        options?: DriverOptions
+    ): MailNotification | SmsNotification | DbNotification | RealtimeNotification {
+        channel ??= configure('default_driver', 'mail') as D
+
+        return Notification.createDriver(channel as never, options as never)
     }
 
+    /**
+     * Prepare the notification
+     * 
+     * @param recipient 
+     * @param data 
+     * @returns 
+     */
     prepare(recipient?: null | MailRecipient | NotificationRecipient | User, data: NotificationData = {}) {
         this.driver.data(data)
 
@@ -67,10 +128,14 @@ export class Notification<D extends keyof DriverMap = keyof DriverMap> {
         return this.driver
     }
 
-    private static createDriver(
-        driver: NotificationChannel | 'email',
+    private static createDriver(driver: 'sms', options?: SmsDriverOptions): SmsNotification
+    private static createDriver(driver: 'realtime', options?: RealtimeDriverOptions): RealtimeNotification
+    private static createDriver(driver: 'mail' | 'email', options?: MailDriverOptions): MailNotification
+    private static createDriver(driver: 'db'): DbNotification
+    private static createDriver<D extends NotificationChannel | 'email'>(
+        driver: D,
         options: DriverOptions = {}
-    ) {
+    ): MailNotification | SmsNotification | DbNotification | RealtimeNotification {
         switch (driver) {
             case 'mail':
             case 'email':

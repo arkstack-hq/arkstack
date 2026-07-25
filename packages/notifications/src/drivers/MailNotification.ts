@@ -1,13 +1,14 @@
 import { config, env } from '@arkstack/common'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import nodemailer, { type Transporter } from 'nodemailer'
+import nodemailer, { Transport, type Transporter } from 'nodemailer'
 
 import { NotificationContract } from '../Contracts/NotificationContract'
 import { interpolate } from '../utils/template'
 import { configure } from '../config'
 import type {
     MailDriverOptions,
+    MailNotificationOptions,
     MailRecipient,
     MailRecipientAddress,
     MergedTransportConfig,
@@ -21,7 +22,7 @@ export class MailNotification extends NotificationContract {
     driver!: Transporter
     private options: MailDriverOptions = {}
     private ViewName: string = '~arkstack/notifications.mail'
-    private transport: NonNullable<MailDriverOptions['transport']> = 'smtp'
+    private transport: NonNullable<MailDriverOptions['transport']> | Transport = 'smtp'
     private sesOptions?: Record<string, any>
     private recipients?: MailRecipient
     private fromAddress?: string | { name: string; address: string }
@@ -31,7 +32,7 @@ export class MailNotification extends NotificationContract {
     private textTemplate?: string
     private fileDirectory?: string
 
-    constructor(options: MailDriverOptions = {}) {
+    constructor(options: MailNotificationOptions = {}) {
         super()
 
         this.driverConfig = configure('drivers.mail', {})
@@ -43,6 +44,12 @@ export class MailNotification extends NotificationContract {
      * Prepare the mail driver so we can use it to relay the message
      */
     private async prepareDriver() {
+        if (typeof this.transport !== 'string') {
+            this.driver = nodemailer.createTransport(this.transport)
+
+            return
+        }
+
         const options = this.options
         const transport = configure(`transports.${this.transport}`, {}) as MergedTransportConfig
 
@@ -359,10 +366,10 @@ export class MailNotification extends NotificationContract {
 
         const driver = configure('drivers.mail', {})
         const trpt = driver.transport ?? 'smtp'
-        const transport = configure(
+        const transport = typeof trpt === 'string' ? configure(
             `transports.${trpt}`,
             {},
-        ) as MergedTransportConfig
+        ) as MergedTransportConfig : { test_address: '' }
 
         const testAddress =
             driver.test_address ??

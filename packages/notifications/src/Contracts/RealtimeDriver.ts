@@ -1,4 +1,7 @@
-import type { RealtimeNotificationPayload } from '../types'
+import type { RealtimeDriverName, RealtimeNotificationPayload } from '../types'
+
+import type { FirebaseRealtimeDriver } from '../drivers/realtime/FirebaseRealtimeDriver'
+import type { PusherRealtimeDriver } from '../drivers/realtime/PusherRealtimeDriver'
 
 /**
  * A realtime transport (Pusher, Firebase, …) broadcasts a notification payload
@@ -9,9 +12,15 @@ import type { RealtimeNotificationPayload } from '../types'
  * via a multicast send.
  */
 export interface RealtimeDriver {
-    broadcast (
+    broadcast(
         channel: string | string[],
         event: string,
         payload: RealtimeNotificationPayload,
     ): Promise<unknown>
 }
+
+export type RealtimeNotificationDriver<T extends RealtimeDriverName> = T extends 'firebase'
+    ? FirebaseRealtimeDriver
+    : T extends 'firebase'
+    ? PusherRealtimeDriver
+    : RealtimeDriver
