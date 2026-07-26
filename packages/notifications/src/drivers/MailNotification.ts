@@ -44,14 +44,22 @@ export class MailNotification extends NotificationContract {
      * Prepare the mail driver so we can use it to relay the message
      */
     private async prepareDriver() {
+        const options = this.options
+
+        this.fromAddress =
+            options.from ??
+            this.driverConfig.from ??
+            env('MAIL_FROM_ADDRESS', 'no-reply@example.com')
+
         if (typeof this.transport !== 'string') {
             this.driver = nodemailer.createTransport(this.transport)
 
             return
         }
 
-        const options = this.options
         const transport = configure(`transports.${this.transport}`, {}) as MergedTransportConfig
+
+        this.fromAddress = transport.from || this.fromAddress
 
         /**
          * Setup nodemailer to stream messages so we can store the mail to file
@@ -61,12 +69,6 @@ export class MailNotification extends NotificationContract {
                 options.directory ??
                 transport.directory ??
                 env('MAIL_FILE_PATH', join(Arkstack.rootDir(), './storage/framework/mails'))
-
-            this.fromAddress =
-                options.from ??
-                this.driverConfig.from ??
-                transport.from ??
-                env('MAIL_FROM_ADDRESS', 'no-reply@example.com')
 
             this.driver = nodemailer.createTransport({
                 streamTransport: true,
@@ -132,12 +134,6 @@ export class MailNotification extends NotificationContract {
             transport.auth?.pass ??
             transport.pass ??
             env('MAIL_PASSWORD', '')
-
-        this.fromAddress =
-            options.from ??
-            this.driverConfig.from ??
-            transport.from ??
-            env('MAIL_FROM_ADDRESS', 'no-reply@example.com')
 
         this.driver = nodemailer.createTransport({
             url: transport.url ?? options.url ?? env('MAIL_URL'),
