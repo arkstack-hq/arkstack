@@ -60,7 +60,7 @@ export const perPage = (
         per_page?: number;
         'per-page'?: number;
     },
-    defaults: {
+    defaults?: {
         perPage?: number;
         maxPerPage?: number
     }) => {
@@ -70,10 +70,10 @@ export const perPage = (
         query.perPage ??
         query['per-page'] ??
         query.per_page,
-        defaults.perPage ?? 25
+        defaults?.perPage ?? 25
     )
 
-    return Math.min(requestedPerPage, defaults.maxPerPage ?? 50)
+    return Math.min(requestedPerPage, defaults?.maxPerPage ?? 50)
 }
 
 /**
@@ -92,12 +92,12 @@ export const resolvePagination = (
         per_page?: number;
         'per-page'?: number;
     },
-    defaults: {
+    defaults?: {
         page?: number;
         perPage?: number;
         maxPerPage?: number
     }): PaginationOptions => {
-    const page = normalizePositiveInteger(query.page, defaults.page ?? 1)
+    const page = normalizePositiveInteger(query.page, defaults?.page ?? 1)
 
     return {
         page,
