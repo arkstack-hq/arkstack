@@ -2,15 +2,30 @@
 
 Small utility functions that can be used across the application for common tasks.
 
-## `perPage(query)`
+## `perPage(query, defaults?)`
 
-Extracts a safe pagination limit from a query object. Clamps the result between `1` and `50`, defaulting to `15`.
+Extracts a safe pagination limit from a query object. Clamps the result between `1` and `50` or the configured default `maxPerPage`, defaulting to `25` or the configured default `perPage`.
 
 ```ts
 import { perPage } from '@arkstack/common';
 
 const limit = perPage({ limit: 100 }); // 50 (clamped)
-const limit2 = perPage({}); // 15 (default)
+const limit2 = perPage({ limit: 100 }, { maxPerPage: 100 }); // 100
+const limit3 = perPage({}); // 25 (default)
+const limit3 = perPage({}, { perPage: 100 }); // 100
+```
+
+## `resolvePagination(query, defaults?)`
+
+Extracts the current page and a safe pagination limit from a query object. Clamps the resulting `perPage` between `1` and `50` or the configured default `maxPerPage`, defaulting to `25` or the configured default `perPage`.
+
+```ts
+import { resolvePagination } from '@arkstack/common';
+
+const limit = resolvePagination({ limit: 100 }); // {perPage: 50, page: 1} (clamped)
+const limi2 = resolvePagination({ limit: 100 }, { maxPerPage: 100 }); // {perPage: 100, page: 1}
+const limit3 = resolvePagination({}); // {perPage: 50, page: 1} (default)
+const limit4 = resolvePagination({}, { perPage: 100, page: 2 }); // {perPage: 100, page: 2}
 ```
 
 ## `getModel(modelName)`

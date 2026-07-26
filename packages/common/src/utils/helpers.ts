@@ -5,6 +5,7 @@ import { Arkstack } from '@arkstack/contract'
 import { RequestException } from '../Exceptions/RequestException'
 
 import { createRequire } from 'node:module'
+import { PaginationOptions } from '../types'
 
 export type AbstractModelConstructor<TModel = unknown> =
     abstract new (attributes?: Record<string, unknown>) => TModel
@@ -34,29 +35,74 @@ export const isClass = <T = unknown>(
         && /^class\s/.test(Function.prototype.toString.call(target))
 }
 
+export const normalizePositiveInteger = (value: unknown, fallback: number) => {
+    const parsed = Number(value)
+
+    if (!Number.isInteger(parsed) || parsed < 1) {
+        return fallback
+    }
+
+    return parsed
+}
+
 /**
- * Resolves the number of items to return per page based on the provided query parameters.
+ * Extracts a safe pagination limit from a query object.
  * 
  * @param query 
+ * @param defaults 
+ * @default const defaults = { pageSize: 25, maxPageSize: 50 }
  * @returns 
  */
-export const perPage = (query: {
-    limit?: number;
-    perPage?: number;
-    per_page?: number;
-    'per-page'?: number;
-}) => {
+export const perPage = (
+    query: {
+        limit?: number;
+        perPage?: number;
+        per_page?: number;
+        'per-page'?: number;
+    },
+    defaults: {
+        perPage?: number;
+        maxPerPage?: number
+    }) => {
 
-    const requestedPerPage = Number(
+    const requestedPerPage = normalizePositiveInteger(
         query.limit ??
         query.perPage ??
         query['per-page'] ??
-        query.per_page ?? 15
+        query.per_page,
+        defaults.perPage ?? 25
     )
 
-    return Number.isFinite(requestedPerPage) && requestedPerPage > 0
-        ? Math.min(requestedPerPage, 50)
-        : 15
+    return Math.min(requestedPerPage, defaults.maxPerPage ?? 50)
+}
+
+/**
+ * Extracts the current page and a safe pagination limit from a query object.
+ * 
+ * @param query 
+ * @param defaults 
+ * @default const defaults = { currentPage: 1, pageSize: 25, maxPageSize: 50 }
+ * @returns 
+ */
+export const resolvePagination = (
+    query: {
+        page?: number;
+        limit?: number;
+        perPage?: number;
+        per_page?: number;
+        'per-page'?: number;
+    },
+    defaults: {
+        page?: number;
+        perPage?: number;
+        maxPerPage?: number
+    }): PaginationOptions => {
+    const page = normalizePositiveInteger(query.page, defaults.page ?? 1)
+
+    return {
+        page,
+        perPage: perPage(query, defaults)
+    }
 }
 
 /**

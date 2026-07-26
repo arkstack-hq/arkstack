@@ -293,6 +293,11 @@ export type Choice<Value> = {
 
 export type Choices = readonly string[] | readonly Choice<string>[];
 
+export type PaginationOptions = {
+    page: number
+    perPage: number
+}
+
 /**
 * A single source → destination mapping a package wants to publish into the
 * consuming application.
