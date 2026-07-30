@@ -1,7 +1,7 @@
 import type { PusherTransportConfig, RealtimeNotificationPayload } from '../../types'
+import { RequestException, env } from '@arkstack/common'
 
 import type { RealtimeDriver } from '../../Contracts/RealtimeDriver'
-import { env } from '@arkstack/common'
 
 /** The slice of the `pusher` server SDK this driver uses. */
 interface PusherClient {
@@ -112,6 +112,7 @@ export class PusherRealtimeDriver implements RealtimeDriver {
     async registerAuthRoute(
         authEndpoint: string = '/realtime/auth',
         middleware?: unknown | unknown[],
+        channelPrefix?: string
     ): Promise<void> {
         const client = await this.client()
         const drivers = {
@@ -130,9 +131,14 @@ export class PusherRealtimeDriver implements RealtimeDriver {
                     : [middleware, auth]
                 )
 
-                Router.post(authEndpoint, ({ clearRequest }: any) => {
+                Router.post(authEndpoint, ({ clearRequest, req }: any) => {
                     const channel = clearRequest.input('channel_name')
                     const socketId = clearRequest.input('socket_id')
+
+                    const expected = channelPrefix ??
+                        `${config('notifications.drivers.realtime.channel_prefix', 'user.')}${req.user?.id ?? clearRequest.user?.id}`
+
+                    RequestException.abortIf(channel !== expected, 'Channel access denied', 403)
 
                     return client.authorizeChannel(socketId, channel)
                 }).middleware(Array.from(middlewares))
