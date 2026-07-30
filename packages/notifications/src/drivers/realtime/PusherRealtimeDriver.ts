@@ -6,6 +6,20 @@ import { env } from '@arkstack/common'
 /** The slice of the `pusher` server SDK this driver uses. */
 interface PusherClient {
     trigger(channel: string | string[], event: string, data: unknown): Promise<unknown>
+    authorizeChannel(
+        socketId: string,
+        channel: string,
+        data?: {
+            user_id: string
+            user_info?: {
+                [key: string]: any
+            }
+        }
+    ): {
+        auth: string
+        channel_data?: string
+        shared_secret?: string
+    }
 }
 
 type PusherConstructor = new (options: {
@@ -55,5 +69,65 @@ export class PusherRealtimeDriver implements RealtimeDriver {
 
         // Pusher's `trigger` fans out to multiple channels when given an array.
         return await client.trigger(channel, event, payload)
+    }
+
+    /**
+     * Authourize a pusher channel
+     * 
+     * @param socketId 
+     * @param channel 
+     * @returns 
+     */
+    async auth(
+        socketId: string,
+        channel: string,
+        data?: Parameters<PusherClient['authorizeChannel']>[2]
+    ): Promise<ReturnType<PusherClient['authorizeChannel']>> {
+        const client = await this.client()
+
+        return client.authorizeChannel(socketId, channel, data)
+    }
+
+    /**
+     * Register a realtime autorization route
+     * 
+     * @param authEndpoint 
+     * @param middleware 
+     */
+    async registerAuthRoute(
+        authEndpoint: string = '/realtime/auth',
+        middleware?: unknown | unknown[],
+    ): Promise<void> {
+        const client = await this.client()
+        const drivers = {
+            express: '@arkstack/driver-express',
+            h3: '@arkstack/driver-express'
+        }
+
+        for (const [name, path] of Object.entries(drivers)) {
+            const midsPath = `${path}/middlewares`
+            try {
+                const { Router } = await import(path)
+                const { auth } = await import(midsPath)
+
+                const middlewares = new Set(Array.isArray(middleware)
+                    ? middleware.concat(auth)
+                    : [middleware, auth]
+                )
+
+                Router.post(authEndpoint, ({ clearRequest }: any) => {
+                    const channel = clearRequest.input('channel_name')
+                    const socketId = clearRequest.input('socket_id')
+
+                    return client.authorizeChannel(socketId, channel)
+                }).middleware(Array.from(middlewares))
+
+                break
+            } catch (e) {
+                console.error(
+                    `Failed to register auth route for ${name}: ${e instanceof Error ? e.message : e}`
+                )
+            }
+        }
     }
 }

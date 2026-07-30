@@ -646,6 +646,12 @@ importers:
       '@arkstack/database':
         specifier: workspace:^
         version: link:../database
+      '@arkstack/driver-express':
+        specifier: workspace:^
+        version: link:../driver-express
+      '@arkstack/driver-h3':
+        specifier: workspace:^
+        version: link:../driver-h3
       '@kanun-hq/plugin-phone':
         specifier: 'catalog:'
         version: 0.1.8(kanun@1.2.0)
