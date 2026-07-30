@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/driver-h3",
-    "version": "0.17.13",
+    "version": "0.17.14",
     "type": "module",
     "description": "H3 driver for Arkstack, providing H3-based runtime integration for the framework.",
     "homepage": "https://arkstack.toneflix.net",
