@@ -98,9 +98,10 @@ export class PusherRealtimeDriver implements RealtimeDriver {
         authEndpoint: string = '/realtime/auth',
         middleware?: unknown | unknown[],
         config: PusherTransportConfig = {},
+        channelPrefix?: string,
     ): Promise<void> {
         return new PusherRealtimeDriver(config)
-            .registerAuthRoute(authEndpoint, middleware)
+            .registerAuthRoute(authEndpoint, middleware, channelPrefix)
     }
 
     /**
