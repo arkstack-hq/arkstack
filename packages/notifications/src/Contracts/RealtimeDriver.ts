@@ -17,6 +17,11 @@ export interface RealtimeDriver {
         event: string,
         payload: RealtimeNotificationPayload,
     ): Promise<unknown>
+    auth?(
+        socketId: string,
+        channel: string,
+        data?: unknown
+    ): unknown | Promise<unknown>
 }
 
 export type RealtimeNotificationDriver<T extends RealtimeDriverName> = T extends 'firebase'

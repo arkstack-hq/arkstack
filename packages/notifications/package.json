@@ -45,11 +45,19 @@
     "peerDependencies": {
         "@arkstack/contract": "workspace:^",
         "@arkstack/database": "workspace:^",
+        "@arkstack/driver-express": "workspace:^",
+        "@arkstack/driver-h3": "workspace:^",
         "@kanun-hq/plugin-phone": "catalog:",
         "firebase-admin": "^13.0.0",
         "pusher": "^5.2.0"
     },
     "peerDependenciesMeta": {
+        "@arkstack/driver-express": {
+            "optional": true
+        },
+        "@arkstack/driver-h3": {
+            "optional": true
+        },
         "pusher": {
             "optional": true
         },
