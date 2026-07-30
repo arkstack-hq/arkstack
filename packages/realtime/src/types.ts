@@ -22,7 +22,7 @@ export type NotificationHandler = (notification: RealtimeNotification) => void
 /** A live subscription to one channel; call `unsubscribe()` to stop listening. */
 export interface RealtimeSubscription {
     channel: string
-    unsubscribe (): void
+    unsubscribe(): void
 }
 
 /**
@@ -31,18 +31,29 @@ export interface RealtimeSubscription {
  * supplied via {@link RealtimeConfig.transportFactory} for custom backends/tests.
  */
 export interface RealtimeTransport {
-    subscribe (
+    subscribe(
         channel: string,
         event: string,
         handler: NotificationHandler,
     ): RealtimeSubscription | Promise<RealtimeSubscription>
-    disconnect (): void | Promise<void>
+    disconnect(): void | Promise<void>
 }
 
 export interface PusherClientConfig {
     key: string
     cluster?: string
-    /** Endpoint that authorizes private/presence channels. */
+    /** 
+     * Your API's base URL, if provisioned, private/presence channels 
+     * will be automatically authorized.
+     * 
+     * Will be ignored if {@link authEndpoint} is provisioned.
+     */
+    apiBase?: string
+    /** 
+     * Endpoint that authorizes private/presence channels. 
+     * 
+     * If provisioned, {@link apiBase} will be ignored.
+     */
     authEndpoint?: string
     auth?: { headers?: Record<string, string>, params?: Record<string, string> }
     forceTLS?: boolean

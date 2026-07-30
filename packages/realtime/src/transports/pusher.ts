@@ -17,9 +17,14 @@ type PusherConstructor = new (key: string, options: Record<string, unknown>) => 
 /**
  * Realtime transport backed by [pusher-js](https://github.com/pusher/pusher-js).
  * The SDK is an optional peer dependency imported lazily, so consumers only pull
- * it in when they use the Pusher transport.
+ * it in when they use the Pusher transport. 
+ * 
+ * @param config 
+ * @returns 
  */
-export const createPusherTransport = async (config: PusherClientConfig): Promise<RealtimeTransport> => {
+export const createPusherTransport = async (
+    config: PusherClientConfig
+): Promise<RealtimeTransport> => {
     const specifier = 'pusher-js'
     const mod = await import(specifier).catch(() => {
         throw new Error(
@@ -31,7 +36,7 @@ export const createPusherTransport = async (config: PusherClientConfig): Promise
     const client = new Pusher(config.key, {
         cluster: config.cluster ?? 'mt1',
         forceTLS: config.forceTLS ?? true,
-        authEndpoint: config.authEndpoint,
+        authEndpoint: config.authEndpoint ?? `${config.apiBase}/realtime/auth`,
         auth: config.auth,
     })
 
