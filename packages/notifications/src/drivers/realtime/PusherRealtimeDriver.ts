@@ -94,6 +94,21 @@ export class PusherRealtimeDriver implements RealtimeDriver {
      * @param authEndpoint 
      * @param middleware 
      */
+    static async registerAuthRoute(
+        authEndpoint: string = '/realtime/auth',
+        middleware?: unknown | unknown[],
+        config: PusherTransportConfig = {},
+    ): Promise<void> {
+        return new PusherRealtimeDriver(config)
+            .registerAuthRoute(authEndpoint, middleware)
+    }
+
+    /**
+     * Register a realtime autorization route
+     * 
+     * @param authEndpoint 
+     * @param middleware 
+     */
     async registerAuthRoute(
         authEndpoint: string = '/realtime/auth',
         middleware?: unknown | unknown[],
