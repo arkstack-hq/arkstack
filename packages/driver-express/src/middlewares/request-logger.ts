@@ -22,18 +22,21 @@ export const requestLogger = ({
     allowInProduction?: boolean
 } = {}) => async (req: Request, res: Response, next: NextFunction) => {
     const VERBOSE = process.env.VERBOSITY != '0'
-    if ((nodeEnv() === 'prod' && !allowInProduction) || !VERBOSE) return next()
+    const startedAt = performance.now()
 
-    const start = Date.now()
+    res.once('finish', () => {
+        if ((nodeEnv() === 'prod' && !allowInProduction) || !VERBOSE) return
+        if (process.env.NODE_ENV === 'test' || process.env.VITEST) return
 
-    const status = res.statusCode || 200
-    const duration = Date.now() - start
-    Logger.log([
-        [`[${req.method}]`, colors[req.method] || 'white'],
-        [req.url, 'cyan'],
-        [status.toString(), status >= 500 ? 'red' : status >= 400 ? 'yellow' : 'green'],
-        [`- ${duration}ms`, 'dim']
-    ], ' ')
+        const status = res.statusCode || 200
+        const duration = Math.round((performance.now() - startedAt) * 100) / 100
+        Logger.log([
+            [`[${req.method}]`, colors[req.method] || 'white'],
+            [req.url, 'cyan'],
+            [status.toString(), status >= 500 ? 'red' : status >= 400 ? 'yellow' : 'green'],
+            [`- ${duration}ms`, 'dim']
+        ], ' ')
+    })
 
     next()
 }
@@ -41,7 +44,7 @@ export const requestLogger = ({
 export class RequestLoggerMiddleware {
     constructor(private options: { allowInProduction?: boolean } = {}) { }
 
-    handler (req: Request, res: Response, next: NextFunction) {
+    handler(req: Request, res: Response, next: NextFunction) {
         const inst = requestLogger(this.options)
 
         return inst.call(inst, req, res, next)
