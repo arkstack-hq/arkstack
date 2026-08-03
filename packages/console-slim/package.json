@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/console-slim",
-    "version": "0.17.16",
+    "version": "0.17.17",
     "type": "module",
     "description": "Slim console module for Arkstack, providing the command-line runtime and console integration layer.",
     "homepage": "https://arkstack.toneflix.net",
