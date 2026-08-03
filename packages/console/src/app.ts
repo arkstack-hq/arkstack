@@ -1,38 +1,14 @@
 import { ConsoleAppOptions, Core } from './types'
 // oxlint-disable typescript/no-explicit-any
-import path, { isAbsolute, join } from 'node:path'
+import path, { join } from 'node:path'
 
 import { Arkstack } from '@arkstack/contract'
 import { CliApp } from 'resora'
+import { Musket } from '@h3ravel/musket'
 import { defaultConfig } from './config'
+import { disposeArkormRuntime } from 'arkormx'
 import { existsSync } from 'node:fs'
-
-export const resolveStubsDir = (
-    config: { localStubsDir?: string } | undefined,
-    options?: ConsoleAppOptions,
-    core?: Core
-
-) => {
-    const configuredDir = config?.localStubsDir
-
-    if (configuredDir) {
-        return isAbsolute(configuredDir)
-            ? configuredDir
-            : join(Arkstack.rootDir(), configuredDir)
-    }
-
-    if (!options?.stubsDir) {
-        const driver = core?.getDriver().name ?? 'h3'
-        let stubsDir = path.resolve(Arkstack.rootDir(), `node_modules/@arkstack/driver-${driver}/stubs`)
-        if (!existsSync(stubsDir)) {
-            stubsDir = path.resolve(Arkstack.rootDir(), 'stubs')
-        }
-
-        return stubsDir
-    }
-
-    return options?.stubsDir
-}
+import { resolveStubsDir } from './helpers'
 
 export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
     core: TCore
@@ -46,6 +22,13 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
         this.core = core
         this.options = options
         this.mergeConfig()
+    }
+
+    registerMusketListeners(musket: Musket<this>): void {
+        musket.afterHandle.on(async () => {
+            await disposeArkormRuntime()
+            process.exit(0)
+        })
     }
 
     makeController = (name: string, opts: any) => {

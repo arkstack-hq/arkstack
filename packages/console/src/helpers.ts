@@ -1,9 +1,9 @@
+import { ConsoleAppOptions, Core, GroupedOption } from './types'
 import { existsSync, readdirSync } from 'node:fs'
+import { isAbsolute, join, resolve } from 'node:path'
 
 import { Arkstack } from '@arkstack/contract'
-import { GroupedOption } from './types'
 import { Publisher } from '@arkstack/common'
-import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 /**
@@ -75,4 +75,31 @@ export function groupPublishables(groupBy: 'tag' | 'package' = 'tag'): GroupedOp
                 ? `These publishables have no tag and include ${g.entries} publishable${g.entries === 1 ? '' : 's'} from ${g.packages.size} package${g.packages.size === 1 ? '' : 's'}`
                 : `This tag exists in ${g.packages.size} package${g.packages.size === 1 ? '' : 's'} and has ${g.entries} publishable${g.entries === 1 ? '' : 's'}`,
     }))
+}
+
+export const resolveStubsDir = (
+    config: { localStubsDir?: string } | undefined,
+    options?: ConsoleAppOptions,
+    core?: Core
+
+) => {
+    const configuredDir = config?.localStubsDir
+
+    if (configuredDir) {
+        return isAbsolute(configuredDir)
+            ? configuredDir
+            : join(Arkstack.rootDir(), configuredDir)
+    }
+
+    if (!options?.stubsDir) {
+        const driver = core?.getDriver().name ?? 'h3'
+        let stubsDir = resolve(Arkstack.rootDir(), `node_modules/@arkstack/driver-${driver}/stubs`)
+        if (!existsSync(stubsDir)) {
+            stubsDir = resolve(Arkstack.rootDir(), 'stubs')
+        }
+
+        return stubsDir
+    }
+
+    return options?.stubsDir
 }
