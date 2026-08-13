@@ -1,10 +1,9 @@
-import { nodeEnv, outputDir } from '@arkstack/common'
+import { devServer, nodeEnv, outputDir } from '@arkstack/common'
 import { readFileSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
 import { defineConfig } from 'tsdown'
 import path from 'node:path'
-import run from '@rollup/plugin-run'
 
 const env = nodeEnv()
 const dist = path.relative(Arkstack.rootDir(), outputDir())
@@ -23,20 +22,15 @@ export default defineConfig([
       skipNodeModulesBundle: true,
     },
     watch: env === 'dev' && process.env.CLI_BUILD !== 'true' ? ['.env', '.env.*', 'src', 'tsconfig.json'] : false,
-    plugins:
-      env === 'dev' && process.env.CLI_BUILD !== 'true'
-        ? [
-          run({
-            env: Object.assign({}, process.env, {
-              NODE_ENV: env,
-            }),
-            execArgv: ['-r', 'source-map-support/register'],
-            allowRestarts: true,
-            input: path.join(Arkstack.rootDir(), 'src/server.ts'),
-          })
-        ]
-        : [
-        ],
+    plugins: [
+      devServer({
+        env: Object.assign({}, process.env, {
+          NODE_ENV: env,
+        }),
+        execArgv: ['-r', 'source-map-support/register'],
+        input: path.join(Arkstack.rootDir(), 'src/server.ts'),
+      })
+    ],
     outExtensions: () => {
       return {
         js: '.js',
