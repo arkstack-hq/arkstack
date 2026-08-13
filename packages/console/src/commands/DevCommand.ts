@@ -50,7 +50,6 @@ export class DevCommand extends Command {
 
             if (url) {
                 vars.TUNNEL_URL = url
-                console.log(`Traffic has been tunnelled to ${url}`)
             }
         }
 

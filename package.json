@@ -36,7 +36,6 @@
     "@eslint/js": "^10.0.1",
     "@eslint/markdown": "^8.0.1",
     "@faker-js/faker": "^10.4.0",
-    "@rollup/plugin-run": "^3.1.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.1.0",
