@@ -2,12 +2,18 @@
 
 import { existsSync, mkdirSync } from 'node:fs'
 
-import { Arkstack } from '@arkstack/contract'
 import { ArkormArtifacts } from './prepare/ArkormArtifacts'
+import { Arkstack } from '@arkstack/contract'
 import { BuildInterfaces } from './prepare/BuildInterfaces'
 import chalk from 'chalk'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
+
+if (!globalThis.env)
+    globalThis.env = (await import('@arkstack/common')).env
+
+if (!globalThis.config)
+    globalThis.config = (await import('@arkstack/common')).config
 
 if (!existsSync(path.join(Arkstack.rootDir(), '.arkstack/build')))
     mkdirSync(path.join(Arkstack.rootDir(), '.arkstack/build'), { recursive: true })
