@@ -1,10 +1,12 @@
 import { dirname, join } from 'node:path'
 
 import { Arkstack } from '@arkstack/contract'
+import { env } from '@arkstack/common'
 import { Command } from '@h3ravel/musket'
 import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
+import ngrok, { type Listener } from '@ngrok/ngrok'
 
 export interface DevServerOptions {
     /** 
@@ -35,6 +37,22 @@ export class DevCommand extends Command {
         const vars = DevCommand.devServerEnv(this.options())
         const rootDir = Arkstack.rootDir()
         const bin = DevCommand.resolveTsdownBin(rootDir)
+        let tunnel: Listener | undefined
+
+        if (this.option?.('tunnel')) {
+            tunnel = await ngrok.forward({
+                addr: Number(env('APP_PORT', env('PORT', 3000))),
+                authtoken: env('NGROK_AUTHTOKEN'),
+                domain: env('NGROK_DOMAIN'),
+            })
+
+            const url = tunnel.url()
+
+            if (url) {
+                vars.TUNNEL_URL = url
+                console.log(`Traffic has been tunnelled to ${url}`)
+            }
+        }
 
         // Run tsdown directly with node when we can resolve its bin — this avoids
         // the extra `pnpm exec` wrapper process. Fall back to `pnpm exec tsdown`
@@ -46,27 +64,31 @@ export class DevCommand extends Command {
                 ['exec', 'tsdown', '--log-level', 'silent'],
             ]
 
-        await new Promise<void>((resolve, reject) => {
-            const child = spawn(command, args, {
-                cwd: rootDir,
-                stdio: 'inherit',
-                env: Object.assign(process.env, vars),
+        try {
+            await new Promise<void>((resolve, reject) => {
+                const child = spawn(command, args, {
+                    cwd: rootDir,
+                    stdio: 'inherit',
+                    env: Object.assign({}, process.env, vars),
+                })
+
+                child.on('error', (error) => {
+                    reject(error)
+                })
+
+                child.on('exit', (code) => {
+                    if (code === 0 || code === null) {
+                        resolve()
+
+                        return
+                    }
+
+                    reject(new Error(`tsdown exited with code ${code}`))
+                })
             })
-
-            child.on('error', (error) => {
-                reject(error)
-            })
-
-            child.on('exit', (code) => {
-                if (code === 0 || code === null) {
-                    resolve()
-
-                    return
-                }
-
-                reject(new Error(`tsdown exited with code ${code}`))
-            })
-        })
+        } finally {
+            await tunnel?.close()
+        }
     }
 
     /**
@@ -97,7 +119,8 @@ export class DevCommand extends Command {
      *
      * The dev server binds `127.0.0.1` by default so it is local-only; `--host`
      * switches it to `0.0.0.0` to expose it on the local network. `--secure` flags
-     * the driver to serve HTTPS, and `--tunnel` enables the Ngrok tunnel.
+     * the driver to serve HTTPS. The command itself owns the Ngrok tunnel so
+     * watcher-driven application restarts cannot replace its public URL.
      * 
      * @param options 
      * @returns 
@@ -108,10 +131,7 @@ export class DevCommand extends Command {
         const vars: Record<string, string> = {
             NODE_ENV: 'development',
             APP_HOST: options.host ? '0.0.0.0' : '127.0.0.1',
-        }
-
-        if (options.tunnel) {
-            vars.TUNNEL = 'true'
+            ARKSTACK_ENV_RELOAD: 'true',
         }
 
         if (options.secure) {

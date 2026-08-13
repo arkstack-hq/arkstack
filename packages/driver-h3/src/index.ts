@@ -150,6 +150,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
         const host = env('APP_HOST', env('HOST', '0.0.0.0'))
         const secure = env('APP_SECURE', false) === true
         const tunneled = env('TUNNEL', false)
+        const tunnelUrl = env('TUNNEL_URL')
         const scheme = secure ? 'https' : 'http'
 
         // Dev HTTPS: serve with an in-memory self-signed certificate.
@@ -164,7 +165,15 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
 
         let log = startupLogLines(scheme, host, port)
 
-        if (tunneled === true) {
+        if (tunnelUrl) {
+            log = log.concat(Logger.log([
+                ['Traffic has been tunnelled to', 'white'],
+                [tunnelUrl, 'green']
+            ], ' ', false))
+
+            this.tunnel_url = tunnelUrl
+            globalThis.tunnelUrl = () => tunnelUrl
+        } else if (tunneled === true) {
             const listener = await ngrok.forward({
                 addr: port,
                 authtoken: env('NGROK_AUTHTOKEN'),
@@ -175,7 +184,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
 
             if (url) {
                 log = log.concat(Logger.log([
-                    ['Trafic has been tunnelled to', 'white'],
+                    ['Traffic has been tunnelled to', 'white'],
                     [url, 'green']
                 ], ' ', false))
 

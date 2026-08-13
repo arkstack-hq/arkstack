@@ -27,7 +27,14 @@ export class EnvLoader {
         this.loaded = true
 
         try {
-            loadEnvFile({ quiet: true })
+            loadEnvFile({
+                quiet: true,
+                // `ark dev` is a long-lived parent process. Its restarted server
+                // children inherit the parent's original dotenv values, so let
+                // each fresh child replace those cached values from the current
+                // file. Normal runtimes retain dotenv's shell-first precedence.
+                override: process.env.ARKSTACK_ENV_RELOAD === 'true',
+            })
         } catch {
             /** No .env file (or dotenv unavailable); use process.env as-is. */
         }

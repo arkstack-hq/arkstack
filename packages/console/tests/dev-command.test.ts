@@ -9,6 +9,12 @@ vi.mock('node:child_process', () => {
     }
 })
 
+vi.mock('@ngrok/ngrok', () => ({
+    default: {
+        forward: vi.fn(),
+    },
+}))
+
 const makeChild = () => new EventEmitter() as EventEmitter & {
     on: (event: string, listener: (...args: any[]) => void) => EventEmitter;
 }
@@ -38,6 +44,7 @@ describe('DevCommand', () => {
                     ...process.env,
                     NODE_ENV: 'development',
                     APP_HOST: '127.0.0.1',
+                    ARKSTACK_ENV_RELOAD: 'true',
                 }
             },
         )
@@ -81,6 +88,39 @@ describe('DevCommand', () => {
         await expect(promise).rejects.toThrow('tsdown exited with code 1')
     })
 
+    it('keeps the tunnel in the dev command and passes its URL to the watcher', async () => {
+        const { spawn } = await import('node:child_process')
+        const { default: ngrok } = await import('@ngrok/ngrok')
+        const { DevCommand } = await import('../src/commands/DevCommand')
+        const close = vi.fn().mockResolvedValue(undefined)
+        const child = makeChild()
+
+        vi.mocked(ngrok.forward).mockResolvedValueOnce({
+            url: () => 'https://stable.ngrok.app',
+            close,
+        } as any)
+        vi.mocked(spawn).mockReturnValueOnce(child as any)
+
+        const promise = DevCommand.prototype.handle.call({
+            options: () => ({ tunnel: true }),
+            option: () => true,
+        })
+        await vi.waitFor(() => expect(spawn).toHaveBeenCalled())
+        child.emit('exit', 0)
+
+        await expect(promise).resolves.toBeUndefined()
+        expect(spawn).toHaveBeenLastCalledWith(
+            expect.any(String),
+            expect.any(Array),
+            expect.objectContaining({
+                env: expect.objectContaining({
+                    TUNNEL_URL: 'https://stable.ngrok.app',
+                }),
+            }),
+        )
+        expect(close).toHaveBeenCalledOnce()
+    })
+
     it('resolveTsdownBin resolves tsdown from the workspace', async () => {
         const { DevCommand } = await import('../src/commands/DevCommand')
 
@@ -97,6 +137,7 @@ describe('devServerEnv', () => {
 
         expect(vars.NODE_ENV).toBe('development')
         expect(vars.APP_HOST).toBe('127.0.0.1')
+        expect(vars.ARKSTACK_ENV_RELOAD).toBe('true')
         expect(vars.TUNNEL).toBeUndefined()
         expect(vars.APP_SECURE).toBeUndefined()
     })
@@ -107,11 +148,11 @@ describe('devServerEnv', () => {
         expect(DevCommand.devServerEnv({ host: true }).APP_HOST).toBe('0.0.0.0')
     })
 
-    it('--secure flags HTTPS and --tunnel enables Ngrok', async () => {
+    it('--secure flags HTTPS while the command manages Ngrok separately', async () => {
         const { DevCommand } = await import('../src/commands/DevCommand')
 
         expect(DevCommand.devServerEnv({ secure: true }).APP_SECURE).toBe('true')
-        expect(DevCommand.devServerEnv({ tunnel: true }).TUNNEL).toBe('true')
+        expect(DevCommand.devServerEnv({ tunnel: true }).TUNNEL).toBeUndefined()
     })
 
     it('combines all flags', async () => {
@@ -120,7 +161,7 @@ describe('devServerEnv', () => {
         expect(DevCommand.devServerEnv({ host: true, secure: true, tunnel: true })).toEqual({
             NODE_ENV: 'development',
             APP_HOST: '0.0.0.0',
-            TUNNEL: 'true',
+            ARKSTACK_ENV_RELOAD: 'true',
             APP_SECURE: 'true',
         })
     })

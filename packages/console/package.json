@@ -51,6 +51,7 @@
     "clear-router": "catalog:"
   },
   "dependencies": {
+    "@ngrok/ngrok": "^1.7.0",
     "@arkstack/common": "workspace:^",
     "@arkstack/contract": "workspace:^",
     "@h3ravel/musket": "catalog:",

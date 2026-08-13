@@ -380,6 +380,9 @@ importers:
       '@h3ravel/support':
         specifier: 'catalog:'
         version: 2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22)
+      '@ngrok/ngrok':
+        specifier: ^1.7.0
+        version: 1.7.0
       arkormx:
         specifier: 'catalog:'
         version: 2.12.8(@types/node@25.6.2)(h3@2.0.1-rc.22)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0))

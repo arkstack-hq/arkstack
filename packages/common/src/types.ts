@@ -28,6 +28,7 @@ export interface EnvRegistry {
     APP_HOST: string
     APP_PORT: number
     APP_DEBUG: boolean
+    APP_SECURE: boolean
     APP_TIMEZONE: string
     APP_LOCALE: typeof locales[number]
     APP_FALLBACK_LOCALE: typeof locales[number]
