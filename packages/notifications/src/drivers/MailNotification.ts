@@ -177,6 +177,8 @@ export class MailNotification extends NotificationContract {
      */
     attachments(attachments: Attachment[]) {
         this.attachmentList = attachments
+
+        return this
     }
 
     /**
@@ -189,6 +191,8 @@ export class MailNotification extends NotificationContract {
             ...(this.attachmentList ?? []),
             attachment
         ]
+
+        return this
     }
 
     /**
