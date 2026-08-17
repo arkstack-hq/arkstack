@@ -27,6 +27,9 @@ catalogs:
     '@kanun-hq/plugin-file':
       specifier: ^0.1.12
       version: 0.1.12
+    '@kanun-hq/plugin-phone':
+      specifier: ^0.1.8
+      version: 0.1.8
     '@resora/plugin-clear-router':
       specifier: ^1.0.72
       version: 1.0.72
@@ -650,8 +653,8 @@ importers:
         specifier: workspace:^
         version: link:../driver-h3
       '@arkstack/jobs':
-        specifier: ^0.17.22
-        version: 0.17.22(@arkstack/contract@0.17.22)(@arkstack/database@0.17.22(@arkstack/foundry@0.17.22)(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(@types/node@25.6.2)(clear-router@2.9.3(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))(h3@2.0.1-rc.22)(kanun@1.2.0)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@arkstack/foundry@0.17.22)(@h3ravel/musket@2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(arkormx@2.12.8(@types/node@25.6.2)(h3@2.0.1-rc.22)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(ioredis@5.11.1)
+        specifier: workspace:^
+        version: link:../jobs
       '@kanun-hq/plugin-phone':
         specifier: 'catalog:'
         version: 0.1.8(kanun@1.2.0)
@@ -1203,25 +1206,6 @@ packages:
 
   '@arkstack/foundry@0.17.22':
     resolution: {integrity: sha512-6CF5bjgiZ0rqt5w1uuR2Sb9n1QxkoRPdOUSWGO3XcwEM51usdNFIUsCKXPKFqxh5jWHEGMcNrj+BNuC0Hbedng==}
-
-  '@arkstack/jobs@0.17.22':
-    resolution: {integrity: sha512-PCuzEVc6ZTzS6iyOZ4oHhWa3yO8ob3rhFlHsMYmqDcgUGQioLDfnPBT/8gpV1pf2xBLA0MkloB4KiWSZwzELOg==}
-    peerDependencies:
-      '@arkstack/contract': ^0.17.22
-      '@h3ravel/musket': ^2.2.13
-
-  '@arkstack/queue@0.17.22':
-    resolution: {integrity: sha512-5CSObVal4zzezX1KPUUxfkeIDhBClnUpSWL15dPbUlB5LXMLhfBxSLEXfdaDs7BM05+yba5kstADJgeNvd9cCQ==}
-    peerDependencies:
-      '@arkstack/contract': ^0.17.22
-      '@arkstack/database': ^0.17.22
-      '@h3ravel/musket': ^2.2.13
-      ioredis: ^5.4.1
-    peerDependenciesMeta:
-      '@arkstack/database':
-        optional: true
-      ioredis:
-        optional: true
 
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
@@ -7015,32 +6999,6 @@ snapshots:
       - tsdown
 
   '@arkstack/foundry@0.17.22': {}
-
-  '@arkstack/jobs@0.17.22(@arkstack/contract@0.17.22)(@arkstack/database@0.17.22(@arkstack/foundry@0.17.22)(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(@types/node@25.6.2)(clear-router@2.9.3(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))(h3@2.0.1-rc.22)(kanun@1.2.0)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@arkstack/foundry@0.17.22)(@h3ravel/musket@2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(arkormx@2.12.8(@types/node@25.6.2)(h3@2.0.1-rc.22)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(ioredis@5.11.1)':
-    dependencies:
-      '@arkstack/common': 0.17.22(@arkstack/contract@0.17.22)(@arkstack/foundry@0.17.22)(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(arkormx@2.12.8(@types/node@25.6.2)(h3@2.0.1-rc.22)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))
-      '@arkstack/contract': 0.17.22
-      '@arkstack/queue': 0.17.22(@arkstack/contract@0.17.22)(@arkstack/database@0.17.22(@arkstack/foundry@0.17.22)(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(@types/node@25.6.2)(clear-router@2.9.3(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))(h3@2.0.1-rc.22)(kanun@1.2.0)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@arkstack/foundry@0.17.22)(@h3ravel/musket@2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(arkormx@2.12.8(@types/node@25.6.2)(h3@2.0.1-rc.22)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(ioredis@5.11.1)
-      '@h3ravel/musket': 2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0))
-    transitivePeerDependencies:
-      - '@arkstack/database'
-      - '@arkstack/foundry'
-      - '@h3ravel/support'
-      - arkormx
-      - ioredis
-
-  '@arkstack/queue@0.17.22(@arkstack/contract@0.17.22)(@arkstack/database@0.17.22(@arkstack/foundry@0.17.22)(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(@types/node@25.6.2)(clear-router@2.9.3(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))(h3@2.0.1-rc.22)(kanun@1.2.0)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@arkstack/foundry@0.17.22)(@h3ravel/musket@2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(arkormx@2.12.8(@types/node@25.6.2)(h3@2.0.1-rc.22)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(ioredis@5.11.1)':
-    dependencies:
-      '@arkstack/common': 0.17.22(@arkstack/contract@0.17.22)(@arkstack/foundry@0.17.22)(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(arkormx@2.12.8(@types/node@25.6.2)(h3@2.0.1-rc.22)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))
-      '@arkstack/contract': 0.17.22
-      '@h3ravel/musket': 2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0))
-    optionalDependencies:
-      '@arkstack/database': 0.17.22(@arkstack/foundry@0.17.22)(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(@types/node@25.6.2)(clear-router@2.9.3(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))(h3@2.0.1-rc.22)(kanun@1.2.0)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0))
-      ioredis: 5.11.1
-    transitivePeerDependencies:
-      - '@arkstack/foundry'
-      - '@h3ravel/support'
-      - arkormx
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:
