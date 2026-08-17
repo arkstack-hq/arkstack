@@ -238,6 +238,10 @@ export interface NotificationConfig<T = any> {
             admin_sdk_path: string
         }
     }
+    queue?: {
+        name?: string,
+        connection?: string,
+    }
 }
 
 export type MergedTransportConfig = MergedConfig<Required<NotificationConfig['transports']>[
