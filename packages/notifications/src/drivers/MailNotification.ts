@@ -1,7 +1,7 @@
 import { config, env } from '@arkstack/common'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import nodemailer, { Transport, type Transporter } from 'nodemailer'
+import nodemailer, { Transport, TransportOptions, type Transporter } from 'nodemailer'
 
 import { NotificationContract } from '../Contracts/NotificationContract'
 import { interpolate } from '../utils/template'
@@ -17,6 +17,7 @@ import type {
 } from '../types'
 import { User } from '@arkstack/auth'
 import { Arkstack } from '@arkstack/contract'
+import Mail, { Attachment } from 'nodemailer/lib/mailer'
 
 export class MailNotification extends NotificationContract {
     driver!: Transporter
@@ -31,6 +32,7 @@ export class MailNotification extends NotificationContract {
     private htmlTemplate?: string
     private textTemplate?: string
     private fileDirectory?: string
+    private attachmentList?: Attachment[] | undefined
 
     constructor(options: MailNotificationOptions = {}) {
         super()
@@ -169,6 +171,27 @@ export class MailNotification extends NotificationContract {
     }
 
     /**
+     * Attachemnts to send with the mail
+     * 
+     * @param attachments 
+     */
+    attachments(attachments: Attachment[]) {
+        this.attachmentList = attachments
+    }
+
+    /**
+     * A single attachemnt to send with the mail
+     * 
+     * @param attachment
+     */
+    attachment(attachment: Attachment) {
+        this.attachmentList = [
+            ...(this.attachmentList ?? []),
+            attachment
+        ]
+    }
+
+    /**
      * Set email the notification recipeint
      *
      * @param recipient string or array of email addresses
@@ -278,7 +301,7 @@ export class MailNotification extends NotificationContract {
 
         const textMessage = resolvedMessage.replace(/<\/?[^>]+(>|$)/g, '')
 
-        const payload = {
+        const payload: Mail.Options & Partial<TransportOptions> = {
             to: to as never,
             subject: resolvedSubject,
             from: this.fromAddress,
@@ -293,6 +316,10 @@ export class MailNotification extends NotificationContract {
 
         if (this.transport === 'ses') {
             (payload as any).ses = this.sesOptions
+        }
+
+        if (this.attachmentList) {
+            payload.attachments = this.attachmentList
         }
 
         const result = await this.driver.sendMail(payload)
