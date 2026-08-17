@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/scheduler",
-    "version": "0.17.19",
+    "version": "0.17.20",
     "type": "module",
     "description": "Task scheduling for Arkstack: fluent frequencies, cron, overlap/one-server locks, hooks, and schedule:run/work/list commands.",
     "homepage": "https://arkstack.toneflix.net/guide/scheduling",
