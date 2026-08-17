@@ -1,9 +1,9 @@
+import { CliApp, applyRuntimeConfig, getDefaultConfig } from 'resora'
 import { ConsoleAppOptions, Core } from './types'
 // oxlint-disable typescript/no-explicit-any
 import path, { join } from 'node:path'
 
 import { Arkstack } from '@arkstack/contract'
-import { CliApp } from 'resora'
 import { Musket } from '@h3ravel/musket'
 import { defaultConfig } from './config'
 import { disposeArkormRuntime } from 'arkormx'
@@ -93,6 +93,7 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
      */
     mergeConfig = () => {
         this.config = {
+            ...getDefaultConfig(),
             ...defaultConfig(this.core),
             ...this.config,
             stubs: {
@@ -100,5 +101,9 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
                 ...this.config?.stubs,
             },
         }
+
+        try {
+            applyRuntimeConfig({ ...this.config, ...config('resources', {}) })
+        } catch { /** */ }
     }
 }

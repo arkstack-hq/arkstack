@@ -1,3 +1,5 @@
+import { applyRuntimeConfig, getDefaultConfig } from 'resora'
+
 import { ArkstackConsoleApp } from '../app'
 import { Command } from '@h3ravel/musket'
 
@@ -16,6 +18,10 @@ export class MakeFullResource extends Command<ArkstackConsoleApp<any>> {
         'Create a full new set of API resources (Controller, Resource, Collection)'
 
     async handle() {
+        try {
+            applyRuntimeConfig({ ...getDefaultConfig(), ...config('resources', {}) })
+        } catch { /** */ }
+
         this.app.command = this
 
         const res = this.app.makeResource(this.argument('prefix'), {
