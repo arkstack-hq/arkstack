@@ -7,6 +7,7 @@ import path from 'node:path'
 
 const env = nodeEnv()
 const dist = path.relative(Arkstack.rootDir(), outputDir())
+
 export default defineConfig([
   {
     unbundle: true,
@@ -18,6 +19,7 @@ export default defineConfig([
     format: 'esm',
     sourcemap: env !== 'dev',
     logLevel: 'silent',
+    copy: [{ from: 'src/resources', to: dist }],
     deps: {
       skipNodeModulesBundle: true,
     },
@@ -43,9 +45,6 @@ export default defineConfig([
           const chunk = e.chunks[i]
           if (chunk && chunk.fileName.endsWith('.js')) {
             let code = readFileSync(path.join(chunk.outDir, chunk.fileName), 'utf-8')
-            // Remap module specifiers from source (`src/…`, `.ts`) to their built
-            // location (`${dist}/…`, `.js`). Scoped to import/export/require
-            // specifiers so unrelated string data and comments are never rewritten.
             code = code.replace(
               /(?<![\w.])(from|import|require)(\s*\(?\s*)(["'])([^"'\n]+)\3/g,
               (_m, kw, gap, quote, spec) =>

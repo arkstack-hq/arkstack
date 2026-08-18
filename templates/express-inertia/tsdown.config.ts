@@ -7,6 +7,7 @@ import path from 'node:path'
 
 const env = nodeEnv()
 const dist = path.relative(Arkstack.rootDir(), outputDir())
+
 export default defineConfig([
   {
     unbundle: true,
@@ -18,6 +19,7 @@ export default defineConfig([
     format: 'esm',
     sourcemap: env !== 'dev',
     logLevel: 'silent',
+    copy: [{ from: 'src/resources', to: dist }],
     deps: {
       skipNodeModulesBundle: true,
     },

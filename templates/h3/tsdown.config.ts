@@ -11,9 +11,6 @@ const dist = path.relative(Arkstack.rootDir(), outputDir())
 export default defineConfig([
   {
     unbundle: true,
-    // Wipe the output dir on build/prepare so a renamed/removed/added source file
-    // can't leave a stale emitted module behind (which would wedge the next boot).
-    // Skipped for the live dev watcher so its running server isn't disrupted.
     clean: env !== 'dev' || process.env.CLI_BUILD === 'true',
     tsconfig: 'tsconfig.json',
     entry: ['src/**/*.ts'],
@@ -22,6 +19,7 @@ export default defineConfig([
     format: 'esm',
     sourcemap: env !== 'dev',
     logLevel: 'silent',
+    copy: [{ from: 'src/resources', to: dist }],
     deps: {
       skipNodeModulesBundle: true,
     },
@@ -47,9 +45,6 @@ export default defineConfig([
           const chunk = e.chunks[i]
           if (chunk && chunk.fileName.endsWith('.js')) {
             let code = readFileSync(path.join(chunk.outDir, chunk.fileName), 'utf-8')
-            // Remap module specifiers from source (`src/…`, `.ts`) to their built
-            // location (`${dist}/…`, `.js`). Scoped to import/export/require
-            // specifiers so unrelated string data and comments are never rewritten.
             code = code.replace(
               /(?<![\w.])(from|import|require)(\s*\(?\s*)(["'])([^"'\n]+)\3/g,
               (_m, kw, gap, quote, spec) =>
