@@ -13,7 +13,7 @@ export interface DevServerOptions {
      * Expose the server on the local network (bind 0.0.0.0) instead 
      * of localhost. 
      */
-    host?: boolean
+    host?: boolean | string
     /** 
      * Serve over HTTPS with a self-signed certificate. 
      */
@@ -98,7 +98,7 @@ export class DevCommand extends Command {
      *
      * @param rootDir  The application root to resolve tsdown from.
      */
-    static resolveTsdownBin (rootDir: string): string | undefined {
+    static resolveTsdownBin(rootDir: string): string | undefined {
         try {
             const require = createRequire(join(rootDir, 'noop.js'))
             const pkgPath = require.resolve('tsdown/package.json')
@@ -129,7 +129,9 @@ export class DevCommand extends Command {
     ): Record<string, string> {
         const vars: Record<string, string> = {
             NODE_ENV: 'development',
-            APP_HOST: options.host ? '0.0.0.0' : '127.0.0.1',
+            APP_HOST: typeof options.host === 'boolean'
+                ? '0.0.0.0'
+                : (options.host ?? '127.0.0.1'),
             ARKSTACK_ENV_RELOAD: 'true',
         }
 
