@@ -44,6 +44,28 @@ unsubscribe();
 await realtime.disconnect();
 ```
 
+### Client events
+
+Pusher private and presence channels can send ephemeral client events (often
+called whispers). Subscribe to the channel before sending an event:
+
+```ts
+const stopTyping = await realtime.listenForWhisper(
+  'private-room.7',
+  'typing',
+  ({ userId }) => console.log(`${userId} is typing`),
+);
+
+await realtime.whisper('private-room.7', 'typing', { userId: user.id });
+stopTyping();
+```
+
+The `client-` prefix is added automatically. Pusher sends client events over its
+private/presence channel. Firebase uses Realtime Database to publish the same
+ephemeral events across connected clients. Use `listen(channel, event, handler)`
+and `trigger(channel, event, payload)` when you need the lower-level APIs with
+exact event names.
+
 Each `notification` matches the payload broadcast by the server:
 
 ```ts
@@ -115,9 +137,15 @@ const realtime = createRealtime({
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
     messagingSenderId: import.meta.env.VITE_FIREBASE_SENDER_ID,
+    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
   },
 });
 ```
+
+Firebase client events are written below `arkstack/client-events` in Realtime
+Database and removed immediately after publishing. Configure Firebase Security
+Rules for the channels your authenticated clients may read and write. Override
+the root with `firebase.clientEventsPath` when needed.
 
 ## Custom transport
 
@@ -146,6 +174,9 @@ const realtime = createRealtime({ transportFactory: () => transport });
 
 - `createRealtime(config)` — create a `RealtimeClient`. Config: `transport` (`'pusher'` | `'firebase'`), `event` (default `notification`), `channelPrefix` (default `user.`), `pusher`/`firebase` credentials, or a custom `transportFactory`.
 - `client.subscribe(channel, handler)` / `client.forUser(userId, handler)` — subscribe; returns an unsubscribe function.
+- `client.listen(channel, event, handler)` — listen for an arbitrary event.
+- `client.listenForWhisper(channel, event, handler)` / `client.whisper(channel, event, payload)` — receive and send Pusher client events.
+- `client.trigger(channel, event, payload)` — emit an exact event name through a transport that supports it.
 - `client.channelFor(userId)` — the per-user channel name.
 - `client.disconnect()` — tear down the transport connection.
 - `@arkstack/realtime/react` — `useNotifications(client, channel, { limit? })` → `{ notifications, latest, clear }`.

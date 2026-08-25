@@ -2,7 +2,7 @@
 
 This file is for AI agents working inside applications scaffolded by Arkstack. It assumes the agent has access to the generated project only, not to the Arkstack framework monorepo.
 
-Read `SKILLS.md` first, then use these workflows to combine the available skills safely.
+Read `SKILL.md` first, then use these workflows to combine the available skills safely.
 
 ## Operating Rules
 

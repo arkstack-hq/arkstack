@@ -1,13 +1,50 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { NotificationHandler, RealtimeNotification, RealtimeTransport } from '../src'
-import { createRealtime } from '../src'
+import { createFirebaseTransport, createRealtime } from '../src'
+
+const firebaseDatabase = vi.hoisted(() => {
+    const listeners = new Map<string, Set<(snapshot: { val(): unknown }) => void>>()
+    const removed: string[] = []
+
+    return { listeners, removed }
+})
+
+vi.mock('firebase/app', () => ({
+    initializeApp: vi.fn(() => ({})),
+}))
+
+vi.mock('firebase/messaging', () => ({
+    getMessaging: vi.fn(() => ({})),
+    onMessage: vi.fn(() => vi.fn()),
+}))
+
+vi.mock('firebase/database', () => ({
+    getDatabase: vi.fn(() => ({})),
+    ref: vi.fn((_database: unknown, path: string) => ({ path })),
+    onChildAdded: vi.fn((reference: { path: string }, handler: (snapshot: { val(): unknown }) => void) => {
+        const handlers = firebaseDatabase.listeners.get(reference.path) ?? new Set()
+        handlers.add(handler)
+        firebaseDatabase.listeners.set(reference.path, handlers)
+
+        return () => handlers.delete(handler)
+    }),
+    push: vi.fn(async (reference: { path: string }, payload: unknown) => {
+        firebaseDatabase.listeners.get(reference.path)?.forEach((handler) => handler({ val: () => payload }))
+
+        return { path: `${reference.path}/generated-key` }
+    }),
+    remove: vi.fn(async (reference: { path: string }) => {
+        firebaseDatabase.removed.push(reference.path)
+    }),
+}))
 
 /** A fake transport that lets a test push notifications into subscribers. */
 const fakeTransport = () => {
     const handlers = new Map<string, Set<NotificationHandler>>()
     const unsubscribed: string[] = []
     let disconnected = false
+    const triggered: Array<{ channel: string, event: string, payload: unknown }> = []
 
     const transport: RealtimeTransport = {
         subscribe (channel, _event, handler) {
@@ -23,6 +60,9 @@ const fakeTransport = () => {
                 },
             }
         },
+        trigger (channel, event, payload) {
+            triggered.push({ channel, event, payload })
+        },
         disconnect () {
             disconnected = true
         },
@@ -32,7 +72,7 @@ const fakeTransport = () => {
         handlers.get(channel)?.forEach((h) => h(notification))
     }
 
-    return { transport, emit, unsubscribed, isDisconnected: () => disconnected }
+    return { transport, emit, triggered, unsubscribed, isDisconnected: () => disconnected }
 }
 
 const sample = (over: Partial<RealtimeNotification> = {}): RealtimeNotification => ({
@@ -87,6 +127,31 @@ describe('RealtimeClient', () => {
         expect(unsubscribed).toContain('user.7')
     })
 
+    it('listens for and emits client events with the client prefix', async () => {
+        const { transport, triggered } = fakeTransport()
+        const subscribe = vi.spyOn(transport, 'subscribe')
+        const client = createRealtime({ transportFactory: () => transport })
+        const typing: Array<{ userId: number }> = []
+
+        await client.listenForWhisper<{ userId: number }>('private-room.7', 'typing', (payload) => typing.push(payload))
+        await client.whisper('private-room.7', 'typing', { userId: 7 })
+
+        expect(subscribe).toHaveBeenCalledWith('private-room.7', 'client-typing', expect.any(Function))
+        expect(triggered).toEqual([{
+            channel: 'private-room.7',
+            event: 'client-typing',
+            payload: { userId: 7 },
+        }])
+    })
+
+    it('reports transports that do not support client events', async () => {
+        const { transport } = fakeTransport()
+        delete transport.trigger
+        const client = createRealtime({ transportFactory: () => transport })
+
+        await expect(client.whisper('private-room.7', 'typing', {})).rejects.toThrow(/does not support client events/i)
+    })
+
     it('resolves the transport once and disconnects it', async () => {
         const factory = vi.fn(() => fakeTransport().transport)
         const client = createRealtime({ transportFactory: factory })
@@ -105,5 +170,47 @@ describe('RealtimeClient', () => {
         const client = createRealtime({ transport: 'pusher' })
 
         await expect(client.subscribe('user.7', () => undefined)).rejects.toThrow(/pusher/i)
+    })
+})
+
+describe('Firebase client events', () => {
+    it('publishes client events through Realtime Database with channel isolation', async () => {
+        firebaseDatabase.listeners.clear()
+        firebaseDatabase.removed.length = 0
+        const receiver = await createFirebaseTransport({
+            apiKey: 'key',
+            projectId: 'project',
+            appId: 'app',
+            messagingSenderId: 'sender',
+        })
+        const sender = await createFirebaseTransport({
+            apiKey: 'key',
+            projectId: 'project',
+            appId: 'app',
+            messagingSenderId: 'sender',
+        })
+        const received: Array<{ userId: number }> = []
+        const otherChannel: Array<{ userId: number }> = []
+        const subscription = await receiver.subscribe(
+            'private-room.7',
+            'client-typing',
+            (payload) => received.push(payload as { userId: number }),
+        )
+        await receiver.subscribe(
+            'private-room.8',
+            'client-typing',
+            (payload) => otherChannel.push(payload as { userId: number }),
+        )
+
+        await sender.trigger?.('private-room.7', 'client-typing', { userId: 7 })
+        expect(received).toEqual([{ userId: 7 }])
+        expect(otherChannel).toEqual([])
+        expect(firebaseDatabase.removed).toEqual([
+            'arkstack/client-events/private-room%2E7/client-typing/generated-key',
+        ])
+
+        subscription.unsubscribe()
+        await sender.trigger?.('private-room.7', 'client-typing', { userId: 8 })
+        expect(received).toEqual([{ userId: 7 }])
     })
 })
