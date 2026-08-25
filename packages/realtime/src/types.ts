@@ -19,6 +19,9 @@ export type RealtimeTransportName = 'pusher' | 'firebase'
 
 export type NotificationHandler = (notification: RealtimeNotification) => void
 
+/** Handles an arbitrary realtime event payload. */
+export type RealtimeEventHandler<Payload = unknown> = (payload: Payload) => void
+
 /** A live subscription to one channel; call `unsubscribe()` to stop listening. */
 export interface RealtimeSubscription {
     channel: string
@@ -31,11 +34,33 @@ export interface RealtimeSubscription {
  * supplied via {@link RealtimeConfig.transportFactory} for custom backends/tests.
  */
 export interface RealtimeTransport {
+    /**
+     * Subscribe to a realtime channel
+     *
+     * @param channel
+     * @param event
+     * @param handler
+     */
     subscribe(
         channel: string,
         event: string,
-        handler: NotificationHandler,
+        handler: RealtimeEventHandler,
     ): RealtimeSubscription | Promise<RealtimeSubscription>
+    /**
+     * Emit an event from the connected client, when supported by the transport.
+     *
+     * @param channel
+     * @param event
+     * @param payload
+     */
+    trigger?(
+        channel: string,
+        event: string,
+        payload: unknown,
+    ): void | Promise<void>
+    /**
+     * Disconnect from a connected realtime channel
+     */
     disconnect(): void | Promise<void>
 }
 
@@ -64,6 +89,10 @@ export interface FirebaseClientConfig {
     projectId: string
     appId: string
     messagingSenderId: string
+    /** Realtime Database URL. Uses the Firebase project's default database when omitted. */
+    databaseURL?: string
+    /** Root path used for ephemeral client events (default `arkstack/client-events`). */
+    clientEventsPath?: string
     /** Web push VAPID key used when requesting a messaging token. */
     vapidKey?: string
 }
