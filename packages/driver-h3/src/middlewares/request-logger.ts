@@ -1,6 +1,6 @@
 import { Logger, nodeEnv } from '@arkstack/common'
 
-import { H3Middleware } from '..'
+import type { H3Middleware } from '../types'
 
 const colors: Record<string, 'green' | 'blue' | 'yellow' | 'red' | 'cyan'> = {
     GET: 'green',
@@ -43,7 +43,7 @@ export const requestLogger = ({
 export class RequestLoggerMiddleware {
     constructor(private options: { allowInProduction?: boolean } = {}) { }
 
-    handler () {
+    handler() {
         return requestLogger(this.options)
     }
 }
