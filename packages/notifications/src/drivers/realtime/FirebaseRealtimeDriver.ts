@@ -118,6 +118,43 @@ export class FirebaseRealtimeDriver implements RealtimeDriver {
     }
 
     /**
+     * Firebase channels do not require server-side authorization.
+     * 
+     * @param _socketId 
+     * @param _channel 
+     * @param _data 
+     */
+    async auth(_socketId: string, _channel: string, _data?: unknown): Promise<void> { }
+
+    /** 
+     * Firebase does not require an authorization route.
+     * 
+     * @param _authEndpoint 
+     * @param _middleware 
+     * @param _channelPrefix 
+     * @param _config 
+     */
+    static async registerAuthRoute(
+        _authEndpoint: string = '/realtime/auth',
+        _middleware?: unknown | unknown[],
+        _channelPrefix?: string,
+        _config: FirebaseTransportConfig = {},
+    ): Promise<void> { }
+
+    /** 
+     * Firebase does not require an authorization route.
+     * 
+     * @param _authEndpoint 
+     * @param _middleware 
+     * @param _channelPrefix 
+     */
+    async registerAuthRoute(
+        _authEndpoint: string = '/realtime/auth',
+        _middleware?: unknown | unknown[],
+        _channelPrefix?: string,
+    ): Promise<void> { }
+
+    /**
      * Send to many device tokens at once, chunked to FCM's 500-token limit, and
      * collect the tokens FCM rejects as dead so the caller can prune them.
      */

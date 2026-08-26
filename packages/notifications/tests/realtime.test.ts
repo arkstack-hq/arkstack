@@ -12,13 +12,15 @@ const fakeDriver = () => {
 
             return { ok: true }
         }),
+        auth: vi.fn(async () => undefined),
+        registerAuthRoute: vi.fn(async () => undefined),
     }
 
     return { driver, calls }
 }
 
 const withDriver = (notification: RealtimeNotification, driver: RealtimeDriver) => {
-    notification.driver = driver
+    notification.driver = driver as never
 
     return notification
 }
@@ -124,6 +126,15 @@ describe('FirebaseRealtimeDriver multicast', () => {
 
     const payload = () => ({
         id: '1', type: null, title: 'T', description: 'D', read_at: null, created_at: '2026-01-01T00:00:00.000Z',
+    })
+
+    it('provides no-op auth methods without initializing Firebase Admin', async () => {
+        const driver = new FirebaseRealtimeDriver()
+
+        await expect(driver.auth('socket-id', 'user.7')).resolves.toBeUndefined()
+        await expect(driver.registerAuthRoute()).resolves.toBeUndefined()
+        await expect(FirebaseRealtimeDriver.registerAuthRoute()).resolves.toBeUndefined()
+        expect((driver as any).messagingPromise).toBeUndefined()
     })
 
     it('sends a single channel as an FCM topic', async () => {
