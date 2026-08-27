@@ -1,3 +1,4 @@
+import type { User } from '@app/models/User'
 export type TwoFactorMethod = 'authenticator' | 'sms'
 
 export type SmsCodePurpose = 'setup' | 'login'
@@ -18,4 +19,8 @@ export type IssuedSmsCode = {
     code: string
     expiresAt: Date
     purpose: SmsCodePurpose
+}
+
+export type TwoFactorUser = User & {
+    phone?: string | null
 }
