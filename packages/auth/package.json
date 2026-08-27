@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/auth",
-    "version": "0.17.26",
+    "version": "0.18.0",
     "type": "module",
     "description": "Authentication module for Arkstack, providing core authentication and identity features.",
     "homepage": "https://arkstack.toneflix.net/guide/auth",
