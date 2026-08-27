@@ -40,6 +40,7 @@
         "./package.json": "./package.json"
     },
     "dependencies": {
+        "@arkstack/encryption": "workspace:^",
         "@pictwo/faker": "^1.1.0",
         "bcryptjs": "^3.0.3",
         "chalk": "^5.6.2",
@@ -63,5 +64,10 @@
         "arkormx": {
             "optional": true
         }
+    },
+    "inlinedDependencies": {
+        "clear-router": "2.9.3",
+        "dayjs": "1.11.20",
+        "kanun": "1.2.0"
     }
 }

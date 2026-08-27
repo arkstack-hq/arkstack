@@ -138,6 +138,7 @@ New adapters can be added without affecting the application layer.
 
 - `@arkstack/contract`: framework-agnostic driver contracts used by all kits.
 - `@arkstack/common`: shared lifecycle/network helpers reused by all kits.
+- `@arkstack/encryption`: isomorphic AES-256-GCM and ECDH primitives shared by server and browser.
 - `@arkstack/console`: shared console runtime used by kits.
 
 Each runtime kit (Express, H3, future Fastify/Bun) implements a framework-specific driver that conforms to the same contract.

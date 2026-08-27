@@ -1,0 +1,44 @@
+{
+    "name": "@arkstack/encryption",
+    "version": "0.17.26",
+    "type": "module",
+    "description": "Isomorphic end-to-end encryption for Arkstack: AES-256-GCM ciphers, ECDH key pairs, and key generation/comparison utilities that run identically in Node and the browser.",
+    "homepage": "https://arkstack.toneflix.net/guide/utilities/encryption",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/arkstack-hq/arkstack.git",
+        "directory": "packages/encryption"
+    },
+    "keywords": [
+        "encryption",
+        "e2ee",
+        "end-to-end",
+        "aes-gcm",
+        "ecdh",
+        "webcrypto",
+        "isomorphic",
+        "cryptography",
+        "arkstack"
+    ],
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsdown",
+        "test": "vitest",
+        "version:patch": "pnpm version patch",
+        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "sideEffects": false,
+    "exports": {
+        ".": "./dist/index.js",
+        "./node": "./dist/node.js",
+        "./package.json": "./package.json"
+    },
+    "devDependencies": {
+        "@types/node": "^25.6.2"
+    }
+}
