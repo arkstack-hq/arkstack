@@ -43,6 +43,7 @@ export default defineConfig({
               { text: 'Helpers', link: '/guide/utilities/helpers' },
               { text: 'Hashing', link: '/guide/utilities/hashing' },
               { text: 'Encryption', link: '/guide/utilities/encryption' },
+              { text: 'End-to-End Encryption', link: '/guide/utilities/e2e-encryption' },
               { text: 'Trait System', link: '/guide/utilities/trait-system' },
             ]
           },

@@ -150,6 +150,7 @@ Core shared packages:
 
 - `@arkstack/contract`
 - `@arkstack/common`
+- `@arkstack/encryption`
 - `@arkstack/console`
 - `@arkstack/http`
 - `@arkstack/auth`

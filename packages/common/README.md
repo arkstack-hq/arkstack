@@ -515,9 +515,9 @@ Clears all registered hooks.
 
 **`src/utils/encryption.ts`**
 
-AES-256-GCM symmetric encryption for sensitive values (e.g. two-factor authentication secrets). Requires the `TWO_FACTOR_ENCRYPTION_KEY` environment variable.
+A thin wrapper around [`@arkstack/encryption`](https://www.npmjs.com/package/@arkstack/encryption), bound to the application key. AES-256-GCM for sensitive values (e.g. two-factor authentication secrets); the package underneath runs on the Web Crypto API, so a value encrypted on the server can be decrypted in the browser and vice versa.
 
-#### `Encryption.encrypt(value)`
+#### `Encryption.encrypt(value, key?)`
 
 Encrypts a string. Returns a colon-delimited base64url string: `<iv>:<authTag>:<ciphertext>`.
 
@@ -528,7 +528,9 @@ const token = Encryption.encrypt('my-secret-value');
 // "abc123:def456:ghi789"
 ```
 
-#### `Encryption.decrypt(payload)`
+---
+
+#### `Encryption.decrypt(payload, key?)`
 
 Decrypts a payload produced by `encrypt`. Throws if the format is invalid or the key is wrong.
 
@@ -537,11 +539,54 @@ const original = Encryption.decrypt(token);
 // "my-secret-value"
 ```
 
+---
+
+#### `Encryption.encryptAsync(value, key?, options?)` / `Encryption.decryptAsync(payload, key?, options?)`
+
+The same operations on the Web Crypto path, in the same payload format, so the two can be mixed freely. Use these when the calling code is (or may become) shared with the browser. `options.aad` binds additional authenticated data to the ciphertext.
+
+---
+
+#### `Encryption.cipher(key?)`
+
+A `Cipher` bound to the application key, for encrypting many values without re-deriving the key, and for raw bytes via `encryptBytes` / `decryptBytes`.
+
+---
+
+#### Key utilities
+
+```ts
+Encryption.generateKey();                   // random base64url key
+await Encryption.generateKeyPair();         // { publicKey, privateKey } ECDH identity
+await Encryption.deriveKey(password);       // PBKDF2 → { key, salt, iterations }
+await Encryption.compareKeys(left, right);  // constant time
+await Encryption.fingerprint();             // displayable digest of the app key
+```
+
+---
+
+#### End-to-end encryption
+
+```ts
+const channel = await Encryption.channel(myPrivateKey, peerPublicKey);
+
+await channel.decrypt(await channel.encrypt('hey'));
+
+await Encryption.seal('anonymous tip', peerPublicKey);
+await Encryption.open(payload, myPrivateKey);
+
+await Encryption.safetyNumber(myPublicKey, peerPublicKey);
+```
+
+The full `@arkstack/encryption` surface — `Cipher`, `Codec`, `EncryptionKey`, `KeyPair`, `Keys`, `SealedBox`, `SecureChannel`, `NodeCipher` — is re-exported from this package.
+
 **Environment variable:**
 
-| Variable                    | Required | Description                                                |
-| --------------------------- | -------- | ---------------------------------------------------------- |
-| `TWO_FACTOR_ENCRYPTION_KEY` | Yes      | Raw secret; hashed to a 256-bit key internally via SHA-256 |
+| Variable  | Required | Description                                                |
+| --------- | -------- | ---------------------------------------------------------- |
+| `APP_KEY` | Yes      | Raw secret; hashed to a 256-bit key internally via SHA-256 |
+
+Generate one with `ark key:generate`. The legacy `TWO_FACTOR_ENCRYPTION_KEY` is still honored when `APP_KEY` is not set.
 
 ---
 
