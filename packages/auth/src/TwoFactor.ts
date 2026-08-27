@@ -1,30 +1,25 @@
 import { Encryption, Hash, env, getModel } from '@arkstack/common'
-import type { IssuedSmsCode, SmsCodePurpose, TwoFactorMethod, TwoFactorSetup, TwoFactorStatus } from './types/TwoFactor'
+import type { IssuedSmsCode, SmsCodePurpose, TwoFactorMethod, TwoFactorSetup, TwoFactorStatus, TwoFactorUser } from './types/TwoFactor'
 
 import { Secret } from 'otpauth'
 import type { User } from '@app/models/User'
 import type { UserTwoFactor } from '@app/models/UserTwoFactor'
 import { randomBytes } from 'node:crypto'
 
-type TwoFactorUser = User & {
-    phone?: string | null
-}
-
-
 export class TwoFactor {
     static smsCodeTtlMinutes: number = Number(env('TWO_FACTOR_SMS_TTL_MINUTES', 10)) || 10
 
-    private static async getModel () {
-        return await getModel<typeof UserTwoFactor>('UserTwoFactor')
+    private static async getModel() {
+        return getModel('UserTwoFactor')
     }
 
-    private static async getRecord (userId: User['id']) {
+    private static async getRecord(userId: User['id']): Promise<UserTwoFactor> {
         const Model = await this.getModel()
 
-        return await Model.query().where({ userId }).first()
+        return await Model.query().where({ userId }).first() as never
     }
 
-    private static async upsert (
+    private static async upsert(
         userId: User['id'],
         attributes: Partial<Pick<UserTwoFactor,
             | 'method' | 'secretCiphertext' | 'smsCodeHash' | 'smsCodeExpiresAt'
@@ -36,7 +31,7 @@ export class TwoFactor {
         await Model.query().updateOrInsert({ userId }, attributes)
     }
 
-    static normalizeMethod (method?: string | null): TwoFactorMethod | null {
+    static normalizeMethod(method?: string | null): TwoFactorMethod | null {
         if (method === 'authenticator' || method === 'sms') {
             return method
         }
@@ -44,7 +39,7 @@ export class TwoFactor {
         return null
     }
 
-    static maskPhone (phone?: string | null) {
+    static maskPhone(phone?: string | null) {
         if (!phone) {
             return null
         }
@@ -64,7 +59,7 @@ export class TwoFactor {
      * @param user 
      * @returns 
      */
-    static getLabel (user: User) {
+    static getLabel(user: User) {
         return user.email || `${env('APP_NAME', 'Arkstack')}:${user.id}`
     }
 
@@ -75,7 +70,7 @@ export class TwoFactor {
      * @param secret 
      * @returns 
      */
-    static getTotp (user: User, secret: string) {
+    static getTotp(user: User, secret: string) {
         return Hash.totp(secret, this.getLabel(user), env('APP_NAME', 'Arkstack'))
     }
 
@@ -84,7 +79,7 @@ export class TwoFactor {
      * 
      * @returns The generated secret in base32 format.
      */
-    static generateSecret (size = 20) {
+    static generateSecret(size = 20) {
         return new Secret({ size }).base32
     }
 
@@ -95,7 +90,7 @@ export class TwoFactor {
      * @param secret Optional existing secret to use for the setup.
      * @returns An object containing the secret and the OTPAuth URL.
      */
-    static createSetup (user: User, secret?: string): TwoFactorSetup {
+    static createSetup(user: User, secret?: string): TwoFactorSetup {
         const resolvedSecret = secret ?? this.generateSecret()
         const totp = this.getTotp(user, resolvedSecret)
 
@@ -113,17 +108,17 @@ export class TwoFactor {
      * @param code The 6-digit code to verify.
      * @returns  True if the code is valid, false otherwise.
      */
-    static verifyCode (user: User, secret: string, code: string) {
+    static verifyCode(user: User, secret: string, code: string) {
         return this.getTotp(user, secret).validate({ token: code, window: 1 }) !== null
     }
 
-    static async getMethod (userId: User['id']) {
+    static async getMethod(userId: User['id']) {
         const record = await this.getRecord(userId)
 
         return this.normalizeMethod(record?.method)
     }
 
-    static async setMethod (userId: User['id'], method: TwoFactorMethod) {
+    static async setMethod(userId: User['id'], method: TwoFactorMethod) {
         await this.upsert(userId, { method })
     }
 
@@ -133,7 +128,7 @@ export class TwoFactor {
      * @param userId The ID of the user.
      * @returns The stored secret, or null if not found.
      */
-    static async getSecret (userId: User['id']) {
+    static async getSecret(userId: User['id']) {
         const record = await this.getRecord(userId)
 
         return record?.secretCiphertext ? Encryption.decrypt(record.secretCiphertext) : null
@@ -145,11 +140,11 @@ export class TwoFactor {
      * @param userId The ID of the user.
      * @param secret The secret to store.
      */
-    static async setSecret (userId: User['id'], secret: string) {
+    static async setSecret(userId: User['id'], secret: string) {
         await this.upsert(userId, { secretCiphertext: Encryption.encrypt(secret) })
     }
 
-    static async clearSecret (userId: User['id']) {
+    static async clearSecret(userId: User['id']) {
         await this.upsert(userId, { secretCiphertext: null })
     }
 
@@ -159,7 +154,7 @@ export class TwoFactor {
      * @param userId The ID of the user.
      * @returns The timestamp when 2FA was enabled, or null if not enabled.
      */
-    static async getEnabledAt (userId: User['id']) {
+    static async getEnabledAt(userId: User['id']) {
         const record = await this.getRecord(userId)
 
         return record?.enabledAt?.toISOString() ?? null
@@ -171,7 +166,7 @@ export class TwoFactor {
      * @param userId The ID of the user.
      * @param enabledAt The timestamp to store.
      */
-    static async setEnabledAt (userId: User['id'], enabledAt: string | Date = new Date()) {
+    static async setEnabledAt(userId: User['id'], enabledAt: string | Date = new Date()) {
         await this.upsert(userId, {
             enabledAt: typeof enabledAt === 'string' ? new Date(enabledAt) : enabledAt,
         })
@@ -182,7 +177,7 @@ export class TwoFactor {
      * 
      * @param userId The ID of the user.
      */
-    static async clear (userId: User['id']) {
+    static async clear(userId: User['id']) {
         const Model = await this.getModel()
 
         await Model.query().where({ userId }).delete()
@@ -191,22 +186,16 @@ export class TwoFactor {
     /** 
      * Generate one-time recovery codes shown when 2FA is enabled.
      * 
+     * @param count 
      * @returns An array of recovery codes.
      */
-    static generateBackupCodes (count = 8) {
+    static generateBackupCodes(count = 8) {
         return Array.from({ length: count }, () => {
             const left = randomBytes(3).toString('hex').slice(0, 4).toUpperCase()
             const right = randomBytes(3).toString('hex').slice(0, 4).toUpperCase()
 
             return `${left}-${right}`
         })
-
-        // return Array.from({ length: 8 }, () => {
-        //     const left = Math.random().toString(36).slice(2, 6).toUpperCase()
-        //     const right = Math.random().toString(36).slice(2, 6).toUpperCase()
-
-        //     return `${left}-${right}`
-        // })
     }
 
     /** 
@@ -215,7 +204,7 @@ export class TwoFactor {
      * @param codes An array of recovery codes to hash.
      * @returns An array of hashed recovery codes.
      */
-    static async hashBackupCodes (codes: string[]) {
+    static async hashBackupCodes(codes: string[]) {
         return await Promise.all(codes.map(async code => await Hash.make(code)))
     }
 
@@ -225,7 +214,7 @@ export class TwoFactor {
      * @param userId The ID of the user.
      * @returns An array of recovery-code hashes.
      */
-    static async readRecoveryCodeHashes (userId: User['id']) {
+    static async readRecoveryCodeHashes(userId: User['id']) {
         const record = await this.getRecord(userId)
 
         return record?.recoveryCodeHashes ?? []
@@ -237,7 +226,7 @@ export class TwoFactor {
      * @param userId 
      * @param hashes 
      */
-    static async writeRecoveryCodeHashes (userId: User['id'], hashes: string[]) {
+    static async writeRecoveryCodeHashes(userId: User['id'], hashes: string[]) {
         await this.upsert(userId, { recoveryCodeHashes: hashes })
     }
 
@@ -248,7 +237,7 @@ export class TwoFactor {
      * @param recoveryCode The recovery code to consume.
      * @returns True if the recovery code was valid and consumed, false otherwise.
      */
-    static async consumeRecoveryCode (userId: User['id'], recoveryCode: string) {
+    static async consumeRecoveryCode(userId: User['id'], recoveryCode: string) {
         const hashes = await this.readRecoveryCodeHashes(userId)
 
         for (const [index, hash] of hashes.entries()) {
@@ -271,7 +260,7 @@ export class TwoFactor {
      * @param userId The ID of the user.
      * @returns An object containing the 2FA status and recovery codes remaining.
      */
-    static async readStatus (userId: User['id']): Promise<TwoFactorStatus> {
+    static async readStatus(userId: User['id']): Promise<TwoFactorStatus> {
         const record = await this.getRecord(userId)
         const enabledAt = record?.enabledAt?.toISOString() ?? null
         const recoveryCodes = record?.recoveryCodeHashes ?? []
@@ -284,7 +273,7 @@ export class TwoFactor {
         }
     }
 
-    static createSmsCode () {
+    static createSmsCode() {
         return Math.floor(100000 + Math.random() * 900000).toString()
     }
 
@@ -294,7 +283,7 @@ export class TwoFactor {
      * @param user 
      * @param purpose 
      */
-    static async issueSmsCode (user: User, purpose: SmsCodePurpose): Promise<IssuedSmsCode> {
+    static async issueSmsCode(user: User, purpose: SmsCodePurpose): Promise<IssuedSmsCode> {
         if (!(user as TwoFactorUser).phone) {
             throw new Error('A phone number is required to issue a two-factor SMS code.')
         }
@@ -316,7 +305,7 @@ export class TwoFactor {
         }
     }
 
-    static async clearSmsCode (userId: User['id']) {
+    static async clearSmsCode(userId: User['id']) {
         await this.upsert(userId, {
             smsCodeHash: null,
             smsCodeExpiresAt: null,
@@ -332,7 +321,7 @@ export class TwoFactor {
      * @param purpose 
      * @returns 
      */
-    static async verifySmsCode (userId: User['id'], code: string, purpose: SmsCodePurpose) {
+    static async verifySmsCode(userId: User['id'], code: string, purpose: SmsCodePurpose) {
         const record = await this.getRecord(userId)
 
         if (!record?.smsCodeHash || !record.smsCodeExpiresAt || record.smsCodePurpose !== purpose) {

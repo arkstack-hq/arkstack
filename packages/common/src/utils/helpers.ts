@@ -1,10 +1,7 @@
-import type { Model, ModelStatic } from 'arkormx'
-import { importFile, resolveRuntimeModule } from '../system'
-import path from 'node:path'
-import { Arkstack } from '@arkstack/contract'
+import type { Model, ModelStatic, RegisteredModelClass, RegisteredModelName, RelatedModelClass } from 'arkormx'
+import { getModel as getArkormxModel } from 'arkormx'
 import { RequestException } from '../Exceptions/RequestException'
 
-import { createRequire } from 'node:module'
 import { PaginationOptions } from '../types'
 
 export type AbstractModelConstructor<TModel = unknown> =
@@ -16,11 +13,6 @@ export type ModelConstructor<TModel extends Model = Model> =
 
 
 export interface ModelRegistry { }
-
-type ModelName = Extract<keyof ModelRegistry, string>
-type ModelModule = Record<string, unknown> & {
-    default?: unknown;
-}
 
 /**
  * Checks and asserts if target is a class
@@ -106,64 +98,20 @@ export const resolvePagination = (
 }
 
 /**
- * Import an application model by name.
+ * Synchronously resolve an application model by name.
  *
- * Apps can augment `ModelRegistry` to make `getModel('User')` return `typeof User`.
- * Without a registry entry, pass the class type explicitly: `getModel<typeof User>('User')`.
- * 
- * @param modelName 
+ * Registered models are returned first. If a model has not been registered yet,
+ * ArkORM loads it from the configured models paths, registers it, and returns
+ * the matching constructor.
+ *
+ * @param modelName
+ * @alias {@link getArkormxModel}
+ * @returns
  */
-export async function getModel<TName extends ModelName>(
-    modelName: TName
-): Promise<ModelRegistry[TName]>
-export async function getModel<TModel extends AbstractModelConstructor = ModelConstructor>(
-    modelName: string
-): Promise<TModel>
-export async function getModel(modelName: string) {
-    const resolveModelExport = (module: ModelModule | unknown, modelName: string) => {
-        if (!isModelModule(module)) {
-            return module
-        }
-
-        return module.default ?? module[modelName] ?? module
-    }
-
-    const isModelModule = (value: unknown): value is ModelModule => (
-        typeof value === 'object' && value !== null
-    )
-
-    const { getUserConfig } = await import('arkormx')
-    const modelPath = getUserConfig().paths?.models || './src/models'
-    const sourcePath = path.join(
-        path.isAbsolute(modelPath) ? modelPath : path.join(Arkstack.rootDir(), modelPath),
-        modelName
-    )
-    // In production the source tree is absent; resolve to the build output.
-    const modulePath = resolveRuntimeModule(sourcePath)
-    const module = await importFile<ModelModule | unknown>(modulePath)
-    const exportName = path.basename(modelName, path.extname(modelName))
-    const model = resolveModelExport(module, exportName)
-
-    if (typeof model !== 'function') {
-        throw new Error(`Model "${modelName}" not found`)
-    }
-
-    return model
-}
-
-const isModelModule = (value: unknown): value is ModelModule => (
-    typeof value === 'object' && value !== null
-)
-
-const resolveModelExport = (
-    module: ModelModule | unknown,
-    modelName: string
-) => {
-    if (!isModelModule(module)) {
-        return module
-    }
-
-    return module.default ?? module[modelName] ?? module
+export function getModel<TName extends RegisteredModelName>(modelName: TName): RegisteredModelClass<TName>
+export function getModel<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel;
+export function getModel<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel {
+    return getArkormxModel(modelName)
 }
 
 /**
@@ -173,57 +121,13 @@ const resolveModelExport = (
  * Without a registry entry, pass the class type explicitly: `getModel<typeof User>('User')`.
  * 
  * @param modelName 
+ * @alias {@link getArkormxModel}
+ * @deprecated 0.17.27 - Use {@link getModel} or {@link getArkormxModel}
  */
-export function getModelSync<TName extends ModelName>(
-    modelName: TName
-): ModelRegistry[TName]
-export function getModelSync<
-    TModel extends AbstractModelConstructor = ModelConstructor
->(
-    modelName: string
-): TModel
-export function getModelSync(modelName: string) {
-    const require = createRequire(import.meta.url)
-
-    const { Arkorm, getUserConfig } = require('arkormx') as typeof import('arkormx')
-
-    const exportName = path.basename(
-        modelName,
-        path.extname(modelName)
-    )
-
-    /*
-     * Prefer models that have already been loaded and registered.
-     */
-    const registeredModel = Arkorm
-        .getRegisteredModels()
-        .find((model) => model.name === exportName)
-
-    if (registeredModel) {
-        return registeredModel
-    }
-
-    const modelPath = getUserConfig().paths?.models || './src/models'
-
-    const sourcePath = path.join(
-        path.isAbsolute(modelPath)
-            ? modelPath
-            : path.join(Arkstack.rootDir(), modelPath),
-        modelName
-    )
-
-    /*
-     * In production, resolve the corresponding build output.
-     */
-    const modulePath = resolveRuntimeModule(sourcePath)
-    const module = require(modulePath) as ModelModule | unknown
-    const model = resolveModelExport(module, exportName)
-
-    if (typeof model !== 'function') {
-        throw new Error(`Model "${modelName}" not found`)
-    }
-
-    return model
+export function getModelSync<TName extends RegisteredModelName>(modelName: TName): RegisteredModelClass<TName>
+export function getModelSync<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel;
+export function getModelSync<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel {
+    return getArkormxModel(modelName)
 }
 
 export const initializeGlobalContext = async (
