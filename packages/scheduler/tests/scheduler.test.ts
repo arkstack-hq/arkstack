@@ -13,6 +13,21 @@ describe('cron matching', () => {
         expect(isDue('30 13 * * *', at(13, 31), 'UTC')).toBe(false)
     })
 
+    it('isDue holds for the whole minute, not just its first second', () => {
+        // `schedule:run` is evaluated seconds after the cron tick that started
+        // it, so the instant handed to isDue is never the top of the minute.
+        for (const seconds of [0, 1, 2, 30, 59]) {
+            const now = new Date(at(10, 10).getTime() + seconds * 1_000)
+
+            expect(isDue('* * * * *', now, 'UTC')).toBe(true)
+            expect(isDue('*/5 * * * *', now, 'UTC')).toBe(true)
+        }
+
+        const offMinute = new Date(at(10, 12).getTime() + 30_000)
+
+        expect(isDue('*/5 * * * *', offMinute, 'UTC')).toBe(false)
+    })
+
     it('nextRun returns the following occurrence', () => {
         const next = nextRun('0 0 * * *', at(13, 0), 'UTC')
 
@@ -153,7 +168,8 @@ describe('runDueEvents', () => {
  throw new Error('nope') 
 }).dailyAt('03:00').timezone('UTC') // not due at 10:00
 
-        const results = await runDueEvents(at(10, 0))
+        // 30 seconds past the tick, as a real `schedule:run` invocation is.
+        const results = await runDueEvents(new Date(at(10, 0).getTime() + 30_000))
 
         expect(ran).toBe(true)
         expect(results).toHaveLength(2) // the two everyMinute events (due); the 03:00 one is not due
