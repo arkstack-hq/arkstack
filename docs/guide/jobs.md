@@ -122,4 +122,12 @@ serialize() {
 }
 ```
 
-For dedicated worker **processes**, make sure your job modules are imported — or call `JobRegistry.register(MyJob)` — so the names are known before jobs are processed.
+A dedicated worker **process** constructs none of your jobs, so `ark queue:work` imports every job module in `src/app/jobs` (or its build output) before it starts working, registering each class it finds under its class name. Jobs kept elsewhere can be registered by loading that directory instead:
+
+```ts
+import { loadJobs } from '@arkstack/jobs';
+
+await loadJobs('domain/jobs'); // relative to src/, or the build output
+```
+
+`JobRegistry.register(MyJob)` still registers a single class explicitly.
