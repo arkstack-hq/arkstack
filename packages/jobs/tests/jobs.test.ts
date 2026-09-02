@@ -1,4 +1,4 @@
-import { Job, JobRegistry, dispatch } from '../src'
+import { Job, JobRegistry, dispatch, loadJobs } from '../src'
 import { type JobPayload, QueueContract, type Queueable, Worker, serializeJob } from '@arkstack/queue'
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
 import { dirname, resolve } from 'node:path'
@@ -150,6 +150,36 @@ describe('Jobs', () => {
             expect(() => JobRegistry.resolve({
                 id: 'x', displayName: 'Ghost', attempts: 0, maxTries: null, backoff: 0, data: {},
             })).toThrow(/not registered/)
+        })
+    })
+
+    describe('loadJobs', () => {
+        it('registers the job classes a worker process would otherwise not know', async () => {
+            // A dedicated worker constructs none of the app's jobs, so nothing
+            // reaches the registry until their modules are loaded.
+            JobRegistry.clear()
+
+            expect(JobRegistry.has('LoadedJob')).toBe(false)
+
+            const registered = await loadJobs()
+
+            expect(registered).toContain('LoadedJob')
+            expect(registered).toContain('AlsoLoadedJob')
+            expect(JobRegistry.has('LoadedJob')).toBe(true)
+            expect(JobRegistry.has('AlsoLoadedJob')).toBe(true)
+        })
+
+        it('skips abstract bases, non-job exports and modules that fail to load', async () => {
+            const registered = await loadJobs()
+
+            expect(registered).not.toContain('BaseFixtureJob')
+            expect(registered).not.toContain('notAJob')
+            // BrokenJob.ts throws on import; the rest still load.
+            expect(registered).toContain('LoadedJob')
+        })
+
+        it('returns nothing when the directory does not exist', async () => {
+            expect(await loadJobs('app/nowhere')).toEqual([])
         })
     })
 
