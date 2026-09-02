@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/encryption",
-    "version": "0.18.2",
+    "version": "0.18.3",
     "type": "module",
     "description": "Isomorphic end-to-end encryption for Arkstack: AES-256-GCM ciphers, ECDH key pairs, and key generation/comparison utilities that run identically in Node and the browser.",
     "homepage": "https://arkstack.toneflix.net/guide/utilities/encryption",
