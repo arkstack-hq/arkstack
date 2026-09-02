@@ -187,6 +187,50 @@ describe('Queue', () => {
             expect(await queue.size()).toBe(0)
         })
 
+        it('reports what it did with each job', async () => {
+            makeResolver()
+            const queue = new MemoryQueue()
+            await queue.push(new RecordingJob('watched') as never)
+
+            const seen: string[] = []
+            const worker = new Worker(queue).on({
+                onProcessing: (job) => {
+ seen.push(`processing:${job.name()}`) 
+},
+                onProcessed: (job) => {
+ seen.push(`processed:${job.name()}`) 
+},
+            })
+
+            await worker.runNextJob()
+
+            expect(seen).toEqual(['processing:RecordingJob', 'processed:RecordingJob'])
+        })
+
+        it('reports a failure as retrying, then as permanent', async () => {
+            makeResolver()
+            const queue = new MemoryQueue()
+            await queue.push(new FlakyJob(99) as never)
+
+            const failures: { attempt: number, released: boolean, message: string }[] = []
+            const worker = new Worker(queue).on({
+                onFailed: (job, error, released) => {
+                    failures.push({
+                        attempt: job.attempts(),
+                        released,
+                        message: (error as Error).message,
+                    })
+                },
+            })
+
+            await worker.daemon({ stopWhenEmpty: true, sleep: 0 })
+
+            // tries = 3: two releases for another attempt, then a permanent failure.
+            expect(failures.map((f) => f.released)).toEqual([true, true, false])
+            expect(failures.map((f) => f.attempt)).toEqual([1, 2, 3])
+            expect(failures[0].message).toMatch(/boom/)
+        })
+
         it('stops after maxJobs', async () => {
             makeResolver()
             const queue = new MemoryQueue()

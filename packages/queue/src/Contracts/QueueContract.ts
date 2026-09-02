@@ -24,6 +24,14 @@ export abstract class QueueContract {
     }
 
     /**
+     * The queue this connection works when none is named. Drivers with a
+     * configurable queue override it.
+     */
+    getDefaultQueue (): string {
+        return 'default'
+    }
+
+    /**
      * Push a job onto the queue. Returns the job id.
      */
     abstract push (job: Queueable, queue?: string): Promise<string>

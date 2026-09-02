@@ -13,6 +13,23 @@ export interface WorkerOptions {
     stopWhenEmpty?: boolean
 }
 
+/**
+ * Observers for what a worker does with each job. A worker executes jobs the
+ * caller can't see — a dedicated worker process reports what happened through
+ * these, so a job that keeps failing isn't indistinguishable from an idle queue.
+ */
+export interface WorkerHandlers {
+    /** A job has been reserved and is about to run. */
+    onProcessing?: (job: Job) => void | Promise<void>
+    /** A job completed and has been removed from the queue. */
+    onProcessed?: (job: Job) => void | Promise<void>
+    /**
+     * A job threw. `released` is `true` when it goes back on the queue for
+     * another attempt, `false` when it has exhausted its tries and failed.
+     */
+    onFailed?: (job: Job, error: unknown, released: boolean) => void | Promise<void>
+}
+
 const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 /**
@@ -24,12 +41,25 @@ const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(
  */
 export class Worker {
     private shouldStop = false
+    private readonly handlers: WorkerHandlers = {}
 
     constructor(private readonly connection: QueueContract) { }
 
     /** Signal a running {@link daemon} loop to stop after the current job. */
     stop (): void {
         this.shouldStop = true
+    }
+
+    /**
+     * Observe what the worker does with each job. Handlers merge, so they can be
+     * registered in more than one call.
+     *
+     * @param handlers  The callbacks to add.
+     */
+    on (handlers: WorkerHandlers): this {
+        Object.assign(this.handlers, handlers)
+
+        return this
     }
 
     /**
@@ -53,10 +83,13 @@ export class Worker {
      */
     async process (job: Job): Promise<void> {
         try {
+            await this.handlers.onProcessing?.(job)
+
             const instance = await resolveJob(job.payload)
 
             await instance.handle()
             await job.delete()
+            await this.handlers.onProcessed?.(job)
         } catch (error) {
             await this.handleFailure(job, error)
         }
@@ -107,10 +140,12 @@ export class Worker {
             }
 
             await job.delete()
+            await this.handlers.onFailed?.(job, error, false)
 
             return
         }
 
         await job.release(job.backoff())
+        await this.handlers.onFailed?.(job, error, true)
     }
 }

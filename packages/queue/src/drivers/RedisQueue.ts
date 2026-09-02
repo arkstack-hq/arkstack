@@ -22,6 +22,11 @@ export class RedisQueue extends QueueContract {
     }
 
     private get defaultQueue (): string {
+        return this.getDefaultQueue()
+    }
+
+    /** The configured queue this connection works when none is named. */
+    getDefaultQueue (): string {
         return this.options.queue ?? 'default'
     }
 
