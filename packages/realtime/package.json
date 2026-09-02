@@ -1,6 +1,6 @@
 {
     "name": "@arkstack/realtime",
-    "version": "0.18.3",
+    "version": "0.18.4",
     "type": "module",
     "description": "Client for consuming Arkstack realtime notifications (Pusher/Firebase), with framework-agnostic core plus React and Vue bindings.",
     "homepage": "https://arkstack.toneflix.net/guide/notifications",
