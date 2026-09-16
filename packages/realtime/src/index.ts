@@ -1,4 +1,5 @@
 export { RealtimeClient, createRealtime } from './RealtimeClient'
 export { createPusherTransport } from './transports/pusher'
 export { createFirebaseTransport } from './transports/firebase'
+export { supersede } from './supersede'
 export type * from './types'

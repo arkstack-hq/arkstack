@@ -19,4 +19,4 @@ export abstract class UserNotification extends Model {
     protected casts = {
         meta: 'json',
     } as const
-}
+} 

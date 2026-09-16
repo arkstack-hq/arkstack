@@ -1,7 +1,7 @@
+import { Concrete, getModel } from '@arkstack/common'
 import { PersonalAccessToken, User } from '../../src'
 
 import { SignJWT } from 'jose'
-import { getModel } from '@arkstack/common'
 import { randomUUID } from 'node:crypto'
 
 export const authSecret = 'test-secret'
@@ -10,7 +10,7 @@ const users: User[] = []
 const personalAccessTokens: PersonalAccessToken[] = []
 
 export const createAuthUser = async (attributes: Partial<Pick<User, 'email' | 'name' | 'password'>> = {}) => {
-    const user = await (await getModel<typeof User>('User')).query().create({
+    const user = await (getModel<Concrete<typeof User>>('User')).query().create({
         email: attributes.email ?? `auth-test-${randomUUID()}@example.com`,
         name: attributes.name ?? 'Auth Test',
         password: attributes.password ?? 'password',
@@ -30,7 +30,7 @@ export const createAuthToken = async (subject: string | number) => await new Sig
     .sign(new TextEncoder().encode(authSecret))
 
 export const createPersonalAccessToken = async (userId: string | number, token: string) => {
-    const personalAccessToken = await (await getModel<typeof PersonalAccessToken>('PersonalAccessToken')).query().create({
+    const personalAccessToken = await (getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')).query().create({
         abilities: [],
         lastUsedAt: new Date(),
         name: 'Test device',

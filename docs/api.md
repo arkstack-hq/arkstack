@@ -222,7 +222,7 @@ Both middlewares expect an `Authorization: Bearer <token>` header.
 - `Notification.mail(options?)` / `Notification.email(options?)` — create a mail notification driver.
 - `Notification.sms(options?)` — create an SMS notification driver.
 - `Notification.db()` — create a database notification driver.
-- `Notification.realtime(options?)` — create a realtime (Pusher/Firebase) broadcast driver.
+- `Notification.realtime(options?)` — create a realtime (Pusher/Firebase) broadcast driver. Pass `driverFactory` to supply your own `RealtimeDriver` instead; `broadcast()` accepts non-notification payloads too.
 - `Notification.channel(channel?, options?)` — create a driver from a channel or `notifications.default_driver`.
 - `new Notification(channel, options?).prepare(recipient, data?)` — prepare a driver using a user-like recipient or direct address.
 
@@ -236,6 +236,12 @@ Broadcasts a notification to connected clients over Pusher Channels or Firebase 
 - `.channel(name | names[])` / `.event(name)` — override the channel(s) and the client event name (default `notification`). An array fans out to multiple Pusher channels, or is treated as Firebase device tokens (multicast, chunked to 500, returning `invalidTokens` to prune).
 - `.type(type)` / `.action(text, link)` / `.meta(data)` — build the payload.
 - `.store(enabled?)` — also persist the notification (requires a `User` recipient) so clients can load history.
+- `.priority(level?)` — `high` (default) exempts the message from Android Doze / App Standby, which otherwise defer a normal-priority FCM data message. Always maps to Android and Web Push, and to APNs once the message is a visible push; see [the iOS note](/guide/notifications#delivery-options).
+- `.ttl(seconds)` — how long the message stays worth delivering (FCM's own default is four weeks). `0` means now-or-never. Converted per platform.
+- `.collapseKey(key)` — supersede an earlier undelivered message with the same key instead of stacking beside it.
+- `.delivery(options)` — merge raw delivery options, including per-platform `android` / `apns` / `webpush` escape hatches.
+- `.tag(tag)` — stable identity for what the notification is about; a later notification with the same tag supersedes it on the client. Independent of `collapseKey` (queue-level, four per device).
+- `.retract(enabled?)` — send an instruction to remove the notification carrying this tag instead of one to display. Never persisted. Prefer superseding with replacement content where there is any.
 - `.send(message, subject?, recipient?, data?)` — broadcast; resolves to `{ channel, event, payload, stored? }`.
 
 ### Notification Config
@@ -244,7 +250,7 @@ Broadcasts a notification to connected clients over Pusher Channels or Firebase 
 - `notifications.drivers.mail.transport` — mail transport name, usually `smtp`.
 - `notifications.drivers.sms.transport` — SMS transport name, `africastalking` or `twilio`.
 - `notifications.drivers.db.table` — database notifications table name.
-- `notifications.drivers.realtime` — realtime `transport` (`pusher` | `firebase`), `channel_prefix`, `event`, and default `store`.
+- `notifications.drivers.realtime` — realtime `transport` (`pusher` | `firebase`), `channel_prefix`, `event`, default `store`, default `delivery` (`priority`, `ttl`, `collapseKey`), and `driverFactory` to supply a transport of your own.
 - `notifications.transports.smtp` — SMTP connection options.
 - `notifications.transports.africastalking` — AfricasTalking credentials.
 - `notifications.transports.twilio` — Twilio credentials.
@@ -260,6 +266,7 @@ The framework-neutral client for consuming realtime notifications, with React an
 - `createRealtime(config)` — create a `RealtimeClient` (config: `transport`, `event`, `channelPrefix`, `pusher`/`firebase`, or a custom `transportFactory`).
 - `client.subscribe(channel, handler)` / `client.forUser(userId, handler)` — subscribe; returns an unsubscribe function.
 - `client.channelFor(userId)` — the per-user channel name; `client.disconnect()` — tear down the connection.
+- `supersede(list, incoming, limit?)` — fold a notification into a list, replacing a same-tag entry in place, removing what a retraction names, and prepending otherwise. Applied for you by both bindings.
 - `@arkstack/realtime/react` — `useNotifications(client, channel, { limit? })` → `{ notifications, latest, clear }`.
 - `@arkstack/realtime/vue` — `useNotifications(client, channel, { limit? })` → `{ notifications, latest, clear, stop }`.
 

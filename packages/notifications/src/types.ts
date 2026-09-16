@@ -3,6 +3,7 @@ import type { TransportOptions, Transporter } from 'nodemailer'
 import type { Logger } from 'nodemailer/lib/shared'
 import MailMessage from 'nodemailer/lib/mailer/mail-message'
 import type { MergedConfig } from '@arkstack/common'
+import type { RealtimeDriver } from './Contracts/RealtimeDriver'
 import type { UserNotification } from '@app/models/UserNotification'
 
 export type NotificationRecipient = string | string[]
@@ -85,6 +86,54 @@ export type FirebaseTransportConfig = {
     private_key?: string
     app_name?: string
     admin_sdk_path?: string
+    /** Delivery options applied to every send on this transport. */
+    delivery?: RealtimeDeliveryOptions
+}
+
+/**
+ * Per-send delivery hints for push transports.
+ *
+ * FCM defaults a data message to normal priority, which Doze and App Standby are
+ * free to defer until the next maintenance window — exactly the state a phone is
+ * in when something time-critical — an approval someone is waiting on, an alert
+ * about to go stale — needs to wake it.
+ * `priority: 'high'` is what exempts the message.
+ *
+ * Only the Firebase transport acts on these; Pusher holds an open connection and
+ * has no equivalent, so it ignores them.
+ */
+export type RealtimeDeliveryOptions = {
+    /**
+     * `high` wakes a dozing device (FCM `android.priority`, APNs priority 10).
+     * Defaults to `normal`. Budgeted by FCM — reserve it for messages a user is
+     * actually waiting on.
+     */
+    priority?: 'normal' | 'high'
+    /**
+     * How long, in **seconds**, the message stays worth delivering. FCM's own
+     * default is four weeks; anything time-critical wants far less, so a stale
+     * signal expires instead of surfacing long after the moment it described has
+     * passed. `0` asks for now-or-never.
+     */
+    ttl?: number
+    /**
+     * Supersede an undelivered message with the same key rather than stacking a
+     * second one — e.g. the id of whatever is being signalled, so a retry replaces
+     * the message it repeats.
+     */
+    collapseKey?: string
+    /** 
+     * Merged over the derived `android` block; escape hatch for anything unmapped. 
+     */
+    android?: Record<string, unknown>
+    /** 
+     * Merged over the derived `apns` block; escape hatch for anything unmapped. 
+     */
+    apns?: Record<string, unknown>
+    /** 
+     * Merged over the derived `webpush` block; escape hatch for anything unmapped. 
+     */
+    webpush?: Record<string, unknown>
 }
 
 export type RealtimeDriverOptions<T extends RealtimeDriverName = RealtimeDriverName> = {
@@ -95,6 +144,17 @@ export type RealtimeDriverOptions<T extends RealtimeDriverName = RealtimeDriverN
     event?: string
     /** Also persist the notification to the database (requires a User recipient). */
     store?: boolean
+    /** Delivery hints (priority, TTL, collapse key) for push transports. */
+    delivery?: RealtimeDeliveryOptions
+    /**
+     * Build the driver yourself, bypassing the built-ins. Anything satisfying
+     * {@link RealtimeDriver} works — a transport this package does not ship (APNs
+     * or PushKit, say), or a fake in a test. Supplying this ignores `transport`.
+     *
+     * Called synchronously; do connection setup lazily inside the driver, as the
+     * bundled ones do, so constructing a notification never blocks on a network.
+     */
+    driverFactory?: () => RealtimeDriver
     pusher?: PusherTransportConfig
     firebase?: FirebaseTransportConfig
 }
@@ -108,9 +168,34 @@ export type RealtimeNotificationPayload = {
     actionText?: string | null
     actionLink?: string | null
     meta?: NotificationData | null
+    /**
+     * Stable identity for what this notification is *about* — an order, an
+     * incident, an approval. A later notification carrying the same tag supersedes
+     * this one rather than stacking beside it, so a client can replace what it
+     * already showed. Unbounded and client-side; unrelated to the transport's
+     * `collapseKey`, which is a queue slot with a much smaller budget.
+     */
+    tag?: string | null
+    /**
+     * Marks this message as an instruction to *remove* the notification carrying
+     * `tag`, rather than as a notification to display. Absent means display.
+     *
+     * Prefer superseding with replacement content where there is any: a retraction
+     * has nothing to show, so it must travel as a silent push, and silent pushes
+     * are the ones platforms throttle hardest.
+     */
+    retracted?: boolean
     read_at: string | null
     created_at: string
 }
+
+/**
+ * What a transport will carry. Notifications are the common case and what the
+ * builder produces, but a channel is just a channel — an application can push its
+ * own event shapes over the same one and pick them up with the client's
+ * `listen()`, which has always accepted arbitrary events.
+ */
+export type RealtimeBroadcastPayload = RealtimeNotificationPayload | Record<string, unknown>
 
 /** The result of a realtime broadcast (plus the stored record when `store` is on). */
 export type RealtimeBroadcastResult = {
@@ -159,13 +244,17 @@ export interface NotificationConfig<T = any> {
             table: string
         }
         realtime?: {
-            transport: RealtimeDriverName
+            transport?: RealtimeDriverName
             /** Prefix for the per-user channel/topic (default `user.`). */
             channel_prefix?: string
             /** Event name clients subscribe to (default `notification`). */
             event?: string
             /** Persist broadcasts to the database by default. */
             store?: boolean
+            /** Delivery hints applied to every broadcast unless overridden per-send. */
+            delivery?: RealtimeDeliveryOptions
+            /** Build the driver yourself for every realtime notification. */
+            driverFactory?: () => RealtimeDriver
         }
     }
     transports: {

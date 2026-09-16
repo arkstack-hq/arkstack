@@ -1,4 +1,4 @@
-import type { PusherTransportConfig, RealtimeNotificationPayload } from '../../types'
+import type { PusherTransportConfig, RealtimeBroadcastPayload, RealtimeDeliveryOptions } from '../../types'
 import { RequestException, env } from '@arkstack/common'
 
 import type { RealtimeDriver } from '../../Contracts/RealtimeDriver'
@@ -64,7 +64,23 @@ export class PusherRealtimeDriver implements RealtimeDriver {
         return this.clientPromise
     }
 
-    async broadcast(channel: string | string[], event: string, payload: RealtimeNotificationPayload) {
+    /**
+     * `delivery` is accepted for contract parity and ignored: Pusher pushes over a
+     * connection the client already holds open, so there is no dozing radio to
+     * wake and no per-message priority, TTL or collapse key to set.
+     * 
+     * @param channel 
+     * @param event 
+     * @param payload 
+     * @param _delivery 
+     * @returns 
+     */
+    async broadcast(
+        channel: string | string[],
+        event: string,
+        payload: RealtimeBroadcastPayload,
+        _delivery?: RealtimeDeliveryOptions,
+    ) {
         const client = await this.client()
 
         // Pusher's `trigger` fans out to multiple channels when given an array.

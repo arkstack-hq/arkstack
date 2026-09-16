@@ -1,7 +1,6 @@
-import type { Queueable } from '@arkstack/queue'
-
 import { JobRegistry } from './JobRegistry'
 import { PendingDispatch } from './PendingDispatch'
+import type { Queueable } from '@arkstack/queue'
 
 /**
  * The base class for dispatchable jobs.
@@ -41,32 +40,32 @@ export abstract class Job implements Queueable {
     /**
      * Perform the work for this job. Implemented by subclasses.
      */
-    abstract handle (): unknown | Promise<unknown>
+    abstract handle(): unknown | Promise<unknown>
 
     /**
      * Serialize the job's state for storage. Defaults to a shallow copy of the
      * instance's own properties. Override for custom serialization.
      */
-    serialize (): Record<string, unknown> {
-        return { ...this }
+    serialize(): Record<string, unknown> {
+        return { ...this } as never
     }
 
     /** Send this job to the given connection. */
-    onConnection (connection: string): this {
+    onConnection(connection: string): this {
         this.connection = connection
 
         return this
     }
 
     /** Send this job to the given queue. */
-    onQueue (queue: string): this {
+    onQueue(queue: string): this {
         this.queue = queue
 
         return this
     }
 
     /** Delay the job by a number of seconds. */
-    withDelay (seconds: number): this {
+    withDelay(seconds: number): this {
         this.delay = seconds
 
         return this
@@ -76,14 +75,14 @@ export abstract class Job implements Queueable {
      * Create a pending dispatch for this job class with the given constructor
      * arguments. Await it (or chain `onQueue`/`onConnection`/`withDelay`) to send.
      */
-    static dispatch<T extends Job> (this: new (...args: any[]) => T, ...args: any[]): PendingDispatch<T> {
+    static dispatch<T extends Job>(this: new (...args: any[]) => T, ...args: any[]): PendingDispatch<T> {
         return new PendingDispatch(new this(...args))
     }
 
     /**
      * Dispatch immediately on the synchronous connection, running the job inline.
      */
-    static dispatchSync<T extends Job> (this: new (...args: any[]) => T, ...args: any[]): PendingDispatch<T> {
+    static dispatchSync<T extends Job>(this: new (...args: any[]) => T, ...args: any[]): PendingDispatch<T> {
         return new PendingDispatch(new this(...args)).onConnection('sync')
     }
 }

@@ -1,4 +1,4 @@
-import type { RealtimeDriverName, RealtimeNotificationPayload } from '../types'
+import type { RealtimeBroadcastPayload, RealtimeDeliveryOptions, RealtimeDriverName } from '../types'
 
 import type { FirebaseRealtimeDriver } from '../drivers/realtime/FirebaseRealtimeDriver'
 import type { PusherRealtimeDriver } from '../drivers/realtime/PusherRealtimeDriver'
@@ -10,12 +10,17 @@ import type { PusherRealtimeDriver } from '../drivers/realtime/PusherRealtimeDri
  * `channel` may be an array: for Pusher it fans out to multiple channels, and
  * for Firebase it is treated as a list of device registration tokens delivered
  * via a multicast send.
+ *
+ * `delivery` carries transport-level hints — priority, TTL, collapse key. It is
+ * optional so existing implementations stay source-compatible, and transports
+ * without a notion of priority (Pusher) are free to ignore it.
  */
 export interface RealtimeDriver {
     broadcast(
         channel: string | string[],
         event: string,
-        payload: RealtimeNotificationPayload,
+        payload: RealtimeBroadcastPayload,
+        delivery?: RealtimeDeliveryOptions,
     ): Promise<unknown>
     auth(
         socketId: string,

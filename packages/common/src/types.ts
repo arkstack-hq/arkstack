@@ -363,3 +363,9 @@ export interface PublishConfirmation {
         stub: string
     ) => string | Promise<string>
 }
+
+export type Concrete<T extends abstract new (...args: any[]) => any> =
+    Omit<T, 'prototype'> & {
+        new(...args: ConstructorParameters<T>): InstanceType<T>
+        prototype: InstanceType<T>
+    }
