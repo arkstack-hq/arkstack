@@ -1,10 +1,10 @@
-import type { CUserNotification, UserNotification } from '@app/models/UserNotification'
+import { Concrete, getModel } from '@arkstack/common'
 import type { DbNotificationPayload, NotificationData, NotificationRecipient } from '../types'
 
 import { NotificationContract } from '../Contracts/NotificationContract'
 import type { User } from '@app/models/User'
+import type { UserNotification } from '@app/models/UserNotification'
 import { UserNotificationCenter } from '../UserNotificationCenter'
-import { getModel } from '@arkstack/common'
 import { interpolate } from '../utils/template'
 
 export class DbNotification extends NotificationContract<UserNotification> {
@@ -61,7 +61,7 @@ export class DbNotification extends NotificationContract<UserNotification> {
     }
 
     async create(user: User, payload: DbNotificationPayload) {
-        getModel<CUserNotification>('UserNotification')
+        getModel<Concrete<typeof UserNotification>>('UserNotification')
 
         if (this.realtime) {
             return await UserNotificationCenter.send(user, payload) as never

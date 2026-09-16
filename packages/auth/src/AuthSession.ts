@@ -1,7 +1,7 @@
 import { AuthContract } from './Contracts/AuthContract'
 import type { PersonalAccessToken } from '@app/models/PersonalAccessToken'
 import { Session as HttpSession } from '@arkstack/http'
-import { getModel } from '@arkstack/common'
+import { Concrete, getModel } from '@arkstack/common'
 
 /**
  * Represents an authenticated user session.
@@ -18,7 +18,7 @@ export class AuthSession extends HttpSession {
      * 
      * @returns
      */
-    override async destroy () {
+    override async destroy() {
         const pat = await this.token()
 
         if (pat) {
@@ -35,7 +35,7 @@ export class AuthSession extends HttpSession {
      * 
      * @returns
      */
-    async token (): Promise<PersonalAccessToken | null> {
+    async token(): Promise<PersonalAccessToken | null> {
         if (!this.auth.getRequest()) {
             return null
         }
@@ -46,7 +46,7 @@ export class AuthSession extends HttpSession {
             return null
         }
 
-        const Model = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+        const Model = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
 
         return await Model.query().where({ token }).first()
     }

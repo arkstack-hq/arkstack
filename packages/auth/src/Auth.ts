@@ -1,4 +1,4 @@
-import { Hash, appKey, env, getModel } from '@arkstack/common'
+import { Concrete, Hash, appKey, env, getModel } from '@arkstack/common'
 import { JWTPayload, SignJWT, jwtVerify } from 'jose'
 
 import { AuthContract } from './Contracts/AuthContract'
@@ -33,7 +33,7 @@ export class Auth extends AuthContract {
      * @param secret    The secret key used for signing and verifying JWTs.
      * @returns         A new instance of the Auth class.
      */
-    static make (secret?: string) {
+    static make(secret?: string) {
         return new Auth(secret)
     }
 
@@ -43,7 +43,7 @@ export class Auth extends AuthContract {
      * @param req   The HTTP request instance to be set.
      * @returns     The Auth class itself for method chaining.
      */
-    static setRequest (req: Request<User> | RequestSource<User>) {
+    static setRequest(req: Request<User> | RequestSource<User>) {
         this.req = Request.from<User>(req)
 
         return this
@@ -55,7 +55,7 @@ export class Auth extends AuthContract {
      * @param req   The HTTP request instance to be set.
      * @returns     The Auth instance itself for method chaining.
      */
-    setRequest (req: Request<User> | RequestSource<User>) {
+    setRequest(req: Request<User> | RequestSource<User>) {
         Auth.req ??= Request.from<User>(req)
 
         return this
@@ -67,7 +67,7 @@ export class Auth extends AuthContract {
      * 
      * @returns The current HTTP request instance or undefined if not set.
      */
-    getRequest (): Request<User> | undefined {
+    getRequest(): Request<User> | undefined {
         return Auth.req
     }
 
@@ -76,7 +76,7 @@ export class Auth extends AuthContract {
      * 
      * @returns The currently authenticated user or null if not authenticated.
      */
-    user (): User | null {
+    user(): User | null {
         return this.#user
     }
 
@@ -87,8 +87,8 @@ export class Auth extends AuthContract {
      * @param password  The password of the user.
      * @returns         A boolean indicating whether the credentials are valid.
      */
-    async verify (email: string, password: string): Promise<boolean> {
-        const user = await (await getModel<typeof User>('User')).query().where({ email }).first()
+    async verify(email: string, password: string): Promise<boolean> {
+        const user = await (getModel<Concrete<typeof User>>('User')).query().where({ email }).first()
 
         return !!user && await Hash.verify(password, user.password)
     }
@@ -100,8 +100,8 @@ export class Auth extends AuthContract {
      * @param password 
      * @returns 
      */
-    async attempt (email: string, password: string): Promise<User> {
-        const user = await (await getModel<typeof User>('User')).query().where({ email }).first()
+    async attempt(email: string, password: string): Promise<User> {
+        const user = await (getModel<Concrete<typeof User>>('User')).query().where({ email }).first()
 
         if (!user) {
             throw new AuthenticationException('User account not found', { req: Auth.req, status: 422, errors: { email: ['No account found for this email address'] } })
@@ -125,7 +125,7 @@ export class Auth extends AuthContract {
      * @param password 
      * @returns 
      */
-    async login (email: string, password: string): Promise<PersonalAccessToken> {
+    async login(email: string, password: string): Promise<PersonalAccessToken> {
         const user = await this.attempt(email, password)
 
         return await this.create(user)
@@ -140,7 +140,7 @@ export class Auth extends AuthContract {
      * @param expiresIn 
      * @returns 
      */
-    async createTemporaryToken (user: User, purpose: string, expiresIn: string = '10m'): Promise<string> {
+    async createTemporaryToken(user: User, purpose: string, expiresIn: string = '10m'): Promise<string> {
         return await this.createJWT({
             sub: user.id.toString(),
             email: user.email,
@@ -156,7 +156,7 @@ export class Auth extends AuthContract {
      * @param purpose 
      * @returns 
      */
-    async authorizeTemporaryToken (token: string, purpose: string): Promise<User> {
+    async authorizeTemporaryToken(token: string, purpose: string): Promise<User> {
         const payload = await this.verifyJWT(token)
 
         if (!payload || payload.purpose !== purpose || !payload.sub) {
@@ -166,7 +166,7 @@ export class Auth extends AuthContract {
             )
         }
 
-        const user = await (await getModel<typeof User>('User')).query().find(payload.sub)
+        const user = await (getModel<Concrete<typeof User>>('User')).query().find(payload.sub)
 
         if (!user) {
             throw new AuthenticationException(
@@ -186,21 +186,21 @@ export class Auth extends AuthContract {
      * @param token 
      * @returns 
      */
-    async logout (token?: string | PersonalAccessToken): Promise<void> {
+    async logout(token?: string | PersonalAccessToken): Promise<void> {
         if (!this.#user && !token) {
             return
         }
 
         if (token) {
             if (typeof token === 'string') {
-                const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+                const TokenModel = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
 
                 await TokenModel.query().where({ token }).delete()
             } else {
                 await token.delete()
             }
         } else {
-            const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+            const TokenModel = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
 
             await TokenModel.query().where({ userId: this.#user!.id }).delete()
         }
@@ -217,7 +217,7 @@ export class Auth extends AuthContract {
      * 
      * @returns 
      */
-    async check (): Promise<boolean> {
+    async check(): Promise<boolean> {
         return !!this.#user
     }
 
@@ -226,7 +226,7 @@ export class Auth extends AuthContract {
      * 
      * @returns 
      */
-    session () {
+    session() {
         return new AuthSession(this)
     }
 
@@ -236,7 +236,7 @@ export class Auth extends AuthContract {
      * @param user 
      * @returns 
      */
-    async create (user: User): Promise<PersonalAccessToken> {
+    async create(user: User): Promise<PersonalAccessToken> {
         const payload: JWTPayload = {
             sub: user.id.toString(),
             email: user.email,
@@ -261,8 +261,8 @@ export class Auth extends AuthContract {
      * @param token The new bearer token to persist.
      * @param deviceInfo The current request's device information.
      */
-    private async upsertDeviceToken (user: User, token: string, deviceInfo: Record<string, unknown> | null) {
-        const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+    private async upsertDeviceToken(user: User, token: string, deviceInfo: Record<string, unknown> | null) {
+        const TokenModel = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
         const deviceKey = SessionDevice.getUniqueKey(deviceInfo)
         const payload = {
             abilities: [],
@@ -322,7 +322,7 @@ export class Auth extends AuthContract {
      * @param token 
      * @returns 
      */
-    async authorizeToken (token: string): Promise<User> {
+    async authorizeToken(token: string): Promise<User> {
         const payload = await this.verifyJWT(token)
 
         if (!payload) {
@@ -332,7 +332,7 @@ export class Auth extends AuthContract {
             )
         }
 
-        const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+        const TokenModel = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
         const pat = await TokenModel.query().where({ token }).first()
 
         if (!pat) {
@@ -342,7 +342,7 @@ export class Auth extends AuthContract {
             )
         }
 
-        const user = await (await getModel<typeof User>('User')).query().find(payload.sub!)
+        const user = await (getModel<Concrete<typeof User>>('User')).query().find(payload.sub!)
 
         if (!user) {
             throw new AuthenticationException(
@@ -368,7 +368,7 @@ export class Auth extends AuthContract {
      * @param payload 
      * @returns 
      */
-    private async createJWT (payload: JWTPayload, expiresIn: string = env('JWT_EXPIRES_IN', '1h')): Promise<string> {
+    private async createJWT(payload: JWTPayload, expiresIn: string = env('JWT_EXPIRES_IN', '1h')): Promise<string> {
         const jwt = await new SignJWT(payload)
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
@@ -384,7 +384,7 @@ export class Auth extends AuthContract {
      * @param token 
      * @returns 
      */
-    private async verifyJWT (token: string): Promise<JWTPayload | null> {
+    private async verifyJWT(token: string): Promise<JWTPayload | null> {
         try {
             const { payload } = await jwtVerify(token, new TextEncoder().encode(this.getSecret()))
 
@@ -394,13 +394,13 @@ export class Auth extends AuthContract {
         }
     }
 
-    private getSecret (): string {
+    private getSecret(): string {
         // Explicitly configured secret wins, then the unified APP_KEY with a
         // backward-compatible fallback to the legacy JWT_SECRET variable.
         return this.configuredSecret ?? appKey('JWT_SECRET') ?? 'default_secret'
     }
 
-    private setAuthenticated (user: User, token?: string) {
+    private setAuthenticated(user: User, token?: string) {
         this.#user = user
         Auth.req?.setAuthentication(this, user, token)
     }
@@ -412,7 +412,7 @@ export class Auth extends AuthContract {
      * @param pat The personal access token to update.
      * @returns A promise that resolves when the update is complete.
      */
-    private async touchSession (pat: PersonalAccessToken) {
+    private async touchSession(pat: PersonalAccessToken) {
         const now = new Date()
         const currentDeviceInfo = SessionDevice.fromRequest(Auth.req)
         const shouldUpdateLastUsedAt = !pat.lastUsedAt || (now.getTime() - pat.lastUsedAt.getTime()) > 5 * 60 * 1000
@@ -438,7 +438,7 @@ export class Auth extends AuthContract {
             payload.name = currentDisplayName
         }
 
-        const TokenModel = await getModel<typeof PersonalAccessToken>('PersonalAccessToken')
+        const TokenModel = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
 
         await TokenModel.query().where({ id: pat.id }).update(payload)
 
