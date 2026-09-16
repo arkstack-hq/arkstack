@@ -1,6 +1,8 @@
-import { Arkstack, ArkstackRouterContract, ArkstackRouteListOptions } from '@arkstack/contract'
-import { H3Driver, type H3Middleware } from '@arkstack/driver-h3'
+import { Arkstack, ArkstackRouteListOptions, ArkstackRouterContract } from '@arkstack/contract'
+
 import { H3 } from 'h3'
+import { H3Driver } from '@arkstack/driver-h3'
+import { H3Middleware } from '@arkstack/driver-h3/types'
 import { Router } from '@arkstack/driver-h3'
 
 export default class Application extends Arkstack<H3, unknown, H3Middleware> {
@@ -29,7 +31,7 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
    * 
    * @returns 
    */
-  getRouter (): ArkstackRouterContract<H3, unknown> {
+  getRouter(): ArkstackRouterContract<H3, unknown> {
     return {
       bind: (app: H3) => Router.bind(app),
       list: (options: ArkstackRouteListOptions = {}, app?: H3) => Router.list(options, app ?? this.app),
@@ -43,11 +45,12 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
    * @param port    The numeric port to run the server on
    * @param defer   Set to true to skip server startup
    */
-  public async boot (port: number, defer = false) {
+  public async boot(port: number, defer = false) {
     // Load public assets
     await this.driver.mountPublicAssets(this.app, 'public')
 
     // Apply all middleware
+    // @ts-expect-error config cannot be discovered outside app scaffolds
     await this.driver.applyMiddleware(this.app, config('middleware') as never)
 
     // Bind the router

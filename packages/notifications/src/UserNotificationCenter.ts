@@ -1,15 +1,15 @@
 import type { ArkormCollection, LengthAwarePaginator } from 'arkormx'
+import type { CUserNotification, UserNotification } from '@app/models/UserNotification'
 
 import type { DbNotificationPayload } from './types'
 import { Notification } from './Notification'
 import type { User } from '@app/models/User'
-import type { UserNotification } from '@app/models/UserNotification'
 import { UserPushToken } from './Contracts/UserPushToken'
 import { getModel } from '@arkstack/common'
 
 export class UserNotificationCenter {
     private static async getModel() {
-        return await getModel<typeof UserNotification>('UserNotification')
+        return getModel<CUserNotification>('UserNotification')
     }
 
     /**
@@ -72,6 +72,7 @@ export class UserNotificationCenter {
      * @param user 
      */
     static async unreadForUser(user: User): Promise<ArkormCollection<UserNotification, UserNotification[]>>
+
     /**
      * Fetch all the users unread messages with a lenght aware paginator instance
      * 

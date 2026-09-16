@@ -20,3 +20,11 @@ export abstract class UserNotification extends Model {
         meta: 'json',
     } as const
 }
+
+export type CUserNotification =
+    Omit<typeof UserNotification, 'prototype'> &
+    { new(...args: any[]): UserNotification; prototype: UserNotification }
+
+export type Concrete<Abstract> =
+    Omit<Abstract, 'prototype'> &
+    { new(...args: any[]): Abstract; prototype: Abstract }
