@@ -11,6 +11,14 @@ export interface RealtimeNotification {
     actionText?: string | null
     actionLink?: string | null
     meta?: Record<string, unknown> | null
+    /**
+     * Stable identity for what this notification is about. A later notification
+     * with the same tag supersedes this one rather than stacking beside it — see
+     * {@link supersede}, which the React and Vue bindings apply for you.
+     */
+    tag?: string | null
+    /** Removes the notification carrying `tag` instead of displaying anything. */
+    retracted?: boolean
     read_at: string | null
     created_at: string
 }

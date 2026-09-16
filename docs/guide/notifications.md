@@ -175,12 +175,71 @@ await Notification.realtime({ transport: 'firebase' })
   .send('You have a new message');
 ```
 
+### Delivery options
+
+FCM sends a data message at normal priority, and Android's Doze and App Standby may hold it until the next maintenance window. `.priority('high')` exempts it, and pairs naturally with a short TTL — FCM's own default is four weeks:
+
+```ts
+await Notification.realtime({ transport: 'firebase' })
+  .channel(user.deviceTokens)
+  .priority('high')
+  .ttl(60)
+  .collapseKey(`signin:${attemptId}`) // a retry replaces the prompt it repeats
+  .send('Approve sign-in from Lagos?');
+```
+
+Pass TTL in seconds; each platform's unit is converted for you. Set defaults under `drivers.realtime.delivery`, override per send, and reach anything unmapped through `.delivery({ android, apns, webpush })`. Pusher ignores all of it — it pushes over a connection the client already holds open.
+
+On iOS this maps to APNs only for a visible push (`apns-push-type: alert`), since Apple requires background pushes to be low priority. Ringing or full-screen alerts need PushKit, which FCM cannot address at all.
+
+### Superseding a notification
+
+`.tag()` gives a notification a stable identity, so a later one with the same tag replaces it on the client instead of stacking beside it:
+
+```ts
+// asked
+await Notification.realtime({ transport: 'firebase' })
+  .channel(tokens)
+  .tag(`signin:${attemptId}`)
+  .collapseKey(`signin:${attemptId}`)
+  .priority('high')
+  .ttl(60)
+  .send('Approve sign-in from Lagos?');
+
+// answered elsewhere
+await Notification.realtime({ transport: 'firebase' })
+  .channel(tokens)
+  .tag(`signin:${attemptId}`)
+  .collapseKey(`signin:${attemptId}`)
+  .send('Sign-in approved');
+```
+
+Tag by the thing it is about (`order:42`), not the message. `tag` supersedes what was **displayed**; `collapseKey` supersedes what is still **queued** — set both when you want both. They stay separate because FCM allows only four collapse keys per device, so deriving one per tag would starve that budget.
+
+`.retract()` removes a notification with nothing in its place. Prefer a replacement where the outcome has content of its own: a retraction must travel as a silent push, which platforms throttle hardest. Retractions are never stored, and retracting does not touch a row already written by `.store()`.
+
+The React and Vue bindings apply this for you; for your own list, use the same reducer:
+
+```ts
+import { supersede } from '@arkstack/realtime';
+
+client.subscribe(channel, (n) => setItems((items) => supersede(items, n, 50)));
+```
+
 Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.pusher` / `transports.firebase`. The `pusher` / `firebase-admin` SDKs are optional, install only the one you use:
 
 ```sh
 pnpm add pusher          # Pusher transport
 pnpm add firebase-admin  # Firebase transport
 ```
+
+**Bringing your own transport.** `driverFactory` replaces the built-ins with anything implementing `RealtimeDriver` — a backend this package does not ship, or a fake in a test. Set it per send, or under `drivers.realtime` for the whole app; it takes precedence over `transport`. Do connection setup lazily inside the driver, as the bundled ones do.
+
+```ts
+Notification.realtime({ driverFactory: () => new MyApnsDriver() });
+```
+
+`broadcast()` also accepts payloads that are not notifications, so an application can push its own event shapes over the same channel and pick them up with the client's `listen()`.
 
 **Firebase credentials** can be provided two ways. Point `admin_sdk_path` (`FIREBASE_ADMINSDK`, default `firebase-adminsdk.json`, resolved from the project root) at a downloaded service-account JSON file; if that file is absent, the driver falls back to the inline `project_id` / `client_email` / `private_key` values (`FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY`). `app_name` (`FIREBASE_APP_NAME`, default your `APP_NAME`) names the Firebase Admin app instance so repeated broadcasts reuse it.
 

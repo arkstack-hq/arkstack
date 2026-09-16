@@ -4,6 +4,7 @@ import type {
     NotificationData,
     NotificationRecipient,
     RealtimeBroadcastResult,
+    RealtimeDeliveryOptions,
     RealtimeDriverName,
     RealtimeDriverOptions,
     RealtimeNotificationPayload,
@@ -12,7 +13,7 @@ import type {
 import { FirebaseRealtimeDriver } from './realtime/FirebaseRealtimeDriver'
 import { NotificationContract } from '../Contracts/NotificationContract'
 import { PusherRealtimeDriver } from './realtime/PusherRealtimeDriver'
-import type { RealtimeNotificationDriver } from '../Contracts/RealtimeDriver'
+import type { RealtimeDriver, RealtimeNotificationDriver } from '../Contracts/RealtimeDriver'
 import type { User } from '@app/models/User'
 import { UserNotificationCenter } from '../UserNotificationCenter'
 import { configure } from '../config'
@@ -26,8 +27,10 @@ import { randomUUID } from 'node:crypto'
  */
 export class RealtimeNotification
     <T extends RealtimeDriverName = RealtimeDriverName> extends NotificationContract<RealtimeBroadcastResult> {
-    /** 
-     * The underlying transport; assignable so tests can inject a fake. 
+    /**
+     * The underlying transport. Assignable, and configurable up front through
+     * `driverFactory`, so a transport this package does not ship — or a fake in a
+     * test — can stand in for the built-ins.
      */
     driver: RealtimeNotificationDriver<T>
     private user?: User
@@ -35,6 +38,9 @@ export class RealtimeNotification
     private eventName: string
     private channelPrefix: string
     private shouldStore: boolean
+    private tagName?: string
+    private isRetraction = false
+    private deliveryOptions: RealtimeDeliveryOptions
     private payload: Partial<DbNotificationPayload> = {}
 
     constructor(options: RealtimeDriverOptions<T> = {}) {
@@ -45,6 +51,8 @@ export class RealtimeNotification
             channel_prefix?: string
             event?: string
             store?: boolean
+            delivery?: RealtimeDeliveryOptions
+            driverFactory?: () => RealtimeDriver
         }
         const transport = options.transport ?? driverConfig?.transport ?? 'pusher'
         const transportConfig = configure(`transports.${transport}` as never, {}) as Record<string, never>
@@ -53,10 +61,17 @@ export class RealtimeNotification
         this.eventName = options.event ?? driverConfig?.event ?? 'notification'
         this.channelPrefix = driverConfig?.channel_prefix ?? 'user.'
         this.shouldStore = options.store ?? driverConfig?.store ?? false
+        this.deliveryOptions = { ...driverConfig?.delivery, ...options.delivery }
 
-        this.driver = (transport === 'firebase'
-            ? new FirebaseRealtimeDriver({ ...transportConfig, ...options.firebase })
-            : new PusherRealtimeDriver({ ...transportConfig, ...options.pusher })
+        // A supplied driver wins over `transport`: naming one of the built-ins is
+        // meaningless when the caller is bringing their own.
+        const factory = options.driverFactory ?? driverConfig?.driverFactory
+
+        this.driver = (factory
+            ? factory()
+            : transport === 'firebase'
+                ? new FirebaseRealtimeDriver({ ...transportConfig, ...options.firebase })
+                : new PusherRealtimeDriver({ ...transportConfig, ...options.pusher })
         ) as RealtimeNotificationDriver<T>
     }
 
@@ -170,6 +185,112 @@ export class RealtimeNotification
         return this
     }
 
+    /**
+     * How hard the transport should work to deliver this message.
+     *
+     * FCM sends a data message at normal priority by default, and Doze and App
+     * Standby may hold a normal-priority message until the next maintenance
+     * window — which is precisely the state a phone is in when something needs to
+     * wake it. `high` is what exempts the message.
+     *
+     * FCM budgets high-priority sends, so reserve it for messages the user is
+     * actually waiting on. Pusher ignores this.
+     *
+     * @param priority
+     * @returns
+     */
+    priority(priority: 'normal' | 'high' = 'high'): this {
+        this.deliveryOptions.priority = priority
+
+        return this
+    }
+
+    /**
+     * How long, in seconds, this message is still worth delivering.
+     *
+     * FCM keeps a message for four weeks by default. Anything time-critical wants
+     * far less — a signal that arrives after the moment has passed is worse than
+     * one that never arrives — so pair a short TTL with `priority('high')`. `0`
+     * means deliver now or drop it.
+     *
+     * @param seconds
+     * @returns
+     */
+    ttl(seconds: number): this {
+        this.deliveryOptions.ttl = seconds
+
+        return this
+    }
+
+    /**
+     * Supersede an earlier undelivered message instead of stacking beside it.
+     * Key it by the thing being signalled — an approval id, say — so a repeat replaces
+     * the message it repeats.
+     *
+     * @param key
+     * @returns
+     */
+    collapseKey(key: string): this {
+        this.deliveryOptions.collapseKey = key
+
+        return this
+    }
+
+    /**
+     * Merge raw delivery options, including the per-platform `android` / `apns` /
+     * `webpush` escape hatches for anything the helpers above do not cover.
+     *
+     * @param delivery
+     * @returns
+     */
+    delivery(delivery: RealtimeDeliveryOptions): this {
+        this.deliveryOptions = { ...this.deliveryOptions, ...delivery }
+
+        return this
+    }
+
+    /**
+     * Give this notification a stable identity, so a later one can supersede it.
+     *
+     * Tag by the thing the notification is *about* — `order:42`, `incident:7` —
+     * not by the message. A client that already showed a notification with this
+     * tag replaces it in place instead of stacking a second one beside it.
+     *
+     * This is a client-side identity and is deliberately **not** wired to
+     * `collapseKey`: a collapse key is a transport queue slot, and FCM keeps only
+     * four per device, so auto-deriving one per tag would quietly evict others.
+     * When you want both — supersede what is queued *and* what was displayed —
+     * set both to the same value.
+     *
+     * @param tag
+     * @returns
+     */
+    tag(tag: string): this {
+        this.tagName = tag
+
+        return this
+    }
+
+    /**
+     * Send an instruction to remove the notification carrying this tag, rather
+     * than a notification to display. Nothing is persisted, even under `store()`.
+     *
+     * Reach for this only when there is genuinely nothing left to say. Where the
+     * outcome has its own content — an approval answered elsewhere, a check that
+     * went from failing to passing — supersede it by sending that content under
+     * the same `tag()`. A replacement travels as an ordinary notification, while a
+     * retraction has nothing to display and so must travel silently, which is
+     * exactly what Doze, App Standby and iOS throttle hardest.
+     *
+     * @param retract
+     * @returns
+     */
+    retract(retract = true): this {
+        this.isRetraction = retract
+
+        return this
+    }
+
     private resolveChannel(): string | string[] {
         if (this.channelName !== undefined) {
             return this.channelName
@@ -192,7 +313,8 @@ export class RealtimeNotification
      * @returns 
      */
     async send(
-        message: string,
+        // Optional so a retraction, which displays nothing, can `send()` bare.
+        message: string = '',
         subject?: string,
         _recipient?: NotificationRecipient,
         data?: NotificationData,
@@ -211,7 +333,9 @@ export class RealtimeNotification
 
         // Opt-in persistence gives the payload a real id + timestamps and lets the
         // client load history alongside the live broadcast.
-        const stored = this.shouldStore && this.user
+        // A retraction withdraws a notification; storing one as a notification in
+        // its own right would leave the history saying the opposite of the truth.
+        const stored = this.shouldStore && this.user && !this.isRetraction
             ? await UserNotificationCenter.create(this.user, base)
             : undefined
 
@@ -223,12 +347,16 @@ export class RealtimeNotification
             actionText: base.actionText ?? null,
             actionLink: base.actionLink ?? null,
             meta: base.meta ?? null,
+            // Both are omitted rather than nulled when unused, so an untagged
+            // broadcast stays byte-for-byte what it has always been on the wire.
+            ...(this.tagName !== undefined ? { tag: this.tagName } : {}),
+            ...(this.isRetraction ? { retracted: true } : {}),
             read_at: stored?.readAt ? new Date(stored.readAt).toISOString() : null,
             created_at: stored?.createdAt ? new Date(stored.createdAt).toISOString() : new Date().toISOString(),
         }
 
         if (channel && channel.length > 0)
-            await this.driver.broadcast(channel, this.eventName, payload)
+            await this.driver.broadcast(channel, this.eventName, payload, this.deliveryOptions)
 
         return { channel, event: this.eventName, payload, stored }
     }

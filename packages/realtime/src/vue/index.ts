@@ -3,6 +3,7 @@ import { computed, onScopeDispose, ref } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
 import type { RealtimeClient } from '../RealtimeClient'
 import type { RealtimeNotification } from '../types'
+import { supersede } from '../supersede'
 
 export interface UseNotificationsOptions {
     /** Cap the number of retained notifications (newest kept). Default: unbounded. */
@@ -21,6 +22,10 @@ export interface UseNotificationsResult {
  * notifications (newest first) into a ref. Automatically unsubscribes when the
  * scope is disposed (component unmount).
  *
+ * Tagged notifications supersede rather than accumulate: one replaces an earlier
+ * notification with the same tag in place, and a retraction removes it. See
+ * {@link supersede}.
+ *
  * @param client   A {@link RealtimeClient} (from `createRealtime`).
  * @param channel  The channel to subscribe to, e.g. `client.channelFor(user.id)`.
  * @param options  `limit` caps how many notifications are retained.
@@ -37,9 +42,7 @@ export function useNotifications (
     let cancelled = false
 
     const push = (notification: RealtimeNotification) => {
-        const next = [notification, ...notifications.value]
-
-        notifications.value = limit ? next.slice(0, limit) : next
+        notifications.value = supersede(notifications.value, notification, limit)
     }
 
     client.subscribe(channel, push)
