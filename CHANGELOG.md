@@ -10,9 +10,13 @@ The format follows semantic versioning principles.
 
 ### Changed
 
+- `env()` now reads a value as a number only when the number says exactly what was written. `Number()` accepts hexadecimal, binary and octal literals, exponents, surrounding whitespace, and integers wider than a double can hold, and coercing those loses information silently. `'6379'` is still a number; `'0x1f'`, `'007'`, `'1e5'`, `' 12 '`, `'0b1010'`, `'Infinity'` and `'12345678901234567890'` are now the strings they were written as.
+
 ### Docs
 
 ### Fixed
+
+- Fixed `env()` destroying hexadecimal secrets. A `0x`-prefixed 32-byte key parses as a number, so it was silently replaced by a float keeping roughly its first thirteen digits, with nothing downstream able to tell. Private keys, hashes and identifiers read through `env()` now survive verbatim.
 
 ## [0.12.36] - 2026-06-20
 
