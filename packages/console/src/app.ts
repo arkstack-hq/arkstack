@@ -25,9 +25,13 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
 
     registerMusketListeners(musket: Musket<this>): void {
         musket.afterHandle.on(async () => {
-            const { disposeArkormRuntime } = await import('arkormx')
+            try {
+                const { disposeArkormRuntime } = await import('arkormx')
 
-            await disposeArkormRuntime()
+                await disposeArkormRuntime()
+            } catch {
+                // Apps without database needs should not break when arkormx is not installed
+            }
             process.exit(0)
         })
     }
