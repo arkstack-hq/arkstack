@@ -1,4 +1,4 @@
-import { Arkorm, DB, Model, defineConfig } from 'arkormx'
+import { Arkorm, DB, Model, defineConfig, getModel as getArkormxModel } from 'arkormx'
 
 import type { ArkormConfig } from 'arkormx'
 import { Arkstack } from '@arkstack/contract'
@@ -6,9 +6,11 @@ import type { DatabaseConfig } from './types'
 import { createAdapter } from './kysely'
 import { createArkormCurrentPageResolver } from 'resora'
 import { existsSync } from 'node:fs'
-import { outputDir } from '@arkstack/common'
+import { outputDir, setModelResolver } from '@arkstack/common'
 import path from 'node:path'
 import { resolveConnection } from './config'
+
+setModelResolver(getArkormxModel)
 
 /**
  * Default ArkORM paths matching the scaffolded application structure. Apps with

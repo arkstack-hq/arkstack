@@ -1,5 +1,4 @@
 import type { Model, ModelStatic, RegisteredModelClass, RegisteredModelName, RelatedModelClass } from 'arkormx'
-import { getModel as getArkormxModel } from 'arkormx'
 import { RequestException } from '../Exceptions/RequestException'
 
 import { PaginationOptions } from '../types'
@@ -13,6 +12,21 @@ export type ModelConstructor<TModel extends Model = Model> =
 
 
 export interface ModelRegistry { }
+
+export type ModelResolver = (modelName: string) => RelatedModelClass
+
+let modelResolver: ModelResolver | undefined
+
+/**
+ * Configure the synchronous model resolver used by {@link getModel}.
+ *
+ * Database integrations should call this during module initialization. Keeping
+ * the resolver injectable lets `@arkstack/common` remain usable without loading
+ * a specific ORM at runtime.
+ */
+export const setModelResolver = (resolver: ModelResolver): void => {
+    modelResolver = resolver
+}
 
 /**
  * Checks and asserts if target is a class
@@ -100,18 +114,22 @@ export const resolvePagination = (
 /**
  * Synchronously resolve an application model by name.
  *
- * Registered models are returned first. If a model has not been registered yet,
- * ArkORM loads it from the configured models paths, registers it, and returns
- * the matching constructor.
+ * The configured database integration resolves and, when supported, loads the
+ * requested model.
  *
  * @param modelName
- * @alias {@link getArkormxModel}
  * @returns
  */
 export function getModel<TName extends RegisteredModelName>(modelName: TName): RegisteredModelClass<TName>
 export function getModel<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel;
 export function getModel<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel {
-    return getArkormxModel(modelName)
+    if (!modelResolver) {
+        throw new Error(
+            `No model resolver has been configured. Load your database integration before resolving "${modelName}".`
+        )
+    }
+
+    return modelResolver(modelName) as TModel
 }
 
 /**
@@ -121,13 +139,12 @@ export function getModel<TModel extends RelatedModelClass = RelatedModelClass>(m
  * Without a registry entry, pass the class type explicitly: `getModel<typeof User>('User')`.
  * 
  * @param modelName 
- * @alias {@link getArkormxModel}
- * @deprecated 0.17.27 - Use {@link getModel} or {@link getArkormxModel}
+ * @deprecated 0.17.27 - Use {@link getModel}
  */
 export function getModelSync<TName extends RegisteredModelName>(modelName: TName): RegisteredModelClass<TName>
 export function getModelSync<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel;
 export function getModelSync<TModel extends RelatedModelClass = RelatedModelClass>(modelName: string): TModel {
-    return getArkormxModel(modelName)
+    return getModel<TModel>(modelName)
 }
 
 export const initializeGlobalContext = async (
