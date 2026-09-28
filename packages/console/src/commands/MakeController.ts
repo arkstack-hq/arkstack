@@ -1,5 +1,6 @@
 import { ArkstackConsoleApp } from '../app'
 import { Command } from '@h3ravel/musket'
+import { Logger } from '@arkstack/common'
 
 // oxlint-disable-next-line typescript/no-explicit-any
 export class MakeController extends Command<ArkstackConsoleApp<any>> {
@@ -22,13 +23,19 @@ export class MakeController extends Command<ArkstackConsoleApp<any>> {
 
         const name = this.app.makeController(this.argument('name'), this.options())
 
-        const { CliApp } = await import('arkormx')
-        const app = new CliApp()
-        app.command = this as never
+        let model: Record<string, any> | null = {}
 
-        const model = this.option('model')
-            ? app.makeModel(this.option('model'), this.options())
-            : null
+        try {
+            const { CliApp } = await import('arkormx')
+            const app = new CliApp()
+            app.command = this as never
+
+            model = this.option('model')
+                ? app.makeModel(this.option('model'), this.options())
+                : null
+        } catch {
+            // Apps without database needs should not break when arkormx is not installed
+        }
 
         this.success('Controller created successfully!');
 
@@ -38,6 +45,6 @@ export class MakeController extends Command<ArkstackConsoleApp<any>> {
             model?.factory ? ['Factory', model.factory.path] : '',
             model?.seeder ? ['Seeder', model.seeder.path] : '',
             model?.migration ? ['Migration', model.migration.path] : ''
-        ].filter(Boolean).map(([name, path]) => this.success(app.splitLogger(name!, path!)))
+        ].filter(Boolean).map(([name, path]) => this.success(Logger.splitLogger(name!, path!)))
     }
 }

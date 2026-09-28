@@ -6,7 +6,6 @@ import path, { join } from 'node:path'
 import { Arkstack } from '@arkstack/contract'
 import { Musket } from '@h3ravel/musket'
 import { defaultConfig } from './config'
-import { disposeArkormRuntime } from 'arkormx'
 import { existsSync } from 'node:fs'
 import { resolveStubsDir } from './helpers'
 
@@ -26,6 +25,8 @@ export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
 
     registerMusketListeners(musket: Musket<this>): void {
         musket.afterHandle.on(async () => {
+            const { disposeArkormRuntime } = await import('arkormx')
+
             await disposeArkormRuntime()
             process.exit(0)
         })

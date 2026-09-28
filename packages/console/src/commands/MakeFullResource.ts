@@ -2,6 +2,7 @@ import { applyRuntimeConfig, getDefaultConfig } from 'resora'
 
 import { ArkstackConsoleApp } from '../app'
 import { Command } from '@h3ravel/musket'
+import { Logger } from '@arkstack/common'
 
 // oxlint-disable-next-line typescript/no-explicit-any
 export class MakeFullResource extends Command<ArkstackConsoleApp<any>> {
@@ -38,12 +39,18 @@ export class MakeFullResource extends Command<ArkstackConsoleApp<any>> {
             Object.assign({}, this.options(), { api: true, force: this.option('force') }),
         )
 
-        const { CliApp } = await import('arkormx')
-        const app = new CliApp()
+        let model: Record<string, any> | null = {}
 
-        const model = this.option('model')
-            ? app.makeModel(this.argument('prefix'), { ...this.options(), force: false })
-            : null
+        try {
+            const { CliApp } = await import('arkormx')
+            const app = new CliApp()
+
+            model = this.option('model')
+                ? app.makeModel(this.argument('prefix'), { ...this.options(), force: false })
+                : null
+        } catch {
+            // Apps without database needs should not break when arkormx is not installed
+        }
 
         this.success('Created full resource set:');
 
@@ -55,6 +62,6 @@ export class MakeFullResource extends Command<ArkstackConsoleApp<any>> {
             model?.factory ? ['Factory', model.factory.path] : '',
             model?.seeder ? ['Seeder', model.seeder.path] : '',
             model?.migration ? ['Migration', model.migration.path] : ''
-        ].filter(Boolean).map(([name, path]) => this.success(app.splitLogger(name!, path!)))
+        ].filter(Boolean).map(([name, path]) => this.success(Logger.splitLogger(name!, path!)))
     }
 }
