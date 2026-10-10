@@ -25,6 +25,7 @@ The format follows semantic versioning principles.
 ### Fixed
 
 - Express `after` middleware no longer resumes the router once the response has finished. It used to receive the real `next`, so a middleware such as `requestLogger()` sent each request on through the remaining routes after responding, raising "Cannot set headers after they are sent to the client".
+- `UserNotificationCenter.markAllRead()` now marks every unread notification read; it used a single-row `update()` and marked only one. `unreadForUser(user, perPage)` now honours `perPage`, and both filter unread rows with `whereNull('readAt')`.
 - `UserNotificationCenter.send()` (and `Notification.db().broadcast()`) now broadcast on the user's channel. They previously sent to the user's push tokens as channels, so nothing was broadcast at all for users without tokens. Apps on the `firebase` transport still reach their users' devices without changes, because device push is on there unless `drivers.realtime.push` is `false`.
 - `Notification.db().broadcast()` now returns the builder, so it chains as documented.
 - The Pusher auth route registered by `registerAuthRoute()` now answers with HTTP 200 (pusher-js rejects any other status), registers on the H3 driver instead of the Express one, and authorizes through the channel registry.
