@@ -16,7 +16,21 @@ export type NotificationData = Record<string, unknown>
 
 export type SmsDriverName = 'africastalking' | 'twilio'
 
-export type RealtimeDriverName = 'pusher' | 'firebase'
+/**
+ * Realtime transports.
+ *
+ * - `pusher`: Pusher Channels, or any Pusher-protocol server such as soketi.
+ * - `firebase`: Firebase Cloud Messaging; delivers to devices, not channels.
+ * - `firebase-database`: Firebase Realtime Database channels.
+ * - `polling`: no push; clients are told to poll on an interval.
+ * - `memory`: records broadcasts in process, for tests.
+ */
+export type RealtimeDriverName = 'pusher' | 'firebase' | 'firebase-database' | 'polling' | 'memory'
+
+/** 
+ * Transports that can deliver to device registration tokens. 
+ */
+export type PushDriverName = 'firebase'
 
 export type NotificationChannel = 'mail' | 'sms' | 'db' | 'realtime'
 
@@ -78,6 +92,11 @@ export type PusherTransportConfig = {
     secret?: string
     cluster?: string
     use_tls?: boolean
+    /** 
+     * A self-hosted Pusher-protocol server (e.g. soketi). Overrides `cluster` addressing. 
+     */
+    host?: string
+    port?: number
 }
 
 export type FirebaseTransportConfig = {
@@ -88,6 +107,43 @@ export type FirebaseTransportConfig = {
     admin_sdk_path?: string
     /** Delivery options applied to every send on this transport. */
     delivery?: RealtimeDeliveryOptions
+    web?: FirebaseWebConfig
+}
+
+/**
+ * Public Firebase web app settings handed to browser clients. Never secret.
+ */
+export type FirebaseWebConfig = {
+    api_key?: string
+    auth_domain?: string
+    app_id?: string
+    messaging_sender_id?: string
+    /** Web push VAPID key clients use to request a messaging token. */
+    vapid_key?: string
+}
+
+export type FirebaseDatabaseTransportConfig = Omit<FirebaseTransportConfig, 'delivery'> & {
+    database_url?: string
+    /** 
+     * Database path that holds channel events (default `arkstack/channels`). 
+     */
+    root?: string
+    /** 
+     * Database path that holds per-user channel grants (default `arkstack/grants`). 
+     */
+    grants_root?: string
+    /** 
+     * How long, in seconds, a channel grant stays valid (default 3600). 
+     */
+    grant_ttl?: number
+    web?: FirebaseWebConfig
+}
+
+export type PollingTransportConfig = {
+    /** 
+     * How often, in milliseconds, clients should poll (default 5000). 
+     */
+    interval?: number
 }
 
 /**
@@ -157,6 +213,9 @@ export type RealtimeDriverOptions<T extends RealtimeDriverName = RealtimeDriverN
     driverFactory?: () => RealtimeDriver
     pusher?: PusherTransportConfig
     firebase?: FirebaseTransportConfig
+    'firebase-database'?: FirebaseDatabaseTransportConfig
+    polling?: PollingTransportConfig
+    memory?: Record<string, never>
 }
 
 /** The notification payload delivered to realtime clients. */
@@ -197,12 +256,58 @@ export type RealtimeNotificationPayload = {
  */
 export type RealtimeBroadcastPayload = RealtimeNotificationPayload | Record<string, unknown>
 
+/** 
+ * The outcome of a device push: totals plus the tokens to prune. 
+ */
+export type PushResult = {
+    successCount: number
+    failureCount: number
+    invalidTokens: string[]
+}
+
 /** The result of a realtime broadcast (plus the stored record when `store` is on). */
 export type RealtimeBroadcastResult = {
     channel: string | string[]
     event: string
     payload: RealtimeNotificationPayload
     stored?: UserNotification
+    /** Present when the notification was also pushed to the recipient's devices. */
+    push?: PushResult
+}
+
+/** 
+ A device registration token, or a record carrying one. 
+ */
+export type PushTokenLike = string | { token: string }
+
+/** 
+ Decides whether a subject (usually the authenticated user) may join a channel. 
+ */
+export type ChannelAuthorizer<Subject = any> = (
+    subject: Subject,
+    params: Record<string, string>,
+) => boolean | Promise<boolean>
+
+/** 
+ * The body a realtime client posts to the channel auth endpoint. 
+ */
+export type ChannelAuthRequest = {
+    socket_id?: string
+    channel_name?: string
+}
+
+/** 
+ * Public connection settings a `@arkstack/realtime` client is created from. 
+ */
+export type RealtimeClientConfig = {
+    transport: RealtimeDriverName
+    event: string
+    channelPrefix: string
+    pusher?: Record<string, unknown>
+    firebase?: Record<string, unknown>
+    'firebase-database'?: Record<string, unknown>
+    polling?: Record<string, unknown>
+    memory?: Record<string, unknown>
 }
 
 export type DbNotificationType = 'transaction' | 'pocket' | 'family' | 'security' | 'promo' | 'bill' | 'goal' | string
@@ -245,6 +350,17 @@ export interface NotificationConfig<T = any> {
         }
         realtime?: {
             transport?: RealtimeDriverName
+            /**
+             * Also push notifications sent to a user to their registered devices
+             * over this transport. When unset, on only if `transport` is `firebase`;
+             * `false` turns it off.
+             */
+            push?: PushDriverName | false
+            /**
+             * Resolve a user's device tokens for `push`. Defaults to reading
+             * `user.pushTokens`.
+             */
+            push_tokens?: (user: any) => PushTokenLike[] | Promise<PushTokenLike[]>
             /** Prefix for the per-user channel/topic (default `user.`). */
             channel_prefix?: string
             /** Event name clients subscribe to (default `notification`). */
@@ -316,8 +432,10 @@ export interface NotificationConfig<T = any> {
             secret: string;
             cluster: string;
             use_tls?: boolean
+            host?: string
+            port?: number
         }
-        firebase?: {
+        firebase?: ({
             project_id: string;
             client_email: string;
             private_key: string;
@@ -325,7 +443,12 @@ export interface NotificationConfig<T = any> {
         } | {
             app_name?: string;
             admin_sdk_path: string
+        }) & {
+            delivery?: RealtimeDeliveryOptions
+            web?: FirebaseWebConfig
         }
+        'firebase-database'?: FirebaseDatabaseTransportConfig
+        polling?: PollingTransportConfig
     }
     queue?: {
         name?: string,

@@ -1,6 +1,9 @@
 import type { RealtimeBroadcastPayload, RealtimeDeliveryOptions, RealtimeDriverName } from '../types'
 
+import type { FirebaseDatabaseRealtimeDriver } from '../drivers/realtime/FirebaseDatabaseRealtimeDriver'
 import type { FirebaseRealtimeDriver } from '../drivers/realtime/FirebaseRealtimeDriver'
+import type { MemoryRealtimeDriver } from '../drivers/realtime/MemoryRealtimeDriver'
+import type { PollingRealtimeDriver } from '../drivers/realtime/PollingRealtimeDriver'
 import type { PusherRealtimeDriver } from '../drivers/realtime/PusherRealtimeDriver'
 
 /**
@@ -22,6 +25,10 @@ export interface RealtimeDriver {
         payload: RealtimeBroadcastPayload,
         delivery?: RealtimeDeliveryOptions,
     ): Promise<unknown>
+    /**
+     * Sign or grant access to an already authorized channel. `socketId` is the
+     * Pusher socket id, or the subscriber's uid for transports without sockets.
+     */
     auth(
         socketId: string,
         channel: string,
@@ -32,10 +39,20 @@ export interface RealtimeDriver {
         middleware?: unknown | unknown[],
         channelPrefix?: string,
     ): Promise<void>
+    /**
+     * Public connection settings a browser client needs. Must never include secrets.
+     */
+    clientConfig?(): Record<string, unknown>
 }
 
 export type RealtimeNotificationDriver<T extends RealtimeDriverName> = T extends 'firebase'
     ? FirebaseRealtimeDriver
+    : T extends 'firebase-database'
+    ? FirebaseDatabaseRealtimeDriver
+    : T extends 'polling'
+    ? PollingRealtimeDriver
+    : T extends 'memory'
+    ? MemoryRealtimeDriver
     : T extends 'pusher'
     ? PusherRealtimeDriver
     : RealtimeDriver

@@ -8,14 +8,25 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- Added the `Broadcast` facade to `@arkstack/notifications`: a channel authorization registry (`Broadcast.channel('private-team.{teamId}', authorizer)`) used by every transport, `Broadcast.broadcast()` for arbitrary events, `Broadcast.handleAuth()` for custom auth routes, `Broadcast.clientConfig()`, and `Broadcast.routes()` registering `POST /realtime/auth` and `GET /realtime/config`.
+- Added the `firebase-database` realtime transport (Firebase Realtime Database channels with per-user, time-limited grants checked by security rules, plus bounded `prune()`), the signal-only `polling` transport, and the `memory` transport for tests, on both server and client.
+- Added device push alongside any streaming transport: `drivers.realtime.push: 'firebase'` pushes notifications sent to a user to their devices, with `push_tokens` for resolving tokens, `.push(false)` and `.devices(tokens)` per send, and the multicast outcome on `result.push`.
+- Added self-hosted Pusher-protocol servers (soketi) through `transports.pusher.host` / `port` and the client's `wsHost` / `wsPort`.
+- Added `RealtimeClient.onPoll()`, `RealtimeClient.deviceToken()` and `RealtimeClient.transportName` to `@arkstack/realtime`, with `createFirebaseDatabaseTransport`, `createPollingTransport`, `createMemoryTransport` and `emitMemoryEvent`.
+
 ### Changed
 
 - `env()` now reads a value as a number only when the number says exactly what was written. `Number()` accepts hexadecimal, binary and octal literals, exponents, surrounding whitespace, and integers wider than a double can hold, and coercing those loses information silently. `'6379'` is still a number; `'0x1f'`, `'007'`, `'1e5'`, `' 12 '`, `'0b1010'`, `'Infinity'` and `'12345678901234567890'` are now the strings they were written as.
 
 ### Docs
 
+- Documented realtime transports, channel authorization, device push, Firebase Realtime Database rules and pruning, polling, and testing with the memory transport in the notifications guide.
+
 ### Fixed
 
+- `UserNotificationCenter.send()` (and `Notification.db().broadcast()`) now broadcast on the user's channel. They previously sent to the user's push tokens as channels, so nothing was broadcast at all for users without tokens. Apps on the `firebase` transport still reach their users' devices without changes, because device push is on there unless `drivers.realtime.push` is `false`.
+- `Notification.db().broadcast()` now returns the builder, so it chains as documented.
+- The Pusher auth route registered by `registerAuthRoute()` now answers with HTTP 200 (pusher-js rejects any other status), registers on the H3 driver instead of the Express one, and authorizes through the channel registry.
 - Fixed `env()` destroying hexadecimal secrets. A `0x`-prefixed 32-byte key parses as a number, so it was silently replaced by a float keeping roughly its first thirteen digits, with nothing downstream able to tell. Private keys, hashes and identifiers read through `env()` now survive verbatim.
 
 ## [0.12.36] - 2026-06-20

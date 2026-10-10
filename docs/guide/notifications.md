@@ -138,9 +138,7 @@ await Notification.db()
   .send('A new login was detected.', 'Security alert');
 ```
 
-For this to work, your `User` model needs to have a `pushTokens` property/column, this can be a `string` and array of `string[]` or and object with a `token` property (`pushTokens.token`), an array of `pushTokens` object should also work (`{ pushTokens: { token: string } }[]`)
-
-The default behaviour for a missing `pushTokens` on the `User` model is no-op, so you don't have to worry about your app breaking.
+The notification is stored, broadcast on the user's channel, and pushed to their devices when [device push](#device-push) is configured.
 
 Use `UserNotificationCenter` when you need to list, mark, or delete stored notifications:
 
@@ -154,7 +152,7 @@ await UserNotificationCenter.delete(unread[0]);
 
 ## Realtime Notifications
 
-The `realtime` driver broadcasts a notification to connected clients over [Pusher Channels](https://pusher.com/channels) or [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging). Each user has their own channel (`${channel_prefix}${user.id}`, e.g. `user.7`).
+The `realtime` driver broadcasts a notification to connected clients. Each user has their own channel (`${channel_prefix}${user.id}`, e.g. `user.7`).
 
 ```ts
 await Notification.realtime()
@@ -167,13 +165,95 @@ await Notification.realtime()
 
 `.store()` is opt-in: when enabled the notification is written via `UserNotificationCenter` (giving it a real id and timestamps) **and** broadcast; otherwise it is broadcast only. Broadcast on an explicit channel with `.channel('team.updates')`, or change the client event name with `.event('alert')`.
 
-`.channel()` (and `.recipient()`) also accept an **array**. For Pusher it fans out to multiple channels; for Firebase it is treated as a list of **device registration tokens** and delivered via a chunked multicast (500 tokens per call). The Firebase multicast returns `{ successCount, failureCount, invalidTokens }` — delete `invalidTokens` from your store, since FCM reports which are unregistered:
+### Transports
+
+`drivers.realtime.transport` picks how events reach clients:
+
+| Transport           | Delivers to                          | Server SDK       | Client SDK  |
+| ------------------- | ------------------------------------ | ---------------- | ----------- |
+| `pusher`            | Pusher Channels, or soketi via `host` | `pusher`         | `pusher-js` |
+| `firebase`          | FCM devices and topics               | `firebase-admin` | `firebase`  |
+| `firebase-database` | Firebase Realtime Database channels  | `firebase-admin` | `firebase`  |
+| `polling`           | Nothing; clients poll on an interval | none             | none        |
+| `memory`            | An in-process buffer, for tests      | none             | none        |
+
+The SDKs are optional peer dependencies; install only the ones you use:
+
+```sh
+pnpm add pusher          # pusher
+pnpm add firebase-admin  # firebase, firebase-database
+```
+
+To use a self-hosted Pusher-protocol server such as [soketi](https://soketi.app), set `host` and `port` (`PUSHER_HOST`, `PUSHER_PORT`) under `transports.pusher`. Clients receive the address through [the config route](#channel-authorization).
+
+`.channel()` (and `.recipient()`) also accept an **array**. For Pusher it fans out to multiple channels; for `firebase` it is treated as a list of **device registration tokens** and delivered via a chunked multicast (500 tokens per call). The multicast returns `{ successCount, failureCount, invalidTokens }`. Delete `invalidTokens` from your store, since FCM reports which are unregistered:
 
 ```ts
 await Notification.realtime({ transport: 'firebase' })
   .channel(user.deviceTokens) // string[] of FCM registration tokens
   .send('You have a new message');
 ```
+
+### Broadcasting events
+
+A channel is just a channel. Use `Broadcast` to send your own event shapes over the configured transport, and pick them up with the client's `listen()`:
+
+```ts
+import { Broadcast } from '@arkstack/notifications';
+
+await Broadcast.broadcast(
+  [`private-order.${order.id}`, `private-team.${order.teamId}`],
+  'order.updated',
+  { id: order.id, status: order.status },
+);
+```
+
+### Channel authorization
+
+Register who may join each private channel. `{name}` placeholders match one segment (they never span a dot) and are passed to the callback. The first matching rule decides, unmatched channels are denied, and the per-user notification channel is allowed for its own user unless you register a rule for it.
+
+```ts
+// src/routes/realtime.ts
+import { Broadcast } from '@arkstack/notifications';
+
+Broadcast.channel('private-team.{teamId}', async (user, { teamId }) => {
+  return await TeamMember.where({ teamId, userId: user.id }).exists();
+});
+
+await Broadcast.routes(); // POST /realtime/auth, GET /realtime/config
+```
+
+`Broadcast.routes()` registers two routes behind the framework `auth` middleware (pass `{ prefix, middleware }` to change them):
+
+- `POST /realtime/auth` authorizes the requested channel and answers in the active transport's terms: a Pusher signature, or a Firebase custom token for `firebase-database`.
+- `GET /realtime/config` returns the public settings a client is created from. Secrets are never included.
+
+When a channel is joined by something other than the logged-in user, such as a guest holding a scoped token, call `Broadcast.handleAuth(subject, { socket_id, channel_name }, { uid })` from your own route. Rules receive whatever `subject` you pass.
+
+### Device push
+
+Set `drivers.realtime.push` to `'firebase'` to also push every notification sent to a user to their registered devices over FCM, whatever the streaming transport is. When `push` is unset it is on only if the transport is `firebase`; set it to `false` to turn it off there. Tokens are read from `user.pushTokens` (a string, `string[]`, `{ token }` or `{ token }[]`), or from your own resolver:
+
+```ts
+realtime: {
+  transport: 'pusher',
+  push: 'firebase',
+  push_tokens: async (user) =>
+    (await UserPushToken.where({ userId: user.id, isActive: true }).get()).all(),
+},
+```
+
+The send result carries the multicast outcome, so prune dead tokens there:
+
+```ts
+const result = await Notification.realtime().recipient(user).send('Your payout has settled.');
+
+if (result.push?.invalidTokens.length) {
+  await UserPushToken.whereIn('token', result.push.invalidTokens).delete();
+}
+```
+
+Skip the push for one send with `.push(false)`, or target specific devices with `.devices(tokens)`. On the client, `realtime.deviceToken()` returns the token to register; it needs `firebase.vapidKey` (`FIREBASE_VAPID_KEY`) and a `firebase-messaging-sw.js` service worker for background messages.
 
 ### Delivery options
 
@@ -226,12 +306,7 @@ import { supersede } from '@arkstack/realtime';
 client.subscribe(channel, (n) => setItems((items) => supersede(items, n, 50)));
 ```
 
-Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.pusher` / `transports.firebase`. The `pusher` / `firebase-admin` SDKs are optional, install only the one you use:
-
-```sh
-pnpm add pusher          # Pusher transport
-pnpm add firebase-admin  # Firebase transport
-```
+Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.*`.
 
 **Bringing your own transport.** `driverFactory` replaces the built-ins with anything implementing `RealtimeDriver` — a backend this package does not ship, or a fake in a test. Set it per send, or under `drivers.realtime` for the whole app; it takes precedence over `transport`. Do connection setup lazily inside the driver, as the bundled ones do.
 
@@ -241,28 +316,89 @@ Notification.realtime({ driverFactory: () => new MyApnsDriver() });
 
 `broadcast()` also accepts payloads that are not notifications, so an application can push its own event shapes over the same channel and pick them up with the client's `listen()`.
 
+### Firebase Realtime Database
+
+The `firebase-database` transport writes each event to `{root}/{channel}/{key}` (default root `arkstack/channels`). When a client is authorized for a channel, the server writes a grant to `arkstack/grants/{uid}/{channel}` that expires after `grant_ttl` seconds (default 3600) and returns a custom token to sign in with. Deploy security rules that check the grant, and index `at`:
+
+```json
+{
+  "rules": {
+    "arkstack": {
+      "channels": {
+        "$channel": {
+          ".read": "auth != null && root.child('arkstack/grants/' + auth.uid + '/' + $channel).val() > now",
+          ".indexOn": ["at"]
+        }
+      }
+    }
+  }
+}
+```
+
+Everything else stays unreadable, so the grants and the event index are never exposed. Channel names are stored URL-encoded with `.` written as `%2E`, so rules see the same key the server wrote. The `uid` must be usable as a database key; it defaults to the subscriber's `id`.
+
+Events are not deleted automatically. Schedule a prune; each call removes at most `limit` events:
+
+```ts
+import { Broadcast, FirebaseDatabaseRealtimeDriver } from '@arkstack/notifications';
+
+const driver = Broadcast.make('firebase-database') as FirebaseDatabaseRealtimeDriver;
+
+while ((await driver.prune(24 * 3600, 500)) > 0);
+```
+
+### Testing
+
+Set the transport to `memory` and read what was sent. The buffer lives on `globalThis`, so broadcasts made by code loaded separately from your tests are recorded too:
+
+```ts
+import { MemoryRealtimeDriver } from '@arkstack/notifications';
+
+beforeEach(() => MemoryRealtimeDriver.clear());
+
+expect(MemoryRealtimeDriver.broadcasts()).toContainEqual(
+  expect.objectContaining({ channel: 'user.7', event: 'notification' }),
+);
+```
+
 **Firebase credentials** can be provided two ways. Point `admin_sdk_path` (`FIREBASE_ADMINSDK`, default `firebase-adminsdk.json`, resolved from the project root) at a downloaded service-account JSON file; if that file is absent, the driver falls back to the inline `project_id` / `client_email` / `private_key` values (`FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY`). `app_name` (`FIREBASE_APP_NAME`, default your `APP_NAME`) names the Firebase Admin app instance so repeated broadcasts reuse it.
 
 ### Consuming on the client
 
-Install `@arkstack/realtime` in your front-end and the matching client SDK (`pusher-js` or `firebase`):
+Install `@arkstack/realtime` in your front-end and the matching client SDK (`pusher-js` or `firebase`). The simplest setup creates the client from the server's config route and adds your API's auth header:
 
 ```ts
 import { createRealtime } from '@arkstack/realtime';
 
+const headers = { Authorization: `Bearer ${token}` };
+const config = await fetch('/api/realtime/config', { headers }).then((r) => r.json());
+
 const realtime = createRealtime({
-  transport: 'pusher',
-  pusher: {
-    key: import.meta.env.VITE_PUSHER_KEY,
-    cluster: 'mt1',
-    authEndpoint: '/broadcasting/auth',
+  ...config,
+  pusher: config.pusher && { ...config.pusher, apiBase: '/api', auth: { headers } },
+  'firebase-database': config['firebase-database'] && {
+    ...config['firebase-database'],
+    apiBase: '/api',
+    auth: { headers },
   },
 });
 
 const unsubscribe = await realtime.forUser(user.id, (notification) => {
   console.log(notification.title, notification.description);
 });
+
+// Your own events
+await realtime.listen(`private-order.${order.id}`, 'order.updated', refresh);
 ```
+
+Under `polling` nothing arrives on a channel. `onPoll()` runs a handler on the advertised interval only while polling, so one code path serves every transport:
+
+```ts
+await realtime.listen(channel, 'order.updated', refresh);
+await realtime.onPoll(refresh);
+```
+
+For tests, use `transport: 'memory'` and feed subscribers with `emitMemoryEvent(channel, event, payload)`.
 
 React and Vue bindings accumulate notifications for you (newest first):
 

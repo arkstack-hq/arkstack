@@ -5,7 +5,6 @@ import type { DbNotificationPayload } from './types'
 import { Notification } from './Notification'
 import type { User } from '@app/models/User'
 import type { UserNotification } from '@app/models/UserNotification'
-import { UserPushToken } from './Contracts/UserPushToken'
 
 export class UserNotificationCenter {
     private static async getModel() {
@@ -13,31 +12,27 @@ export class UserNotificationCenter {
     }
 
     /**
-     * Create a database notification then broadcast it using the configured realtime driver
-     * 
-     * @param user 
-     * @param payload 
+     * Store a notification, broadcast it on the user's channel, and push it to
+     * their devices when `drivers.realtime.push` is configured.
+     *
+     * @param user
+     * @param payload
+     * @param devices  Push to these tokens instead of the user's own.
      */
-    static async send(user: User, payload: DbNotificationPayload, channel: string[] = []) {
-        return await Notification.realtime()
+    static async send(user: User, payload: DbNotificationPayload, devices?: string[]) {
+        const notification = Notification.realtime()
             .store()
-            .channel(this.resolvePushTokens(user.pushTokens ?? channel))
+            .recipient(user)
             .meta(payload.meta)
             .type(payload.type)
             .subject(payload.title)
             .action(payload.actionText, payload.actionLink)
-            .send(payload.description, payload.title, undefined, payload)
 
-    }
-
-    private static resolvePushTokens(pushTokens?: string | string | UserPushToken | UserPushToken[]) {
-        if (!pushTokens) return []
-
-        if (Array.isArray(pushTokens)) {
-            return pushTokens.map(e => typeof e === 'string' ? e : e.token)
+        if (devices?.length) {
+            notification.devices(devices)
         }
 
-        return [typeof pushTokens === 'string' ? pushTokens : pushTokens.token]
+        return await notification.send(payload.description, payload.title, undefined, payload)
     }
 
     /**
