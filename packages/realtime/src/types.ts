@@ -23,7 +23,16 @@ export interface RealtimeNotification {
     created_at: string
 }
 
-export type RealtimeTransportName = 'pusher' | 'firebase'
+/**
+ * Client transports, matching the server's `drivers.realtime.transport`.
+ *
+ * - `pusher`: Pusher Channels, or a self-hosted Pusher-protocol server via `wsHost`.
+ * - `firebase`: Firebase Cloud Messaging foreground messages.
+ * - `firebase-database`: Firebase Realtime Database channels.
+ * - `polling`: nothing is pushed; use {@link RealtimeClient.onPoll} to refetch.
+ * - `memory`: an in-process bus, for tests.
+ */
+export type RealtimeTransportName = 'pusher' | 'firebase' | 'firebase-database' | 'polling' | 'memory'
 
 export type NotificationHandler = (notification: RealtimeNotification) => void
 
@@ -70,6 +79,14 @@ export interface RealtimeTransport {
      * Disconnect from a connected realtime channel
      */
     disconnect(): void | Promise<void>
+    /**
+     * This device's push registration token, when the transport can issue one.
+     */
+    deviceToken?(): Promise<string | null>
+    /**
+     * Set by transports that push nothing; clients should poll this often instead.
+     */
+    polling?: { interval: number }
 }
 
 export interface PusherClientConfig {
@@ -90,6 +107,11 @@ export interface PusherClientConfig {
     authEndpoint?: string
     auth?: { headers?: Record<string, string>, params?: Record<string, string> }
     forceTLS?: boolean
+    /** A self-hosted Pusher-protocol server such as soketi. */
+    wsHost?: string
+    wsPort?: number
+    wssPort?: number
+    enabledTransports?: Array<'ws' | 'wss'>
 }
 
 export interface FirebaseClientConfig {
@@ -105,6 +127,29 @@ export interface FirebaseClientConfig {
     vapidKey?: string
 }
 
+export interface FirebaseDatabaseClientConfig {
+    apiKey: string
+    projectId: string
+    databaseURL: string
+    appId?: string
+    authDomain?: string
+    /** Database path that holds channel events (default `arkstack/channels`). */
+    root?: string
+    /**
+     * Your API's base URL; channels are authorized at `{apiBase}/realtime/auth`.
+     * Ignored when {@link authEndpoint} is set.
+     */
+    apiBase?: string
+    /** Endpoint that grants channel access and returns a Firebase custom token. */
+    authEndpoint?: string
+    auth?: { headers?: Record<string, string> }
+}
+
+export interface PollingClientConfig {
+    /** How often, in milliseconds, {@link RealtimeClient.onPoll} handlers run (default 5000). */
+    interval?: number
+}
+
 export interface RealtimeConfig {
     transport?: RealtimeTransportName
     /** Event name broadcasts are published under (default `notification`). */
@@ -113,6 +158,8 @@ export interface RealtimeConfig {
     channelPrefix?: string
     pusher?: PusherClientConfig
     firebase?: FirebaseClientConfig
+    'firebase-database'?: FirebaseDatabaseClientConfig
+    polling?: PollingClientConfig
     /** Inject a transport directly — bypasses the built-ins (tests, custom backends). */
     transportFactory?: () => RealtimeTransport | Promise<RealtimeTransport>
 }

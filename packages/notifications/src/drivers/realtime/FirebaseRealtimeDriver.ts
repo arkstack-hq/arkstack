@@ -1,9 +1,7 @@
 import type { FirebaseTransportConfig, RealtimeBroadcastPayload, RealtimeDeliveryOptions } from '../../types'
-import { existsSync, readFileSync } from 'node:fs'
 
 import type { RealtimeDriver } from '../../Contracts/RealtimeDriver'
-import { env } from '@arkstack/common'
-import path from 'node:path'
+import { firebaseAdminApp, firebaseWebConfig } from './firebaseAdmin'
 
 /** The slice of the `firebase-admin` messaging API this driver uses. */
 interface FirebaseSendResponse {
@@ -72,43 +70,13 @@ export class FirebaseRealtimeDriver implements RealtimeDriver {
     constructor(private options: FirebaseTransportConfig = {}) { }
 
     private messaging(): Promise<FirebaseMessaging> {
-        const appSpecifier = 'firebase-admin/app'
-        const messagingSpecifier = 'firebase-admin/messaging'
+        const specifier = 'firebase-admin/messaging'
 
         this.messagingPromise ??= (async () => {
-            const [app, messaging] = await Promise.all([
-                import(appSpecifier),
-                import(messagingSpecifier),
-            ]).catch(() => {
-                throw new Error(
-                    'The "firebase-admin" package is required for the Firebase realtime transport. Install it with `npm i firebase-admin`.',
-                )
-            })
-
-            const adminsdk = path.join(
-                process.cwd(),
-                this.options.admin_sdk_path ?? env('FIREBASE_ADMINSDK', 'firebase-adminsdk.json')
-            )
-
-            let serviceAccount: Record<string, any> | undefined
-            try {
-                if (existsSync(adminsdk))
-                    serviceAccount = JSON.parse(readFileSync(adminsdk, { encoding: 'utf-8' }))
-            } catch {/** */ }
-
-            const credential = app.cert(serviceAccount ?? {
-                projectId: this.options.project_id ?? env('FIREBASE_PROJECT_ID', ''),
-                clientEmail: this.options.client_email ?? env('FIREBASE_CLIENT_EMAIL', ''),
-                // Env-stored keys keep literal "\n"; restore real newlines.
-                privateKey: (this.options.private_key ?? env('FIREBASE_PRIVATE_KEY', ''))?.replace(/\\n/g, '\n'),
-            })
-
-            // Reuse a named app so repeated broadcasts don't re-initialize.
-            const name = String(
-                this.options.app_name ?? env('FIREBASE_APP_NAME', 'arkstack-realtime')
-            ).replaceAll(' ', '-').toLowerCase()
-            const existing = app.getApps().find((a: { name: string }) => a.name === name)
-            const instance = existing ?? app.initializeApp({ credential }, name)
+            const [instance, messaging] = await Promise.all([
+                firebaseAdminApp(this.options),
+                import(specifier),
+            ])
 
             return messaging.getMessaging(instance)
         })()
@@ -266,6 +234,16 @@ export class FirebaseRealtimeDriver implements RealtimeDriver {
         }
 
         return Object.keys(block).length > 0 ? { [key]: block } : {}
+    }
+
+    /**
+     * Public Firebase web settings for clients that receive messages or register
+     * device tokens.
+     *
+     * @returns
+     */
+    clientConfig(): Record<string, unknown> {
+        return firebaseWebConfig(this.options)
     }
 
     /**

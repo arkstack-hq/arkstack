@@ -1,5 +1,8 @@
 export { RealtimeClient, createRealtime } from './RealtimeClient'
 export { createPusherTransport } from './transports/pusher'
 export { createFirebaseTransport } from './transports/firebase'
+export { createFirebaseDatabaseTransport } from './transports/firebase-database'
+export { createPollingTransport } from './transports/polling'
+export { createMemoryTransport, emitMemoryEvent } from './transports/memory'
 export { supersede } from './supersede'
 export type * from './types'

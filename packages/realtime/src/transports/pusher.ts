@@ -39,6 +39,14 @@ export const createPusherTransport = async (
         forceTLS: config.forceTLS ?? true,
         authEndpoint: config.authEndpoint ?? `${config.apiBase}/realtime/auth`,
         auth: config.auth,
+        ...(config.wsHost
+            ? {
+                wsHost: config.wsHost,
+                wsPort: config.wsPort,
+                wssPort: config.wssPort ?? config.wsPort,
+                enabledTransports: config.enabledTransports ?? ['ws', 'wss'],
+            }
+            : {}),
     })
     const channels = new Map<string, { channel: PusherChannel, subscriptions: number }>()
 

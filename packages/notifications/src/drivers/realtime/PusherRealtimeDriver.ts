@@ -1,6 +1,8 @@
 import type { PusherTransportConfig, RealtimeBroadcastPayload, RealtimeDeliveryOptions } from '../../types'
 import { RequestException, env } from '@arkstack/common'
 
+import { Broadcast } from '../../Broadcast'
+
 import type { RealtimeDriver } from '../../Contracts/RealtimeDriver'
 
 /** The slice of the `pusher` server SDK this driver uses. */
@@ -28,6 +30,8 @@ type PusherConstructor = new (options: {
     secret: string
     cluster: string
     useTLS?: boolean
+    host?: string
+    port?: string
 }) => PusherClient
 
 /**
@@ -52,16 +56,55 @@ export class PusherRealtimeDriver implements RealtimeDriver {
 
             const Pusher = (mod.default ?? mod) as PusherConstructor
 
+            const { host, port } = this.server()
+
             return new Pusher({
                 appId: this.options.app_id ?? env('PUSHER_APP_ID', ''),
-                key: this.options.key ?? env('PUSHER_KEY', ''),
+                key: this.key(),
                 secret: this.options.secret ?? env('PUSHER_SECRET', ''),
-                cluster: this.options.cluster ?? env('PUSHER_CLUSTER', 'mt1'),
-                useTLS: this.options.use_tls ?? true,
+                cluster: this.cluster(),
+                useTLS: this.useTLS(),
+                ...(host ? { host, port: port ? String(port) : undefined } : {}),
             })
         })()
 
         return this.clientPromise
+    }
+
+    private key(): string {
+        return this.options.key ?? env('PUSHER_KEY', '')
+    }
+
+    private cluster(): string {
+        return this.options.cluster ?? env('PUSHER_CLUSTER', 'mt1')
+    }
+
+    private useTLS(): boolean {
+        return this.options.use_tls ?? true
+    }
+
+    private server(): { host?: string, port?: number } {
+        const host = this.options.host ?? (env('PUSHER_HOST', '') || undefined)
+        const port = this.options.port ?? (Number(env('PUSHER_PORT', 0)) || undefined)
+
+        return { host, port }
+    }
+
+    /**
+     * Public settings a `pusher-js` client needs, including the self-hosted
+     * server address when `host` is set.
+     *
+     * @returns
+     */
+    clientConfig(): Record<string, unknown> {
+        const { host, port } = this.server()
+
+        return {
+            key: this.key(),
+            cluster: this.cluster(),
+            forceTLS: this.useTLS(),
+            ...(host ? { wsHost: host, wsPort: port, wssPort: port } : {}),
+        }
     }
 
     /**
@@ -134,39 +177,36 @@ export class PusherRealtimeDriver implements RealtimeDriver {
         middleware?: unknown | unknown[],
         channelPrefix?: string
     ): Promise<void> {
-        const client = await this.client()
-        const drivers = {
-            express: '@arkstack/driver-express',
-            h3: '@arkstack/driver-express'
-        }
+        const drivers = ['@arkstack/driver-express', '@arkstack/driver-h3']
 
-        for (const [name, path] of Object.entries(drivers)) {
-            const midsPath = `${path}/middlewares`
+        for (const path of drivers) {
             try {
                 const { Router } = await import(path)
-                const { auth } = await import(midsPath)
+                const { auth } = await import(`${path}/middlewares`)
 
-                const middlewares = new Set(Array.isArray(middleware)
-                    ? middleware.concat(auth)
-                    : [middleware, auth]
-                )
-
-                Router.post(authEndpoint, ({ clearRequest, req }: any) => {
+                Router.post(authEndpoint, async ({ clearRequest, req }: any) => {
+                    const user = req?.user ?? clearRequest.user
                     const channel = clearRequest.input('channel_name')
                     const socketId = clearRequest.input('socket_id')
 
-                    const expected = channelPrefix ??
-                        `${config('notifications.drivers.realtime.channel_prefix', 'user.')}${req.user?.id ?? clearRequest.user?.id}`
+                    // An explicit channel limits access to exactly that channel.
+                    const allowed = channelPrefix
+                        ? channel === channelPrefix
+                        : await Broadcast.authorize(user, channel)
 
-                    RequestException.abortIf(channel !== expected, 'Channel access denied', 403)
+                    RequestException.abortIf(!allowed, 'Channel access denied', 403)
 
-                    return client.authorizeChannel(socketId, channel)
-                }).middleware(Array.from(middlewares))
+                    // pusher-js only accepts a 200 from the authorizer.
+                    return new Response(JSON.stringify(await this.auth(socketId, channel)), {
+                        status: 200,
+                        headers: { 'content-type': 'application/json' },
+                    })
+                }).middleware([middleware ?? []].flat().concat(auth))
 
-                break
+                return
             } catch (e) {
                 console.error(
-                    `Failed to register auth route for ${name}: ${e instanceof Error ? e.message : e}`
+                    `Failed to register auth route for ${path}: ${e instanceof Error ? e.message : e}`
                 )
             }
         }

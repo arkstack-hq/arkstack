@@ -1,4 +1,11 @@
-import type { NotificationHandler, RealtimeConfig, RealtimeEventHandler, RealtimeSubscription, RealtimeTransport } from './types'
+import type {
+    NotificationHandler,
+    RealtimeConfig,
+    RealtimeEventHandler,
+    RealtimeSubscription,
+    RealtimeTransport,
+    RealtimeTransportName,
+} from './types'
 
 /**
  * Consumes Arkstack realtime notifications. Resolves a transport (Pusher,
@@ -36,23 +43,50 @@ export class RealtimeClient {
             return await this.config.transportFactory()
         }
 
-        if (this.config.transport === 'firebase') {
-            if (!this.config.firebase) {
-                throw new Error('Realtime: `firebase` config is required for the Firebase transport')
+        switch (this.transportName) {
+            case 'firebase': {
+                const { createFirebaseTransport } = await import('./transports/firebase')
+
+                return await createFirebaseTransport(this.required('firebase'))
             }
+            case 'firebase-database': {
+                const { createFirebaseDatabaseTransport } = await import('./transports/firebase-database')
 
-            const { createFirebaseTransport } = await import('./transports/firebase')
+                return await createFirebaseDatabaseTransport(this.required('firebase-database'))
+            }
+            case 'polling': {
+                const { createPollingTransport } = await import('./transports/polling')
 
-            return await createFirebaseTransport(this.config.firebase)
+                return createPollingTransport(this.config.polling)
+            }
+            case 'memory': {
+                const { createMemoryTransport } = await import('./transports/memory')
+
+                return createMemoryTransport()
+            }
+            default: {
+                const { createPusherTransport } = await import('./transports/pusher')
+
+                return await createPusherTransport(this.required('pusher'))
+            }
+        }
+    }
+
+    private required<K extends 'pusher' | 'firebase' | 'firebase-database'>(name: K): NonNullable<RealtimeConfig[K]> {
+        const config = this.config[name]
+
+        if (!config) {
+            throw new Error(`Realtime: \`${name}\` config is required for the ${name} transport`)
         }
 
-        if (!this.config.pusher) {
-            throw new Error('Realtime: `pusher` config is required for the Pusher transport')
-        }
+        return config as NonNullable<RealtimeConfig[K]>
+    }
 
-        const { createPusherTransport } = await import('./transports/pusher')
-
-        return await createPusherTransport(this.config.pusher)
+    /**
+     * The configured transport name.
+     */
+    get transportName(): RealtimeTransportName {
+        return this.config.transport ?? 'pusher'
     }
 
     /**
@@ -144,6 +178,39 @@ export class RealtimeClient {
      */
     async forUser(userId: string | number, handler: NotificationHandler): Promise<() => void> {
         return await this.subscribe(this.channelFor(userId), handler)
+    }
+
+    /**
+     * Run `handler` on an interval while the transport is `polling`, so a view
+     * can refetch what it would otherwise receive live. Does nothing on push
+     * transports. Returns a function that stops it.
+     *
+     * @param handler
+     * @param interval  Overrides the transport's advertised interval, in milliseconds.
+     * @returns
+     */
+    async onPoll(handler: () => void, interval?: number): Promise<() => void> {
+        const transport = await this.transport()
+
+        if (!transport.polling) {
+            return () => { }
+        }
+
+        const timer = setInterval(handler, interval ?? transport.polling.interval)
+
+        return () => clearInterval(timer)
+    }
+
+    /**
+     * This device's push registration token, for registering with your API.
+     * Null when the transport cannot issue one.
+     *
+     * @returns
+     */
+    async deviceToken(): Promise<string | null> {
+        const transport = await this.transport()
+
+        return (await transport.deviceToken?.()) ?? null
     }
 
     /** Tear down the underlying transport connection. */

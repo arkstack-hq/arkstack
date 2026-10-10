@@ -10,10 +10,9 @@ import type {
     RealtimeNotificationPayload,
 } from '../types'
 
-import { FirebaseRealtimeDriver } from './realtime/FirebaseRealtimeDriver'
+import { Broadcast } from '../Broadcast'
 import { NotificationContract } from '../Contracts/NotificationContract'
-import { PusherRealtimeDriver } from './realtime/PusherRealtimeDriver'
-import type { RealtimeDriver, RealtimeNotificationDriver } from '../Contracts/RealtimeDriver'
+import type { RealtimeNotificationDriver } from '../Contracts/RealtimeDriver'
 import type { User } from '@app/models/User'
 import { UserNotificationCenter } from '../UserNotificationCenter'
 import { configure } from '../config'
@@ -40,6 +39,8 @@ export class RealtimeNotification
     private shouldStore: boolean
     private tagName?: string
     private isRetraction = false
+    private shouldPush?: boolean
+    private deviceTokens?: string[]
     private deliveryOptions: RealtimeDeliveryOptions
     private payload: Partial<DbNotificationPayload> = {}
 
@@ -47,32 +48,17 @@ export class RealtimeNotification
         super()
 
         const driverConfig = configure('drivers.realtime', {}) as {
-            transport?: RealtimeDriverName
-            channel_prefix?: string
             event?: string
             store?: boolean
             delivery?: RealtimeDeliveryOptions
-            driverFactory?: () => RealtimeDriver
         }
-        const transport = options.transport ?? driverConfig?.transport ?? 'pusher'
-        const transportConfig = configure(`transports.${transport}` as never, {}) as Record<string, never>
 
         this.channelName = options.channel
         this.eventName = options.event ?? driverConfig?.event ?? 'notification'
-        this.channelPrefix = driverConfig?.channel_prefix ?? 'user.'
+        this.channelPrefix = Broadcast.channelPrefix()
         this.shouldStore = options.store ?? driverConfig?.store ?? false
         this.deliveryOptions = { ...driverConfig?.delivery, ...options.delivery }
-
-        // A supplied driver wins over `transport`: naming one of the built-ins is
-        // meaningless when the caller is bringing their own.
-        const factory = options.driverFactory ?? driverConfig?.driverFactory
-
-        this.driver = (factory
-            ? factory()
-            : transport === 'firebase'
-                ? new FirebaseRealtimeDriver({ ...transportConfig, ...options.firebase })
-                : new PusherRealtimeDriver({ ...transportConfig, ...options.pusher })
-        ) as RealtimeNotificationDriver<T>
+        this.driver = Broadcast.driver(options as RealtimeDriverOptions) as RealtimeNotificationDriver<T>
     }
 
     from(_: string): this {
@@ -93,12 +79,7 @@ export class RealtimeNotification
      * @returns 
      */
     transport(transport: T, options?: RealtimeDriverOptions[T]): this {
-        const transportConfig = configure(`transports.${transport}` as never, {}) as Record<string, never>
-
-        this.driver = (transport === 'firebase'
-            ? new FirebaseRealtimeDriver({ ...transportConfig, ...options as any })
-            : new PusherRealtimeDriver({ ...transportConfig, ...options as any })
-        ) as RealtimeNotificationDriver<T>
+        this.driver = Broadcast.make(transport, options as Record<string, unknown>) as RealtimeNotificationDriver<T>
 
         return this
     }
@@ -291,6 +272,41 @@ export class RealtimeNotification
         return this
     }
 
+    /**
+     * Also push this notification to the recipient's devices over the
+     * `drivers.realtime.push` transport. On by default for a `User` recipient
+     * when push is configured; pass `false` to skip it for this send.
+     *
+     * @param push
+     * @returns
+     */
+    push(push = true): this {
+        this.shouldPush = push
+
+        return this
+    }
+
+    /**
+     * Push to these device tokens instead of the recipient's own.
+     *
+     * @param tokens
+     * @returns
+     */
+    devices(tokens: string[]): this {
+        this.deviceTokens = tokens
+        this.shouldPush ??= true
+
+        return this
+    }
+
+    private async resolveDevices(): Promise<string[]> {
+        if (this.shouldPush === false) return []
+        if (this.deviceTokens) return this.deviceTokens
+        if (this.user) return await Broadcast.pushTokens(this.user)
+
+        return []
+    }
+
     private resolveChannel(): string | string[] {
         if (this.channelName !== undefined) {
             return this.channelName
@@ -358,6 +374,16 @@ export class RealtimeNotification
         if (channel && channel.length > 0)
             await this.driver.broadcast(channel, this.eventName, payload, this.deliveryOptions)
 
-        return { channel, event: this.eventName, payload, stored }
+        const devices = await this.resolveDevices()
+        const push = await Broadcast.push(devices, this.eventName, payload, this.deliveryOptions)
+
+        return {
+            channel,
+            event: this.eventName,
+            payload,
+            stored,
+            ...(push ? { push } : {}
+            )
+        }
     }
 }

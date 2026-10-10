@@ -126,6 +126,14 @@ export const createFirebaseTransport = async (config: FirebaseClientConfig): Pro
 
             await databaseApi.remove(eventReference)
         },
+        async deviceToken() {
+            const getToken = messagingMod.getToken as (
+                messaging: unknown,
+                options?: { vapidKey?: string },
+            ) => Promise<string>
+
+            return (await getToken(messaging, config.vapidKey ? { vapidKey: config.vapidKey } : undefined)) || null
+        },
         disconnect() {
             messageUnsubscribers.forEach((off) => off())
             messageUnsubscribers.clear()

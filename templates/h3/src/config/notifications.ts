@@ -33,7 +33,10 @@ export default (): NotificationConfig => {
                 table: 'user_notifications',
             },
             realtime: {
-                transport: env('REALTIME_TRANSPORT', 'pusher') as 'pusher' | 'firebase',
+                /**
+                 * pusher | firebase | firebase-database | polling | memory
+                 */
+                transport: env('REALTIME_TRANSPORT', 'pusher'),
                 channel_prefix: env('REALTIME_CHANNEL_PREFIX', 'user.'),
                 event: env('REALTIME_EVENT', 'notification'),
                 store: env('REALTIME_STORE', false),
@@ -116,6 +119,40 @@ export default (): NotificationConfig => {
                 private_key: env('FIREBASE_PRIVATE_KEY', ''),
                 app_name: env('APP_NAME', 'Arkstack'),
                 admin_sdk_path: env('FIREBASE_ADMINSDK', 'firebase-adminsdk.json'),
+                web: {
+                    api_key: env('FIREBASE_API_KEY', ''),
+                    app_id: env('FIREBASE_APP_ID', ''),
+                    messaging_sender_id: env('FIREBASE_MESSAGING_SENDER_ID', ''),
+                    vapid_key: env('FIREBASE_VAPID_KEY', ''),
+                },
+            },
+
+            /**
+             * Firebase Realtime Database Transport
+             *
+             * Realtime notifications will be broadcast over Realtime Database channels.
+             */
+            'firebase-database': {
+                project_id: env('FIREBASE_PROJECT_ID', ''),
+                client_email: env('FIREBASE_CLIENT_EMAIL', ''),
+                private_key: env('FIREBASE_PRIVATE_KEY', ''),
+                app_name: env('APP_NAME', 'Arkstack'),
+                admin_sdk_path: env('FIREBASE_ADMINSDK', 'firebase-adminsdk.json'),
+                database_url: env('FIREBASE_DATABASE_URL', ''),
+                web: {
+                    api_key: env('FIREBASE_API_KEY', ''),
+                    auth_domain: env('FIREBASE_AUTH_DOMAIN', ''),
+                    app_id: env('FIREBASE_APP_ID', ''),
+                },
+            },
+
+            /**
+             * Polling Realtime Transport
+             *
+             * Nothing is pushed; clients poll on this interval (ms) instead.
+             */
+            polling: {
+                interval: env('REALTIME_POLL_INTERVAL', 5000),
             },
         }
     }

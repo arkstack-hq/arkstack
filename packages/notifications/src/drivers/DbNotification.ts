@@ -55,9 +55,12 @@ export class DbNotification extends NotificationContract<UserNotification> {
      * Broadcast the notification using the default realtime driver.
      * 
      * @param realtime Set to false to disable realtime broadcast
+     * @returns
      */
-    broadcast(realtime = true) {
+    broadcast(realtime = true): this {
         this.realtime = realtime
+
+        return this
     }
 
     async create(user: User, payload: DbNotificationPayload) {
