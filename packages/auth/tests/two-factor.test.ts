@@ -8,7 +8,7 @@ const user = {
     email: 'two-factor@example.com',
     name: 'Two Factor',
     password: 'password',
-} as User
+} as unknown as User
 
 describe('TwoFactor', () => {
     it('normalizes supported methods', () => {

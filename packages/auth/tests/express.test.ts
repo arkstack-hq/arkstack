@@ -79,12 +79,12 @@ describe('Express auth integration', () => {
             return {
                 authToken: req?.authToken,
                 authUserFromAuthId: (req?.auth as Auth | undefined)?.user()?.id,
-                authUserId: req?.authUser?.id,
+                authUserId: (req?.authUser as { id?: unknown } | undefined)?.id,
                 constructorName: req?.constructor.name,
                 hasIp: Boolean(req?.ip),
                 hasSource: Boolean(req?.source),
                 isArkstackRequest: req instanceof ArkstackRequest,
-                userId: req?.user?.id,
+                userId: (req?.user as { id?: unknown } | undefined)?.id,
             }
         }, [auth])
         Router.apply(router)
