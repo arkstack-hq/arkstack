@@ -120,9 +120,12 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
                 const entry = resolveMiddleware(instance)
 
                 if (pos === 'after') {
-                    app.use(async (req, res, next) => {
-                        res.once('finish', async () => {
-                            await entry(req, res, next)
+                    app.use((req, res, next) => {
+                        // The response is already sent, so `next` must not resume the router.
+                        res.once('finish', () => {
+                            Promise.resolve(entry(req, res, () => { })).catch((error) => {
+                                Logger.error(error instanceof Error ? error.message : String(error))
+                            })
                         })
                         next()
                     })
