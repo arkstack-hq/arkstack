@@ -13,7 +13,7 @@ export class AuthenticationException extends Exception {
     constructor(
         message: string = 'Authentication failed',
         ctx?: {
-            req?: Request | RequestSource,
+            req?: Request<User> | RequestSource<User>,
             res?: Response | ResponseSource,
             status?: number,
             errors?: Record<string, any>
