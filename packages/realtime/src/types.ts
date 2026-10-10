@@ -82,7 +82,7 @@ export interface RealtimeTransport {
     /**
      * This device's push registration token, when the transport can issue one.
      */
-    deviceToken?(): Promise<string | null>
+    deviceToken?(options?: DeviceTokenOptions): Promise<string | null>
     /**
      * Set by transports that push nothing; clients should poll this often instead.
      */
@@ -125,6 +125,16 @@ export interface FirebaseClientConfig {
     clientEventsPath?: string
     /** Web push VAPID key used when requesting a messaging token. */
     vapidKey?: string
+}
+
+export interface DeviceTokenOptions {
+    /**
+     * The service worker that receives background messages: a registration, or
+     * the URL of a script to register. A registered URL receives the Firebase
+     * web config as its `firebaseConfig` query parameter. Defaults to Firebase's
+     * own `/firebase-messaging-sw.js` lookup.
+     */
+    serviceWorker?: ServiceWorkerRegistration | string
 }
 
 export interface FirebaseDatabaseClientConfig {

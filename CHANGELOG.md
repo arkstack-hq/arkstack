@@ -8,6 +8,7 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- `RealtimeClient.deviceToken({ serviceWorker })` takes a service worker registration or script URL (registered with the Firebase web config as `firebaseConfig`), returns `null` where web push is unsupported, and falls back to the `firebase` config when streaming over another transport. `requestDeviceToken()` issues a token without a client.
 - Added the `Broadcast` facade to `@arkstack/notifications`: a channel authorization registry (`Broadcast.channel('private-team.{teamId}', authorizer)`) used by every transport, `Broadcast.broadcast()` for arbitrary events, `Broadcast.handleAuth()` for custom auth routes, `Broadcast.clientConfig()`, and `Broadcast.routes()` registering `POST /realtime/auth` and `GET /realtime/config`.
 - Added the `firebase-database` realtime transport (Firebase Realtime Database channels with per-user, time-limited grants checked by security rules, plus bounded `prune()`), the signal-only `polling` transport, and the `memory` transport for tests, on both server and client.
 - Added device push alongside any streaming transport: `drivers.realtime.push: 'firebase'` pushes notifications sent to a user to their devices, with `push_tokens` for resolving tokens, `.push(false)` and `.devices(tokens)` per send, and the multicast outcome on `result.push`.

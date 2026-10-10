@@ -1,4 +1,5 @@
-import type { FirebaseClientConfig, RealtimeEventHandler, RealtimeTransport } from '../types'
+import type { DeviceTokenOptions, FirebaseClientConfig, RealtimeEventHandler, RealtimeTransport } from '../types'
+import { issueDeviceToken } from '../push'
 
 /** The slice of `firebase/messaging` this transport uses. */
 interface FirebaseMessagePayload {
@@ -126,13 +127,8 @@ export const createFirebaseTransport = async (config: FirebaseClientConfig): Pro
 
             await databaseApi.remove(eventReference)
         },
-        async deviceToken() {
-            const getToken = messagingMod.getToken as (
-                messaging: unknown,
-                options?: { vapidKey?: string },
-            ) => Promise<string>
-
-            return (await getToken(messaging, config.vapidKey ? { vapidKey: config.vapidKey } : undefined)) || null
+        async deviceToken(options?: DeviceTokenOptions) {
+            return await issueDeviceToken(messagingMod as never, messaging, config, options)
         },
         disconnect() {
             messageUnsubscribers.forEach((off) => off())

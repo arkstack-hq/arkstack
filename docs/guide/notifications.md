@@ -253,7 +253,45 @@ if (result.push?.invalidTokens.length) {
 }
 ```
 
-Skip the push for one send with `.push(false)`, or target specific devices with `.devices(tokens)`. On the client, `realtime.deviceToken()` returns the token to register; it needs `firebase.vapidKey` (`FIREBASE_VAPID_KEY`) and a `firebase-messaging-sw.js` service worker for background messages.
+Skip the push for one send with `.push(false)`, or target specific devices with `.devices(tokens)`.
+
+### Registering a browser for push
+
+`realtime.deviceToken()` asks for notification permission and returns this browser's FCM token, or `null` where web push is unavailable. It works whatever the streaming transport is, as long as the client config carries `firebase` (the config route includes it when `drivers.realtime.push` is `'firebase'`). Send the token to your API to store against the user:
+
+```ts
+const token = await realtime.deviceToken({ serviceWorker: '/push-sw.js' })
+
+if (token) await api.post('/push-tokens', { token, platform: 'web' })
+```
+
+Background messages need a service worker. Pass its URL as `serviceWorker` and Arkstack registers it with the Firebase web config in its `firebaseConfig` query parameter, so the script needs no build step or secrets. Or pass a `ServiceWorkerRegistration` you registered yourself. Without the option, Firebase looks for `/firebase-messaging-sw.js`.
+
+```js
+// public/push-sw.js
+importScripts('https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js')
+importScripts('https://www.gstatic.com/firebasejs/11.10.0/firebase-messaging-compat.js')
+
+firebase.initializeApp(JSON.parse(new URL(self.location).searchParams.get('firebaseConfig')))
+
+firebase.messaging().onBackgroundMessage(({ data }) => {
+  const notification = JSON.parse(data.payload)
+  if (notification.retracted) return
+
+  self.registration.showNotification(notification.title, {
+    body: notification.description,
+    tag: notification.tag ?? undefined,
+    data: { link: notification.actionLink },
+  })
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  if (event.notification.data?.link) event.waitUntil(clients.openWindow(event.notification.data.link))
+})
+```
+
+Pushes are data-only messages, so the service worker decides what to show. The payload is the same notification object clients receive live.
 
 ### Delivery options
 
