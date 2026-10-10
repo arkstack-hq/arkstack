@@ -1,4 +1,5 @@
 import type {
+    DeviceTokenOptions,
     NotificationHandler,
     RealtimeConfig,
     RealtimeEventHandler,
@@ -203,14 +204,27 @@ export class RealtimeClient {
 
     /**
      * This device's push registration token, for registering with your API.
-     * Null when the transport cannot issue one.
+     * Uses the transport when it can issue one, otherwise the `firebase` config
+     * (push over FCM while streaming over another transport). Null when neither
+     * can, or the browser cannot receive web push.
      *
+     * @param options
      * @returns
      */
-    async deviceToken(): Promise<string | null> {
+    async deviceToken(options?: DeviceTokenOptions): Promise<string | null> {
         const transport = await this.transport()
 
-        return (await transport.deviceToken?.()) ?? null
+        if (transport.deviceToken) {
+            return await transport.deviceToken(options)
+        }
+
+        if (!this.config.firebase) {
+            return null
+        }
+
+        const { requestDeviceToken } = await import('./push')
+
+        return await requestDeviceToken(this.config.firebase, options)
     }
 
     /** Tear down the underlying transport connection. */

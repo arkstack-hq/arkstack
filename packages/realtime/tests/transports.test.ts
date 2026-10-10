@@ -8,6 +8,8 @@ const fakes = vi.hoisted(() => ({
     signIns: [] as string[],
     currentUser: null as { uid: string } | null,
     signedOut: 0,
+    pushSupported: true,
+    tokenOptions: [] as unknown[],
 }))
 
 vi.mock('pusher-js', () => ({
@@ -34,7 +36,15 @@ vi.mock('firebase/app', () => ({
 vi.mock('firebase/messaging', () => ({
     getMessaging: vi.fn(() => ({})),
     onMessage: vi.fn(() => vi.fn()),
-    getToken: vi.fn(async (_messaging: unknown, options?: { vapidKey?: string }) => `fcm-token:${options?.vapidKey}`),
+    isSupported: vi.fn(async () => fakes.pushSupported),
+    getToken: vi.fn(async (
+        _messaging: unknown,
+        options?: { vapidKey?: string, serviceWorkerRegistration?: { scope: string } },
+    ) => {
+        fakes.tokenOptions.push(options)
+
+        return `fcm-token:${options?.vapidKey}`
+    }),
 }))
 
 vi.mock('firebase/auth', () => ({
@@ -87,6 +97,8 @@ afterEach(() => {
     fakes.signIns.length = 0
     fakes.currentUser = null
     fakes.signedOut = 0
+    fakes.pushSupported = true
+    fakes.tokenOptions.length = 0
 })
 
 describe('polling transport', () => {
@@ -156,7 +168,7 @@ describe('memory transport', () => {
         expect(handler).not.toHaveBeenCalled()
     })
 
-    it('reports no device token', async () => {
+    it('reports no device token without a firebase config', async () => {
         await expect(createRealtime({ transport: 'memory' }).deviceToken()).resolves.toBeNull()
     })
 })
@@ -187,14 +199,55 @@ describe('pusher transport', () => {
     })
 })
 
-describe('firebase messaging transport', () => {
-    it('issues a device token with the VAPID key', async () => {
-        const client = createRealtime({
-            transport: 'firebase',
-            firebase: { apiKey: 'a', projectId: 'p', appId: 'i', messagingSenderId: 'm', vapidKey: 'v' },
-        })
+describe('device tokens', () => {
+    const firebase = { apiKey: 'a', projectId: 'p', appId: 'i', messagingSenderId: 'm', vapidKey: 'v' }
+
+    it('issues a device token with the VAPID key on the Firebase transport', async () => {
+        const client = createRealtime({ transport: 'firebase', firebase })
 
         await expect(client.deviceToken()).resolves.toBe('fcm-token:v')
+    })
+
+    it('registers a service worker URL with the Firebase web config', async () => {
+        const register = vi.fn(async (url: string) => ({ scope: url }))
+        vi.stubGlobal('navigator', { serviceWorker: { register } })
+        const client = createRealtime({ transport: 'firebase', firebase })
+
+        await client.deviceToken({ serviceWorker: '/push-sw.js' })
+
+        const url = new URL(register.mock.calls[0][0], 'https://app.test')
+        expect(url.pathname).toBe('/push-sw.js')
+        expect(JSON.parse(url.searchParams.get('firebaseConfig')!)).toEqual({
+            apiKey: 'a', projectId: 'p', appId: 'i', messagingSenderId: 'm',
+        })
+        expect(fakes.tokenOptions[0]).toEqual({ vapidKey: 'v', serviceWorkerRegistration: { scope: register.mock.calls[0][0] } })
+    })
+
+    it('passes an existing registration straight through', async () => {
+        const registration = { scope: '/' } as unknown as ServiceWorkerRegistration
+        const client = createRealtime({ transport: 'firebase', firebase })
+
+        await client.deviceToken({ serviceWorker: registration })
+
+        expect(fakes.tokenOptions[0]).toEqual({ vapidKey: 'v', serviceWorkerRegistration: registration })
+    })
+
+    it('returns null where the browser cannot receive web push', async () => {
+        fakes.pushSupported = false
+        const client = createRealtime({ transport: 'firebase', firebase })
+
+        await expect(client.deviceToken()).resolves.toBeNull()
+        expect(fakes.tokenOptions).toHaveLength(0)
+    })
+
+    it('falls back to the firebase config when streaming over another transport', async () => {
+        const client = createRealtime({ transport: 'polling', firebase })
+
+        await expect(client.deviceToken()).resolves.toBe('fcm-token:v')
+    })
+
+    it('returns null when nothing can issue a token', async () => {
+        await expect(createRealtime({ transport: 'polling' }).deviceToken()).resolves.toBeNull()
     })
 })
 
