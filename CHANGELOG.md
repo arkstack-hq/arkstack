@@ -24,6 +24,7 @@ The format follows semantic versioning principles.
 
 ### Fixed
 
+- `DotPath` (the key type behind `config()` and `configure()`) is now depth-bounded and stops at built-in object types, so configs holding deep or self-referencing library types (nodemailer transports) no longer fail to typecheck with "circularly references itself". The `@ts-expect-error` workarounds in the H3 template and the notifications config are gone.
 - Express `after` middleware no longer resumes the router once the response has finished. It used to receive the real `next`, so a middleware such as `requestLogger()` sent each request on through the remaining routes after responding, raising "Cannot set headers after they are sent to the client".
 - `UserNotificationCenter.markAllRead()` now marks every unread notification read; it used a single-row `update()` and marked only one. `unreadForUser(user, perPage)` now honours `perPage`, and both filter unread rows with `whereNull('readAt')`.
 - `UserNotificationCenter.send()` (and `Notification.db().broadcast()`) now broadcast on the user's channel. They previously sent to the user's push tokens as channels, so nothing was broadcast at all for users without tokens. Apps on the `firebase` transport still reach their users' devices without changes, because device push is on there unless `drivers.realtime.push` is `false`.
