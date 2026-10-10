@@ -50,7 +50,6 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
     await this.driver.mountPublicAssets(this.app, 'public')
 
     // Apply all middleware
-    // @ts-expect-error config cannot be discovered outside app scaffolds
     await this.driver.applyMiddleware(this.app, config('middleware') as never)
 
     // Bind the router

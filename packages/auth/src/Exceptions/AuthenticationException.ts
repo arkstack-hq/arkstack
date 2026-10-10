@@ -1,10 +1,11 @@
 import { Request, Response, type RequestSource, type ResponseSource } from '@arkstack/http'
 
 import { Exception } from '@arkstack/common'
+import type { User } from '@app/models/User'
 
 export class AuthenticationException extends Exception {
     #errors?: Record<string, any>
-    #request?: Request
+    #request?: Request<User>
     #response?: Response
     statusCode: number = 401
     name: string
@@ -12,7 +13,7 @@ export class AuthenticationException extends Exception {
     constructor(
         message: string = 'Authentication failed',
         ctx?: {
-            req?: Request | RequestSource,
+            req?: Request<User> | RequestSource<User>,
             res?: Response | ResponseSource,
             status?: number,
             errors?: Record<string, any>
@@ -31,7 +32,7 @@ export class AuthenticationException extends Exception {
         void this.#request
     }
 
-    errors (): Record<string, any> | undefined {
+    errors(): Record<string, any> | undefined {
         return this.#errors
     }
 }

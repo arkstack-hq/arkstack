@@ -371,3 +371,58 @@ describe('FirebaseDatabaseRealtimeDriver', () => {
         }))
     })
 })
+
+describe('UserNotificationCenter queries', () => {
+    /** A fake model whose query records each builder call. */
+    const fakeModel = () => {
+        const calls: Array<[string, unknown[]]> = []
+        const query: Record<string, (...args: unknown[]) => unknown> = {}
+
+        for (const method of ['where', 'whereNull', 'whereIn']) {
+            query[method] = (...args) => {
+                calls.push([method, args])
+
+                return query
+            }
+        }
+
+        for (const method of ['updateFrom', 'update', 'paginate', 'get']) {
+            query[method] = async (...args) => {
+                calls.push([method, args])
+
+                return method === 'updateFrom' ? 3 : []
+            }
+        }
+
+        vi.spyOn(UserNotificationCenter as any, 'getModel').mockResolvedValue({ query: () => query })
+
+        return calls
+    }
+
+    it('marks every unread notification read, not just one', async () => {
+        const calls = fakeModel()
+
+        await UserNotificationCenter.markAllRead({ id: 7 } as never)
+
+        expect(calls.map(([method]) => method)).toEqual(['where', 'whereNull', 'updateFrom'])
+        expect(calls[1][1]).toEqual(['readAt'])
+        expect(calls.some(([method]) => method === 'update')).toBe(false)
+    })
+
+    it('limits marking read to the given ids', async () => {
+        const calls = fakeModel()
+
+        await UserNotificationCenter.markAllRead({ id: 7 } as never, ['a', 'b'])
+
+        expect(calls).toContainEqual(['whereIn', ['id', ['a', 'b']]])
+    })
+
+    it('paginates unread notifications with the requested page size', async () => {
+        const calls = fakeModel()
+
+        await UserNotificationCenter.unreadForUser({ id: 7 } as never, 25)
+
+        expect(calls).toContainEqual(['paginate', [25]])
+        expect(calls).toContainEqual(['whereNull', ['readAt']])
+    })
+})

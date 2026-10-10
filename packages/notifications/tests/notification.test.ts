@@ -36,10 +36,16 @@ const mocks = vi.hoisted(() => {
     const deleteQuery = vi.fn(async () => undefined)
     const get = vi.fn(async () => [])
     const update = vi.fn(async () => undefined)
+    const updateFrom = vi.fn(async () => 0)
+    const whereNull = vi.fn(() => ({
+        get,
+        updateFrom,
+    }))
     const where = vi.fn(() => ({
         delete: deleteQuery,
         get,
         update,
+        whereNull,
     }))
     const africasTalkingSend = vi.fn(async payload => ({
         provider: 'africastalking',
@@ -73,6 +79,8 @@ const mocks = vi.hoisted(() => {
         sendMail,
         createTransport,
         twilioCreate,
+        updateFrom,
+        whereNull,
         deleteQuery,
         get,
         update,
@@ -540,7 +548,8 @@ describe('Notification', () => {
         expect(mocks.get).toHaveBeenCalledTimes(1)
 
         await expect(UserNotificationCenter.unreadForUser(user)).resolves.toEqual([])
-        expect(mocks.where).toHaveBeenLastCalledWith({ userId: 12, readAt: null })
+        expect(mocks.where).toHaveBeenLastCalledWith({ userId: 12 })
+        expect(mocks.whereNull).toHaveBeenLastCalledWith('readAt')
         expect(mocks.get).toHaveBeenCalledTimes(2)
 
         await UserNotificationCenter.markRead(notification)
@@ -552,8 +561,8 @@ describe('Notification', () => {
         expect(mocks.where).toHaveBeenLastCalledWith({ id: 100 })
 
         await UserNotificationCenter.markAllRead(user)
-        expect(mocks.where).toHaveBeenLastCalledWith({ userId: 12, readAt: null })
-        expect(mocks.update).toHaveBeenLastCalledWith({ readAt: expect.any(Date) })
+        expect(mocks.where).toHaveBeenLastCalledWith({ userId: 12 })
+        expect(mocks.updateFrom).toHaveBeenLastCalledWith({ readAt: expect.any(Date) })
 
         await UserNotificationCenter.delete(notification)
         expect(mocks.where).toHaveBeenLastCalledWith({ id: 99 })

@@ -45,6 +45,11 @@ export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = u
   if (Hook.has('boot', 'after')) Hook.get('boot', 'after', port, app)
 }
 
+/** The `view()` global registered by `@arkstack/view`. */
+type ViewGlobal = {
+  view: (name: string, data?: Record<string, unknown>) => { renderSync(): string }
+}
+
 export const renderError = ({
   message = 'An unexpected error occurred.',
   stack,
@@ -69,7 +74,7 @@ export const renderError = ({
 
   title = titleMap[code] || title || 'Error'
 
-  return globalThis.view('~arkstack/common.error', {
+  return (globalThis as unknown as ViewGlobal).view('~arkstack/common.error', {
     code,
     title,
     stack,

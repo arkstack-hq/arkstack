@@ -48,35 +48,35 @@ export class Request<TUser = User> extends BaseRequest {
     private currentAuthUser?: TUser
     private currentAuthToken?: string
 
-    get user (): TUser | undefined {
+    get user(): TUser | undefined {
         return this.getSourceRequest()?.user ?? this.currentUser
     }
 
-    set user (user: TUser | undefined) {
+    set user(user: TUser | undefined) {
         this.currentUser = user
     }
 
-    get auth (): unknown {
+    get auth(): unknown {
         return this.getSourceRequest()?.auth ?? this.currentAuth
     }
 
-    set auth (auth: unknown) {
+    set auth(auth: unknown) {
         this.currentAuth = auth
     }
 
-    get authUser (): TUser | undefined {
+    get authUser(): TUser | undefined {
         return this.getSourceRequest()?.authUser ?? this.currentAuthUser
     }
 
-    set authUser (user: TUser | undefined) {
+    set authUser(user: TUser | undefined) {
         this.currentAuthUser = user
     }
 
-    get authToken (): string | undefined {
+    get authToken(): string | undefined {
         return this.getSourceRequest()?.authToken ?? this.currentAuthToken
     }
 
-    set authToken (token: string | undefined) {
+    set authToken(token: string | undefined) {
         this.currentAuthToken = token
     }
 
@@ -105,7 +105,7 @@ export class Request<TUser = User> extends BaseRequest {
         setFallbackRequest(this)
     }
 
-    static from<TUser = unknown> (
+    static from<TUser = User>(
         source?: Request<TUser> | RequestSource<TUser>
     ): Request<TUser> | undefined {
         if (!source) {
@@ -139,11 +139,11 @@ export class Request<TUser = User> extends BaseRequest {
         })
     }
 
-    header (name: string): string {
+    header(name: string): string {
         return this.headers[name.toLowerCase()]
     }
 
-    bearerToken (): string | null {
+    bearerToken(): string | null {
         const authorization = this.header('authorization')
 
         if (!authorization?.startsWith('Bearer ')) {
@@ -153,7 +153,7 @@ export class Request<TUser = User> extends BaseRequest {
         return authorization.substring(7)
     }
 
-    setUser (user: TUser) {
+    setUser(user: TUser) {
         this.user = user
 
         if (isRecord(this.source)) {
@@ -163,7 +163,7 @@ export class Request<TUser = User> extends BaseRequest {
         return this
     }
 
-    setAuthentication<TAuth> (auth: TAuth, user: TUser, token?: string) {
+    setAuthentication<TAuth>(auth: TAuth, user: TUser, token?: string) {
         this.auth = auth
         this.authUser = user
         this.authToken = token
@@ -178,7 +178,7 @@ export class Request<TUser = User> extends BaseRequest {
         return this
     }
 
-    syncFromSource () {
+    syncFromSource() {
         if (!isRecord(this.source)) {
             return this
         }
@@ -193,13 +193,13 @@ export class Request<TUser = User> extends BaseRequest {
         return this
     }
 
-    private getSourceRequest (): RequestSource<TUser> | undefined {
+    private getSourceRequest(): RequestSource<TUser> | undefined {
         return isRecord(this.source)
             ? this.source as RequestSource<TUser>
             : undefined
     }
 
-    clearAuthentication () {
+    clearAuthentication() {
         this.auth = undefined
         this.authUser = undefined
         this.authToken = undefined

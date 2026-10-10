@@ -78,10 +78,10 @@ export class UserNotificationCenter {
     static async unreadForUser(user: User, perPage?: number): Promise<unknown> {
         const Model = await this.getModel()
 
-        const query = Model.query().where({ userId: user.id, readAt: null })
+        const query = Model.query().where({ userId: user.id }).whereNull('readAt')
 
         if (perPage) {
-            return await query.paginate()
+            return await query.paginate(perPage)
         }
 
         return await query.get()
@@ -112,13 +112,11 @@ export class UserNotificationCenter {
     static async markAllRead(user: User, ids?: string[] | number[]) {
         const Model = await this.getModel()
 
-        const query = Model.query().where({ userId: user.id, readAt: null })
+        const query = Model.query().where({ userId: user.id }).whereNull('readAt')
+        const scoped = ids ? query.whereIn('id', ids) : query
 
-        if (ids) {
-            query.whereIn('id', ids)
-        }
-
-        await query.update({ readAt: new Date() })
+        // `update` changes a single row; `updateFrom` updates every match.
+        await scoped.updateFrom({ readAt: new Date() })
     }
 
     /**

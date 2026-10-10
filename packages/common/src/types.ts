@@ -140,16 +140,29 @@ export type DotPathValue<T, P extends string> =
     ? T[P]
     : never
 
-export type DotPath<T> = T extends Primitive
+/** Remaining depth for {@link DotPath}: index by the current depth to get the next. */
+type DotPathDepth = [never, 0, 1, 2, 3, 4, 5, 6]
+
+/** Values {@link DotPath} treats as leaves instead of walking into. */
+type DotPathLeaf = Primitive | Date | RegExp | Promise<unknown> | Map<unknown, unknown> | Set<unknown> | Uint8Array
+
+/**
+ * Dot-separated key paths of `T`, e.g. `'mail.from.address'`. Bounded in depth
+ * so deep or self-referencing library types (mail transports, streams) stay
+ * finite instead of being reported as circular.
+ */
+export type DotPath<T, Depth extends number = 7> = [Depth] extends [never]
+    ? never
+    : T extends DotPathLeaf
     ? never
     : T extends any[]
     ? never
     : {
-        [K in keyof T & string]: T[K] extends Primitive
+        [K in keyof T & string]: T[K] extends DotPathLeaf
         ? `${K}`
         : T[K] extends any[]
         ? `${K}`
-        : `${K}` | `${K}.${DotPath<T[K]>}`
+        : `${K}` | `${K}.${DotPath<T[K], DotPathDepth[Depth]>}`
     }[keyof T & string]
 
 /**
