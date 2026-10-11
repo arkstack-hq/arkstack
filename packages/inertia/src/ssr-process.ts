@@ -10,35 +10,31 @@ export const DEFAULT_SSR_BUNDLE = 'dist-ssr/ssr.js'
  * Precedence: an explicit `--bundle` option, then `inertia.ssr.bundle` config,
  * then {@link DEFAULT_SSR_BUNDLE}. Relative paths are resolved from `rootDir`.
  */
-export const resolveSsrBundle = (
-    rootDir: string,
-    option?: string,
-    configured?: string,
-): string => {
-    const bundle = option || configured || DEFAULT_SSR_BUNDLE
+export const resolveSsrBundle = (rootDir: string, option?: string, configured?: string): string => {
+  const bundle = option || configured || DEFAULT_SSR_BUNDLE
 
-    return isAbsolute(bundle) ? bundle : join(rootDir, bundle)
+  return isAbsolute(bundle) ? bundle : join(rootDir, bundle)
 }
 
 export interface SuperviseOptions {
-    /** Working directory for the spawned process. */
-    cwd?: string
-    /** Restart the process when it exits unexpectedly (default `true`). */
-    restart?: boolean
-    /** Delay before restarting after a crash, in ms (default `1000`). */
-    restartDelayMs?: number
-    /** Called when the child exits; `willRestart` reflects the restart decision. */
-    onExit?: (code: number | null, willRestart: boolean) => void
-    /** Called when the child fails to spawn. */
-    onError?: (error: Error) => void
+  /** Working directory for the spawned process. */
+  cwd?: string
+  /** Restart the process when it exits unexpectedly (default `true`). */
+  restart?: boolean
+  /** Delay before restarting after a crash, in ms (default `1000`). */
+  restartDelayMs?: number
+  /** Called when the child exits; `willRestart` reflects the restart decision. */
+  onExit?: (code: number | null, willRestart: boolean) => void
+  /** Called when the child fails to spawn. */
+  onError?: (error: Error) => void
 }
 
 /** Handle to a supervised process. */
 export interface SsrProcessController {
-    /** Stop the process and prevent further restarts. */
-    stop (): void
-    /** Resolves when the process has stopped (and will not restart). */
-    done: Promise<void>
+  /** Stop the process and prevent further restarts. */
+  stop(): void
+  /** Resolves when the process has stopped (and will not restart). */
+  done: Promise<void>
 }
 
 /**
@@ -47,55 +43,55 @@ export interface SsrProcessController {
  * keep the Inertia SSR server alive.
  */
 export const superviseProcess = (
-    command: string,
-    args: string[],
-    options: SuperviseOptions = {},
+  command: string,
+  args: string[],
+  options: SuperviseOptions = {},
 ): SsrProcessController => {
-    const { cwd, restart = true, restartDelayMs = 1000 } = options
+  const { cwd, restart = true, restartDelayMs = 1000 } = options
 
-    let child: ChildProcess | undefined
-    let timer: NodeJS.Timeout | undefined
-    let stopping = false
-    let resolveDone: () => void = () => {}
-    const done = new Promise<void>((resolve) => {
-        resolveDone = resolve
+  let child: ChildProcess | undefined
+  let timer: NodeJS.Timeout | undefined
+  let stopping = false
+  let resolveDone: () => void = () => {}
+  const done = new Promise<void>((resolve) => {
+    resolveDone = resolve
+  })
+
+  const start = () => {
+    child = spawn(command, args, { cwd, stdio: 'inherit' })
+
+    child.on('error', (error) => {
+      options.onError?.(error)
+      resolveDone()
     })
 
-    const start = () => {
-        child = spawn(command, args, { cwd, stdio: 'inherit' })
+    child.on('exit', (code) => {
+      const willRestart = !stopping && restart
 
-        child.on('error', (error) => {
-            options.onError?.(error)
-            resolveDone()
-        })
+      options.onExit?.(code, willRestart)
 
-        child.on('exit', (code) => {
-            const willRestart = !stopping && restart
+      if (!willRestart) {
+        resolveDone()
 
-            options.onExit?.(code, willRestart)
+        return
+      }
 
-            if (!willRestart) {
-                resolveDone()
+      timer = setTimeout(start, restartDelayMs)
+    })
+  }
 
-                return
-            }
+  start()
 
-            timer = setTimeout(start, restartDelayMs)
-        })
-    }
+  return {
+    stop() {
+      stopping = true
 
-    start()
+      if (timer) {
+        clearTimeout(timer)
+      }
 
-    return {
-        stop () {
-            stopping = true
-
-            if (timer) {
-                clearTimeout(timer)
-            }
-
-            child?.kill('SIGTERM')
-        },
-        done,
-    }
+      child?.kill('SIGTERM')
+    },
+    done,
+  }
 }

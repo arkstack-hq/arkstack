@@ -23,14 +23,14 @@ pnpm ark migrate
 Create an Arkormˣ model entry in `src/app/models` (example `User.ts`):
 
 ```ts
-import { Model } from 'arkormx';
+import { Model } from 'arkormx'
 
 export class User extends Model {
-  declare id: string;
-  declare name: string;
-  declare email: string;
-  declare createdAt: Date;
-  declare updatedAt: Date;
+  declare id: string
+  declare name: string
+  declare email: string
+  declare createdAt: Date
+  declare updatedAt: Date
 }
 ```
 
@@ -58,14 +58,14 @@ Use the model query API for common operations:
 const user = await User.query().create({
   name: 'John Doe',
   email: 'john@example.com',
-});
+})
 
-const found = await User.query().where({ email: 'john@example.com' }).first();
+const found = await User.query().where({ email: 'john@example.com' }).first()
 
 if (found) {
-  found.name = 'Jane Doe';
-  await found.save();
-  await found.delete();
+  found.name = 'Jane Doe'
+  await found.save()
+  await found.delete()
 }
 ```
 
@@ -74,21 +74,21 @@ if (found) {
 Shared Arkstack packages use `getModel()` from `@arkstack/common` when they need an application model without importing from a fixed app path.
 
 ```ts
-import { getModel } from '@arkstack/common';
-import type User from '../app/models/User';
+import { getModel } from '@arkstack/common'
+import type User from '../app/models/User'
 
-const UserModel = await getModel<typeof User>('User');
-const user = await UserModel.query().where({ email }).first();
+const UserModel = await getModel<typeof User>('User')
+const user = await UserModel.query().where({ email }).first()
 ```
 
 Apps can also augment the model registry to get typed model names without passing the constructor type each time:
 
 ```ts
-import type User from './src/app/models/User';
+import type User from './src/app/models/User'
 
 declare module '@arkstack/common' {
   interface ModelRegistry {
-    User: typeof User;
+    User: typeof User
   }
 }
 ```

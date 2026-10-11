@@ -4,18 +4,18 @@ import path from 'node:path'
 import { nodeEnv } from './system'
 
 interface OutputChunk {
-    facadeModuleId?: string | null;
-    isEntry?: boolean;
+  facadeModuleId?: string | null
+  isEntry?: boolean
 }
 
 interface OutputOptions {
-    dir?: string;
-    file?: string;
+  dir?: string
+  file?: string
 }
 
 export interface DevServerRunnerOptions extends ForkOptions {
-    input: string;
-    args?: readonly string[];
+  input: string
+  args?: readonly string[]
 }
 
 /**
@@ -26,73 +26,69 @@ export interface DevServerRunnerOptions extends ForkOptions {
  * short window where Node cannot resolve the entry.
  */
 export const devServer = (options: DevServerRunnerOptions) => {
-    if (nodeEnv() !== 'dev' || process.env.CLI_BUILD === 'true') {
-        return { name: 'arkstack-dev-server-disabled' }
+  if (nodeEnv() !== 'dev' || process.env.CLI_BUILD === 'true') {
+    return { name: 'arkstack-dev-server-disabled' }
+  }
+
+  let child: ChildProcess | undefined
+  let restart = Promise.resolve()
+  const { input: sourceInput, args: runnerArgs = [], ...forkOptions } = options
+  const input = path.resolve(sourceInput)
+  const args = [...runnerArgs]
+
+  const waitUntilStable = async (entry: string): Promise<void> => {
+    let previousSize = -1
+
+    for (let attempt = 0; attempt < 50; attempt++) {
+      try {
+        await access(entry)
+        const size = (await stat(entry)).size
+
+        if (size > 0 && size === previousSize) return
+        previousSize = size
+      } catch {
+        previousSize = -1
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 10))
     }
 
-    let child: ChildProcess | undefined
-    let restart = Promise.resolve()
-    const {
-        input: sourceInput,
-        args: runnerArgs = [],
-        ...forkOptions
-    } = options
-    const input = path.resolve(sourceInput)
-    const args = [...runnerArgs]
+    throw new Error(`The emitted server entry was not ready: ${entry}`)
+  }
 
-    const waitUntilStable = async (entry: string): Promise<void> => {
-        let previousSize = -1
+  const stopChild = async (): Promise<void> => {
+    if (!child || child.exitCode !== null) return
 
-        for (let attempt = 0; attempt < 50; attempt++) {
-            try {
-                await access(entry)
-                const size = (await stat(entry)).size
+    const exited = new Promise<void>((resolve) => child?.once('exit', () => resolve()))
+    child.kill()
+    await exited
+  }
 
-                if (size > 0 && size === previousSize) return
-                previousSize = size
-            } catch {
-                previousSize = -1
-            }
+  return {
+    name: 'arkstack-dev-server',
+    writeBundle(output: OutputOptions, bundle: Record<string, OutputChunk>) {
+      const fileName = Object.keys(bundle).find((name) => {
+        const chunk = bundle[name]
 
-            await new Promise(resolve => setTimeout(resolve, 10))
-        }
+        return chunk?.isEntry && path.resolve(chunk.facadeModuleId ?? '') === input
+      })
 
-        throw new Error(`The emitted server entry was not ready: ${entry}`)
-    }
+      if (!fileName) throw new Error('Could not find the emitted server entry')
 
-    const stopChild = async (): Promise<void> => {
-        if (!child || child.exitCode !== null) return
+      const directory = output.dir ?? path.dirname(output.file ?? '')
+      const entry = path.join(directory, fileName)
 
-        const exited = new Promise<void>(resolve => child?.once('exit', () => resolve()))
-        child.kill()
-        await exited
-    }
-
-    return {
-        name: 'arkstack-dev-server',
-        writeBundle(output: OutputOptions, bundle: Record<string, OutputChunk>) {
-            const fileName = Object.keys(bundle).find(name => {
-                const chunk = bundle[name]
-
-                return chunk?.isEntry && path.resolve(chunk.facadeModuleId ?? '') === input
-            })
-
-            if (!fileName) throw new Error('Could not find the emitted server entry')
-
-            const directory = output.dir ?? path.dirname(output.file ?? '')
-            const entry = path.join(directory, fileName)
-
-            restart = restart.then(async () => {
-                // Yield past `writeBundle` so tsdown can finish swapping its
-                // staged output into place before we inspect or execute it.
-                await new Promise(resolve => setTimeout(resolve, 0))
-                await waitUntilStable(entry)
-                await stopChild()
-                child = fork(entry, args, forkOptions)
-            })
-        },
-        async closeWatcher() {
-            await stopChild()
-        },
-    }
+      restart = restart.then(async () => {
+        // Yield past `writeBundle` so tsdown can finish swapping its
+        // staged output into place before we inspect or execute it.
+        await new Promise((resolve) => setTimeout(resolve, 0))
+        await waitUntilStable(entry)
+        await stopChild()
+        child = fork(entry, args, forkOptions)
+      })
+    },
+    async closeWatcher() {
+      await stopChild()
+    },
+  }
 }

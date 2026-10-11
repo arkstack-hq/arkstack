@@ -17,11 +17,11 @@ import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 declare global {
-    var session: SessionHelper
-    var request: RequestHelper<User>
-    var response: () => Response
-    var redirect: RedirectHelper
-    var old: OldHelper
+  var session: SessionHelper
+  var request: RequestHelper<User>
+  var response: () => Response
+  var redirect: RedirectHelper
+  var old: OldHelper
 }
 
 CoreRouter.setRequestProvider(Request)
@@ -33,16 +33,16 @@ globalThis.redirect = redirect
 globalThis.old = old
 
 Publisher.publishes({
-    package: '@arkstack/http',
-    tag: 'http-config',
-    entries: [
-        {
-            from: join(root, 'stubs/config/resources.ts.stub'),
-            to: 'src/config/resources.ts',
-        },
-        {
-            from: join(root, 'stubs/config/session.ts.stub'),
-            to: 'src/config/session.ts',
-        },
-    ],
+  package: '@arkstack/http',
+  tag: 'http-config',
+  entries: [
+    {
+      from: join(root, 'stubs/config/resources.ts.stub'),
+      to: 'src/config/resources.ts',
+    },
+    {
+      from: join(root, 'stubs/config/session.ts.stub'),
+      to: 'src/config/session.ts',
+    },
+  ],
 })

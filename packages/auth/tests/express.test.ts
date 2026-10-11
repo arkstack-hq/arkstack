@@ -1,6 +1,12 @@
 import { Request as ArkstackRequest, arkstackHttpPlugin } from '../../http/src'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
-import { authSecret, cleanupAuthRecords, createAuthToken, createAuthUser, createPersonalAccessToken } from './fixtures/auth'
+import {
+  authSecret,
+  cleanupAuthRecords,
+  createAuthToken,
+  createAuthUser,
+  createPersonalAccessToken,
+} from './fixtures/auth'
 
 import { Auth } from '../src'
 import { Router as ClearRouter } from 'clear-router/express'
@@ -10,281 +16,282 @@ import { auth } from '../../driver-express/src/middlewares/auth'
 import express from 'express'
 import request from 'parasito'
 
-const createRouter = (name: string) => class TestRouter extends ClearRouter {
+const createRouter = (name: string) =>
+  class TestRouter extends ClearRouter {
     protected static routerStateNamespace = `express-auth-docs:${name}`
-}
+  }
 
 describe('Express auth integration', () => {
-    beforeEach(() => {
-        process.env.JWT_SECRET = authSecret
+  beforeEach(() => {
+    process.env.JWT_SECRET = authSecret
+  })
+
+  afterAll(cleanupAuthRecords)
+
+  it('authenticates requests through the Express middleware stack', async () => {
+    const user = await createAuthUser()
+    const token = await createAuthToken(user.id)
+
+    await createPersonalAccessToken(user.id, token)
+
+    const app = express()
+
+    app.use(auth)
+    app.get('/test', (req, res) => {
+      const authReq = req
+
+      res.status(200).json({
+        authUserFromAuthId: authReq.auth?.user()?.id,
+        authToken: authReq.authToken,
+        authUserId: authReq.authUser?.id,
+        userId: authReq.user?.id,
+      })
     })
 
-    afterAll(cleanupAuthRecords)
+    const response = await request(app).get('/test').set('Authorization', `Bearer ${token}`).expect(200)
 
-    it('authenticates requests through the Express middleware stack', async () => {
-        const user = await createAuthUser()
-        const token = await createAuthToken(user.id)
+    expect(String(response.body.userId)).toBe(String(user.id))
+    expect(String(response.body.authUserId)).toBe(String(user.id))
+    expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
+    expect(response.body.authToken).toBe(token)
+  })
 
-        await createPersonalAccessToken(user.id, token)
+  it('hydrates the container-bound Arkstack request after authentication', async () => {
+    const user = await createAuthUser()
+    const token = await createAuthToken(user.id)
 
-        const app = express()
+    await createPersonalAccessToken(user.id, token)
 
-        app.use(auth)
-        app.get('/test', (req, res) => {
-            const authReq = req
+    const app = express()
+    const router = express.Router()
+    const Router = createRouter('bound-request')
 
-            res.status(200).json({
-                authUserFromAuthId: authReq.auth?.user()?.id,
-                authToken: authReq.authToken,
-                authUserId: authReq.authUser?.id,
-                userId: authReq.user?.id,
-            })
+    await import('../../http/src/setup')
+    await ClearRouter.use(arkstackHttpPlugin)
+    await (ClearRouter as any).pluginsReady()
+
+    expect((ClearRouter as any).container.has(ArkstackRequest)).toBe(true)
+    Router.configure({
+      container: {
+        enabled: true,
+        autoDiscover: true,
+      },
+    })
+    Router.get(
+      '/account/request',
+      async (ctx) => {
+        const req = await Container.resolve(ArkstackRequest, ctx)
+
+        return {
+          authToken: req?.authToken,
+          authUserFromAuthId: (req?.auth as Auth | undefined)?.user()?.id,
+          authUserId: (req?.authUser as { id?: unknown } | undefined)?.id,
+          constructorName: req?.constructor.name,
+          hasIp: Boolean(req?.ip),
+          hasSource: Boolean(req?.source),
+          isArkstackRequest: req instanceof ArkstackRequest,
+          userId: (req?.user as { id?: unknown } | undefined)?.id,
+        }
+      },
+      [auth],
+    )
+    Router.apply(router)
+    app.use(router)
+
+    const response = await request(app).get('/account/request').set('Authorization', `Bearer ${token}`).expect(200)
+
+    expect(response.body).toMatchObject({
+      authToken: token,
+      constructorName: 'Request',
+      hasIp: true,
+      hasSource: true,
+      isArkstackRequest: true,
+    })
+    expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
+    expect(String(response.body.authUserId)).toBe(String(user.id))
+    expect(String(response.body.userId)).toBe(String(user.id))
+  })
+
+  it('returns an authentication error when the bearer token is missing', async () => {
+    const app = express()
+
+    app.use(auth)
+    app.get('/test', (_req, res) => {
+      res.status(200).json({ ok: true })
+    })
+    app.use(
+      (
+        err: { message?: string; statusCode?: number },
+        _req: express.Request,
+        res: express.Response,
+        _next: express.NextFunction,
+      ) => {
+        res.status(err.statusCode ?? 500).json({
+          message: err.message,
+          statusCode: err.statusCode,
         })
+      },
+    )
 
-        const response = await request(app)
-            .get('/test')
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
+    const response = await request(app).get('/test').expect(401)
 
-        expect(String(response.body.userId)).toBe(String(user.id))
-        expect(String(response.body.authUserId)).toBe(String(user.id))
-        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
-        expect(response.body.authToken).toBe(token)
+    expect(response.body).toEqual({
+      message: 'Unauthenticated',
+      statusCode: 401,
+    })
+  })
+
+  it('supports the documented Clear Router login route pattern', async () => {
+    const password = 'password'
+    const user = await createAuthUser({
+      password: await Hash.make(password),
+    })
+    const app = express()
+    const router = express.Router()
+    const Router = createRouter('login')
+
+    Router.post('/auth/login', async ({ req, res }) => {
+      const { email, password } = req.body
+      const auth = Auth.make().setRequest(req as never)
+      const personalAccessToken = await auth.login(email, password)
+
+      return res.status(200).json({
+        // @ts-expect-error req.auth is typed from built dependencies
+        authMatches: req.auth === auth,
+        authToken: req.authToken,
+        authUserFromAuthId: req.auth?.user()?.id,
+        authUserId: req.authUser?.id,
+        token: personalAccessToken.token,
+        userId: personalAccessToken.getAttribute('user')?.id,
+        requestUserId: req.user?.id,
+      })
     })
 
-    it('hydrates the container-bound Arkstack request after authentication', async () => {
-        const user = await createAuthUser()
-        const token = await createAuthToken(user.id)
+    Router.apply(router)
+    app.use(express.json())
+    app.use(router)
 
-        await createPersonalAccessToken(user.id, token)
+    const response = await request(app)
+      .post('/auth/login')
+      .send({
+        email: user.email,
+        password,
+      })
+      .expect(200)
 
-        const app = express()
-        const router = express.Router()
-        const Router = createRouter('bound-request')
+    expect(response.body.token).toEqual(expect.any(String))
+    expect(response.body.authMatches).toBe(true)
+    expect(response.body.authToken).toBe(response.body.token)
+    expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
+    expect(String(response.body.authUserId)).toBe(String(user.id))
+    expect(String(response.body.userId)).toBe(String(user.id))
+    expect(String(response.body.requestUserId)).toBe(String(user.id))
+  })
 
-        await import('../../http/src/setup')
-        await ClearRouter.use(arkstackHttpPlugin)
-        await (ClearRouter as any).pluginsReady()
+  it('sets complete authentication state when issuing a token during registration', async () => {
+    const user = await createAuthUser()
+    const app = express()
+    const router = express.Router()
+    const Router = createRouter('register')
 
-        expect((ClearRouter as any).container.has(ArkstackRequest)).toBe(true)
-        Router.configure({
-            container: {
-                enabled: true,
-                autoDiscover: true,
-            },
-        })
-        Router.get('/account/request', async (ctx) => {
-            const req = await Container.resolve(ArkstackRequest, ctx)
+    Router.post('/auth/register', async ({ req, res }) => {
+      const auth = Auth.make().setRequest(req as never)
+      const personalAccessToken = await auth.create(user)
 
-            return {
-                authToken: req?.authToken,
-                authUserFromAuthId: (req?.auth as Auth | undefined)?.user()?.id,
-                authUserId: (req?.authUser as { id?: unknown } | undefined)?.id,
-                constructorName: req?.constructor.name,
-                hasIp: Boolean(req?.ip),
-                hasSource: Boolean(req?.source),
-                isArkstackRequest: req instanceof ArkstackRequest,
-                userId: (req?.user as { id?: unknown } | undefined)?.id,
-            }
-        }, [auth])
-        Router.apply(router)
-        app.use(router)
-
-        const response = await request(app)
-            .get('/account/request')
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
-
-        expect(response.body).toMatchObject({
-            authToken: token,
-            constructorName: 'Request',
-            hasIp: true,
-            hasSource: true,
-            isArkstackRequest: true,
-        })
-        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
-        expect(String(response.body.authUserId)).toBe(String(user.id))
-        expect(String(response.body.userId)).toBe(String(user.id))
+      return res.status(201).json({
+        // @ts-expect-error req.auth is typed from built dependencies
+        authMatches: req.auth === auth,
+        authToken: req.authToken,
+        authUserFromAuthId: req.auth?.user()?.id,
+        authUserId: req.authUser?.id,
+        token: personalAccessToken.token,
+        userId: req.user?.id,
+      })
     })
 
-    it('returns an authentication error when the bearer token is missing', async () => {
-        const app = express()
+    Router.apply(router)
+    app.use(router)
 
-        app.use(auth)
-        app.get('/test', (_req, res) => {
-            res.status(200).json({ ok: true })
+    const response = await request(app).post('/auth/register').expect(201)
+
+    expect(response.body.authMatches).toBe(true)
+    expect(response.body.authToken).toBe(response.body.token)
+    expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
+    expect(String(response.body.authUserId)).toBe(String(user.id))
+    expect(String(response.body.userId)).toBe(String(user.id))
+  })
+
+  it('supports the documented Clear Router route middleware pattern', async () => {
+    const user = await createAuthUser()
+    const token = await createAuthToken(user.id)
+
+    await createPersonalAccessToken(user.id, token)
+
+    const app = express()
+    const router = express.Router()
+    const Router = createRouter('route-middleware')
+
+    Router.get(
+      '/account',
+      ({ req, res }) => {
+        return res.status(200).json({
+          authToken: req.authToken,
+          userId: req.user?.id,
         })
-        app.use((err: { message?: string; statusCode?: number }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-            res.status(err.statusCode ?? 500).json({
-                message: err.message,
-                statusCode: err.statusCode,
-            })
-        })
+      },
+      [auth],
+    )
 
-        const response = await request(app)
-            .get('/test')
-            .expect(401)
+    Router.apply(router)
+    app.use(router)
 
-        expect(response.body).toEqual({
-            message: 'Unauthenticated',
-            statusCode: 401,
-        })
-    })
+    const response = await request(app).get('/account').set('Authorization', `Bearer ${token}`).expect(200)
 
-    it('supports the documented Clear Router login route pattern', async () => {
-        const password = 'password'
-        const user = await createAuthUser({
-            password: await Hash.make(password),
-        })
-        const app = express()
-        const router = express.Router()
-        const Router = createRouter('login')
+    expect(response.body.authToken).toBe(token)
+    expect(String(response.body.userId)).toBe(String(user.id))
+  })
 
-        Router.post('/auth/login', async ({ req, res }) => {
-            const { email, password } = req.body
-            const auth = Auth.make().setRequest(req as never)
-            const personalAccessToken = await auth.login(email, password)
+  it('supports the documented Clear Router group middleware pattern', async () => {
+    const user = await createAuthUser()
+    const token = await createAuthToken(user.id)
 
-            return res.status(200).json({
-                // @ts-expect-error req.auth is typed from built dependencies
-                authMatches: req.auth === auth,
-                authToken: req.authToken,
-                authUserFromAuthId: req.auth?.user()?.id,
-                authUserId: req.authUser?.id,
-                token: personalAccessToken.token,
-                userId: personalAccessToken.getAttribute('user')?.id,
-                requestUserId: req.user?.id,
-            })
-        })
+    await createPersonalAccessToken(user.id, token)
 
-        Router.apply(router)
-        app.use(express.json())
-        app.use(router)
+    const app = express()
+    const router = express.Router()
+    const Router = createRouter('group-middleware')
 
-        const response = await request(app)
-            .post('/auth/login')
-            .send({
-                email: user.email,
-                password,
-            })
-            .expect(200)
-
-        expect(response.body.token).toEqual(expect.any(String))
-        expect(response.body.authMatches).toBe(true)
-        expect(response.body.authToken).toBe(response.body.token)
-        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
-        expect(String(response.body.authUserId)).toBe(String(user.id))
-        expect(String(response.body.userId)).toBe(String(user.id))
-        expect(String(response.body.requestUserId)).toBe(String(user.id))
-    })
-
-    it('sets complete authentication state when issuing a token during registration', async () => {
-        const user = await createAuthUser()
-        const app = express()
-        const router = express.Router()
-        const Router = createRouter('register')
-
-        Router.post('/auth/register', async ({ req, res }) => {
-            const auth = Auth.make().setRequest(req as never)
-            const personalAccessToken = await auth.create(user)
-
-            return res.status(201).json({
-                // @ts-expect-error req.auth is typed from built dependencies
-                authMatches: req.auth === auth,
-                authToken: req.authToken,
-                authUserFromAuthId: req.auth?.user()?.id,
-                authUserId: req.authUser?.id,
-                token: personalAccessToken.token,
-                userId: req.user?.id,
-            })
+    await Router.group(
+      '/account',
+      async () => {
+        Router.get('/profile', ({ req, res }) => {
+          return res.status(200).json({
+            userId: req.user?.id,
+          })
         })
 
-        Router.apply(router)
-        app.use(router)
+        Router.get('/sessions', async ({ req, res }) => {
+          const session = await Auth.make()
+            .setRequest(req as never)
+            .session()
+            .token()
 
-        const response = await request(app)
-            .post('/auth/register')
-            .expect(201)
+          return res.status(200).json({
+            sessionToken: session?.token,
+          })
+        })
+      },
+      [auth],
+    )
 
-        expect(response.body.authMatches).toBe(true)
-        expect(response.body.authToken).toBe(response.body.token)
-        expect(String(response.body.authUserFromAuthId)).toBe(String(user.id))
-        expect(String(response.body.authUserId)).toBe(String(user.id))
-        expect(String(response.body.userId)).toBe(String(user.id))
-    })
+    Router.apply(router)
+    app.use(router)
 
-    it('supports the documented Clear Router route middleware pattern', async () => {
-        const user = await createAuthUser()
-        const token = await createAuthToken(user.id)
+    const profile = await request(app).get('/account/profile').set('Authorization', `Bearer ${token}`).expect(200)
 
-        await createPersonalAccessToken(user.id, token)
+    const sessions = await request(app).get('/account/sessions').set('Authorization', `Bearer ${token}`).expect(200)
 
-        const app = express()
-        const router = express.Router()
-        const Router = createRouter('route-middleware')
-
-        Router.get('/account', ({ req, res }) => {
-            return res.status(200).json({
-                authToken: req.authToken,
-                userId: req.user?.id,
-            })
-        }, [auth])
-
-        Router.apply(router)
-        app.use(router)
-
-        const response = await request(app)
-            .get('/account')
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
-
-        expect(response.body.authToken).toBe(token)
-        expect(String(response.body.userId)).toBe(String(user.id))
-    })
-
-    it('supports the documented Clear Router group middleware pattern', async () => {
-        const user = await createAuthUser()
-        const token = await createAuthToken(user.id)
-
-        await createPersonalAccessToken(user.id, token)
-
-        const app = express()
-        const router = express.Router()
-        const Router = createRouter('group-middleware')
-
-        await Router.group('/account', async () => {
-            Router.get('/profile', ({ req, res }) => {
-                return res.status(200).json({
-                    userId: req.user?.id,
-                })
-            })
-
-            Router.get('/sessions', async ({ req, res }) => {
-                const session = await Auth.make()
-                    .setRequest(req as never)
-                    .session()
-                    .token()
-
-                return res.status(200).json({
-                    sessionToken: session?.token,
-                })
-            })
-        }, [auth])
-
-        Router.apply(router)
-        app.use(router)
-
-        const profile = await request(app)
-            .get('/account/profile')
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
-
-        const sessions = await request(app)
-            .get('/account/sessions')
-            .set('Authorization', `Bearer ${token}`)
-            .expect(200)
-
-        expect(String(profile.body.userId)).toBe(String(user.id))
-        expect(sessions.body.sessionToken).toBe(token)
-    })
+    expect(String(profile.body.userId)).toBe(String(user.id))
+    expect(sessions.body.sessionToken).toBe(token)
+  })
 })

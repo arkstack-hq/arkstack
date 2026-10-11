@@ -9,13 +9,13 @@ Resources keep transport details out of controllers and give every API a predict
 Return `Resource` directly when the default model or object shape is suitable:
 
 ```ts
-import { Resource } from 'resora';
+import { Resource } from 'resora'
 
 export default class UserController {
   async show() {
-    const user = await User.query().findOrFail(this.params.id);
+    const user = await User.query().findOrFail(this.params.id)
 
-    return new Resource(user);
+    return new Resource(user)
   }
 }
 ```
@@ -23,17 +23,17 @@ export default class UserController {
 For a stable public contract, create a dedicated resource class:
 
 ```ts
-import { Resource } from 'resora';
+import { Resource } from 'resora'
 
 export class UserResource extends Resource {
   data() {
-    const user = this.toObject();
+    const user = this.toObject()
 
     return {
       id: user.id,
       name: user.name,
       email: user.email,
-    };
+    }
   }
 }
 ```
@@ -41,7 +41,7 @@ export class UserResource extends Resource {
 The controller then returns the transformer rather than exposing the model directly:
 
 ```ts
-return new UserResource(user);
+return new UserResource(user)
 ```
 
 Generate a resource with the Arkstack CLI:
@@ -55,13 +55,13 @@ pnpm ark make:resource User
 Use `ResourceCollection` for arrays and Arkorm paginators:
 
 ```ts
-import { ResourceCollection } from 'resora';
+import { ResourceCollection } from 'resora'
 
 export default class UserController {
   async index() {
-    const users = await User.query().paginate(20);
+    const users = await User.query().paginate(20)
 
-    return new ResourceCollection(users);
+    return new ResourceCollection(users)
   }
 }
 ```
@@ -69,14 +69,14 @@ export default class UserController {
 A custom collection can declare the resource used to transform each item:
 
 ```ts
-import { ResourceCollection } from 'resora';
-import { UserResource } from './UserResource';
+import { ResourceCollection } from 'resora'
+import { UserResource } from './UserResource'
 
 export class UserCollection extends ResourceCollection {
-  collects = UserResource;
+  collects = UserResource
 
   data() {
-    return this.toObject();
+    return this.toObject()
   }
 }
 ```
@@ -84,7 +84,7 @@ export class UserCollection extends ResourceCollection {
 Arkorm pagination metadata is carried into the response automatically:
 
 ```ts
-return new UserCollection(await User.query().paginate(20));
+return new UserCollection(await User.query().paginate(20))
 ```
 
 ## Status And Additional Data
@@ -98,7 +98,7 @@ return new UserResource(user)
     message: 'User created successfully',
   })
   .response()
-  .setStatusCode(201);
+  .setStatusCode(201)
 ```
 
 ## When To Return Something Else
@@ -113,4 +113,3 @@ Continue with the Resora documentation for conditional attributes, nested resour
 - [Resources](https://arkstack-hq.github.io/resora/guide/resources)
 - [Resource Collections](https://arkstack-hq.github.io/resora/guide/collections)
 - [Writing Resources](https://arkstack-hq.github.io/resora/guide/writing-resources)
-

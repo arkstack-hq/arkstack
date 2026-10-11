@@ -14,22 +14,20 @@ let registered = false
  * idempotent, so calling it again is a no-op.
  */
 export const registerJobsWithQueue = (): void => {
-    if (registered) {
-        return
-    }
+  if (registered) {
+    return
+  }
 
-    registered = true
+  registered = true
 
-    Queue.serializeUsing((job) => ({
-        id: randomUUID(),
-        displayName: (job instanceof Job ? JobRegistry.nameOf(job) : undefined)
-            ?? job.constructor?.name
-            ?? 'Closure',
-        attempts: 0,
-        maxTries: job.tries ?? null,
-        backoff: job.backoff ?? 0,
-        data: typeof job.serialize === 'function' ? job.serialize() : { ...job },
-    }))
+  Queue.serializeUsing((job) => ({
+    id: randomUUID(),
+    displayName: (job instanceof Job ? JobRegistry.nameOf(job) : undefined) ?? job.constructor?.name ?? 'Closure',
+    attempts: 0,
+    maxTries: job.tries ?? null,
+    backoff: job.backoff ?? 0,
+    data: typeof job.serialize === 'function' ? job.serialize() : { ...job },
+  }))
 
-    Queue.resolveJobsUsing((payload) => JobRegistry.resolve(payload))
+  Queue.resolveJobsUsing((payload) => JobRegistry.resolve(payload))
 }

@@ -7,32 +7,31 @@ declare module 'clear-router' {
   }
 }
 
-
 declare module 'node:http' {
   interface IncomingMessage {
     rawBody?: Buffer
-    session?: AuthSession | undefined;
+    session?: AuthSession | undefined
   }
 }
 
 declare module 'clear-router/types/h3' {
   interface HttpRequest {
     rawBody?: Buffer
-    session?: AuthSession | undefined;
+    session?: AuthSession | undefined
   }
 }
 
 declare module 'clear-router' {
   interface HttpRequests {
     rawBody?: Buffer
-    session?: AuthSession | undefined;
+    session?: AuthSession | undefined
   }
 }
 
 declare module 'h3' {
   interface H3EventContext {
     rawBody?: Buffer
-    session?: AuthSession | undefined;
+    session?: AuthSession | undefined
   }
 }
 
@@ -40,7 +39,7 @@ declare global {
   namespace Express {
     interface Request {
       rawBody?: Buffer
-      session?: AuthSession | undefined;
+      session?: AuthSession | undefined
     }
   }
 }

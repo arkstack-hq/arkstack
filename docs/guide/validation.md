@@ -13,11 +13,11 @@ export default class UserController extends BaseController {
       name: 'required|string|min:2',
       email: 'required|email',
       age: 'numeric|min:18',
-    });
+    })
 
-    const user = await User.query().create(data);
+    const user = await User.query().create(data)
 
-    return new UserResource(user).response().setStatusCode(201);
+    return new UserResource(user).response().setStatusCode(201)
   }
 }
 ```
@@ -29,12 +29,12 @@ The helper calls `Validator.make(this.body, rules).validate()` internally. Valid
 Use `Validator` directly in services, commands, jobs, or inline routes:
 
 ```ts
-import { Validator } from 'kanun';
+import { Validator } from 'kanun'
 
 const data = await Validator.make(input, {
   email: 'required|email',
   role: 'required|in:admin,member',
-}).validate();
+}).validate()
 ```
 
 Use `passes()` or `fails()` when validation should branch instead of throwing:
@@ -42,10 +42,10 @@ Use `passes()` or `fails()` when validation should branch instead of throwing:
 ```ts
 const validator = Validator.make(input, {
   email: 'required|email',
-});
+})
 
 if (await validator.fails()) {
-  return validator.errors().all();
+  return validator.errors().all()
 }
 ```
 

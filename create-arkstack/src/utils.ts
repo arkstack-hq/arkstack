@@ -8,7 +8,7 @@ import path from 'node:path'
  *
  * @param dirPath
  */
-export async function mountTemplatesDir (dirPath: string) {
+export async function mountTemplatesDir(dirPath: string) {
   const templatesDir = path.join(dirPath, 'templates')
 
   const existingEntries = await readdir(dirPath)
@@ -17,8 +17,8 @@ export async function mountTemplatesDir (dirPath: string) {
 
   await Promise.all(
     existingEntries
-      .filter(entry => entry !== 'templates')
-      .map(entry => rm(path.join(dirPath, entry), { recursive: true, force: true }))
+      .filter((entry) => entry !== 'templates')
+      .map((entry) => rm(path.join(dirPath, entry), { recursive: true, force: true })),
   )
 
   await rm(templatesDir, { recursive: true, force: true })
@@ -30,7 +30,7 @@ export async function mountTemplatesDir (dirPath: string) {
  * @param dirPath
  * @param keepFileName
  */
-export async function cleanDirectoryExcept (dirPath: string, keepFileName: string) {
+export async function cleanDirectoryExcept(dirPath: string, keepFileName: string) {
   const files = await readdir(dirPath)
 
   for (const file of files) {
@@ -48,7 +48,7 @@ export async function cleanDirectoryExcept (dirPath: string, keepFileName: strin
  * @param dirPath
  * @param parent
  */
-export async function hoistDirectoryContents (parent: string, dirPath: string) {
+export async function hoistDirectoryContents(parent: string, dirPath: string) {
   const source = path.isAbsolute(dirPath) ? dirPath : path.join(process.cwd(), dirPath)
 
   const targetParent = path.isAbsolute(parent) ? parent : path.join(process.cwd(), parent)

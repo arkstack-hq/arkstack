@@ -6,12 +6,12 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 
 Publisher.publishes({
-    package: '@arkstack/filesystem',
-    tag: 'filesystem-config',
-    entries: [
-        {
-            from: join(root, 'stubs/config/filesystem.ts.stub'),
-            to: 'src/config/filesystem.ts',
-        },
-    ],
+  package: '@arkstack/filesystem',
+  tag: 'filesystem-config',
+  entries: [
+    {
+      from: join(root, 'stubs/config/filesystem.ts.stub'),
+      to: 'src/config/filesystem.ts',
+    },
+  ],
 })

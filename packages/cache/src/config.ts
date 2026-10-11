@@ -11,13 +11,13 @@ import { CacheConfig } from './types'
  * @param key           Dot path within the cache config.
  * @param defaultValue  Value returned when the key is not set.
  */
-export const configure = <T extends DotPath<CacheConfig>> (
-    key: T,
-    defaultValue: unknown,
+export const configure = <T extends DotPath<CacheConfig>>(
+  key: T,
+  defaultValue: unknown,
 ): DotPathValue<CacheConfig, T> => {
-    try {
-        return config(`cache.${key}`, defaultValue) as never
-    } catch {
-        return defaultValue as never
-    }
+  try {
+    return config(`cache.${key}`, defaultValue) as never
+  } catch {
+    return defaultValue as never
+  }
 }

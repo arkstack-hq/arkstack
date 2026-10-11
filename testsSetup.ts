@@ -17,5 +17,5 @@ const conf = {
 }
 
 globalThis.config ??= ((key: string, def?: string) => {
-  return key ? conf[key as never] ?? def : conf as never
+  return key ? (conf[key as never] ?? def) : (conf as never)
 }) as never

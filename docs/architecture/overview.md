@@ -159,7 +159,7 @@ Hook.set('middleware:auth', {
   before: ({ req, res }) => {},
   after: ({ req, res }) => {},
   error: (error, { req, res }) => {},
-});
+})
 ```
 
 ### View Composers
@@ -168,8 +168,8 @@ View composers attach data before rendering:
 
 ```ts
 View.composer('dashboard', (view) => {
-  view.with('title', 'Dashboard');
-});
+  view.with('title', 'Dashboard')
+})
 ```
 
 Composers can be functions, classes, or instances with a `compose()` method.
@@ -179,8 +179,8 @@ Composers can be functions, classes, or instances with a `compose()` method.
 Packages can ship their own `resources/views` directory and expose templates through tilde names:
 
 ```ts
-await view('~package-name.mail');
-await view('~org/package-name.mail');
+await view('~package-name.mail')
+await view('~org/package-name.mail')
 ```
 
 ### Console Commands

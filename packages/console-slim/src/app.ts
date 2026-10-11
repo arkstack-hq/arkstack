@@ -7,126 +7,120 @@ import { defaultConfig } from './config'
 import { existsSync } from 'node:fs'
 
 interface Core {
+  [k: string]: any
+  getDriver: () => {
     [k: string]: any
-    getDriver: () => {
-        [k: string]: any
-        name: string
-    }
+    name: string
+  }
 }
 
 export interface ConsoleAppOptions {
-    stubsDir?: string;
+  stubsDir?: string
 }
 
 export const resolveStubsDir = (
-    config: { localStubsDir?: string } | undefined,
-    options?: ConsoleAppOptions,
-    core?: Core
-
+  config: { localStubsDir?: string } | undefined,
+  options?: ConsoleAppOptions,
+  core?: Core,
 ) => {
-    const configuredDir = config?.localStubsDir
+  const configuredDir = config?.localStubsDir
 
-    if (configuredDir) {
-        return isAbsolute(configuredDir)
-            ? configuredDir
-            : join(Arkstack.rootDir(), configuredDir)
+  if (configuredDir) {
+    return isAbsolute(configuredDir) ? configuredDir : join(Arkstack.rootDir(), configuredDir)
+  }
+
+  if (!options?.stubsDir) {
+    const driver = core?.getDriver().name ?? 'h3'
+    let stubsDir = path.resolve(Arkstack.rootDir(), `node_modules/@arkstack/driver-${driver}/stubs`)
+    if (!existsSync(stubsDir)) {
+      stubsDir = path.resolve(Arkstack.rootDir(), 'stubs')
     }
 
-    if (!options?.stubsDir) {
-        const driver = core?.getDriver().name ?? 'h3'
-        let stubsDir = path.resolve(Arkstack.rootDir(), `node_modules/@arkstack/driver-${driver}/stubs`)
-        if (!existsSync(stubsDir)) {
-            stubsDir = path.resolve(Arkstack.rootDir(), 'stubs')
-        }
+    return stubsDir
+  }
 
-        return stubsDir
-    }
-
-    return options?.stubsDir
+  return options?.stubsDir
 }
 
 export class ArkstackConsoleApp<TCore extends Core> extends CliApp {
-    core: TCore
-    private readonly options: ConsoleAppOptions
+  core: TCore
+  private readonly options: ConsoleAppOptions
 
-    constructor(
-        core: TCore,
-        options: ConsoleAppOptions,
-    ) {
-        super()
-        this.core = core
-        this.options = options
-        this.mergeConfig()
+  constructor(core: TCore, options: ConsoleAppOptions) {
+    super()
+    this.core = core
+    this.options = options
+    this.mergeConfig()
+  }
+
+  makeController = (name: string, opts: any) => {
+    this.mergeConfig()
+    const normalized = name.endsWith('Controller') ? name.replace(/controller/i, '') : name
+
+    let controllerName = normalized.endsWith('Controller') ? normalized : `${normalized}Controller`
+    const controllersDir = path.resolve(Arkstack.rootDir(), 'src', 'app/http/controllers')
+    const fileName = `${controllerName}.${opts?.ext ?? 'ts'}`
+    const outputPath = join(controllersDir, fileName)
+    const stubsDir = resolveStubsDir(this.config as any, this.options, this.core)
+    if (!stubsDir) {
+      console.error('Error: stubsDir is not configured. Set stubsDir in resora.config.js.')
+      process.exit(1)
     }
 
-    makeController = (name: string, opts: any) => {
-        this.mergeConfig()
-        const normalized = (name.endsWith('Controller') ? name.replace(/controller/i, '') : name)
+    const stubPath = join(
+      stubsDir,
+      opts.model
+        ? (this.config.stubs as any).model
+        : opts.api
+          ? (this.config.stubs as any).api
+          : (this.config.stubs as any).controller,
+    )
 
-        let controllerName = normalized.endsWith('Controller') ? normalized : `${normalized}Controller`
-        const controllersDir = path.resolve(Arkstack.rootDir(), 'src', 'app/http/controllers')
-        const fileName = `${controllerName}.${opts?.ext ?? 'ts'}`
-        const outputPath = join(controllersDir, fileName)
-        const stubsDir = resolveStubsDir(this.config as any, this.options, this.core)
-        if (!stubsDir) {
-            console.error('Error: stubsDir is not configured. Set stubsDir in resora.config.js.')
-            process.exit(1)
-        }
-
-        const stubPath = join(
-            stubsDir,
-            opts.model
-                ? (this.config.stubs as any).model
-                : opts.api
-                    ? (this.config.stubs as any).api
-                    : (this.config.stubs as any).controller,
-        )
-
-        if (!existsSync(stubPath)) {
-            console.error(`Error: Stub file ${stubPath} not found.`)
-            process.exit(1)
-        }
-
-        controllerName = controllerName.split('/').pop() as string
-
-        this.generateFile(
-            stubPath,
-            outputPath,
-            {
-                // If class name contains / or ., take only the last part for the class name
-                ControllerName: controllerName,
-                Model: opts.model?.pascalCase(),
-                ModelName: opts.model?.camelCase(),
-                Name: controllerName.replace(/controller/i, ''),
-            },
-            opts,
-        )
-
-        return outputPath
+    if (!existsSync(stubPath)) {
+      console.error(`Error: Stub file ${stubPath} not found.`)
+      process.exit(1)
     }
 
-    /**
-     * Normalize a file path by removing the current working directory from it. 
-     * 
-     * @param p 
-     * @returns 
-     */
-    normalizePath = (p: string) => {
-        return p.replace(Arkstack.rootDir(), '')
-    }
+    controllerName = controllerName.split('/').pop() as string
 
-    /**
-     * Recursively merge defaultConfig with config from resora.config.js, giving 
-     * precedence to resora.
-     */
-    mergeConfig = () => {
-        this.config = {
-            ...defaultConfig(this.core),
-            ...this.config,
-            stubs: {
-                ...defaultConfig(this.core).stubs,
-                ...this.config?.stubs,
-            },
-        }
+    this.generateFile(
+      stubPath,
+      outputPath,
+      {
+        // If class name contains / or ., take only the last part for the class name
+        ControllerName: controllerName,
+        Model: opts.model?.pascalCase(),
+        ModelName: opts.model?.camelCase(),
+        Name: controllerName.replace(/controller/i, ''),
+      },
+      opts,
+    )
+
+    return outputPath
+  }
+
+  /**
+   * Normalize a file path by removing the current working directory from it.
+   *
+   * @param p
+   * @returns
+   */
+  normalizePath = (p: string) => {
+    return p.replace(Arkstack.rootDir(), '')
+  }
+
+  /**
+   * Recursively merge defaultConfig with config from resora.config.js, giving
+   * precedence to resora.
+   */
+  mergeConfig = () => {
+    this.config = {
+      ...defaultConfig(this.core),
+      ...this.config,
+      stubs: {
+        ...defaultConfig(this.core).stubs,
+        ...this.config?.stubs,
+      },
     }
+  }
 }

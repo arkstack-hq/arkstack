@@ -10,7 +10,7 @@ From `src/core/bootstrap.ts`:
 - `app`: Arkstack `Application` instance
 
 ```ts
-import { app, h3App } from 'src/core/bootstrap';
+import { app, h3App } from 'src/core/bootstrap'
 ```
 
 ## Interaction Options
@@ -20,12 +20,12 @@ import { app, h3App } from 'src/core/bootstrap';
 Use this for direct H3 APIs.
 
 ```ts
-import { h3App } from 'src/core/bootstrap';
-import { HTTPResponse } from 'h3';
+import { h3App } from 'src/core/bootstrap'
+import { HTTPResponse } from 'h3'
 
 h3App.get('/health', () => {
-  return new HTTPResponse('ok');
-});
+  return new HTTPResponse('ok')
+})
 ```
 
 ### 2. Instance runtime accessor: `app.getAppInstance()`
@@ -33,12 +33,12 @@ h3App.get('/health', () => {
 Get the runtime instance from the Arkstack wrapper.
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-const runtime = app.getAppInstance();
+const runtime = app.getAppInstance()
 runtime.use((event) => {
-  event.context.source = 'arkstack';
-});
+  event.context.source = 'arkstack'
+})
 ```
 
 ### 3. Static runtime accessor: `Application.getAppInstance()`
@@ -46,12 +46,12 @@ runtime.use((event) => {
 Access the static runtime reference.
 
 ```ts
-import Application from 'src/core/app';
+import Application from 'src/core/app'
 
-const runtime = Application.getAppInstance();
+const runtime = Application.getAppInstance()
 runtime.use(() => {
   // global middleware hook
-});
+})
 ```
 
 ### 4. Driver interaction: `app.getDriver()`
@@ -59,11 +59,11 @@ runtime.use(() => {
 Use the runtime driver for lifecycle-level integration.
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-const driver = app.getDriver();
-const runtime = app.getAppInstance();
-await driver.applyMiddleware(runtime, () => {});
+const driver = app.getDriver()
+const runtime = app.getAppInstance()
+await driver.applyMiddleware(runtime, () => {})
 ```
 
 ### 5. Router contract interaction: `app.getRouter()`
@@ -71,23 +71,23 @@ await driver.applyMiddleware(runtime, () => {});
 Use the runtime-agnostic router contract.
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-const router = app.getRouter();
-await router.bind(app.getAppInstance());
+const router = app.getRouter()
+await router.bind(app.getAppInstance())
 
-const routes = await router.list({ path: '/api' }, app.getAppInstance());
-console.log(routes);
+const routes = await router.list({ path: '/api' }, app.getAppInstance())
+console.log(routes)
 ```
 
 ### 6. Lifecycle control: `boot` and `shutdown`
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-await app.boot(3000);
+await app.boot(3000)
 // later
-await app.shutdown();
+await app.shutdown()
 ```
 
 ## Unified HTTP Context
@@ -96,13 +96,13 @@ The H3 driver automatically installs `arkstackHttpPlugin`. Clear Router handlers
 
 ```ts
 Router.get('/account', ({ req, clearRequest, clearResponse }) => {
-  const token = clearRequest.bearerToken();
+  const token = clearRequest.bearerToken()
 
   return clearResponse.status(200).json({
     method: req.method,
     token,
-  });
-});
+  })
+})
 ```
 
 Controllers decorated with `@Bind()` can inject `Request`, `Response`, and `Session` from `@arkstack/http`. The injected values are the same instances exposed on the route context and by the global HTTP helpers. See the [HTTP guide](/guide/http#controller-injection).
@@ -121,18 +121,18 @@ Default behavior:
 If you need to change that behavior, override `mountPublicAssets` in `src/core/app.ts` when constructing `H3Driver`.
 
 ```ts
-import { H3Driver } from '@arkstack/driver-h3';
-import { staticAssetHandler } from '@arkstack/driver-h3/middlewares';
+import { H3Driver } from '@arkstack/driver-h3'
+import { staticAssetHandler } from '@arkstack/driver-h3/middlewares'
 
 this.driver = new H3Driver({
   createApp: () => new H3({ onError: ErrorHandler }),
   bindRouter: async (runtime) => {
-    await Router.bind(runtime);
+    await Router.bind(runtime)
   },
   mountPublicAssets: (runtime, publicPath) => {
-    runtime.use(staticAssetHandler(publicPath));
+    runtime.use(staticAssetHandler(publicPath))
   },
-});
+})
 ```
 
 ## Host & Port Binding

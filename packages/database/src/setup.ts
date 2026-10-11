@@ -21,18 +21,18 @@ Validator.useDatabase(new ValidatorDBDriver())
  * precedence, and an unconfigured database (e.g. some CLI contexts) is ignored.
  */
 try {
-    bootArkorm()
+  bootArkorm()
 } catch {
-    /** Database not configured in this context. */
+  /** Database not configured in this context. */
 }
 
 Publisher.publishes({
-    package: '@arkstack/database',
-    tag: 'database-config',
-    entries: [
-        {
-            from: join(root, 'stubs/config/database.ts.stub'),
-            to: 'src/config/database.ts',
-        },
-    ],
+  package: '@arkstack/database',
+  tag: 'database-config',
+  entries: [
+    {
+      from: join(root, 'stubs/config/database.ts.stub'),
+      to: 'src/config/database.ts',
+    },
+  ],
 })

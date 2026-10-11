@@ -2,16 +2,16 @@ import { UserNotification as BaseUserNotification } from '@arkstack/notification
 import { User } from './User'
 
 export class UserNotification extends BaseUserNotification {
-    protected static columns = {
-        userId: 'user_id',
-        actionText: 'action_text',
-        actionLink: 'action_link',
-        readAt: 'read_at',
-        createdAt: 'created_at',
-        updatedAt: 'updated_at',
-    }
+  protected static columns = {
+    userId: 'user_id',
+    actionText: 'action_text',
+    actionLink: 'action_link',
+    readAt: 'read_at',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  }
 
-    user () {
-        return this.belongsTo(User, 'userId', 'id')
-    }
+  user() {
+    return this.belongsTo(User, 'userId', 'id')
+  }
 }

@@ -8,22 +8,22 @@ import { Schedule } from './Schedule'
  * @param now  The reference moment (defaults to now).
  */
 export const runDueEvents = async (now: Date = new Date()): Promise<RunResult[]> => {
-    const results: RunResult[] = []
+  const results: RunResult[] = []
 
-    for (const event of Schedule.dueEvents(now)) {
-        if (!(await event.filtersPass(now))) {
-            results.push({
-                description: event.descriptionValue,
-                expression: event.expression,
-                ran: false,
-                skipped: 'filtered',
-            })
+  for (const event of Schedule.dueEvents(now)) {
+    if (!(await event.filtersPass(now))) {
+      results.push({
+        description: event.descriptionValue,
+        expression: event.expression,
+        ran: false,
+        skipped: 'filtered',
+      })
 
-            continue
-        }
-
-        results.push(await event.run(now))
+      continue
     }
 
-    return results
+    results.push(await event.run(now))
+  }
+
+  return results
 }

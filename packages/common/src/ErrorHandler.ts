@@ -4,201 +4,199 @@ import { ArkstackErrorPayload, ArkstackErrorShape } from './types'
 import { Arkstack } from '@arkstack/contract'
 
 export class ErrorHandler {
-    private static loggerCache = new Map<string, PinoLogger>()
+  private static loggerCache = new Map<string, PinoLogger>()
 
-    private static isRecord (value: unknown): value is Record<string, unknown> {
-        return typeof value === 'object' && value !== null
+  private static isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null
+  }
+
+  static toErrorShape(value: unknown): ArkstackErrorShape | undefined {
+    return ErrorHandler.isRecord(value) ? (value as unknown as ArkstackErrorShape) : undefined
+  }
+
+  static normalizeStatusCode(value: unknown, fallback: number = 500) {
+    const code = typeof value === 'number' ? value : Number(value)
+
+    return Number.isInteger(code) && code >= 100 && code < 600 ? code : fallback
+  }
+
+  static getErrorLogger() {
+    const destination = path.resolve(Arkstack.rootDir(), 'storage/logs/error.log')
+
+    if (!ErrorHandler.loggerCache.has(destination)) {
+      ErrorHandler.loggerCache.set(
+        destination,
+        pino(
+          {
+            level: 'error',
+          },
+          pino.destination({
+            dest: destination,
+            mkdir: true,
+            sync: false,
+          }),
+        ),
+      )
     }
 
-    static toErrorShape (value: unknown): ArkstackErrorShape | undefined {
-        return ErrorHandler.isRecord(value) ? value as unknown as ArkstackErrorShape : undefined
+    return ErrorHandler.loggerCache.get(destination)!
+  }
+
+  static serializeError(value: unknown, seen: WeakSet<object> = new WeakSet()): unknown {
+    if (Array.isArray(value)) {
+      return value.map((entry) => ErrorHandler.serializeError(entry, seen))
     }
 
-    static normalizeStatusCode (value: unknown, fallback: number = 500) {
-        const code = typeof value === 'number' ? value : Number(value)
-
-        return Number.isInteger(code) && code >= 100 && code < 600 ? code : fallback
+    if (!ErrorHandler.isRecord(value)) {
+      return value
     }
 
-    static getErrorLogger () {
-        const destination = path.resolve(Arkstack.rootDir(), 'storage/logs/error.log')
-
-        if (!ErrorHandler.loggerCache.has(destination)) {
-            ErrorHandler.loggerCache.set(destination, pino({
-                level: 'error',
-            }, pino.destination({
-                dest: destination,
-                mkdir: true,
-                sync: false,
-            })))
-        }
-
-        return ErrorHandler.loggerCache.get(destination)!
+    if (seen.has(value)) {
+      return '[Circular]'
     }
 
-    static serializeError (
-        value: unknown,
-        seen: WeakSet<object> = new WeakSet()
-    ): unknown {
-        if (Array.isArray(value)) {
-            return value.map((entry) => ErrorHandler.serializeError(entry, seen))
-        }
+    seen.add(value)
 
-        if (!ErrorHandler.isRecord(value)) {
-            return value
-        }
+    const serialized: Record<string, unknown> = {}
 
-        if (seen.has(value)) {
-            return '[Circular]'
-        }
-
-        seen.add(value)
-
-        const serialized: Record<string, unknown> = {}
-
-        if (value instanceof Error) {
-            serialized.name = value.name
-            serialized.message = value.message
-            serialized.stack = value.stack
-        }
-
-        for (const key of Reflect.ownKeys(value)) {
-            const property = typeof key === 'string' ? key : key.toString()
-            const descriptor = Object.getOwnPropertyDescriptor(value, key)
-
-            if (!descriptor || !('value' in descriptor)) {
-                continue
-            }
-
-            serialized[property] = ErrorHandler.serializeError(descriptor.value, seen)
-        }
-
-        return serialized
+    if (value instanceof Error) {
+      serialized.name = value.name
+      serialized.message = value.message
+      serialized.stack = value.stack
     }
 
-    static getPrimaryError (error: ArkstackErrorShape | string) {
-        if (typeof error === 'string') {
-            return error
-        }
+    for (const key of Reflect.ownKeys(value)) {
+      const property = typeof key === 'string' ? key : key.toString()
+      const descriptor = Object.getOwnPropertyDescriptor(value, key)
 
-        return ErrorHandler.toErrorShape(error.cause) ?? error
+      if (!descriptor || !('value' in descriptor)) {
+        continue
+      }
+
+      serialized[property] = ErrorHandler.serializeError(descriptor.value, seen)
     }
 
-    static getValidationErrors (error: ArkstackErrorShape) {
-        if (typeof error.errors === 'function') {
-            return error.errors()
-        }
+    return serialized
+  }
 
-        return error.errors
+  static getPrimaryError(error: ArkstackErrorShape | string) {
+    if (typeof error === 'string') {
+      return error
     }
 
-    static isValidationError (error: unknown): error is ArkstackErrorShape {
-        const candidate = ErrorHandler.toErrorShape(error)
+    return ErrorHandler.toErrorShape(error.cause) ?? error
+  }
 
-        return typeof candidate?.errors !== 'undefined'
+  static getValidationErrors(error: ArkstackErrorShape) {
+    if (typeof error.errors === 'function') {
+      return error.errors()
     }
 
-    static isModelNotFoundError (error: unknown): error is ArkstackErrorShape {
-        const candidate = ErrorHandler.toErrorShape(error)
-        const cause = (error as any)?.cause
+    return error.errors
+  }
 
-        // Duck-type rather than `instanceof ModelNotFoundException` so the error
-        // handler does not depend on `arkormx` being installed (it is an optional
-        // peer). arkormx's ModelNotFoundException exposes `getModelName`.
-        if (cause && typeof cause.getModelName === 'function') {
-            (error as any).getModelName = cause.getModelName
+  static isValidationError(error: unknown): error is ArkstackErrorShape {
+    const candidate = ErrorHandler.toErrorShape(error)
 
-            return true
-        }
+    return typeof candidate?.errors !== 'undefined'
+  }
 
-        return typeof candidate?.getModelName === 'function'
+  static isModelNotFoundError(error: unknown): error is ArkstackErrorShape {
+    const candidate = ErrorHandler.toErrorShape(error)
+    const cause = (error as any)?.cause
+
+    // Duck-type rather than `instanceof ModelNotFoundException` so the error
+    // handler does not depend on `arkormx` being installed (it is an optional
+    // peer). arkormx's ModelNotFoundException exposes `getModelName`.
+    if (cause && typeof cause.getModelName === 'function') {
+      ;(error as any).getModelName = cause.getModelName
+
+      return true
     }
 
-    static shouldHideStack () {
-        const value = process.env.HIDE_ERROR_STACK
+    return typeof candidate?.getModelName === 'function'
+  }
 
-        return value === 'true' || value === '1' || value === 'on'
+  static shouldHideStack() {
+    const value = process.env.HIDE_ERROR_STACK
+
+    return value === 'true' || value === '1' || value === 'on'
+  }
+
+  static shouldLogError(error: unknown) {
+    return !ErrorHandler.isValidationError(error) && !ErrorHandler.isModelNotFoundError(error)
+  }
+
+  static createErrorPayload(
+    err: ArkstackErrorShape | string,
+    fallbackMessage: string = 'Something went wrong',
+  ): ArkstackErrorPayload {
+    const primaryError = ErrorHandler.getPrimaryError(err)
+    const detailedError = typeof primaryError === 'string' ? undefined : primaryError
+    const validationError = detailedError && ErrorHandler.isValidationError(detailedError) ? detailedError : undefined
+    const modelNotFoundError =
+      detailedError && ErrorHandler.isModelNotFoundError(detailedError) ? detailedError : undefined
+
+    const payload: ArkstackErrorPayload = {
+      status: 'error',
+      code:
+        typeof err === 'string'
+          ? 500
+          : ErrorHandler.normalizeStatusCode(detailedError?.statusCode ?? detailedError?.status),
+      message:
+        typeof err === 'string'
+          ? `${fallbackMessage}: ${err}`
+          : detailedError?.message || err.message || fallbackMessage,
     }
 
-    static shouldLogError (error: unknown) {
-        return !ErrorHandler.isValidationError(error) &&
-            !ErrorHandler.isModelNotFoundError(error)
+    if (validationError) {
+      payload.code = ErrorHandler.normalizeStatusCode(validationError.statusCode ?? validationError.status, 422)
+      payload.message = validationError.message || fallbackMessage
+      payload.errors = ErrorHandler.getValidationErrors(validationError)
+    } else if (modelNotFoundError) {
+      payload.code = 404
+      payload.message = `${modelNotFoundError.getModelName?.()} not found!`
+    } else if (detailedError?.stack) {
+      const [stackLine, ...rest] = detailedError.stack.split('\n')
+      const [key, content = ''] = stackLine.split(':')
+
+      payload.errors = {
+        [key]: [content.trim(), ...rest.map((entry: string) => entry.trim())],
+      }
     }
 
-    static createErrorPayload (
-        err: ArkstackErrorShape | string,
-        fallbackMessage: string = 'Something went wrong',
-    ): ArkstackErrorPayload {
-        const primaryError = ErrorHandler.getPrimaryError(err)
-        const detailedError = typeof primaryError === 'string'
-            ? undefined
-            : primaryError
-        const validationError = detailedError && ErrorHandler.isValidationError(detailedError)
-            ? detailedError
-            : undefined
-        const modelNotFoundError = detailedError && ErrorHandler.isModelNotFoundError(detailedError)
-            ? detailedError
-            : undefined
-
-        const payload: ArkstackErrorPayload = {
-            status: 'error',
-            code: typeof err === 'string'
-                ? 500
-                : ErrorHandler.normalizeStatusCode(detailedError?.statusCode ?? detailedError?.status),
-            message: typeof err === 'string'
-                ? `${fallbackMessage}: ${err}`
-                : detailedError?.message || err.message || fallbackMessage,
-        }
-
-        if (validationError) {
-            payload.code = ErrorHandler.normalizeStatusCode(validationError.statusCode ?? validationError.status, 422)
-            payload.message = validationError.message || fallbackMessage
-            payload.errors = ErrorHandler.getValidationErrors(validationError)
-        } else if (modelNotFoundError) {
-            payload.code = 404
-            payload.message = `${modelNotFoundError.getModelName?.()} not found!`
-        } else if (detailedError?.stack) {
-            const [stackLine, ...rest] = detailedError.stack.split('\n')
-            const [key, content = ''] = stackLine.split(':')
-
-            payload.errors = {
-                [key]: [content.trim(), ...rest.map((entry: string) => entry.trim())]
-            }
-        }
-
-        if (
-            detailedError &&
-            process.env.NODE_ENV === 'development' &&
-            !ErrorHandler.shouldHideStack() &&
-            !validationError
-        ) {
-            payload.stack = detailedError.stack
-        }
-
-        if (!validationError || payload.code === 404) {
-            delete payload.errors
-            delete payload.stack
-        }
-
-        // Merge any custom body last so an exception can add to — or override —
-        // the standard error shape (e.g. AppException subclasses).
-        if (detailedError?.body && typeof detailedError.body === 'object') {
-            Object.assign(payload, detailedError.body)
-        }
-
-        return payload
-    }
-
-    static logUnhandledError (
-        err: unknown,
-        request: Record<string, unknown>,
-        message: string,
+    if (
+      detailedError &&
+      process.env.NODE_ENV === 'development' &&
+      !ErrorHandler.shouldHideStack() &&
+      !validationError
     ) {
-        ErrorHandler.getErrorLogger().error({
-            error: ErrorHandler.serializeError(err),
-            request,
-        }, message)
+      payload.stack = detailedError.stack
     }
+
+    if (!validationError || payload.code === 404) {
+      delete payload.errors
+      delete payload.stack
+    }
+
+    // Merge any custom body last so an exception can add to — or override —
+    // the standard error shape (e.g. AppException subclasses).
+    if (detailedError?.body && typeof detailedError.body === 'object') {
+      Object.assign(payload, detailedError.body)
+    }
+
+    return payload
+  }
+
+  static logUnhandledError(err: unknown, request: Record<string, unknown>, message: string) {
+    ErrorHandler.getErrorLogger().error(
+      {
+        error: ErrorHandler.serializeError(err),
+        request,
+      },
+      message,
+    )
+  }
 }
 
 export const toErrorShape = ErrorHandler.toErrorShape

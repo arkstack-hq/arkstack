@@ -4,7 +4,7 @@ import type { ChalkInstance } from 'chalk'
 import type { Logger } from './Logger'
 import type { locales } from './locales'
 
-export interface ConfigRegistry { }
+export interface ConfigRegistry {}
 
 /**
  * Map of known environment variables to their (coerced) value types.
@@ -20,105 +20,105 @@ export interface ConfigRegistry { }
  * ```
  */
 export interface EnvRegistry {
-    // Application
-    APP_NAME: string
-    APP_ENV: 'development' | 'production' | 'staging' | 'local'
-    APP_KEY: string
-    APP_URL: string
-    APP_HOST: string
-    APP_PORT: number
-    APP_DEBUG: boolean
-    APP_SECURE: boolean
-    APP_TIMEZONE: string
-    APP_LOCALE: typeof locales[number]
-    APP_FALLBACK_LOCALE: typeof locales[number]
-    APP_FAKER_LOCALE: typeof locales[number]
-    NODE_ENV: 'development' | 'production' | 'test'
-    PORT: number
-    HOST: string
-    FRONTEND_URL: string
+  // Application
+  APP_NAME: string
+  APP_ENV: 'development' | 'production' | 'staging' | 'local'
+  APP_KEY: string
+  APP_URL: string
+  APP_HOST: string
+  APP_PORT: number
+  APP_DEBUG: boolean
+  APP_SECURE: boolean
+  APP_TIMEZONE: string
+  APP_LOCALE: (typeof locales)[number]
+  APP_FALLBACK_LOCALE: (typeof locales)[number]
+  APP_FAKER_LOCALE: (typeof locales)[number]
+  NODE_ENV: 'development' | 'production' | 'test'
+  PORT: number
+  HOST: string
+  FRONTEND_URL: string
 
-    // Build / runtime
-    OUTPUT_DIR: string
-    OUTPUT_DIR_DEV: string
-    CONFIG_PATH: string
-    TUNNEL: boolean
-    NGROK_AUTHTOKEN: string
-    NGROK_DOMAIN: string
+  // Build / runtime
+  OUTPUT_DIR: string
+  OUTPUT_DIR_DEV: string
+  CONFIG_PATH: string
+  TUNNEL: boolean
+  NGROK_AUTHTOKEN: string
+  NGROK_DOMAIN: string
 
-    // Filesystem
-    FILESYSTEM_DISK: string
+  // Filesystem
+  FILESYSTEM_DISK: string
 
-    // Cache
-    CACHE_STORE: string
-    CACHE_PREFIX: string
-    CACHE_TABLE: string
+  // Cache
+  CACHE_STORE: string
+  CACHE_PREFIX: string
+  CACHE_TABLE: string
 
-    // Queue
-    QUEUE_CONNECTION: string
-    QUEUE_TABLE: string
-    QUEUE_NAME: string
-    QUEUE_RETRY_AFTER: number
+  // Queue
+  QUEUE_CONNECTION: string
+  QUEUE_TABLE: string
+  QUEUE_NAME: string
+  QUEUE_RETRY_AFTER: number
 
-    // Redis
-    REDIS_HOST: string
-    REDIS_PORT: number
-    REDIS_PASSWORD: string
-    REDIS_CACHE_DB: number
-    REDIS_QUEUE_DB: number
+  // Redis
+  REDIS_HOST: string
+  REDIS_PORT: number
+  REDIS_PASSWORD: string
+  REDIS_CACHE_DB: number
+  REDIS_QUEUE_DB: number
 
-    // Auth / session
-    JWT_EXPIRES_IN: string
-    SESSION_LIFETIME: number
-    TWO_FACTOR_SMS_TTL_MINUTES: number
+  // Auth / session
+  JWT_EXPIRES_IN: string
+  SESSION_LIFETIME: number
+  TWO_FACTOR_SMS_TTL_MINUTES: number
 
-    // Database
-    DATABASE_URL: string
-    DB_CONNECTION: string
-    DB_HOST: string
-    DB_PORT: number
-    DB_DATABASE: string
-    DB_USERNAME: string
-    DB_PASSWORD: string
+  // Database
+  DATABASE_URL: string
+  DB_CONNECTION: string
+  DB_HOST: string
+  DB_PORT: number
+  DB_DATABASE: string
+  DB_USERNAME: string
+  DB_PASSWORD: string
 
-    // Mail
-    MAIL_HOST: string
-    MAIL_PORT: number
-    MAIL_SECURE: boolean
-    MAIL_USERNAME: string
-    MAIL_PASSWORD: string
-    MAIL_FROM_ADDRESS: string
-    MAIL_TEST_ADDRESS: string
+  // Mail
+  MAIL_HOST: string
+  MAIL_PORT: number
+  MAIL_SECURE: boolean
+  MAIL_USERNAME: string
+  MAIL_PASSWORD: string
+  MAIL_FROM_ADDRESS: string
+  MAIL_TEST_ADDRESS: string
 
-    // AWS / S3
-    AWS_ACCESS_KEY_ID: string
-    AWS_SECRET_ACCESS_KEY: string
-    AWS_DEFAULT_REGION: string
-    AWS_BUCKET: string
-    AWS_URL: string
-    AWS_ENDPOINT: string
+  // AWS / S3
+  AWS_ACCESS_KEY_ID: string
+  AWS_SECRET_ACCESS_KEY: string
+  AWS_DEFAULT_REGION: string
+  AWS_BUCKET: string
+  AWS_URL: string
+  AWS_ENDPOINT: string
 }
 
 /**
  * App Confifuration
  */
 export interface AppConfig {
-    [key: string]: any
-    env: string
-    key: string
-    url: string
-    host: string
-    name: string
-    frontend_url: string
-    debug: boolean
-    timezone: string
-    locale: typeof locales[number]
-    fallback_locale: typeof locales[number]
-    faker_locale: typeof locales[number]
+  [key: string]: any
+  env: string
+  key: string
+  url: string
+  host: string
+  name: string
+  frontend_url: string
+  debug: boolean
+  timezone: string
+  locale: (typeof locales)[number]
+  fallback_locale: (typeof locales)[number]
+  faker_locale: (typeof locales)[number]
 }
 
-/** 
- * Known environment variable names. 
+/**
+ * Known environment variable names.
  */
 export type EnvKey = keyof EnvRegistry & string
 
@@ -131,12 +131,11 @@ export type MergedConfig<X> = UnionToIntersection<X>
 export type Primitive = string | number | boolean | null | undefined | Function
 export type LoggerChalk = keyof ChalkInstance | ChalkInstance | (keyof ChalkInstance)[]
 export type LoggerParseSignature = [string, LoggerChalk][]
-export type DotPathValue<T, P extends string> =
-    P extends `${infer Head}.${infer Tail}`
-    ? Head extends keyof T
+export type DotPathValue<T, P extends string> = P extends `${infer Head}.${infer Tail}`
+  ? Head extends keyof T
     ? DotPathValue<T[Head], Tail>
     : never
-    : P extends keyof T
+  : P extends keyof T
     ? T[P]
     : never
 
@@ -152,51 +151,45 @@ type DotPathLeaf = Primitive | Date | RegExp | Promise<unknown> | Map<unknown, u
  * finite instead of being reported as circular.
  */
 export type DotPath<T, Depth extends number = 7> = [Depth] extends [never]
-    ? never
-    : T extends DotPathLeaf
+  ? never
+  : T extends DotPathLeaf
     ? never
     : T extends any[]
-    ? never
-    : {
-        [K in keyof T & string]: T[K] extends DotPathLeaf
-        ? `${K}`
-        : T[K] extends any[]
-        ? `${K}`
-        : `${K}` | `${K}.${DotPath<T[K], DotPathDepth[Depth]>}`
-    }[keyof T & string]
+      ? never
+      : {
+          [K in keyof T & string]: T[K] extends DotPathLeaf
+            ? `${K}`
+            : T[K] extends any[]
+              ? `${K}`
+              : `${K}` | `${K}.${DotPath<T[K], DotPathDepth[Depth]>}`
+        }[keyof T & string]
 
 /**
  * Ouput formater object or format the output
- * 
- * @param config 
- * @param joiner 
- * @param log If set to false, string output will be returned and not logged 
- * @param sc color to use ue on split text if : is found 
- * 
- * @returns 
+ *
+ * @param config
+ * @param joiner
+ * @param log If set to false, string output will be returned and not logged
+ * @param sc color to use ue on split text if : is found
+ *
+ * @returns
  */
 export interface LoggerLog {
-    (): typeof Logger
-    <L extends boolean>(
-        config: string,
-        joiner: LoggerChalk,
-        log?: L,
-        sc?: LoggerChalk
-    ): L extends true ? void : string
-    <L extends boolean>(
-        config: LoggerParseSignature,
-        joiner?: string,
-        log?: L,
-        sc?: LoggerChalk
-    ): L extends true ? void : string
-    <L extends boolean>(
-        config?: LoggerParseSignature,
-        joiner?: string,
-        log?: L,
-        sc?: LoggerChalk
-    ): L extends true ? void : string | Logger
+  (): typeof Logger
+  <L extends boolean>(config: string, joiner: LoggerChalk, log?: L, sc?: LoggerChalk): L extends true ? void : string
+  <L extends boolean>(
+    config: LoggerParseSignature,
+    joiner?: string,
+    log?: L,
+    sc?: LoggerChalk,
+  ): L extends true ? void : string
+  <L extends boolean>(
+    config?: LoggerParseSignature,
+    joiner?: string,
+    log?: L,
+    sc?: LoggerChalk,
+  ): L extends true ? void : string | Logger
 }
-
 
 /**
  * Return type of {@link GlobalEnv | env()}.
@@ -206,179 +199,171 @@ export interface LoggerLog {
  * — falling back to `string` for unknown keys. A provided default `D` is unioned
  * into the result.
  */
-export type EnvReturn<X, K extends string, D> =
-    [X] extends [never]
-    ? [D] extends [undefined] ? EnvLookup<K> : EnvLookup<K> | D
-    : [D] extends [undefined] ? X : X | D
+export type EnvReturn<X, K extends string, D> = [X] extends [never]
+  ? [D] extends [undefined]
+    ? EnvLookup<K>
+    : EnvLookup<K> | D
+  : [D] extends [undefined]
+    ? X
+    : X | D
 
 export interface GlobalEnv {
-    <X = never, D = undefined, K extends (keyof EnvRegistry | (string & {})) = keyof EnvRegistry>(
-        env: K,
-        defaultValue?: D,
-    ): EnvReturn<X, K, D>
+  <X = never, D = undefined, K extends keyof EnvRegistry | (string & {}) = keyof EnvRegistry>(
+    env: K,
+    defaultValue?: D,
+  ): EnvReturn<X, K, D>
 }
 
-export type ConfigShape = keyof ConfigRegistry extends never
-    ? Record<string, any>
-    : ConfigRegistry
+export type ConfigShape = keyof ConfigRegistry extends never ? Record<string, any> : ConfigRegistry
 
 export interface GlobalConfig {
-    <X extends ConfigShape>(): X
-    <X extends ConfigShape, P extends DotPath<X>>(
-        key: P,
-    ): DotPathValue<X, P>
-    <X extends ConfigShape, P extends DotPath<X>>(key: Record<P, Partial<DotPathValue<X, P>>>): void;
-    <X extends ConfigShape, P extends DotPath<X>, D>(
-        key: P,
-        defaultValue: D,
-    ): DotPathValue<X, P> | D
+  <X extends ConfigShape>(): X
+  <X extends ConfigShape, P extends DotPath<X>>(key: P): DotPathValue<X, P>
+  <X extends ConfigShape, P extends DotPath<X>>(key: Record<P, Partial<DotPathValue<X, P>>>): void
+  <X extends ConfigShape, P extends DotPath<X>, D>(key: P, defaultValue: D): DotPathValue<X, P> | D
 }
 
 export interface FileImporter {
-    <T = unknown>(filePath: string): Promise<T>
-    <T = unknown>(filePath: string, userOptions?: JitiOptions | undefined): Promise<T>
-    <T = unknown>(filePath: string, userOptions?: JitiOptions | undefined, resolveOptions?: (JitiResolveOptions & { default?: true })): Promise<T>
+  <T = unknown>(filePath: string): Promise<T>
+  <T = unknown>(filePath: string, userOptions?: JitiOptions | undefined): Promise<T>
+  <T = unknown>(
+    filePath: string,
+    userOptions?: JitiOptions | undefined,
+    resolveOptions?: JitiResolveOptions & { default?: true },
+  ): Promise<T>
 }
 
 export type ArkstackErrorShape = Error & {
-    cause?: unknown;
-    code?: number | string;
-    errors?: unknown;
-    getModelName?: () => string;
-    status?: number;
-    statusCode?: number;
-    /** Custom properties merged into the error response payload. */
-    body?: Record<string, unknown>;
+  cause?: unknown
+  code?: number | string
+  errors?: unknown
+  getModelName?: () => string
+  status?: number
+  statusCode?: number
+  /** Custom properties merged into the error response payload. */
+  body?: Record<string, unknown>
 }
 
 export interface ArkstackErrorPayload {
-    status: 'error';
-    code: number;
-    message: string;
-    errors?: unknown;
-    stack?: string;
-    /** Custom fields contributed by an exception's `body`. */
-    [key: string]: unknown;
+  status: 'error'
+  code: number
+  message: string
+  errors?: unknown
+  stack?: string
+  /** Custom fields contributed by an exception's `body`. */
+  [key: string]: unknown
 }
 
-// Augmentable Hooks Registry 
-export interface HookRegistry { }
+// Augmentable Hooks Registry
+export interface HookRegistry {}
 
 type Position = 'before' | 'after' | (string & {})
 
 export type IHook = {
-    [P in Position]?: (...args: any[]) => void
+  [P in Position]?: (...args: any[]) => void
 }
 
 // Derive available hook names
 export type HookName = keyof HookRegistry extends never ? string : keyof HookRegistry | (string & {})
 
 // Derive the IHook type for a given name
-export type HookFor<N extends string> = N extends keyof HookRegistry
-    ? HookRegistry[N]
-    : IHook
+export type HookFor<N extends string> = N extends keyof HookRegistry ? HookRegistry[N] : IHook
 
 export type HookPos<N extends string, P extends string> = N extends keyof HookRegistry
-    ? P extends keyof HookRegistry[N]
+  ? P extends keyof HookRegistry[N]
     ? HookRegistry[N][P]
     : (...args: any[]) => void
-    : (...args: any[]) => void
+  : (...args: any[]) => void
 
-export type HookPositions<N extends string> = N extends keyof HookRegistry
-    ? keyof HookRegistry[N]
-    : Position
+export type HookPositions<N extends string> = N extends keyof HookRegistry ? keyof HookRegistry[N] : Position
 
 export type HookArgs<N extends string, P extends string> = N extends keyof HookRegistry
-    ? P extends keyof HookRegistry[N]
+  ? P extends keyof HookRegistry[N]
     ? HookRegistry[N][P] extends (...args: infer A) => any
-    ? A
+      ? A
+      : any[]
     : any[]
-    : any[]
-    : any[]
+  : any[]
 
 export type Choice<Value> = {
-    value: Value;
-    name?: string;
-    description?: string;
-    short?: string;
-    disabled?: boolean | string;
-    type?: never;
-};
+  value: Value
+  name?: string
+  description?: string
+  short?: string
+  disabled?: boolean | string
+  type?: never
+}
 
-export type Choices = readonly string[] | readonly Choice<string>[];
+export type Choices = readonly string[] | readonly Choice<string>[]
 
 export type PaginationOptions = {
-    page: number
-    perPage: number
+  page: number
+  perPage: number
 }
 
 /**
-* A single source → destination mapping a package wants to publish into the
-* consuming application.
-*/
+ * A single source → destination mapping a package wants to publish into the
+ * consuming application.
+ */
 export interface PublishEntry {
-    /** Absolute path to the file or directory shipped by the package. */
-    from: string
-    /**
-     * Destination path, relative to the application root, where the artifact is
-     * written when published.
-     */
-    to: string
+  /** Absolute path to the file or directory shipped by the package. */
+  from: string
+  /**
+   * Destination path, relative to the application root, where the artifact is
+   * written when published.
+   */
+  to: string
 }
 
 /**
  * A group of publishable artifacts registered by a package.
  */
 export interface PublishGroup {
-    /** 
-     * The package registering the artifacts, e.g. `@arkstack/cache`. 
-     */
-    package: string
-    /**
-     * Optional tag for selective publishing (`ark publish --tag <tag>`). A
-     * package may register several groups under different tags.
-     */
-    tag?: string
-    /** The files/directories to publish. */
-    entries: PublishEntry[]
+  /**
+   * The package registering the artifacts, e.g. `@arkstack/cache`.
+   */
+  package: string
+  /**
+   * Optional tag for selective publishing (`ark publish --tag <tag>`). A
+   * package may register several groups under different tags.
+   */
+  tag?: string
+  /** The files/directories to publish. */
+  entries: PublishEntry[]
 }
 
 /** Optional filter applied when reading the registry. */
 export interface PublishFilter {
-    package?: string
-    tag?: string
+  package?: string
+  tag?: string
 }
 
 /** Optional filter applied when reading the registry. */
 export interface PublishConfirmation {
-    /** 
-     * The package registering the confirmation, e.g. `@arkstack/cache`. 
-     */
-    package: string
-    /**
-     * A message describing what the confirmation is 
-     * for, e.g. "Are you sure you want to publish the cache migrations?"
-     */
-    message: string
-    /** 
-     * Options to choose from.
-     */
-    options: Choices
-    /**
-     * A callback function to handle the selected choice and the stub file.
-     * 
-     * @param choice 
-     * @param stub 
-     * @returns 
-     */
-    callback?: (
-        choice: Choice<string>['value'],
-        stub: string
-    ) => string | Promise<string>
+  /**
+   * The package registering the confirmation, e.g. `@arkstack/cache`.
+   */
+  package: string
+  /**
+   * A message describing what the confirmation is
+   * for, e.g. "Are you sure you want to publish the cache migrations?"
+   */
+  message: string
+  /**
+   * Options to choose from.
+   */
+  options: Choices
+  /**
+   * A callback function to handle the selected choice and the stub file.
+   *
+   * @param choice
+   * @param stub
+   * @returns
+   */
+  callback?: (choice: Choice<string>['value'], stub: string) => string | Promise<string>
 }
 
-export type Concrete<T extends abstract new (...args: any[]) => any> =
-    Omit<T, 'prototype'> & {
-        new(...args: ConstructorParameters<T>): InstanceType<T>
-        prototype: InstanceType<T>
-    }
+export type Concrete<T extends abstract new (...args: any[]) => any> = Omit<T, 'prototype'> & {
+  new (...args: ConstructorParameters<T>): InstanceType<T>
+  prototype: InstanceType<T>
+}

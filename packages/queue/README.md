@@ -18,7 +18,7 @@ Queue module for Arkstack, providing a driver based queue transport and worker f
 
 ```ts
 // src/config/queue.ts
-import type { QueueConfig } from '@arkstack/queue';
+import type { QueueConfig } from '@arkstack/queue'
 
 export default (): QueueConfig => ({
   default: env('QUEUE_CONNECTION', 'sync'),
@@ -31,19 +31,19 @@ export default (): QueueConfig => ({
       port: env('REDIS_PORT', 6379),
     },
   },
-});
+})
 ```
 
 ## Usage
 
 ```ts
-import { Queue } from '@arkstack/queue';
+import { Queue } from '@arkstack/queue'
 
-await Queue.push(new SendWelcomeEmail(user)); // onto the default connection
-await Queue.later(60, new ChargeInvoice(invoiceId)); // after 60 seconds
-await Queue.connection('redis').push(job, 'emails'); // a specific connection/queue
-await Queue.size('emails');
-await Queue.clear('emails');
+await Queue.push(new SendWelcomeEmail(user)) // onto the default connection
+await Queue.later(60, new ChargeInvoice(invoiceId)) // after 60 seconds
+await Queue.connection('redis').push(job, 'emails') // a specific connection/queue
+await Queue.size('emails')
+await Queue.clear('emails')
 ```
 
 ## Workers
@@ -58,10 +58,10 @@ ark queue:clear redis --queue=emails
 Programmatically:
 
 ```ts
-import { Queue } from '@arkstack/queue';
+import { Queue } from '@arkstack/queue'
 
-const worker = Queue.worker('database');
-await worker.daemon({ queue: 'default', sleep: 3 });
+const worker = Queue.worker('database')
+await worker.daemon({ queue: 'default', sleep: 3 })
 ```
 
 A job is **deleted** on success, **released** for another attempt on failure, and **marked failed** (invoking its `failed` hook) once it exhausts `tries`.
@@ -73,10 +73,8 @@ instances in the worker. `@arkstack/jobs` registers these strategies for you; to
 do it manually:
 
 ```ts
-import { Queue } from '@arkstack/queue';
+import { Queue } from '@arkstack/queue'
 
-Queue.serializeUsing((job) => ({
-  /* JobPayload */
-}));
-Queue.resolveJobsUsing((payload) => rebuildJob(payload));
+Queue.serializeUsing((job) => ({/* JobPayload */}))
+Queue.resolveJobsUsing((payload) => rebuildJob(payload))
 ```

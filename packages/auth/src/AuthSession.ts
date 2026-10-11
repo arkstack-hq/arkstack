@@ -9,45 +9,48 @@ import { Concrete, getModel } from '@arkstack/common'
  * @author 3m1n3nc3
  */
 export class AuthSession extends HttpSession {
-    constructor(private auth: AuthContract, current: HttpSession | undefined = (globalThis as any).session?.()) {
-        super(current instanceof HttpSession ? current : undefined)
+  constructor(
+    private auth: AuthContract,
+    current: HttpSession | undefined = (globalThis as any).session?.(),
+  ) {
+    super(current instanceof HttpSession ? current : undefined)
+  }
+
+  /**
+   * Destroy the current session
+   *
+   * @returns
+   */
+  override async destroy() {
+    const pat = await this.token()
+
+    if (pat) {
+      await this.auth.logout(pat)
     }
 
-    /**
-     * Destroy the current session
-     * 
-     * @returns
-     */
-    override async destroy() {
-        const pat = await this.token()
+    await super.destroy()
 
-        if (pat) {
-            await this.auth.logout(pat)
-        }
+    return this
+  }
 
-        await super.destroy()
-
-        return this
+  /**
+   * Get the current auth session token
+   *
+   * @returns
+   */
+  async token(): Promise<PersonalAccessToken | null> {
+    if (!this.auth.getRequest()) {
+      return null
     }
 
-    /**
-     * Get the current auth session token
-     * 
-     * @returns
-     */
-    async token(): Promise<PersonalAccessToken | null> {
-        if (!this.auth.getRequest()) {
-            return null
-        }
+    const token = this.auth.getRequest()!.bearerToken()
 
-        const token = this.auth.getRequest()!.bearerToken()
-
-        if (!token) {
-            return null
-        }
-
-        const Model = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
-
-        return await Model.query().where({ token }).first()
+    if (!token) {
+      return null
     }
+
+    const Model = getModel<Concrete<typeof PersonalAccessToken>>('PersonalAccessToken')
+
+    return await Model.query().where({ token }).first()
+  }
 }

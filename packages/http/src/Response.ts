@@ -8,116 +8,118 @@ let fallbackResponse: Response<any> | undefined
 const responseResolvers = new Set<() => Response<any> | undefined>()
 
 const responseHelper = () => {
-    for (const resolver of responseResolvers) {
-        const response = resolver()
+  for (const resolver of responseResolvers) {
+    const response = resolver()
 
-        if (response) return response
-    }
+    if (response) return response
+  }
 
-    return fallbackResponse
+  return fallbackResponse
 }
 
 export const setResponseResolver = (resolver?: () => Response<any> | undefined) => {
-    if (resolver) responseResolvers.add(resolver)
-    else responseResolvers.clear()
-    globalThis.response = responseHelper as typeof globalThis.response
+  if (resolver) responseResolvers.add(resolver)
+  else responseResolvers.clear()
+  globalThis.response = responseHelper as typeof globalThis.response
 }
 
 const setFallbackResponse = (response: Response<any>) => {
-    fallbackResponse = response
-    globalThis.response = responseHelper as typeof globalThis.response
+  fallbackResponse = response
+  globalThis.response = responseHelper as typeof globalThis.response
 }
 
 /**
  * Represents an HTTP response, providing a consistent interface for accessing response data.
- * 
+ *
  * @author 3m1n3nc3
  */
 export class Response<TBody = unknown> extends BaseResponse {
-    override body: TBody
-    readonly source?: unknown
+  override body: TBody
+  readonly source?: unknown
 
-    constructor(options: {
-        statusCode?: number;
-        headers?: HeaderSource;
-        body?: TBody;
-        source?: unknown;
-    } = {}) {
-        super({
-            body: options.body,
-            headers: makeHeaders(options.headers),
-            statusCode: options.statusCode ?? 200,
-        })
+  constructor(
+    options: {
+      statusCode?: number
+      headers?: HeaderSource
+      body?: TBody
+      source?: unknown
+    } = {},
+  ) {
+    super({
+      body: options.body,
+      headers: makeHeaders(options.headers),
+      statusCode: options.statusCode ?? 200,
+    })
 
-        this.body = options.body ?? {} as TBody
-        this.source = options.source
+    this.body = options.body ?? ({} as TBody)
+    this.source = options.source
 
-        setFallbackResponse(this)
+    setFallbackResponse(this)
+  }
+
+  static from<TBody extends RequestData = RequestData>(
+    source?: Response<TBody> | ResponseSource,
+  ): Response<TBody> | undefined {
+    if (!source) {
+      return undefined
     }
 
-    static from<TBody extends RequestData = RequestData> (
-        source?: Response<TBody> | ResponseSource
-    ): Response<TBody> | undefined {
-        if (!source) {
-            return undefined
-        }
-
-        if (source instanceof Response) {
-            return source
-        }
-
-        return new Response<TBody>({
-            statusCode: typeof source.status === 'number' ? source.status : source.statusCode,
-            headers: source.headers,
-            source,
-        })
+    if (source instanceof Response) {
+      return source
     }
 
-    status (code: number) {
-        this.statusCode = code
+    return new Response<TBody>({
+      statusCode: typeof source.status === 'number' ? source.status : source.statusCode,
+      headers: source.headers,
+      source,
+    })
+  }
 
-        if (isRecord(this.source)) {
-            if (typeof this.source.status === 'function') {
-                this.source.status(code)
-            } else {
-                this.source.statusCode = code
-            }
-        }
+  status(code: number) {
+    this.statusCode = code
 
-        return this
+    if (isRecord(this.source)) {
+      if (typeof this.source.status === 'function') {
+        this.source.status(code)
+      } else {
+        this.source.statusCode = code
+      }
     }
 
-    header (name: string, value: string) {
-        this.headers.set(name.toLowerCase(), value)
+    return this
+  }
 
-        if (isRecord(this.source) && typeof this.source.setHeader === 'function') {
-            this.source.setHeader(name, value)
-        }
+  header(name: string, value: string) {
+    this.headers.set(name.toLowerCase(), value)
 
-        return this
+    if (isRecord(this.source) && typeof this.source.setHeader === 'function') {
+      this.source.setHeader(name, value)
     }
 
-    getHeaders () {
-        return normalizeHeaders(this.headers)
+    return this
+  }
+
+  getHeaders() {
+    return normalizeHeaders(this.headers)
+  }
+
+  json(body: TBody) {
+    this.body = body
+
+    if (isRecord(this.source) && typeof this.source.json === 'function') {
+      return this.source.json(body)
     }
 
-    json (body: TBody) {
-        this.body = body
+    return body
+  }
 
-        if (isRecord(this.source) && typeof this.source.json === 'function') {
-            return this.source.json(body)
-        }
+  send(body: TBody) {
+    this.body = body
 
-        return body
+    if (isRecord(this.source) && typeof this.source.send === 'function') {
+      return this.source.send(body)
     }
 
-    send (body: TBody) {
-        this.body = body
-
-        if (isRecord(this.source) && typeof this.source.send === 'function') {
-            return this.source.send(body)
-        }
-
-        return body
-    }
+    return body
+  }
 }

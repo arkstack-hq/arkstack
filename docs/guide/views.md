@@ -29,11 +29,11 @@ Views are loaded from `src/resources/views` by default and use the `.edge` exten
 Use the global `view()` helper or import it from `@arkstack/view`.
 
 ```ts
-import { view } from '@arkstack/view';
+import { view } from '@arkstack/view'
 
 const html = await view('welcome', {
   name: 'Ada',
-});
+})
 ```
 
 Calling `view()` without a name returns the shared factory:
@@ -41,19 +41,17 @@ Calling `view()` without a name returns the shared factory:
 ```ts
 view().share({
   appName: 'Arkstack',
-});
+})
 
-view().share('year', new Date().getFullYear());
+view().share('year', new Date().getFullYear())
 
-const html = await view('welcome');
+const html = await view('welcome')
 ```
 
 Use `with()` on a view instance when you want to skip the `data` argument in `view(name, data)`:
 
 ```ts
-const html = await view('welcome')
-  .with('name', 'Ada')
-  .with({ title: 'Welcome' });
+const html = await view('welcome').with('name', 'Ada').with({ title: 'Welcome' })
 ```
 
 ## View Class
@@ -61,14 +59,14 @@ const html = await view('welcome')
 Use `View` when you prefer the static API.
 
 ```ts
-import { View } from '@arkstack/view';
+import { View } from '@arkstack/view'
 
-View.share({ appName: 'Arkstack' });
-View.share('year', new Date().getFullYear());
+View.share({ appName: 'Arkstack' })
+View.share('year', new Date().getFullYear())
 
 const html = await View.make('dashboard', {
   user,
-});
+})
 ```
 
 `View.first()` renders the first existing view from a list:
@@ -76,14 +74,14 @@ const html = await View.make('dashboard', {
 ```ts
 const html = await View.first(['themes.custom.dashboard', 'dashboard'], {
   user,
-});
+})
 ```
 
 Check for a view before rendering:
 
 ```ts
 if (View.exists('emails.welcome')) {
-  await View.make('emails.welcome', { user }).render();
+  await View.make('emails.welcome', { user }).render()
 }
 ```
 
@@ -92,17 +90,14 @@ if (View.exists('emails.welcome')) {
 Renderable view instances support `with()`:
 
 ```ts
-const html = await View.make('profile')
-  .with({ title: 'Profile' })
-  .with('user', user)
-  .render();
+const html = await View.make('profile').with({ title: 'Profile' }).with('user', user).render()
 ```
 
 Shared data is available to every view rendered by the factory:
 
 ```ts
-View.share('appName', 'Arkstack');
-View.share({ year: new Date().getFullYear() });
+View.share('appName', 'Arkstack')
+View.share({ year: new Date().getFullYear() })
 ```
 
 ## Validation Errors
@@ -122,7 +117,7 @@ await view('profile.edit', {
   errors: {
     email: ['Email is required'],
   },
-});
+})
 ```
 
 Or share them for a group of renders:
@@ -130,7 +125,7 @@ Or share them for a group of renders:
 ```ts
 View.share('errors', {
   email: ['Email is required'],
-});
+})
 ```
 
 The view error bag supports helpers such as `first`, `get`, `has`, `hasAny`, `missing`, `all`, `keys`, `count`, `toArray`, and `getMessages`.
@@ -140,18 +135,18 @@ The view error bag supports helpers such as `first`, `get`, `has`, `hasAny`, `mi
 When using Arkstack HTTP sessions, import both setup entries during application boot:
 
 ```ts
-import '@arkstack/http/setup';
-import '@arkstack/view/setup';
+import '@arkstack/http/setup'
+import '@arkstack/view/setup'
 ```
 
 The HTTP setup attaches `session` and `errors` to the Clear Router context. The view setup reads those request locals and makes them available to any view rendered inside that request:
 
 ```ts
 Router.post('/profile', async ({ session }) => {
-  session.addError('email', 'Email is required');
+  session.addError('email', 'Email is required')
 
-  return await view('profile.edit');
-});
+  return await view('profile.edit')
+})
 ```
 
 Inside `profile/edit.edge`:
@@ -170,16 +165,16 @@ View composers run before a view renders. Use them to attach common data to one 
 
 ```ts
 View.composer('dashboard', (view) => {
-  view.with({ title: 'Dashboard' });
-});
+  view.with({ title: 'Dashboard' })
+})
 
 View.composer(['profile', 'settings'], (view) => {
-  view.with({ section: 'Account' });
-});
+  view.with({ section: 'Account' })
+})
 
 View.composer('*', (view) => {
-  view.with({ appName: 'Arkstack' });
-});
+  view.with({ appName: 'Arkstack' })
+})
 ```
 
 Composers may also be classes or class instances with a `compose()` method:
@@ -187,17 +182,17 @@ Composers may also be classes or class instances with a `compose()` method:
 ```ts
 class DashboardComposer {
   compose(view) {
-    view.with('title', 'Dashboard');
+    view.with('title', 'Dashboard')
   }
 }
 
-View.composer('dashboard', DashboardComposer);
+View.composer('dashboard', DashboardComposer)
 
 View.composer('profile', {
   compose(view) {
-    view.with('title', 'Profile');
+    view.with('title', 'Profile')
   },
-});
+})
 ```
 
 Async composers are supported when rendering asynchronously. Use synchronous composers with `renderSync()`.
@@ -207,10 +202,10 @@ Async composers are supported when rendering asynchronously. Use synchronous com
 Mount another view directory when you need a custom root or named disk:
 
 ```ts
-View.mount('/absolute/path/to/resources/views');
-View.mount('admin', '/absolute/path/to/admin/views');
+View.mount('/absolute/path/to/resources/views')
+View.mount('admin', '/absolute/path/to/admin/views')
 
-await View.make('admin::dashboard').render();
+await View.make('admin::dashboard').render()
 ```
 
 ## Package Views
@@ -220,11 +215,11 @@ Packages can expose Edge templates from their own `resources/views` directory. R
 ```ts
 await view('~package-name.mail', {
   user,
-});
+})
 
 await view('~org/package-name.mail', {
   user,
-});
+})
 ```
 
 `~package-name.mail` resolves to `node_modules/package-name/resources/views/mail.edge`.
@@ -235,8 +230,8 @@ The public view name remains the tilde name inside composers:
 
 ```ts
 View.composer('~org/package-name.mail', (view) => {
-  view.with('subject', 'Welcome');
-});
+  view.with('subject', 'Welcome')
+})
 ```
 
 ## Make Views

@@ -11,21 +11,24 @@ import { resolveRuntimeModule } from '@arkstack/common'
 registerPlugin(clearRouterH3Plugin)
 void ClearRouter.use(arkstackHttpPlugin)
 ClearRouter.configure({
-  inferParamName: true
+  inferParamName: true,
 })
 
 export class Router extends ClearRouter {
-  static async bind (app: H3): Promise<H3App> {
-
+  static async bind(app: H3): Promise<H3App> {
     // Register API routes
     try {
       await ClearRouter.group('/api', resolveRuntimeModule('src/routes/api.ts'))
-    } catch { /** */ }
+    } catch {
+      /** */
+    }
 
     // Register web routes
     try {
       await ClearRouter.group('/', resolveRuntimeModule('src/routes/web.ts'))
-    } catch { /** */ }
+    } catch {
+      /** */
+    }
 
     // Apply the registered routes to the H3 application
     const router = ClearRouter.apply(app)
@@ -33,8 +36,9 @@ export class Router extends ClearRouter {
     return router
   }
 
-  static async list (
-    _options: ArkstackRouteListOptions = {}, app: H3
+  static async list(
+    _options: ArkstackRouteListOptions = {},
+    app: H3,
   ): Promise<Route<HttpContext, Middleware, Handler>[]> {
     await this.bind(app)
 

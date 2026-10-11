@@ -6,15 +6,15 @@ import type { RealtimeNotification } from '../types'
 import { supersede } from '../supersede'
 
 export interface UseNotificationsOptions {
-    /** Cap the number of retained notifications (newest kept). Default: unbounded. */
-    limit?: number
+  /** Cap the number of retained notifications (newest kept). Default: unbounded. */
+  limit?: number
 }
 
 export interface UseNotificationsResult {
-    notifications: Ref<RealtimeNotification[]>
-    latest: ComputedRef<RealtimeNotification | null>
-    clear: () => void
-    stop: () => void
+  notifications: Ref<RealtimeNotification[]>
+  latest: ComputedRef<RealtimeNotification | null>
+  clear: () => void
+  stop: () => void
 }
 
 /**
@@ -30,42 +30,45 @@ export interface UseNotificationsResult {
  * @param channel  The channel to subscribe to, e.g. `client.channelFor(user.id)`.
  * @param options  `limit` caps how many notifications are retained.
  */
-export function useNotifications (
-    client: RealtimeClient,
-    channel: string,
-    options: UseNotificationsOptions = {},
+export function useNotifications(
+  client: RealtimeClient,
+  channel: string,
+  options: UseNotificationsOptions = {},
 ): UseNotificationsResult {
-    const notifications = ref<RealtimeNotification[]>([])
-    const { limit } = options
+  const notifications = ref<RealtimeNotification[]>([])
+  const { limit } = options
 
-    let unsubscribe: (() => void) | undefined
-    let cancelled = false
+  let unsubscribe: (() => void) | undefined
+  let cancelled = false
 
-    const push = (notification: RealtimeNotification) => {
-        notifications.value = supersede(notifications.value, notification, limit)
-    }
+  const push = (notification: RealtimeNotification) => {
+    notifications.value = supersede(notifications.value, notification, limit)
+  }
 
-    client.subscribe(channel, push)
-        .then((off) => {
-            if (cancelled) off()
-            else unsubscribe = off
-        })
-        .catch(() => { /** surfaced by the caller's own error handling */ })
+  client
+    .subscribe(channel, push)
+    .then((off) => {
+      if (cancelled) off()
+      else unsubscribe = off
+    })
+    .catch(() => {
+      /** surfaced by the caller's own error handling */
+    })
 
-    const stop = () => {
-        cancelled = true
-        unsubscribe?.()
-        unsubscribe = undefined
-    }
+  const stop = () => {
+    cancelled = true
+    unsubscribe?.()
+    unsubscribe = undefined
+  }
 
-    onScopeDispose(stop)
+  onScopeDispose(stop)
 
-    return {
-        notifications,
-        latest: computed(() => notifications.value[0] ?? null),
-        clear: () => {
-            notifications.value = []
-        },
-        stop,
-    }
+  return {
+    notifications,
+    latest: computed(() => notifications.value[0] ?? null),
+    clear: () => {
+      notifications.value = []
+    },
+    stop,
+  }
 }

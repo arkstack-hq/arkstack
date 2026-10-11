@@ -24,7 +24,7 @@ pnpm add firebase    # Firebase transport
 Create a client and subscribe to a user's channel. `subscribe`/`forUser` resolve to an unsubscribe function.
 
 ```ts
-import { createRealtime } from '@arkstack/realtime';
+import { createRealtime } from '@arkstack/realtime'
 
 const realtime = createRealtime({
   transport: 'pusher',
@@ -33,15 +33,15 @@ const realtime = createRealtime({
     cluster: 'mt1',
     authEndpoint: '/broadcasting/auth',
   },
-});
+})
 
 const unsubscribe = await realtime.forUser(user.id, (notification) => {
-  console.log(notification.title, notification.description);
-});
+  console.log(notification.title, notification.description)
+})
 
 // later
-unsubscribe();
-await realtime.disconnect();
+unsubscribe()
+await realtime.disconnect()
 ```
 
 ### Client events
@@ -50,14 +50,12 @@ Pusher private and presence channels can send ephemeral client events (often
 called whispers). Subscribe to the channel before sending an event:
 
 ```ts
-const stopTyping = await realtime.listenForWhisper(
-  'private-room.7',
-  'typing',
-  ({ userId }) => console.log(`${userId} is typing`),
-);
+const stopTyping = await realtime.listenForWhisper('private-room.7', 'typing', ({ userId }) =>
+  console.log(`${userId} is typing`),
+)
 
-await realtime.whisper('private-room.7', 'typing', { userId: user.id });
-stopTyping();
+await realtime.whisper('private-room.7', 'typing', { userId: user.id })
+stopTyping()
 ```
 
 The `client-` prefix is added automatically. Pusher sends client events over its
@@ -70,35 +68,31 @@ Each `notification` matches the payload broadcast by the server:
 
 ```ts
 interface RealtimeNotification {
-  id: string;
-  type: string | null;
-  title: string;
-  description: string;
-  actionText?: string | null;
-  actionLink?: string | null;
-  meta?: Record<string, unknown> | null;
-  read_at: string | null;
-  created_at: string;
+  id: string
+  type: string | null
+  title: string
+  description: string
+  actionText?: string | null
+  actionLink?: string | null
+  meta?: Record<string, unknown> | null
+  read_at: string | null
+  created_at: string
 }
 ```
 
 ## React
 
 ```tsx
-import { useNotifications } from '@arkstack/realtime/react';
+import { useNotifications } from '@arkstack/realtime/react'
 
 function Bell({ realtime, userId }) {
-  const { notifications, latest, clear } = useNotifications(
-    realtime,
-    realtime.channelFor(userId),
-    { limit: 20 },
-  );
+  const { notifications, latest, clear } = useNotifications(realtime, realtime.channelFor(userId), { limit: 20 })
 
   return (
     <span onClick={clear}>
       {notifications.length} · {latest?.title}
     </span>
-  );
+  )
 }
 ```
 
@@ -108,9 +102,9 @@ The hook accumulates notifications (newest first), caps them at `limit`, and uns
 
 ```vue
 <script setup>
-import { useNotifications } from '@arkstack/realtime/vue';
+import { useNotifications } from "@arkstack/realtime/vue";
 
-const props = defineProps(['realtime', 'userId']);
+const props = defineProps(["realtime", "userId"]);
 const { notifications, latest, clear } = useNotifications(
   props.realtime,
   props.realtime.channelFor(props.userId),
@@ -139,7 +133,7 @@ const realtime = createRealtime({
     messagingSenderId: import.meta.env.VITE_FIREBASE_SENDER_ID,
     databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
   },
-});
+})
 ```
 
 Firebase client events are written below `arkstack/client-events` in Realtime
@@ -152,22 +146,22 @@ the root with `firebase.clientEventsPath` when needed.
 Provide `transportFactory` to bridge any backend (a raw WebSocket, SSE, a test double, …):
 
 ```ts
-import { createRealtime, type RealtimeTransport } from '@arkstack/realtime';
+import { createRealtime, type RealtimeTransport } from '@arkstack/realtime'
 
 const transport: RealtimeTransport = {
   subscribe(channel, event, handler) {
-    const socket = new WebSocket(`wss://example.test/${channel}`);
+    const socket = new WebSocket(`wss://example.test/${channel}`)
     socket.addEventListener('message', (e) => {
-      const { event: name, payload } = JSON.parse(e.data);
-      if (name === event) handler(payload);
-    });
+      const { event: name, payload } = JSON.parse(e.data)
+      if (name === event) handler(payload)
+    })
 
-    return { channel, unsubscribe: () => socket.close() };
+    return { channel, unsubscribe: () => socket.close() }
   },
   disconnect() {},
-};
+}
 
-const realtime = createRealtime({ transportFactory: () => transport });
+const realtime = createRealtime({ transportFactory: () => transport })
 ```
 
 ## API

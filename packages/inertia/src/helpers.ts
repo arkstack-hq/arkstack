@@ -16,12 +16,12 @@ import type { Response } from '@arkstack/http'
  * inertia().share('appName', config('app.name'))
  * ```
  */
-export function inertia (): typeof Inertia
-export function inertia (component: string, props?: PageProps): Promise<Response>
-export function inertia (component?: string, props: PageProps = {}): typeof Inertia | Promise<Response> {
-    if (component === undefined) {
-        return Inertia
-    }
+export function inertia(): typeof Inertia
+export function inertia(component: string, props?: PageProps): Promise<Response>
+export function inertia(component?: string, props: PageProps = {}): typeof Inertia | Promise<Response> {
+  if (component === undefined) {
+    return Inertia
+  }
 
-    return Inertia.render(component, props)
+  return Inertia.render(component, props)
 }

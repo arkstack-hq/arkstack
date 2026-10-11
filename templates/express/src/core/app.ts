@@ -6,11 +6,11 @@ import { type Express, type Handler } from 'express'
 
 export default class Application extends Arkstack<Express, unknown, Handler> {
   /**
-   * Creates an instance of the Application class, initializing 
-   * the Express driver with the provided options and creating an Express 
+   * Creates an instance of the Application class, initializing
+   * the Express driver with the provided options and creating an Express
    * application instance.
-   * 
-   * @param app 
+   *
+   * @param app
    */
   constructor(app?: Express) {
     super()
@@ -28,10 +28,10 @@ export default class Application extends Arkstack<Express, unknown, Handler> {
 
   /**
    * Gets the ArkstackRouterContract implementation for the Express framework.
-   * 
-   * @returns 
+   *
+   * @returns
    */
-  getRouter (): ArkstackRouterContract<Express, unknown> {
+  getRouter(): ArkstackRouterContract<Express, unknown> {
     return {
       bind: (_app: Express) => Router.bind(),
       list: (options: ArkstackRouteListOptions = {}) => Router.list(options),
@@ -39,20 +39,20 @@ export default class Application extends Arkstack<Express, unknown, Handler> {
   }
 
   /**
-   * Boots the application by mounting public assets, binding the 
+   * Boots the application by mounting public assets, binding the
    * router, applying middleware, and starting the server.
-   * 
+   *
    * @param port    The numeric port to run the server on
    * @param defer   Set to true to skip server startup
    */
-  public async boot (port: number, defer = false) {
+  public async boot(port: number, defer = false) {
     // Load public assets
     await this.driver.mountPublicAssets(this.app, path.join(Arkstack.rootDir(), 'public'))
 
     // Apply all middleware
     await this.driver.applyMiddleware(this.app, config('middleware') as any)
 
-    // Bind the router 
+    // Bind the router
     await this.driver.bindRouter(this.app)
 
     // Error Handler

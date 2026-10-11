@@ -1,4 +1,3 @@
 import { DB as BaseDB } from 'arkormx'
 
-export class DB extends BaseDB {
-}
+export class DB extends BaseDB {}

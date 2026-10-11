@@ -13,21 +13,18 @@ import { outputDir } from '@arkstack/common'
  * @returns `true` when a console route file was found and loaded.
  */
 export const loadSchedule = async (): Promise<boolean> => {
-    const root = Arkstack.rootDir()
-    const dist = path.relative(root, outputDir())
+  const root = Arkstack.rootDir()
+  const dist = path.relative(root, outputDir())
 
-    const candidates = [
-        join(root, 'src', 'routes', 'console.ts'),
-        join(root, dist, 'routes', 'console.js'),
-    ]
+  const candidates = [join(root, 'src', 'routes', 'console.ts'), join(root, dist, 'routes', 'console.js')]
 
-    for (const file of candidates) {
-        if (existsSync(file)) {
-            await importFile(file)
+  for (const file of candidates) {
+    if (existsSync(file)) {
+      await importFile(file)
 
-            return true
-        }
+      return true
     }
+  }
 
-    return false
+  return false
 }

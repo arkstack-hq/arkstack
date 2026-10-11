@@ -3,121 +3,109 @@ import { MiddlewareClass, MiddlewareInstance } from 'clear-router/types/basic'
 
 /**
  * Checks and asserts if target is a class
- * 
- * @param target 
- * @returns 
+ *
+ * @param target
+ * @returns
  */
-const isClass = <T = unknown>(
-    target: unknown
-): target is new (...args: any[]) => T => {
-    return typeof target === 'function'
-        && /^class\s/.test(Function.prototype.toString.call(target))
+const isClass = <T = unknown>(target: unknown): target is new (...args: any[]) => T => {
+  return typeof target === 'function' && /^class\s/.test(Function.prototype.toString.call(target))
 }
 
-export const unwrapRequestSource = <TUser>(
-    source: RequestSource<TUser>
-): RequestSource<TUser> => {
-    if (source.original) {
-        return unwrapRequestSource(source.original)
-    }
+export const unwrapRequestSource = <TUser>(source: RequestSource<TUser>): RequestSource<TUser> => {
+  if (source.original) {
+    return unwrapRequestSource(source.original)
+  }
 
-    if (source.headers) {
-        return source
-    }
-
-    if (source.req) {
-        return source.req
-    }
-
-    if (source.request) {
-        return source.request
-    }
-
+  if (source.headers) {
     return source
+  }
+
+  if (source.req) {
+    return source.req
+  }
+
+  if (source.request) {
+    return source.request
+  }
+
+  return source
 }
 
 export const makeHeaders = (headers?: HeaderSource) => {
-    return new Headers(normalizeHeaders(headers))
+  return new Headers(normalizeHeaders(headers))
 }
 
 export const normalizeHeaders = (headers?: HeaderSource): HeaderMap => {
-    const normalized: HeaderMap = {}
+  const normalized: HeaderMap = {}
 
-    if (!headers) {
-        return normalized
-    }
+  if (!headers) {
+    return normalized
+  }
 
-    if (isHeaders(headers)) {
-        headers.forEach((value, key) => {
-            normalized[key.toLowerCase()] = value
-        })
-
-        return normalized
-    }
-
-    for (const [key, value] of Object.entries(headers)) {
-        const normalizedValue = normalizeHeaderValue(value)
-
-        if (typeof normalizedValue === 'string') {
-            normalized[key.toLowerCase()] = normalizedValue
-        }
-    }
+  if (isHeaders(headers)) {
+    headers.forEach((value, key) => {
+      normalized[key.toLowerCase()] = value
+    })
 
     return normalized
+  }
+
+  for (const [key, value] of Object.entries(headers)) {
+    const normalizedValue = normalizeHeaderValue(value)
+
+    if (typeof normalizedValue === 'string') {
+      normalized[key.toLowerCase()] = normalizedValue
+    }
+  }
+
+  return normalized
 }
 
 export const normalizeHeaderValue = (value: HeaderValue) => {
-    if (Array.isArray(value)) {
-        return value.join(', ')
-    }
+  if (Array.isArray(value)) {
+    return value.join(', ')
+  }
 
-    if (typeof value === 'number' || typeof value === 'boolean') {
-        return String(value)
-    }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
 
-    return value ?? undefined
+  return value ?? undefined
 }
 
-export const isHeaders = (value: unknown): value is Headers => (
-    typeof Headers !== 'undefined' && value instanceof Headers
-)
+export const isHeaders = (value: unknown): value is Headers =>
+  typeof Headers !== 'undefined' && value instanceof Headers
 
 export const isRecord = (value: unknown): value is Record<PropertyKey, any> => {
-    return !!value && typeof value === 'object' && !Array.isArray(value)
+  return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
 /**
  * Resolve Middleware
- * 
- * @param middleware 
- * @returns 
+ *
+ * @param middleware
+ * @returns
  */
 export const resolveMiddleware = <T extends FunctionMiddleware | MiddlewareClass | MiddlewareInstance>(
-    middleware: T
+  middleware: T,
 ): T extends MiddlewareClass<FunctionMiddleware>
-    ? InstanceType<T>['handle']
-    : T extends MiddlewareInstance
+  ? InstanceType<T>['handle']
+  : T extends MiddlewareInstance
     ? T['handle']
     : T => {
-    if (!middleware || typeof middleware === 'function' && !isClass(middleware)) {
-        return middleware as never
-    }
-
-    if (
-        middleware &&
-        typeof middleware === 'object' &&
-        !isClass(middleware) &&
-        'handle' in middleware) {
-        return middleware.handle.bind(middleware) as never
-    }
-
-    const instance: MiddlewareInstance = isClass(middleware)
-        ? new middleware() as never
-        : middleware
-
-    if (instance && typeof instance.handle === 'function') {
-        return instance.handle.bind(instance) as never
-    }
-
+  if (!middleware || (typeof middleware === 'function' && !isClass(middleware))) {
     return middleware as never
+  }
+
+  if (middleware && typeof middleware === 'object' && !isClass(middleware) && 'handle' in middleware) {
+    return middleware.handle.bind(middleware) as never
+  }
+
+  const instance: MiddlewareInstance = isClass(middleware) ? (new middleware() as never) : middleware
+
+  if (instance && typeof instance.handle === 'function') {
+    return instance.handle.bind(instance) as never
+  }
+
+  return middleware as never
 }

@@ -1,55 +1,55 @@
 {
-    "name": "@arkstack/auth",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Authentication module for Arkstack, providing core authentication and identity features.",
-    "homepage": "https://arkstack.toneflix.net/guide/auth",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/auth"
-    },
-    "keywords": [
-        "authentication",
-        "password",
-        "hashing",
-        "two-factor",
-        "2fa",
-        "auth",
-        "utilities",
-        "helpers",
-        "logging",
-        "configuration",
-        "error-handling",
-        "validation",
-        "arkstack"
-    ],
-    "files": [
-        "dist",
-        "stubs"
-    ],
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./dist/index.js",
-        "./setup": "./dist/setup.js",
-        "./package.json": "./package.json"
-    },
-    "dependencies": {
-        "@arkstack/common": "workspace:^",
-        "@arkstack/http": "workspace:^",
-        "jose": "^6.2.3",
-        "otpauth": "^9.5.1",
-        "ua-parser-js": "^2.0.9"
-    },
-    "peerDependencies": {
-        "@arkstack/database": "workspace:^",
-        "@h3ravel/support": "catalog:"
-    }
+  "name": "@arkstack/auth",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Authentication module for Arkstack, providing core authentication and identity features.",
+  "homepage": "https://arkstack.toneflix.net/guide/auth",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/auth"
+  },
+  "keywords": [
+    "authentication",
+    "password",
+    "hashing",
+    "two-factor",
+    "2fa",
+    "auth",
+    "utilities",
+    "helpers",
+    "logging",
+    "configuration",
+    "error-handling",
+    "validation",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./setup": "./dist/setup.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/common": "workspace:^",
+    "@arkstack/http": "workspace:^",
+    "jose": "^6.2.3",
+    "otpauth": "^9.5.1",
+    "ua-parser-js": "^2.0.9"
+  },
+  "peerDependencies": {
+    "@arkstack/database": "workspace:^",
+    "@h3ravel/support": "catalog:"
+  }
 }

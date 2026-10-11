@@ -1,71 +1,71 @@
 {
-    "name": "@arkstack/database",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Database module for Arkstack, providing core database integration and data layer features.",
-    "homepage": "https://arkstack.toneflix.net",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/database"
-    },
-    "keywords": [
-        "database",
-        "arkorm",
-        "models",
-        "eloquent",
-        "prisma",
-        "kysely",
-        "mysql",
-        "mariadb",
-        "sql",
-        "postgresql",
-        "h3ravel"
-    ],
-    "files": [
-        "dist",
-        "stubs"
-    ],
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "test": "vitest",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./dist/index.js",
-        "./DbCommand": "./dist/commands/DbCommand.js",
-        "./MakeFactoryCommand": "./dist/commands/MakeFactoryCommand.js",
-        "./MakeMigrationCommand": "./dist/commands/MakeMigrationCommand.js",
-        "./MakeModelCommand": "./dist/commands/MakeModelCommand.js",
-        "./MakeSeederCommand": "./dist/commands/MakeSeederCommand.js",
-        "./MigrateCommand": "./dist/commands/MigrateCommand.js",
-        "./MigrateFreshCommand": "./dist/commands/MigrateFreshCommand.js",
-        "./MigrateRollbackCommand": "./dist/commands/MigrateRollbackCommand.js",
-        "./MigrationHistoryCommand": "./dist/commands/MigrationHistoryCommand.js",
-        "./ModelsSyncCommand": "./dist/commands/ModelsSyncCommand.js",
-        "./SeedCommand": "./dist/commands/SeedCommand.js",
-        "./setup": "./dist/setup.js",
-        "./package.json": "./package.json"
-    },
-    "peerDependencies": {
-        "kanun": "catalog:",
-        "clear-router": "catalog:"
-    },
-    "dependencies": {
-        "@arkormx/plugin-clear-router": "catalog:",
-        "@arkstack/common": "workspace:^",
-        "@arkstack/contract": "workspace:^",
-        "dotenv": "catalog:",
-        "arkormx": "catalog:",
-        "kysely": "catalog:",
-        "pg": "catalog:",
-        "resora": "catalog:"
-    },
-    "devDependencies": {
-        "@types/pg": "^8.16.0"
-    }
+  "name": "@arkstack/database",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Database module for Arkstack, providing core database integration and data layer features.",
+  "homepage": "https://arkstack.toneflix.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/database"
+  },
+  "keywords": [
+    "database",
+    "arkorm",
+    "models",
+    "eloquent",
+    "prisma",
+    "kysely",
+    "mysql",
+    "mariadb",
+    "sql",
+    "postgresql",
+    "h3ravel"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./DbCommand": "./dist/commands/DbCommand.js",
+    "./MakeFactoryCommand": "./dist/commands/MakeFactoryCommand.js",
+    "./MakeMigrationCommand": "./dist/commands/MakeMigrationCommand.js",
+    "./MakeModelCommand": "./dist/commands/MakeModelCommand.js",
+    "./MakeSeederCommand": "./dist/commands/MakeSeederCommand.js",
+    "./MigrateCommand": "./dist/commands/MigrateCommand.js",
+    "./MigrateFreshCommand": "./dist/commands/MigrateFreshCommand.js",
+    "./MigrateRollbackCommand": "./dist/commands/MigrateRollbackCommand.js",
+    "./MigrationHistoryCommand": "./dist/commands/MigrationHistoryCommand.js",
+    "./ModelsSyncCommand": "./dist/commands/ModelsSyncCommand.js",
+    "./SeedCommand": "./dist/commands/SeedCommand.js",
+    "./setup": "./dist/setup.js",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "kanun": "catalog:",
+    "clear-router": "catalog:"
+  },
+  "dependencies": {
+    "@arkormx/plugin-clear-router": "catalog:",
+    "@arkstack/common": "workspace:^",
+    "@arkstack/contract": "workspace:^",
+    "dotenv": "catalog:",
+    "arkormx": "catalog:",
+    "kysely": "catalog:",
+    "pg": "catalog:",
+    "resora": "catalog:"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.16.0"
+  }
 }

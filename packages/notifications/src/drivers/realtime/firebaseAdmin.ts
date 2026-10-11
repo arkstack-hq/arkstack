@@ -6,9 +6,9 @@ import path from 'node:path'
 
 /** The slice of `firebase-admin/app` the Firebase drivers use. */
 export interface FirebaseAdminAppModule {
-    cert(serviceAccount: Record<string, any>): unknown
-    getApps(): Array<{ name: string }>
-    initializeApp(options: Record<string, unknown>, name: string): unknown
+  cert(serviceAccount: Record<string, any>): unknown
+  getApps(): Array<{ name: string }>
+  initializeApp(options: Record<string, unknown>, name: string): unknown
 }
 
 /**
@@ -23,42 +23,46 @@ export interface FirebaseAdminAppModule {
  * @returns
  */
 export const firebaseAdminApp = async (
-    options: FirebaseTransportConfig,
-    suffix = '',
-    extra: Record<string, unknown> = {},
+  options: FirebaseTransportConfig,
+  suffix = '',
+  extra: Record<string, unknown> = {},
 ): Promise<unknown> => {
-    const specifier = 'firebase-admin/app'
-    const app = await import(specifier).catch(() => {
-        throw new Error(
-            'The "firebase-admin" package is required for the Firebase realtime transports. Install it with `npm i firebase-admin`.',
-        )
-    }) as FirebaseAdminAppModule
-
-    const adminsdk = path.join(
-        process.cwd(),
-        options.admin_sdk_path ?? env('FIREBASE_ADMINSDK', 'firebase-adminsdk.json')
+  const specifier = 'firebase-admin/app'
+  const app = (await import(specifier).catch(() => {
+    throw new Error(
+      'The "firebase-admin" package is required for the Firebase realtime transports. Install it with `npm i firebase-admin`.',
     )
+  })) as FirebaseAdminAppModule
 
-    let serviceAccount: Record<string, any> | undefined
-    try {
-        if (existsSync(adminsdk))
-            serviceAccount = JSON.parse(readFileSync(adminsdk, { encoding: 'utf-8' }))
-    } catch {/** */ }
+  const adminsdk = path.join(
+    process.cwd(),
+    options.admin_sdk_path ?? env('FIREBASE_ADMINSDK', 'firebase-adminsdk.json'),
+  )
 
-    const credential = app.cert(serviceAccount ?? {
-        projectId: options.project_id ?? env('FIREBASE_PROJECT_ID', ''),
-        clientEmail: options.client_email ?? env('FIREBASE_CLIENT_EMAIL', ''),
-        // Env-stored keys keep literal "\n"; restore real newlines.
-        privateKey: (options.private_key ?? env('FIREBASE_PRIVATE_KEY', ''))?.replace(/\\n/g, '\n'),
-    })
+  let serviceAccount: Record<string, any> | undefined
+  try {
+    if (existsSync(adminsdk)) serviceAccount = JSON.parse(readFileSync(adminsdk, { encoding: 'utf-8' }))
+  } catch {
+    /** */
+  }
 
-    // Reuse a named app so repeated broadcasts don't re-initialize.
-    const name = String(options.app_name ?? env('FIREBASE_APP_NAME', 'arkstack-realtime'))
-        .replaceAll(' ', '-')
-        .toLowerCase() + suffix
-    const existing = app.getApps().find((a) => a.name === name)
+  const credential = app.cert(
+    serviceAccount ?? {
+      projectId: options.project_id ?? env('FIREBASE_PROJECT_ID', ''),
+      clientEmail: options.client_email ?? env('FIREBASE_CLIENT_EMAIL', ''),
+      // Env-stored keys keep literal "\n"; restore real newlines.
+      privateKey: (options.private_key ?? env('FIREBASE_PRIVATE_KEY', ''))?.replace(/\\n/g, '\n'),
+    },
+  )
 
-    return existing ?? app.initializeApp({ credential, ...extra }, name)
+  // Reuse a named app so repeated broadcasts don't re-initialize.
+  const name =
+    String(options.app_name ?? env('FIREBASE_APP_NAME', 'arkstack-realtime'))
+      .replaceAll(' ', '-')
+      .toLowerCase() + suffix
+  const existing = app.getApps().find((a) => a.name === name)
+
+  return existing ?? app.initializeApp({ credential, ...extra }, name)
 }
 
 /**
@@ -67,13 +71,11 @@ export const firebaseAdminApp = async (
  * @param options
  * @returns
  */
-export const firebaseWebConfig = (
-    options: FirebaseTransportConfig,
-): Record<string, unknown> => ({
-    apiKey: options.web?.api_key ?? env('FIREBASE_API_KEY', ''),
-    authDomain: options.web?.auth_domain ?? env('FIREBASE_AUTH_DOMAIN', ''),
-    projectId: options.project_id ?? env('FIREBASE_PROJECT_ID', ''),
-    appId: options.web?.app_id ?? env('FIREBASE_APP_ID', ''),
-    messagingSenderId: options.web?.messaging_sender_id ?? env('FIREBASE_MESSAGING_SENDER_ID', ''),
-    vapidKey: options.web?.vapid_key ?? env('FIREBASE_VAPID_KEY', ''),
+export const firebaseWebConfig = (options: FirebaseTransportConfig): Record<string, unknown> => ({
+  apiKey: options.web?.api_key ?? env('FIREBASE_API_KEY', ''),
+  authDomain: options.web?.auth_domain ?? env('FIREBASE_AUTH_DOMAIN', ''),
+  projectId: options.project_id ?? env('FIREBASE_PROJECT_ID', ''),
+  appId: options.web?.app_id ?? env('FIREBASE_APP_ID', ''),
+  messagingSenderId: options.web?.messaging_sender_id ?? env('FIREBASE_MESSAGING_SENDER_ID', ''),
+  vapidKey: options.web?.vapid_key ?? env('FIREBASE_VAPID_KEY', ''),
 })

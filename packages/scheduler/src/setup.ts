@@ -14,12 +14,12 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
  * `src/routes/console.ts` schedule file into the app.
  */
 Publisher.publishes({
-    package: '@arkstack/scheduler',
-    tag: 'scheduler-routes',
-    entries: [
-        {
-            from: join(root, 'stubs/routes/console.ts.stub'),
-            to: 'src/routes/console.ts',
-        },
-    ],
+  package: '@arkstack/scheduler',
+  tag: 'scheduler-routes',
+  entries: [
+    {
+      from: join(root, 'stubs/routes/console.ts.stub'),
+      to: 'src/routes/console.ts',
+    },
+  ],
 })

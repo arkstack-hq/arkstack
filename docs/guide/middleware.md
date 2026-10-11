@@ -43,13 +43,13 @@ Express example:
 ```ts
 this.driver = new ExpressDriver({
   bindRouter: async (runtime) => {
-    runtime.use(await Router.bind());
+    runtime.use(await Router.bind())
   },
   mountPublicAssets: (runtime, publicPath) => {
-    runtime.use('/assets', express.static(publicPath));
+    runtime.use('/assets', express.static(publicPath))
   },
   errorHandler: ErrorHandler,
-});
+})
 ```
 
 H3 example:
@@ -58,12 +58,12 @@ H3 example:
 this.driver = new H3Driver({
   createApp: () => new H3({ onError: ErrorHandler }),
   bindRouter: async (runtime) => {
-    await Router.bind(runtime);
+    await Router.bind(runtime)
   },
   mountPublicAssets: (runtime, publicPath) => {
-    runtime.use(staticAssetHandler(publicPath));
+    runtime.use(staticAssetHandler(publicPath))
   },
-});
+})
 ```
 
 Use each group with this intent:
@@ -77,17 +77,17 @@ Use each group with this intent:
 `express/src/config/middleware.ts`:
 
 ```ts
-import express, { Express } from 'express';
-import cors from 'cors';
-import { MiddlewareConfig } from 'src/types/config';
+import express, { Express } from 'express'
+import cors from 'cors'
+import { MiddlewareConfig } from 'src/types/config'
 
 export default (_app: Express): MiddlewareConfig => {
   return {
     global: [express.json(), express.urlencoded({ extended: true }), cors()],
     before: [],
     after: [],
-  };
-};
+  }
+}
 ```
 
 ## H3 example
@@ -95,17 +95,17 @@ export default (_app: Express): MiddlewareConfig => {
 `h3/src/config/middleware.ts`:
 
 ```ts
-import { H3 } from 'h3';
-import { MiddlewareConfig } from 'src/types/config';
-import { cors } from '@app/http/middlewares/cors';
+import { H3 } from 'h3'
+import { MiddlewareConfig } from 'src/types/config'
+import { cors } from '@app/http/middlewares/cors'
 
 export default (_app: H3): MiddlewareConfig => {
   return {
     global: [cors()],
     before: [],
     after: [],
-  };
-};
+  }
+}
 ```
 
 ## Route-level middleware
@@ -115,11 +115,11 @@ Use config middleware for app-wide concerns. For route-specific behavior, attach
 Authentication middleware is provided by runtime driver packages so it can integrate with each framework naturally:
 
 ```ts
-import { auth } from '@arkstack/driver-express/middlewares';
+import { auth } from '@arkstack/driver-express/middlewares'
 ```
 
 ```ts
-import { auth } from '@arkstack/driver-h3/middlewares';
+import { auth } from '@arkstack/driver-h3/middlewares'
 ```
 
 For a full auth flow, see [Authentication](/guide/authentication).
@@ -127,21 +127,19 @@ For a full auth flow, see [Authentication](/guide/authentication).
 Example from Express route registration:
 
 ```ts
-import { Router } from '@arkstack/driver-express';
+import { Router } from '@arkstack/driver-express'
 
 Router.get(
   '/',
   ({ res }) => {
-    res
-      .setHeader('Content-Type', 'text/html')
-      .send('Welcome to the Express application!');
+    res.setHeader('Content-Type', 'text/html').send('Welcome to the Express application!')
   },
   [
     () => {
-      console.log('Middleware for root route');
+      console.log('Middleware for root route')
     },
   ],
-);
+)
 ```
 
 ## Team expectation

@@ -78,16 +78,16 @@ export default class {
   }
 
   /**
-   * Installs the project dependencies using the detected package manager. 
-   * If a specific package name is provided, it will install that package 
+   * Installs the project dependencies using the detected package manager.
+   * If a specific package name is provided, it will install that package
    * instead of all dependencies.
-   * 
-   * @param name 
-   * @param args 
-   * @returns 
+   *
+   * @param name
+   * @param args
+   * @returns
    */
   async installPackage(name?: string, args: string[] = []) {
-    const bcmd = await Resolver.getPakageInstallCommand() + (name ? ` ${name}` : '')
+    const bcmd = (await Resolver.getPakageInstallCommand()) + (name ? ` ${name}` : '')
     const cmd = bcmd?.split(' ')[0]
     if (bcmd.includes(' ')) {
       args.unshift(...bcmd.split(' ').slice(1))
@@ -108,7 +108,7 @@ export default class {
   async complete(install = false) {
     let installed = false
     if (install) {
-      installed = await this.installPackage() === 0
+      installed = (await this.installPackage()) === 0
     }
 
     console.log('')
@@ -123,11 +123,7 @@ export default class {
 
     Logger.success('Your Arkstack project has been created successfully')
     Logger.parse(
-      [
-        ['cd', 'cyan'],
-        [installPath, 'yellow'],
-        installPath === process.cwd() ? ['✔', 'green'] : ['', 'green'],
-      ],
+      [['cd', 'cyan'], [installPath, 'yellow'], installPath === process.cwd() ? ['✔', 'green'] : ['', 'green']],
       ' ',
     )
 
@@ -180,9 +176,7 @@ export default class {
     const envPath = join(this.location!, '.env')
     const exampleEnvPath = join(this.location!, '.env.example')
 
-    const allowed = scope === 'max'
-      ? [...environment.max, ...environment.min]
-      : environment.min
+    const allowed = scope === 'max' ? [...environment.max, ...environment.min] : environment.min
 
     if (existsSync(exampleEnvPath)) {
       const env = await readFile(exampleEnvPath, 'utf-8')
@@ -215,8 +209,7 @@ export default class {
   }
 
   async saveProfile() {
-    if (this.pkgPath)
-      await writeFile(this.pkgPath, JSON.stringify(this.packageJson, null, 2))
+    if (this.pkgPath) await writeFile(this.pkgPath, JSON.stringify(this.packageJson, null, 2))
   }
 
   async makeProfile() {
@@ -226,14 +219,10 @@ export default class {
       this.packageJson = await readFile(pkgPath, 'utf-8').then(JSON.parse)
 
       for (const [name] of Object.entries(this.packageJson.dependencies)) {
-        if (/^@(arkstack|h3ravel)\//.test(name))
-          delete this.packageJson.dependencies[name]
+        if (/^@(arkstack|h3ravel)\//.test(name)) delete this.packageJson.dependencies[name]
       }
 
-      const deps = Object.fromEntries([
-        ...Object.entries(depsList),
-        ...Object.entries(this.packageJson.dependencies)
-      ])
+      const deps = Object.fromEntries([...Object.entries(depsList), ...Object.entries(this.packageJson.dependencies)])
 
       this.packageJson.dependencies = deps
 
@@ -272,9 +261,7 @@ export default class {
    * @param catalogName  The named catalog (empty string for the default catalog).
    */
   private async resolveCatalogVersion(name: string, catalogName: string): Promise<string> {
-    const fromCatalog = catalogName
-      ? catalogs[catalogName]?.[name]
-      : catalog[name]
+    const fromCatalog = catalogName ? catalogs[catalogName]?.[name] : catalog[name]
 
     const resolved = depsList[name] ?? fromCatalog
 
@@ -313,7 +300,7 @@ export default class {
         return undefined
       }
 
-      const data = await response.json() as { version?: string }
+      const data = (await response.json()) as { version?: string }
 
       return data.version
     } catch {
@@ -345,11 +332,7 @@ export default class {
       }
     }
 
-    const filesToPatch = [
-      'src/core/app.ts',
-      'src/core/router.ts',
-      'src/core/bootstrap.ts',
-    ]
+    const filesToPatch = ['src/core/app.ts', 'src/core/router.ts', 'src/core/bootstrap.ts']
 
     for (const file of filesToPatch) {
       const filePath = join(this.location!, file)
@@ -364,12 +347,15 @@ export default class {
         .replace(/import '@arkstack\/auth\/setup'\s*/g, '')
         .replace(/import '@arkstack\/queue\/setup'\s*/g, '')
         .replace(/import '@arkstack\/cache\/setup'\s*/g, '')
-        .replace('import { ValidatorDBDriver } from \'@arkstack/database\'\n', '')
-        .replace('import { ModelNotFoundException } from \'arkormx\'\n', '')
-        .replace('import { prisma } from \'src/core/database\'\n', '')
-        .replace('import { Prisma } from \'@prisma/client\'\n', '')
+        .replace("import { ValidatorDBDriver } from '@arkstack/database'\n", '')
+        .replace("import { ModelNotFoundException } from 'arkormx'\n", '')
+        .replace("import { prisma } from 'src/core/database'\n", '')
+        .replace("import { Prisma } from '@prisma/client'\n", '')
         .replace('Validator.useDatabase(new ValidatorDBDriver())', '')
-        .replace('  async shutdown () {\n    await prisma.$disconnect()\n    process.exit(0)\n  }', '  async shutdown () {\n    process.exit(0)\n  }')
+        .replace(
+          '  async shutdown () {\n    await prisma.$disconnect()\n    process.exit(0)\n  }',
+          '  async shutdown () {\n    process.exit(0)\n  }',
+        )
         .replace(
           ' * Shuts down the application by disconnecting from the database and exiting the process.',
           ' * Shuts down the application and exits the process.',
@@ -384,7 +370,7 @@ export default class {
         )
         .replace(
           /if \(!\(err instanceof ValidationException\) &&\n\s*!\(err instanceof ModelNotFoundException\)\) {/g,
-          'if (!(err instanceof ValidationException)) {'
+          'if (!(err instanceof ValidationException)) {',
         )
         .replace(
           /\s*\/\/ Register API routes\s*await ClearRouter\.group\('\/api', async \(\) => \{\s*await importFile\(join\(process\.cwd\(\), 'src\/routes\/api\.ts'\)\)\s*\}\)\s*/g,
@@ -464,11 +450,11 @@ export default class {
     await this.saveProfile()
   }
 
-  /** 
-   * Copy the shared + stack-specific stubs into the project, applying the 
-   * same transforms publish does. 
-   * 
-   * @param spec 
+  /**
+   * Copy the shared + stack-specific stubs into the project, applying the
+   * same transforms publish does.
+   *
+   * @param spec
    */
   private async writeInertiaFiles(spec: InertiaStackSpec) {
     for (const file of [...sharedInertiaFiles, ...spec.files]) {
@@ -543,12 +529,12 @@ export default class {
     }
   }
 
-  /** 
-   * Register the `inertia()` middleware (after `resora()`) in the 
-   * runtime's middleware config. 
-   * 
-   * @param _kit 
-   * @returns 
+  /**
+   * Register the `inertia()` middleware (after `resora()`) in the
+   * runtime's middleware config.
+   *
+   * @param _kit
+   * @returns
    */
   private async patchInertiaMiddleware(_kit: KitName) {
     const file = join(this.location!, 'src/config/middleware.ts')
@@ -570,10 +556,10 @@ export default class {
     await writeFile(file, content, 'utf-8')
   }
 
-  /** 
-   * Point the root route at an Inertia page instead of the welcome view. 
-   * 
-   * @returns 
+  /**
+   * Point the root route at an Inertia page instead of the welcome view.
+   *
+   * @returns
    */
   private async patchInertiaWeb() {
     const file = join(this.location!, 'src/routes/web.ts')
@@ -583,18 +569,18 @@ export default class {
     }
 
     const content = (await readFile(file, 'utf-8'))
-      .replace('import { view } from \'@arkstack/view\'', 'import { inertia } from \'@arkstack/inertia\'')
-      .replace(/await view\(\s*'welcome'/, 'await inertia(\'Index\'')
+      .replace("import { view } from '@arkstack/view'", "import { inertia } from '@arkstack/inertia'")
+      .replace(/await view\(\s*'welcome'/, "await inertia('Index'")
 
     await writeFile(file, content, 'utf-8')
   }
 
-  /** 
-   * Enable JSX (React) and bring `resources/` into the TS program for the client code. 
-    * 
-    * @param spec 
-    * @returns 
-    */
+  /**
+   * Enable JSX (React) and bring `resources/` into the TS program for the client code.
+   *
+   * @param spec
+   * @returns
+   */
   private async patchInertiaTsConfig(spec: InertiaStackSpec) {
     const file = join(this.location!, 'tsconfig.json')
 
@@ -628,17 +614,14 @@ export default class {
     pkg.scripts.build = 'ark build'
     pkg.scripts.postinstall = 'prepare'
 
-    pkg.name = Str.slugify(
-      this.appName ?? basename(this.location!).replace('.', ''), '-'
-    )
+    pkg.name = Str.slugify(this.appName ?? basename(this.location!).replace('.', ''), '-')
 
     if (this.description) {
       pkg.description = this.description
     }
 
     for (const name of Object.keys(pkg.dependencies)) {
-      if (name.includes('@arkstack/driver') && name !== '@arkstack/driver-' + kit)
-        delete pkg.dependencies[name]
+      if (name.includes('@arkstack/driver') && name !== '@arkstack/driver-' + kit) delete pkg.dependencies[name]
     }
 
     this.packageJson = pkg

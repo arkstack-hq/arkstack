@@ -25,10 +25,7 @@ const isOriginAllowed = (origin: string, allowedOrigin: string | string[] | RegE
   }
 }
 
-const configureOrigin = (
-  options: { origin?: string | string[] | RegExp | boolean },
-  req: H3Event['req'],
-) => {
+const configureOrigin = (options: { origin?: string | string[] | RegExp | boolean }, req: H3Event['req']) => {
   let isAllowed: boolean
   const requestOrigin = req.headers.get('origin') || '*',
     headers = []
@@ -99,7 +96,10 @@ const configureCredentials = (options: { credentials?: boolean }) => {
 }
 
 const configureAllowedHeaders = (
-  options: { allowedHeaders?: string[] | string | null; headers?: string[] | string | null },
+  options: {
+    allowedHeaders?: string[] | string | null
+    headers?: string[] | string | null
+  },
   req: H3Event['req'],
 ) => {
   let allowedHeaders = options.allowedHeaders || options.headers
@@ -128,7 +128,7 @@ const configureAllowedHeaders = (
   return headers
 }
 
-function configureExposedHeaders (options: { exposedHeaders?: string[] | string }) {
+function configureExposedHeaders(options: { exposedHeaders?: string[] | string }) {
   let headers = options.exposedHeaders
   if (!headers) {
     return null
@@ -145,7 +145,7 @@ function configureExposedHeaders (options: { exposedHeaders?: string[] | string 
   return null
 }
 
-function configureMaxAge (options: { maxAge?: number | string }) {
+function configureMaxAge(options: { maxAge?: number | string }) {
   const maxAge = (typeof options.maxAge === 'number' || options.maxAge) && options.maxAge.toString()
   if (maxAge && maxAge.length) {
     return {
@@ -157,7 +157,7 @@ function configureMaxAge (options: { maxAge?: number | string }) {
   return null
 }
 
-function applyHeaders (headers: any[], res: H3Event['res']) {
+function applyHeaders(headers: any[], res: H3Event['res']) {
   for (let i = 0, n = headers.length; i < n; i++) {
     const header = headers[i]
     if (header) {
@@ -175,62 +175,63 @@ function applyHeaders (headers: any[], res: H3Event['res']) {
 export const cors =
   (
     options: {
-      origin?: string | string[] | RegExp | boolean;
-      methods?: string[] | string;
-      allowedHeaders?: string[] | string | null;
-      exposedHeaders?: string[] | string;
-      credentials?: boolean;
-      maxAge?: number | string;
-      optionsSuccessStatus?: number;
-      preflightContinue?: boolean;
+      origin?: string | string[] | RegExp | boolean
+      methods?: string[] | string
+      allowedHeaders?: string[] | string | null
+      exposedHeaders?: string[] | string
+      credentials?: boolean
+      maxAge?: number | string
+      optionsSuccessStatus?: number
+      preflightContinue?: boolean
     } = {},
   ) =>
-    async (event: H3Event, next: NextFunction) => {
-      const headers = [],
-        method = event.req.method && event.req.method.toUpperCase && event.req.method.toUpperCase()
+  async (event: H3Event, next: NextFunction) => {
+    const headers = [],
+      method = event.req.method && event.req.method.toUpperCase && event.req.method.toUpperCase()
 
-      if (method === 'OPTIONS') {
-        // preflight
-        headers.push(configureOrigin(options, event.req))
-        headers.push(configureCredentials(options))
-        headers.push(configureMethods(options))
-        headers.push(configureAllowedHeaders(options, event.req))
-        headers.push(configureMaxAge(options))
-        headers.push(configureExposedHeaders(options))
-        applyHeaders(headers, event.res)
+    if (method === 'OPTIONS') {
+      // preflight
+      headers.push(configureOrigin(options, event.req))
+      headers.push(configureCredentials(options))
+      headers.push(configureMethods(options))
+      headers.push(configureAllowedHeaders(options, event.req))
+      headers.push(configureMaxAge(options))
+      headers.push(configureExposedHeaders(options))
+      applyHeaders(headers, event.res)
 
-        if (options.preflightContinue) {
-          next()
-        } else {
-          // Safari (and potentially other browsers) need content-length 0,
-          //   for 204 or they just hang waiting for a body
-          event.res.status = options.optionsSuccessStatus
-          event.res.headers.set('Content-Length', '0')
-        }
-      } else {
-        // actual response
-        headers.push(configureOrigin(options, event.req))
-        headers.push(configureCredentials(options))
-        headers.push(configureExposedHeaders(options))
-        applyHeaders(headers, event.res)
+      if (options.preflightContinue) {
         next()
+      } else {
+        // Safari (and potentially other browsers) need content-length 0,
+        //   for 204 or they just hang waiting for a body
+        event.res.status = options.optionsSuccessStatus
+        event.res.headers.set('Content-Length', '0')
       }
+    } else {
+      // actual response
+      headers.push(configureOrigin(options, event.req))
+      headers.push(configureCredentials(options))
+      headers.push(configureExposedHeaders(options))
+      applyHeaders(headers, event.res)
+      next()
     }
-
+  }
 
 export class CorsMiddleware {
-  constructor(private options: {
-    origin?: string | string[] | RegExp | boolean;
-    methods?: string[] | string;
-    allowedHeaders?: string[] | string | null;
-    exposedHeaders?: string[] | string;
-    credentials?: boolean;
-    maxAge?: number | string;
-    optionsSuccessStatus?: number;
-    preflightContinue?: boolean;
-  } = {}) { }
+  constructor(
+    private options: {
+      origin?: string | string[] | RegExp | boolean
+      methods?: string[] | string
+      allowedHeaders?: string[] | string | null
+      exposedHeaders?: string[] | string
+      credentials?: boolean
+      maxAge?: number | string
+      optionsSuccessStatus?: number
+      preflightContinue?: boolean
+    } = {},
+  ) {}
 
-  handler (event: H3Event<EventHandlerRequest>, next: NextFunction) {
+  handler(event: H3Event<EventHandlerRequest>, next: NextFunction) {
     return cors(this.options).call(this.handler, event, next)
   }
 }

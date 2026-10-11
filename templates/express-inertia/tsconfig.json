@@ -3,10 +3,5 @@
   "compilerOptions": {
     "jsx": "react-jsx"
   },
-  "include": [
-    ".arkstack/*.d.ts",
-    "src",
-    "tests",
-    "resources"
-  ]
+  "include": [".arkstack/*.d.ts", "src", "tests", "resources"]
 }

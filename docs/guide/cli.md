@@ -106,7 +106,7 @@ pnpm ark publish --tag queue-migrations --force
 Packages register what they publish by calling `Publisher.publishes()` from their `setup` module:
 
 ```ts
-import { Publisher } from '@arkstack/common';
+import { Publisher } from '@arkstack/common'
 
 Publisher.publishes({
   package: '@arkstack/cache',
@@ -117,7 +117,7 @@ Publisher.publishes({
       to: 'src/database/migrations/create_cache_table.ts',
     },
   ],
-});
+})
 ```
 
 Source artifacts may be named with a trailing `.stub` extension (e.g. `Model.ts.stub`) so they are ignored by the package's own linting, type-checking and tests. The `.stub` suffix is stripped automatically when the file is published, restoring its real extension.
@@ -127,11 +127,19 @@ Source artifacts may be named with a trailing `.stub` extension (e.g. `Model.ts.
 A package can take more control over **what** and **how** it publishes by registering a confirmation with `Publisher.confirm()`. When you run `ark publish`, the user is prompted to choose an option; the chosen value selects which tagged group is published, and an optional `callback` post-processes each published stub.
 
 ```ts
-import { Publisher } from '@arkstack/common';
+import { Publisher } from '@arkstack/common'
 
 // Register the framework-specific groups behind tags…
-Publisher.publishes({ package: '@arkstack/inertia', tag: 'inertia-vue', entries: [/* … */] });
-Publisher.publishes({ package: '@arkstack/inertia', tag: 'inertia-react', entries: [/* … */] });
+Publisher.publishes({
+  package: '@arkstack/inertia',
+  tag: 'inertia-vue',
+  entries: [/* … */],
+})
+Publisher.publishes({
+  package: '@arkstack/inertia',
+  tag: 'inertia-react',
+  entries: [/* … */],
+})
 
 // …then let the user pick one.
 Publisher.confirm({
@@ -143,7 +151,7 @@ Publisher.confirm({
   ],
   // Transform every stub this package publishes based on the choice.
   callback: (choice, stub) => stub.replaceAll('{{ext}}', choice === 'inertia-react' ? '.tsx' : '.ts'),
-});
+})
 ```
 
 How it behaves:

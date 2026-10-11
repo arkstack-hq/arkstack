@@ -1,61 +1,61 @@
 {
-    "name": "@arkstack/console-slim",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Slim console module for Arkstack, providing the command-line runtime and console integration layer.",
-    "homepage": "https://arkstack.toneflix.net",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/console-slim"
+  "name": "@arkstack/console-slim",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Slim console module for Arkstack, providing the command-line runtime and console integration layer.",
+  "homepage": "https://arkstack.toneflix.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/console-slim"
+  },
+  "keywords": [
+    "console",
+    "cli",
+    "command-line",
+    "interface",
+    "runtime",
+    "application",
+    "framework",
+    "stubs",
+    "musket",
+    "h3ravel"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "ark": "./dist/index.js",
+    "prepare": "./dist/prepare.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
-    "keywords": [
-        "console",
-        "cli",
-        "command-line",
-        "interface",
-        "runtime",
-        "application",
-        "framework",
-        "stubs",
-        "musket",
-        "h3ravel"
-    ],
-    "files": [
-        "dist",
-        "stubs"
-    ],
-    "scripts": {
-        "build": "tsdown",
-        "test": "vitest",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "bin": {
-        "ark": "./dist/index.js",
-        "prepare": "./dist/prepare.js"
-    },
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js"
-        },
-        "./app": {
-            "types": "./dist/app.d.ts",
-            "import": "./dist/app.js"
-        }
-    },
-    "peerDependencies": {
-        "clear-router": "catalog:"
-    },
-    "dependencies": {
-        "@arkstack/common": "workspace:^",
-        "@arkstack/contract": "workspace:^",
-        "@h3ravel/musket": "catalog:",
-        "chalk": "^5.6.2",
-        "resora": "catalog:"
+    "./app": {
+      "types": "./dist/app.d.ts",
+      "import": "./dist/app.js"
     }
+  },
+  "peerDependencies": {
+    "clear-router": "catalog:"
+  },
+  "dependencies": {
+    "@arkstack/common": "workspace:^",
+    "@arkstack/contract": "workspace:^",
+    "@h3ravel/musket": "catalog:",
+    "chalk": "^5.6.2",
+    "resora": "catalog:"
+  }
 }

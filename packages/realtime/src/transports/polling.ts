@@ -8,9 +8,9 @@ import type { PollingClientConfig, RealtimeTransport } from '../types'
  * @returns
  */
 export const createPollingTransport = (config: PollingClientConfig = {}): RealtimeTransport => ({
-    polling: { interval: config.interval ?? 5000 },
-    subscribe(channel: string) {
-        return { channel, unsubscribe() { } }
-    },
-    disconnect() { },
+  polling: { interval: config.interval ?? 5000 },
+  subscribe(channel: string) {
+    return { channel, unsubscribe() {} }
+  },
+  disconnect() {},
 })

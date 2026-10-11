@@ -31,7 +31,7 @@ export default defineConfig([
         }),
         execArgv: ['-r', 'source-map-support/register'],
         input: path.join(Arkstack.rootDir(), 'src/server.ts'),
-      })
+      }),
     ],
     outExtensions: () => {
       return {

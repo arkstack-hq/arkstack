@@ -5,202 +5,199 @@ import { FlashBag } from './FlashBag'
 import { isRecord } from '../helpers'
 
 export class ErrorBag extends FlashBag<string[]> {
-    constructor(errors?: SessionErrorSource) {
-        super()
+  constructor(errors?: SessionErrorSource) {
+    super()
 
-        if (errors) {
-            this.merge(errors)
-            this.markForSweep()
+    if (errors) {
+      this.merge(errors)
+      this.markForSweep()
+    }
+  }
+
+  add(field: string, message: SessionErrorValue) {
+    const key = field || defaultErrorKey
+    const messages = toMessages(message)
+
+    if (!messages.length) {
+      return this
+    }
+
+    this.put(key, [...(this.bag[key] || []), ...messages])
+
+    return this
+  }
+
+  addIf(condition: boolean, field: string, message: SessionErrorValue) {
+    if (condition) {
+      this.add(field, message)
+    }
+
+    return this
+  }
+
+  merge(errors: SessionErrorSource) {
+    const incoming = resolveMessageRecord(errors) || (isRecord(errors) ? (errors as SessionErrorRecord) : undefined)
+
+    if (!incoming) {
+      return this.validation(errors)
+    }
+
+    for (const [field, messages] of Object.entries(incoming)) {
+      this.add(field, messages)
+    }
+
+    return this
+  }
+
+  validation(error: unknown): ErrorBag {
+    if (!error) {
+      return this
+    }
+
+    if (error instanceof ErrorBag) {
+      return this.merge(error)
+    }
+
+    const messages = resolveMessageRecord(error)
+
+    if (messages) {
+      return this.merge(messages)
+    }
+
+    if (Array.isArray(error)) {
+      for (const item of error) {
+        if (isRecord(item) && 'message' in item) {
+          this.add(getValidationIssueField(item), item.message)
+        } else {
+          this.add(defaultErrorKey, item)
         }
+      }
+
+      return this
     }
 
-    add (field: string, message: SessionErrorValue) {
-        const key = field || defaultErrorKey
-        const messages = toMessages(message)
+    if (isRecord(error)) {
+      if (typeof error.errors === 'function') {
+        return this.validation(error.errors())
+      }
 
-        if (!messages.length) {
-            return this
-        }
+      if (error.errors) {
+        return this.validation(error.errors)
+      }
 
-        this.put(key, [
-            ...(this.bag[key] || []),
-            ...messages,
-        ])
+      if (Array.isArray(error.issues)) {
+        return this.validation(error.issues)
+      }
 
-        return this
+      if ('message' in error) {
+        return this.add(getValidationIssueField(error), error.message)
+      }
+
+      return this.merge(error as SessionErrorRecord)
     }
 
-    addIf (condition: boolean, field: string, message: SessionErrorValue) {
-        if (condition) {
-            this.add(field, message)
-        }
-
-        return this
+    if (error instanceof Error) {
+      return this.add(defaultErrorKey, error.message)
     }
 
-    merge (errors: SessionErrorSource) {
-        const incoming = resolveMessageRecord(errors) || (isRecord(errors) ? errors as SessionErrorRecord : undefined)
+    return this.add(defaultErrorKey, error)
+  }
 
-        if (!incoming) {
-            return this.validation(errors)
-        }
+  keys() {
+    return Object.keys(this.bag)
+  }
 
-        for (const [field, messages] of Object.entries(incoming)) {
-            this.add(field, messages)
-        }
+  get(field: string = defaultErrorKey) {
+    return [...(this.bag[field] || [])]
+  }
 
-        return this
+  first(field?: string | null) {
+    if (field) {
+      return this.bag[field]?.[0] || ''
     }
 
-    validation (error: unknown): ErrorBag {
-        if (!error) {
-            return this
-        }
+    return this.all()[0] || ''
+  }
 
-        if (error instanceof ErrorBag) {
-            return this.merge(error)
-        }
-
-        const messages = resolveMessageRecord(error)
-
-        if (messages) {
-            return this.merge(messages)
-        }
-
-        if (Array.isArray(error)) {
-            for (const item of error) {
-                if (isRecord(item) && 'message' in item) {
-                    this.add(getValidationIssueField(item), item.message)
-                } else {
-                    this.add(defaultErrorKey, item)
-                }
-            }
-
-            return this
-        }
-
-        if (isRecord(error)) {
-            if (typeof error.errors === 'function') {
-                return this.validation(error.errors())
-            }
-
-            if (error.errors) {
-                return this.validation(error.errors)
-            }
-
-            if (Array.isArray(error.issues)) {
-                return this.validation(error.issues)
-            }
-
-            if ('message' in error) {
-                return this.add(getValidationIssueField(error), error.message)
-            }
-
-            return this.merge(error as SessionErrorRecord)
-        }
-
-        if (error instanceof Error) {
-            return this.add(defaultErrorKey, error.message)
-        }
-
-        return this.add(defaultErrorKey, error)
+  has(field?: string | string[] | null): boolean {
+    if (Array.isArray(field)) {
+      return field.every((key) => this.has(key))
     }
 
-    keys () {
-        return Object.keys(this.bag)
+    if (field) {
+      return (this.bag[field]?.length || 0) > 0
     }
 
-    get (field: string = defaultErrorKey) {
-        return [...(this.bag[field] || [])]
-    }
+    return this.any()
+  }
 
-    first (field?: string | null) {
-        if (field) {
-            return this.bag[field]?.[0] || ''
-        }
+  hasAny(fields: string | string[]) {
+    const keys = Array.isArray(fields) ? fields : [fields]
 
-        return this.all()[0] || ''
-    }
+    return keys.some((key) => this.has(key))
+  }
 
-    has (field?: string | string[] | null): boolean {
-        if (Array.isArray(field)) {
-            return field.every(key => this.has(key))
-        }
+  missing(fields: string | string[]) {
+    const keys = Array.isArray(fields) ? fields : [fields]
 
-        if (field) {
-            return (this.bag[field]?.length || 0) > 0
-        }
+    return keys.every((key) => !this.has(key))
+  }
 
-        return this.any()
-    }
+  any() {
+    return Object.values(this.bag).some((messages) => messages.length > 0)
+  }
 
-    hasAny (fields: string | string[]) {
-        const keys = Array.isArray(fields) ? fields : [fields]
+  isEmpty() {
+    return !this.any()
+  }
 
-        return keys.some(key => this.has(key))
-    }
+  isNotEmpty() {
+    return this.any()
+  }
 
-    missing (fields: string | string[]) {
-        const keys = Array.isArray(fields) ? fields : [fields]
+  count() {
+    return Object.values(this.bag).reduce((total, messages) => total + messages.length, 0)
+  }
 
-        return keys.every(key => !this.has(key))
-    }
+  all() {
+    return Object.values(this.bag).flat() as never
+  }
 
-    any () {
-        return Object.values(this.bag).some(messages => messages.length > 0)
-    }
+  unique() {
+    return [...new Set(this.all())]
+  }
 
-    isEmpty () {
-        return !this.any()
-    }
+  clear(field?: string | string[]) {
+    super.clear(field)
 
-    isNotEmpty () {
-        return this.any()
-    }
+    return this
+  }
 
-    count () {
-        return Object.values(this.bag).reduce((total, messages) => total + messages.length, 0)
-    }
+  forget(field: string) {
+    return this.clear(field)
+  }
 
-    all () {
-        return Object.values(this.bag).flat() as never
-    }
+  messagesRaw() {
+    return this.toJSON()
+  }
 
-    unique () {
-        return [...new Set(this.all())]
-    }
+  getMessages() {
+    return this.messagesRaw()
+  }
 
-    clear (field?: string | string[]) {
-        super.clear(field)
+  getMessageBag() {
+    return this
+  }
 
-        return this
-    }
+  toArray() {
+    return this.toJSON()
+  }
 
-    forget (field: string) {
-        return this.clear(field)
-    }
+  toJSON() {
+    return Object.entries(this.bag).reduce<Record<string, string[]>>((errors, [field, messages]) => {
+      errors[field] = [...messages]
 
-    messagesRaw () {
-        return this.toJSON()
-    }
-
-    getMessages () {
-        return this.messagesRaw()
-    }
-
-    getMessageBag () {
-        return this
-    }
-
-    toArray () {
-        return this.toJSON()
-    }
-
-    toJSON () {
-        return Object.entries(this.bag).reduce<Record<string, string[]>>((errors, [field, messages]) => {
-            errors[field] = [...messages]
-
-            return errors
-        }, {})
-    }
+      return errors
+    }, {})
+  }
 }

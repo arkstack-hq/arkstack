@@ -3,10 +3,10 @@ import type { InertiaConfig } from './types'
 
 /** The defaults applied when an app provides no (or partial) `inertia` config. */
 export const defaultConfig: InertiaConfig = {
-    root_view: 'app',
-    root_id: 'app',
-    version: null,
-    ssr: { enabled: false },
+  root_view: 'app',
+  root_id: 'app',
+  version: null,
+  ssr: { enabled: false },
 }
 
 /** Runtime overrides applied on top of file config via {@link configure}. */
@@ -18,16 +18,16 @@ let configOverrides: Partial<InertiaConfig> = {}
  * shallowly, with `ssr` merged one level deep.
  */
 export const configure = (partial: Partial<InertiaConfig>): void => {
-    configOverrides = {
-        ...configOverrides,
-        ...partial,
-        ...(partial.ssr ? { ssr: { ...configOverrides.ssr, ...partial.ssr } } : {}),
-    }
+  configOverrides = {
+    ...configOverrides,
+    ...partial,
+    ...(partial.ssr ? { ssr: { ...configOverrides.ssr, ...partial.ssr } } : {}),
+  }
 }
 
 /** Clear any runtime configuration overrides (primarily for tests). */
 export const resetConfig = (): void => {
-    configOverrides = {}
+  configOverrides = {}
 }
 
 /**
@@ -37,24 +37,24 @@ export const resetConfig = (): void => {
  * to the defaults.
  */
 export const inertiaConfig = (): InertiaConfig => {
-    let userConfig: Partial<InertiaConfig> | undefined
+  let userConfig: Partial<InertiaConfig> | undefined
 
-    try {
-        userConfig = config('inertia', {}) as Partial<InertiaConfig> | undefined
-    } catch {
-        userConfig = undefined
-    }
+  try {
+    userConfig = config('inertia', {}) as Partial<InertiaConfig> | undefined
+  } catch {
+    userConfig = undefined
+  }
 
-    return {
-        ...defaultConfig,
-        ...(userConfig ?? {}),
-        ...configOverrides,
-        ssr: {
-            ...defaultConfig.ssr,
-            ...(userConfig?.ssr ?? {}),
-            ...(configOverrides.ssr ?? {}),
-        },
-    }
+  return {
+    ...defaultConfig,
+    ...(userConfig ?? {}),
+    ...configOverrides,
+    ssr: {
+      ...defaultConfig.ssr,
+      ...(userConfig?.ssr ?? {}),
+      ...(configOverrides.ssr ?? {}),
+    },
+  }
 }
 
 /** A version override set at runtime via `Inertia.version(...)`, if any. */
@@ -62,13 +62,13 @@ let versionOverride: InertiaConfig['version'] | undefined
 
 /** Set the asset version at runtime, taking precedence over config. */
 export const setVersion = (version: InertiaConfig['version']): void => {
-    versionOverride = version
+  versionOverride = version
 }
 
 /** Resolve the current asset version to a string (empty string when disabled). */
 export const resolveVersion = async (): Promise<string> => {
-    const source = versionOverride ?? inertiaConfig().version
-    const value = typeof source === 'function' ? await source() : source
+  const source = versionOverride ?? inertiaConfig().version
+  const value = typeof source === 'function' ? await source() : source
 
-    return value == null ? '' : String(value)
+  return value == null ? '' : String(value)
 }

@@ -11,16 +11,16 @@ import { resolveProps } from './resolve'
 const isInertiaRequest = (request: InertiaRequest) => request.header('x-inertia') === 'true'
 
 const jsonResponse = (page: InertiaPage): Response<InertiaPage> => {
-    return new Response<InertiaPage>({ statusCode: 200, body: page })
-        .header('Content-Type', 'application/json; charset=utf-8')
-        .header('Vary', 'X-Inertia')
-        .header('X-Inertia', 'true') as Response<InertiaPage>
+  return new Response<InertiaPage>({ statusCode: 200, body: page })
+    .header('Content-Type', 'application/json; charset=utf-8')
+    .header('Vary', 'X-Inertia')
+    .header('X-Inertia', 'true') as Response<InertiaPage>
 }
 
 const htmlResponse = (html: string): Response<string> => {
-    return new Response<string>({ statusCode: 200, body: html })
-        .header('Content-Type', 'text/html; charset=utf-8')
-        .header('Vary', 'X-Inertia') as Response<string>
+  return new Response<string>({ statusCode: 200, body: html })
+    .header('Content-Type', 'text/html; charset=utf-8')
+    .header('Vary', 'X-Inertia') as Response<string>
 }
 
 /**
@@ -33,153 +33,151 @@ const htmlResponse = (html: string): Response<string> => {
  * @see https://inertiajs.com/the-protocol
  */
 export class Inertia {
-    /** Require an active request context, throwing a clear error otherwise. */
-    private static request(): InertiaRequest {
-        const store = currentStore()
+  /** Require an active request context, throwing a clear error otherwise. */
+  private static request(): InertiaRequest {
+    const store = currentStore()
 
-        if (!store) {
-            throw new Error(
-                'Inertia called outside of a request. Ensure the Inertia middleware is registered.',
-            )
-        }
-
-        return store.request
+    if (!store) {
+      throw new Error('Inertia called outside of a request. Ensure the Inertia middleware is registered.')
     }
 
-    /**
-     * Render an Inertia page. Returns a {@link Response} the runtime serializes:
-     * a JSON page object for Inertia visits, or a full HTML document for the
-     * initial page load.
-     *
-     * @param component  The client component name, e.g. `Users/Index`.
-     * @param props      Props for the component (plain values, callbacks, or prop wrappers).
-     */
-    static async render(component: string, props: PageProps = {}): Promise<Response> {
-        const request = Inertia.request()
-        const config = inertiaConfig()
-        const version = await resolveVersion()
+    return store.request
+  }
 
-        // Make the app name available to every page, without clobbering an
-        // explicitly shared value or adding an empty key when no app config is
-        // loaded (e.g. outside a booted app).
-        const appName = globalThis.config?.('app.name')
+  /**
+   * Render an Inertia page. Returns a {@link Response} the runtime serializes:
+   * a JSON page object for Inertia visits, or a full HTML document for the
+   * initial page load.
+   *
+   * @param component  The client component name, e.g. `Users/Index`.
+   * @param props      Props for the component (plain values, callbacks, or prop wrappers).
+   */
+  static async render(component: string, props: PageProps = {}): Promise<Response> {
+    const request = Inertia.request()
+    const config = inertiaConfig()
+    const version = await resolveVersion()
 
-        if (appName !== undefined && Inertia.shared().appName === undefined) {
-            Inertia.share('appName', appName)
-        }
+    // Make the app name available to every page, without clobbering an
+    // explicitly shared value or adding an empty key when no app config is
+    // loaded (e.g. outside a booted app).
+    const appName = globalThis.config?.('app.name')
 
-        // Asset-version mismatch on a GET visit: tell the client to hard-reload.
-        if (
-            isInertiaRequest(request)
-            && request.method === 'GET'
-            && (request.header('x-inertia-version') ?? '') !== version
-        ) {
-            return Inertia.conflict(request.url)
-        }
-
-        const merged: PageProps = { ...sharedData(), ...props }
-        const { props: resolved, deferredProps } = await resolveProps(component, merged, request)
-
-        const page: InertiaPage = {
-            component,
-            props: resolved,
-            url: request.url,
-            version,
-            ...(deferredProps ? { deferredProps } : {}),
-        }
-
-        if (isInertiaRequest(request)) {
-            return jsonResponse(page)
-        }
-
-        return htmlResponse(await renderRootHtml(page, config))
+    if (appName !== undefined && Inertia.shared().appName === undefined) {
+      Inertia.share('appName', appName)
     }
 
-    /**
-     * Redirect to an external URL. On an Inertia visit this responds `409` with
-     * an `X-Inertia-Location` header so the client performs a full page visit;
-     * otherwise it issues a normal `302` redirect.
-     */
-    static location(url: string): Response {
-        if (isInertiaRequest(Inertia.request())) {
-            return Inertia.conflict(url)
-        }
-
-        return Inertia.redirect(url, 302)
+    // Asset-version mismatch on a GET visit: tell the client to hard-reload.
+    if (
+      isInertiaRequest(request) &&
+      request.method === 'GET' &&
+      (request.header('x-inertia-version') ?? '') !== version
+    ) {
+      return Inertia.conflict(request.url)
     }
 
-    /**
-     * Redirect within the app. For `PUT`/`PATCH`/`DELETE` requests the status is
-     * upgraded to `303 See Other` (per the Inertia protocol) unless an explicit
-     * status is given, so the client follows the redirect with a `GET`.
-     */
-    static redirect(url: string, status?: number): Response {
-        const method = Inertia.request().method
-        const code = status ?? (SEE_OTHER_METHODS.has(method) ? 303 : 302)
+    const merged: PageProps = { ...sharedData(), ...props }
+    const { props: resolved, deferredProps } = await resolveProps(component, merged, request)
 
-        return new Response({ statusCode: code, body: null }).header('Location', url) as Response
+    const page: InertiaPage = {
+      component,
+      props: resolved,
+      url: request.url,
+      version,
+      ...(deferredProps ? { deferredProps } : {}),
     }
 
-    /** Redirect back to the referring URL (or `fallback`). */
-    static back(fallback: string = '/'): Response {
-        const request = Inertia.request()
-
-        return Inertia.redirect(request.header('referer') || request.header('referrer') || fallback)
+    if (isInertiaRequest(request)) {
+      return jsonResponse(page)
     }
 
-    /** A `409` response carrying an `X-Inertia-Location` header. */
-    private static conflict(url: string): Response {
-        return new Response({ statusCode: 409, body: null }).header('X-Inertia-Location', url) as Response
+    return htmlResponse(await renderRootHtml(page, config))
+  }
+
+  /**
+   * Redirect to an external URL. On an Inertia visit this responds `409` with
+   * an `X-Inertia-Location` header so the client performs a full page visit;
+   * otherwise it issues a normal `302` redirect.
+   */
+  static location(url: string): Response {
+    if (isInertiaRequest(Inertia.request())) {
+      return Inertia.conflict(url)
     }
 
-    /**
-     * Share props with every Inertia response. Called inside a request the data
-     * is scoped to that request; called outside (e.g. at boot) it applies globally.
-     */
-    static share(key: string, value: unknown): void
-    static share(data: PageProps): void
-    static share(keyOrData: string | PageProps, value?: unknown): void {
-        shareData(typeof keyOrData === 'string' ? { [keyOrData]: value } : keyOrData)
-    }
+    return Inertia.redirect(url, 302)
+  }
 
-    /** Read the currently shared props (request-scoped when in a request). */
-    static shared(): PageProps {
-        return { ...sharedData() }
-    }
+  /**
+   * Redirect within the app. For `PUT`/`PATCH`/`DELETE` requests the status is
+   * upgraded to `303 See Other` (per the Inertia protocol) unless an explicit
+   * status is given, so the client follows the redirect with a `GET`.
+   */
+  static redirect(url: string, status?: number): Response {
+    const method = Inertia.request().method
+    const code = status ?? (SEE_OTHER_METHODS.has(method) ? 303 : 302)
 
-    /** Set the asset version used for cache-busting, overriding config. */
-    static version(version: InertiaConfig['version']): void {
-        setVersion(version)
-    }
+    return new Response({ statusCode: code, body: null }).header('Location', url) as Response
+  }
 
-    /** Override Inertia configuration at runtime (e.g. enable SSR programmatically). */
-    static configure(partial: Partial<InertiaConfig>): void {
-        configure(partial)
-    }
+  /** Redirect back to the referring URL (or `fallback`). */
+  static back(fallback: string = '/'): Response {
+    const request = Inertia.request()
 
-    /**
-     * A prop only resolved on a partial reload that explicitly requests it.
-     * Excluded from the initial page load.
-     */
-    static lazy(callback: () => unknown): LazyProp {
-        return new LazyProp(callback)
-    }
+    return Inertia.redirect(request.header('referer') || request.header('referrer') || fallback)
+  }
 
-    /** Alias of {@link Inertia.lazy} matching the modern Inertia client naming. */
-    static optional(callback: () => unknown): LazyProp {
-        return new LazyProp(callback)
-    }
+  /** A `409` response carrying an `X-Inertia-Location` header. */
+  private static conflict(url: string): Response {
+    return new Response({ statusCode: 409, body: null }).header('X-Inertia-Location', url) as Response
+  }
 
-    /** A prop always included in the response, even on partial reloads. */
-    static always(value: unknown): AlwaysProp {
-        return new AlwaysProp(value)
-    }
+  /**
+   * Share props with every Inertia response. Called inside a request the data
+   * is scoped to that request; called outside (e.g. at boot) it applies globally.
+   */
+  static share(key: string, value: unknown): void
+  static share(data: PageProps): void
+  static share(keyOrData: string | PageProps, value?: unknown): void {
+    shareData(typeof keyOrData === 'string' ? { [keyOrData]: value } : keyOrData)
+  }
 
-    /**
-     * A prop excluded from the initial response and fetched by the client after
-     * load. Deferred props sharing a `group` are fetched together.
-     */
-    static defer(callback: () => unknown, group: string = 'default'): DeferProp {
-        return new DeferProp(callback, group)
-    }
+  /** Read the currently shared props (request-scoped when in a request). */
+  static shared(): PageProps {
+    return { ...sharedData() }
+  }
+
+  /** Set the asset version used for cache-busting, overriding config. */
+  static version(version: InertiaConfig['version']): void {
+    setVersion(version)
+  }
+
+  /** Override Inertia configuration at runtime (e.g. enable SSR programmatically). */
+  static configure(partial: Partial<InertiaConfig>): void {
+    configure(partial)
+  }
+
+  /**
+   * A prop only resolved on a partial reload that explicitly requests it.
+   * Excluded from the initial page load.
+   */
+  static lazy(callback: () => unknown): LazyProp {
+    return new LazyProp(callback)
+  }
+
+  /** Alias of {@link Inertia.lazy} matching the modern Inertia client naming. */
+  static optional(callback: () => unknown): LazyProp {
+    return new LazyProp(callback)
+  }
+
+  /** A prop always included in the response, even on partial reloads. */
+  static always(value: unknown): AlwaysProp {
+    return new AlwaysProp(value)
+  }
+
+  /**
+   * A prop excluded from the initial response and fetched by the client after
+   * load. Deferred props sharing a `group` are fetched together.
+   */
+  static defer(callback: () => unknown, group: string = 'default'): DeferProp {
+    return new DeferProp(callback, group)
+  }
 }

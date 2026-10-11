@@ -1,73 +1,73 @@
 {
-    "name": "@arkstack/common",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Core utilities, primitives, and shared infrastructure for the Arkstack ecosystem.",
-    "homepage": "https://arkstack.toneflix.net",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/common"
-    },
-    "keywords": [
-        "common",
-        "utilities",
-        "helpers",
-        "logging",
-        "configuration",
-        "error-handling",
-        "validation",
-        "arkstack"
-    ],
-    "files": [
-        "dist",
-        "stubs",
-        "resources"
-    ],
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "test": "vitest",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./dist/index.js",
-        "./faker": "./dist/faker.js",
-        "./utils": "./dist/utils/index.js",
-        "./package.json": "./package.json"
-    },
-    "dependencies": {
-        "@arkstack/encryption": "workspace:^",
-        "@pictwo/faker": "^1.1.0",
-        "bcryptjs": "^3.0.3",
-        "chalk": "^5.6.2",
-        "detect-port": "^2.1.0",
-        "dotenv": "catalog:",
-        "jiti": "^2.7.0",
-        "otpauth": "^9.5.1",
-        "pino": "^10.3.1",
-        "selfsigned": "^2.4.1"
-    },
-    "peerDependencies": {
-        "@arkstack/contract": "workspace:^",
-        "@arkstack/foundry": "workspace:^",
-        "@h3ravel/support": "catalog:",
-        "arkormx": "catalog:"
-    },
-    "optionalDependencies": {
-        "@faker-js/faker": "catalog:"
-    },
-    "peerDependenciesMeta": {
-        "arkormx": {
-            "optional": true
-        }
-    },
-    "inlinedDependencies": {
-        "clear-router": "2.9.3",
-        "dayjs": "1.11.20",
-        "kanun": "1.2.0"
+  "name": "@arkstack/common",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Core utilities, primitives, and shared infrastructure for the Arkstack ecosystem.",
+  "homepage": "https://arkstack.toneflix.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/common"
+  },
+  "keywords": [
+    "common",
+    "utilities",
+    "helpers",
+    "logging",
+    "configuration",
+    "error-handling",
+    "validation",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "stubs",
+    "resources"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./faker": "./dist/faker.js",
+    "./utils": "./dist/utils/index.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/encryption": "workspace:^",
+    "@pictwo/faker": "^1.1.0",
+    "bcryptjs": "^3.0.3",
+    "chalk": "^5.6.2",
+    "detect-port": "^2.1.0",
+    "dotenv": "catalog:",
+    "jiti": "^2.7.0",
+    "otpauth": "^9.5.1",
+    "pino": "^10.3.1",
+    "selfsigned": "^2.4.1"
+  },
+  "peerDependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/foundry": "workspace:^",
+    "@h3ravel/support": "catalog:",
+    "arkormx": "catalog:"
+  },
+  "optionalDependencies": {
+    "@faker-js/faker": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "arkormx": {
+      "optional": true
     }
+  },
+  "inlinedDependencies": {
+    "clear-router": "2.9.3",
+    "dayjs": "1.11.20",
+    "kanun": "1.2.0"
+  }
 }

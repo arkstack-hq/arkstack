@@ -5,37 +5,35 @@ import { PictwoFakerImage, pictwoImage } from '@pictwo/faker'
 
 import { configLoader } from './ConfigLoader'
 
-const config =
-    globalThis.config ??
-    ((key: never, def: unknown) => configLoader.resolve(key, def))
+const config = globalThis.config ?? ((key: never, def: unknown) => configLoader.resolve(key, def))
 
 const fallbackLocale = 'en'
 
 const resolveLocale = () => {
-    const locale = config('app.locale', fallbackLocale)
+  const locale = config('app.locale', fallbackLocale)
 
-    if (
-        typeof locale === 'string' &&
-        locale in fakerLocales &&
-        typeof fakerLocales[locale as keyof typeof fakerLocales] === 'object'
-    ) {
-        return fakerLocales[locale as keyof typeof fakerLocales]
-    }
+  if (
+    typeof locale === 'string' &&
+    locale in fakerLocales &&
+    typeof fakerLocales[locale as keyof typeof fakerLocales] === 'object'
+  ) {
+    return fakerLocales[locale as keyof typeof fakerLocales]
+  }
 
-    return fakerLocales[fallbackLocale]
+  return fakerLocales[fallbackLocale]
 }
 
 const fakerInstance = new Faker({
-    locale: [resolveLocale() as never].filter(Boolean),
+  locale: [resolveLocale() as never].filter(Boolean),
 })
 
 const { faker: _, ...image } = fakerInstance.image as ImageModule & {
-    faker?: unknown
+  faker?: unknown
 }
 
 export const faker = {
-    ...fakerInstance,
-    image: Object.assign({}, image, pictwoImage()),
+  ...fakerInstance,
+  image: Object.assign({}, image, pictwoImage()),
 } as Faker & {
-    image: ImageModule & PictwoFakerImage
+  image: ImageModule & PictwoFakerImage
 }

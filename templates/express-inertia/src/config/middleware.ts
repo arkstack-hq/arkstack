@@ -29,10 +29,8 @@ export default (): MiddlewareConfig => {
       (req, _res, next) => {
         useExpressUploadContext(req)
         next()
-      }
+      },
     ],
-    after: [
-      requestLogger()
-    ],
+    after: [requestLogger()],
   }
-} 
+}

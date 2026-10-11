@@ -19,8 +19,8 @@ export class CreateArkstackCommand extends Command {
         {--i|install: Install node_modules right away}
         {--t|token?: Kit repo authentication token.}
         {--d|desc?: Project Description.}
-        {--k|kit?: Runtime template. [${templates.map(e => e.alias).join(',')}]}
-        {--s|stack?: Inertia front-end stack. [${['none', ...inertiaStacks.map(e => e.value)].join(',')}]}
+        {--k|kit?: Runtime template. [${templates.map((e) => e.alias).join(',')}]}
+        {--s|stack?: Inertia front-end stack. [${['none', ...inertiaStacks.map((e) => e.value)].join(',')}]}
         {--l|lean: Make a lean project.}
         {--f|full: Make a full project (Ignored if lean is defined).}
         {--p|pre: Download prerelease version if available.}
@@ -113,7 +113,10 @@ export class CreateArkstackCommand extends Command {
           message: 'Add an Inertia front-end? (server-side adapter + client scaffolding):',
           choices: [
             { name: 'None - plain server-rendered views', value: 'none' },
-            ...inertiaStacks.map((e) => ({ name: `${e.name} - Inertia + ${e.name}`, value: e.value })),
+            ...inertiaStacks.map((e) => ({
+              name: `${e.name} - Inertia + ${e.name}`,
+              value: e.value,
+            })),
           ],
           default: 'none',
           when: () => !options.stack,
@@ -205,20 +208,14 @@ export class CreateArkstackCommand extends Command {
     }
 
     if (kit.lean) {
-      spinner.info(Logger.parse([[
-        'Applying lean profile...',
-        'green',
-      ]], '', false)).start()
+      spinner.info(Logger.parse([['Applying lean profile...', 'green']], '', false)).start()
       await actions.makeLeanProfile(kitName)
     } else {
       await actions.makeFullProfile(kitName)
     }
 
     if (wantsInertia) {
-      spinner.info(Logger.parse([[
-        `Adding Inertia (${Str.title(stack)})...`,
-        'green',
-      ]], '', false)).start()
+      spinner.info(Logger.parse([[`Adding Inertia (${Str.title(stack)})...`, 'green']], '', false)).start()
       await actions.applyInertia(kitName, stack)
     }
 

@@ -14,23 +14,23 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
  * copy the migration for the `database` queue connection into the app.
  */
 Publisher.publishes({
-    package: '@arkstack/queue',
-    tag: 'queue-migrations',
-    entries: [
-        {
-            from: join(root, 'stubs/migrations/20260601000001_create_jobs_table.ts.stub'),
-            to: 'src/database/migrations/20260601000001_create_jobs_table.ts',
-        },
-    ],
+  package: '@arkstack/queue',
+  tag: 'queue-migrations',
+  entries: [
+    {
+      from: join(root, 'stubs/migrations/20260601000001_create_jobs_table.ts.stub'),
+      to: 'src/database/migrations/20260601000001_create_jobs_table.ts',
+    },
+  ],
 })
 
 Publisher.publishes({
-    package: '@arkstack/queue',
-    tag: 'queue-config',
-    entries: [
-        {
-            from: join(root, 'stubs/config/queue.ts.stub'),
-            to: 'src/config/queue.ts',
-        },
-    ],
+  package: '@arkstack/queue',
+  tag: 'queue-config',
+  entries: [
+    {
+      from: join(root, 'stubs/config/queue.ts.stub'),
+      to: 'src/config/queue.ts',
+    },
+  ],
 })

@@ -5,25 +5,24 @@ import { spawn } from 'node:child_process'
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 const child = spawn(command, ['exec', 'tsdown', '--log-level=silent'], {
-    cwd: Arkstack.rootDir(),
-    stdio: 'inherit',
-    env: Object.assign({}, process.env, {
-        NODE_ENV,
-        CLI_BUILD: 'true',
-    }),
+  cwd: Arkstack.rootDir(),
+  stdio: 'inherit',
+  env: Object.assign({}, process.env, {
+    NODE_ENV,
+    CLI_BUILD: 'true',
+  }),
 })
 
 child.on('error', (error) => {
-    throw error
+  throw error
 })
 
 child.on('exit', (code) => {
-    if (code === 0 || code === null) {
-        console.log(chalk.green(`Arkstak is ready for ${NODE_ENV === 'production' ? 'deployment' : NODE_ENV}!`))
+  if (code === 0 || code === null) {
+    console.log(chalk.green(`Arkstak is ready for ${NODE_ENV === 'production' ? 'deployment' : NODE_ENV}!`))
 
-        return
-    }
+    return
+  }
 
-    throw new Error(`tsdown exited with code ${code}`)
-
+  throw new Error(`tsdown exited with code ${code}`)
 })

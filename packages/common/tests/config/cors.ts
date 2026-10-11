@@ -1,9 +1,5 @@
 export default () => {
-
-    return {
-        allowed_origins: [
-            'https://link1',
-            'https://link2',
-        ].filter(Boolean)
-    }
+  return {
+    allowed_origins: ['https://link1', 'https://link2'].filter(Boolean),
+  }
 }

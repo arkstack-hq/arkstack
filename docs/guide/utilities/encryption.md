@@ -11,9 +11,9 @@ For encrypting between two users rather than between the app and itself, see [En
 Encrypts a string. Returns a colon-delimited base64url string: `<iv>:<authTag>:<ciphertext>`.
 
 ```ts
-import { Encryption } from '@arkstack/common';
+import { Encryption } from '@arkstack/common'
 
-const token = Encryption.encrypt('my-secret-value');
+const token = Encryption.encrypt('my-secret-value')
 // "abc123:def456:ghi789"
 ```
 
@@ -22,14 +22,14 @@ const token = Encryption.encrypt('my-secret-value');
 Decrypts a payload produced by `encrypt`. Throws if the format is invalid or the key is wrong.
 
 ```ts
-const original = Encryption.decrypt(token);
+const original = Encryption.decrypt(token)
 // "my-secret-value"
 ```
 
 Both methods take an optional second argument to encrypt under a key other than the application key:
 
 ```ts
-Encryption.encrypt('my-secret-value', tenantKey);
+Encryption.encrypt('my-secret-value', tenantKey)
 ```
 
 ## `Encryption.encryptAsync(value)` / `Encryption.decryptAsync(payload)`
@@ -37,17 +37,19 @@ Encryption.encrypt('my-secret-value', tenantKey);
 The same operations on the Web Crypto path. They produce and consume the same payload format as the synchronous pair, so the two can be mixed freely — use these when the calling code is (or may become) shared with the browser.
 
 ```ts
-const token = await Encryption.encryptAsync('my-secret-value');
+const token = await Encryption.encryptAsync('my-secret-value')
 
-await Encryption.decryptAsync(token);
+await Encryption.decryptAsync(token)
 ```
 
 Both accept an options object with `aad` — additional authenticated data that is not encrypted, but is bound to the ciphertext, so decryption fails unless the same value is supplied:
 
 ```ts
-const token = await Encryption.encryptAsync(body, key, { aad: `conversation:${id}` });
+const token = await Encryption.encryptAsync(body, key, {
+  aad: `conversation:${id}`,
+})
 
-await Encryption.decryptAsync(token, key, { aad: `conversation:${id}` });
+await Encryption.decryptAsync(token, key, { aad: `conversation:${id}` })
 ```
 
 ## Decrypting in the browser
@@ -55,11 +57,11 @@ await Encryption.decryptAsync(token, key, { aad: `conversation:${id}` });
 The cipher key is SHA-256 of `APP_KEY`. Client code reaches the same key from the same secret:
 
 ```ts
-import { Cipher, EncryptionKey } from '@arkstack/encryption';
+import { Cipher, EncryptionKey } from '@arkstack/encryption'
 
-const key = await EncryptionKey.fromSecret(appKey);
+const key = await EncryptionKey.fromSecret(appKey)
 
-await Cipher.decrypt(payloadFromServer, key);
+await Cipher.decrypt(payloadFromServer, key)
 ```
 
 ::: warning
@@ -69,10 +71,10 @@ Shipping `APP_KEY` to a browser hands every client the key to everything the app
 ## Key utilities
 
 ```ts
-Encryption.generateKey();                  // random base64url key
-await Encryption.compareKeys(left, right); // constant time comparison
-await Encryption.deriveKey(password);      // PBKDF2-HMAC-SHA256 → { key, salt, iterations }
-await Encryption.fingerprint();            // displayable digest of the app key
+Encryption.generateKey() // random base64url key
+await Encryption.compareKeys(left, right) // constant time comparison
+await Encryption.deriveKey(password) // PBKDF2-HMAC-SHA256 → { key, salt, iterations }
+await Encryption.fingerprint() // displayable digest of the app key
 ```
 
 `compareKeys` is constant time and returns `false` rather than throwing on malformed input.
@@ -82,9 +84,9 @@ await Encryption.fingerprint();            // displayable digest of the app key
 Returns a `Cipher` bound to the application key (or an override), for encrypting many values without re-deriving the key each time, and for raw `Uint8Array` payloads via `encryptBytes` / `decryptBytes`.
 
 ```ts
-const cipher = await Encryption.cipher();
+const cipher = await Encryption.cipher()
 
-const rows = await Promise.all(values.map((value) => cipher.encrypt(value)));
+const rows = await Promise.all(values.map((value) => cipher.encrypt(value)))
 ```
 
 ## Re-exports
@@ -92,7 +94,7 @@ const rows = await Promise.all(values.map((value) => cipher.encrypt(value)));
 The full `@arkstack/encryption` surface is available from `@arkstack/common`:
 
 ```ts
-import { Cipher, Codec, EncryptionKey, KeyPair, Keys, SealedBox, SecureChannel } from '@arkstack/common';
+import { Cipher, Codec, EncryptionKey, KeyPair, Keys, SealedBox, SecureChannel } from '@arkstack/common'
 ```
 
 **Environment variable:**

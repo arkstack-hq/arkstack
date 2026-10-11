@@ -9,16 +9,16 @@
  * @returns
  */
 export const webCrypto = (): Crypto => {
-    const candidate = (globalThis as { crypto?: Crypto }).crypto
+  const candidate = (globalThis as { crypto?: Crypto }).crypto
 
-    if (!candidate?.subtle) {
-        throw new Error(
-            'The Web Crypto API is unavailable. @arkstack/encryption requires Node 19+ '
-            + '(or Node 18 with `globalThis.crypto` enabled) and a secure context (https or localhost) in browsers.',
-        )
-    }
+  if (!candidate?.subtle) {
+    throw new Error(
+      'The Web Crypto API is unavailable. @arkstack/encryption requires Node 19+ ' +
+        '(or Node 18 with `globalThis.crypto` enabled) and a secure context (https or localhost) in browsers.',
+    )
+  }
 
-    return candidate
+  return candidate
 }
 
 /**
@@ -35,11 +35,11 @@ export const subtle = (): SubtleCrypto => webCrypto().subtle
  * @returns
  */
 export const randomBytes = (length: number): Uint8Array => {
-    if (!Number.isInteger(length) || length < 1) {
-        throw new RangeError('Random byte length must be a positive integer')
-    }
+  if (!Number.isInteger(length) || length < 1) {
+    throw new RangeError('Random byte length must be a positive integer')
+  }
 
-    return webCrypto().getRandomValues(new Uint8Array(length))
+  return webCrypto().getRandomValues(new Uint8Array(length))
 }
 
 /**
@@ -50,8 +50,8 @@ export const randomBytes = (length: number): Uint8Array => {
  * @returns
  */
 export const digest = async (
-    data: Uint8Array,
-    algorithm: 'SHA-256' | 'SHA-384' | 'SHA-512' = 'SHA-256',
+  data: Uint8Array,
+  algorithm: 'SHA-256' | 'SHA-384' | 'SHA-512' = 'SHA-256',
 ): Promise<Uint8Array> => {
-    return new Uint8Array(await subtle().digest(algorithm, data as unknown as BufferSource))
+  return new Uint8Array(await subtle().digest(algorithm, data as unknown as BufferSource))
 }

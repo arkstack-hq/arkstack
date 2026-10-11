@@ -12,10 +12,10 @@ export type EventType = 'command' | 'call' | 'job' | 'exec'
 
 /** The result of running one scheduled event. */
 export interface RunResult {
-    description: string
-    expression: string
-    ran: boolean
-    /** Why it did not run, when `ran` is false. */
-    skipped?: 'not-due' | 'filtered' | 'overlapping' | 'one-server' | 'environment'
-    error?: unknown
+  description: string
+  expression: string
+  ran: boolean
+  /** Why it did not run, when `ran` is false. */
+  skipped?: 'not-due' | 'filtered' | 'overlapping' | 'one-server' | 'environment'
+  error?: unknown
 }

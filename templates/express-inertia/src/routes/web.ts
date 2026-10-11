@@ -6,4 +6,4 @@ Router.get('/', async () => {
     title: 'Welcome to Arkstack',
     message: 'Server running — ready for requests',
   })
-}) 
+})

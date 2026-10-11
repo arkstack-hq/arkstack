@@ -1,0 +1,9 @@
+{
+  "plugins": ["prettier-plugin-brace-style"],
+  "semi": false,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "tabWidth": 2,
+  "braceStyle": "1tbs"
+}

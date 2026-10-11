@@ -1,59 +1,59 @@
 {
-    "name": "@arkstack/view",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "View module for Arkstack, providing template rendering and view integration utilities.",
-    "homepage": "https://arkstack.toneflix.net/guide/views",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/view"
+  "name": "@arkstack/view",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "View module for Arkstack, providing template rendering and view integration utilities.",
+  "homepage": "https://arkstack.toneflix.net/guide/views",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/view"
+  },
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./MakeViewCommand": "./dist/commands/MakeViewCommand.js",
+    "./setup": "./dist/setup.js",
+    "./package.json": "./package.json"
+  },
+  "keywords": [
+    "view",
+    "views",
+    "templates",
+    "edge",
+    "edge.js",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "stubs",
+    "resources"
+  ],
+  "dependencies": {
+    "@arkstack/contract": "workspace:^",
+    "edge.js": "^6.5.0"
+  },
+  "peerDependencies": {
+    "@arkstack/common": "workspace:^",
+    "@h3ravel/musket": "catalog:",
+    "@arkstack/foundry": "workspace:^",
+    "clear-router": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@h3ravel/musket": {
+      "optional": true
     },
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "test": "vitest",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "types": "./dist/index.d.ts",
-    "exports": {
-        ".": "./dist/index.js",
-        "./MakeViewCommand": "./dist/commands/MakeViewCommand.js",
-        "./setup": "./dist/setup.js",
-        "./package.json": "./package.json"
-    },
-    "keywords": [
-        "view",
-        "views",
-        "templates",
-        "edge",
-        "edge.js",
-        "arkstack"
-    ],
-    "files": [
-        "dist",
-        "stubs",
-        "resources"
-    ],
-    "dependencies": {
-        "@arkstack/contract": "workspace:^",
-        "edge.js": "^6.5.0"
-    },
-    "peerDependencies": {
-        "@arkstack/common": "workspace:^",
-        "@h3ravel/musket": "catalog:",
-        "@arkstack/foundry": "workspace:^",
-        "clear-router": "catalog:"
-    },
-    "peerDependenciesMeta": {
-        "@h3ravel/musket": {
-            "optional": true
-        },
-        "clear-router": {
-            "optional": true
-        }
+    "clear-router": {
+      "optional": true
     }
+  }
 }

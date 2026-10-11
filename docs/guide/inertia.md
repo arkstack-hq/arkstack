@@ -30,28 +30,28 @@ Add the `inertia()` middleware to `src/config/middleware.ts` so the adapter can 
 
 ```ts [Express]
 // src/config/middleware.ts
-import { inertia, resora } from '@arkstack/driver-express/middlewares';
+import { inertia, resora } from '@arkstack/driver-express/middlewares'
 
-import { MiddlewareConfig } from '@arkstack/driver-express/types';
+import { MiddlewareConfig } from '@arkstack/driver-express/types'
 
 export default (): MiddlewareConfig => {
   return {
     before: [resora(), inertia()],
-  };
-};
+  }
+}
 ```
 
 ```ts [H3]
 // src/config/middleware.ts
-import { inertia, resora } from '@arkstack/driver-h3/middlewares';
+import { inertia, resora } from '@arkstack/driver-h3/middlewares'
 
-import { MiddlewareConfig } from '@arkstack/driver-h3/types';
+import { MiddlewareConfig } from '@arkstack/driver-h3/types'
 
 export default (): MiddlewareConfig => {
   return {
     before: [resora(), inertia()],
-  };
-};
+  }
+}
 ```
 
 :::
@@ -112,8 +112,8 @@ Add a `vite.config.ts`. Build into `public/build` (the framework serves `public/
 ::: code-group
 
 ```ts [Vue]
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
@@ -121,14 +121,16 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: 'public/build',
-    rolldownOptions: { input: ['resources/css/app.css', 'resources/js/app.ts'] },
+    rolldownOptions: {
+      input: ['resources/css/app.css', 'resources/js/app.ts'],
+    },
   },
-});
+})
 ```
 
 ```ts [React]
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
@@ -136,14 +138,16 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: 'public/build',
-    rolldownOptions: { input: ['resources/css/app.css', 'resources/js/app.tsx'] },
+    rolldownOptions: {
+      input: ['resources/css/app.css', 'resources/js/app.tsx'],
+    },
   },
-});
+})
 ```
 
 ```ts [Svelte]
-import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { defineConfig } from 'vite'
+import { svelte } from '@sveltejs/vite-plugin-svelte'
 
 export default defineConfig({
   plugins: [svelte()],
@@ -151,9 +155,11 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: 'public/build',
-    rolldownOptions: { input: ['resources/css/app.css', 'resources/js/app.ts'] },
+    rolldownOptions: {
+      input: ['resources/css/app.css', 'resources/js/app.ts'],
+    },
   },
-});
+})
 ```
 
 :::
@@ -187,52 +193,52 @@ Create the client entry that boots Inertia and resolves your pages from `resourc
 
 ```ts [Vue]
 // resources/js/app.ts
-import { createApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createApp, h } from 'vue'
+import { createInertiaApp } from '@inertiajs/vue3'
 
 createInertiaApp({
   resolve: (name) => {
-    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
-    return pages[`./Pages/${name}.vue`];
+    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
+    return pages[`./Pages/${name}.vue`]
   },
   setup({ el, App, props, plugin }) {
     createApp({ render: () => h(App, props) })
       .use(plugin)
-      .mount(el);
+      .mount(el)
   },
-});
+})
 ```
 
 ```tsx [React]
 // resources/js/app.tsx
-import { createInertiaApp } from '@inertiajs/react';
-import { createRoot } from 'react-dom/client';
+import { createInertiaApp } from '@inertiajs/react'
+import { createRoot } from 'react-dom/client'
 
 createInertiaApp({
   resolve: (name) => {
-    const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
-    return pages[`./Pages/${name}.tsx`];
+    const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
+    return pages[`./Pages/${name}.tsx`]
   },
   setup({ el, App, props }) {
-    createRoot(el).render(<App {...props} />);
+    createRoot(el).render(<App {...props} />)
   },
-});
+})
 ```
 
 ```ts [Svelte]
 // resources/js/app.ts
-import { createInertiaApp } from '@inertiajs/svelte';
-import { mount } from 'svelte';
+import { createInertiaApp } from '@inertiajs/svelte'
+import { mount } from 'svelte'
 
 createInertiaApp({
   resolve: (name) => {
-    const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true });
-    return pages[`./Pages/${name}.svelte`];
+    const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true })
+    return pages[`./Pages/${name}.svelte`]
   },
   setup({ el, App, props }) {
-    mount(App, { target: el, props });
+    mount(App, { target: el, props })
   },
-});
+})
 ```
 
 :::
@@ -244,14 +250,14 @@ Run Vite alongside `ark dev` during development (e.g. `vite`), and `vite build` 
 Return `inertia(component, props)` (or `Inertia.render(...)`) from a controller. The same call produces an HTML document on the first visit and a JSON page object on Inertia visits.
 
 ```ts
-import { inertia } from '@arkstack/inertia';
-import { User } from '@app/models/User';
+import { inertia } from '@arkstack/inertia'
+import { User } from '@app/models/User'
 
 export class UserController {
   async index() {
     return inertia('Users/Index', {
       users: await User.all(),
-    });
+    })
   }
 }
 ```
@@ -263,13 +269,13 @@ export class UserController {
 Share props with every response globally at boot, or per request inside a handler:
 
 ```ts
-import { inertia } from '@arkstack/inertia';
+import { inertia } from '@arkstack/inertia'
 
 // At boot — applies to every request
-inertia().share('appName', config('app.name'));
+inertia().share('appName', config('app.name'))
 
 // Inside a request — scoped to this request only
-inertia().share({ flash: session.get('flash') });
+inertia().share({ flash: session.get('flash') })
 ```
 
 Page props override shared props of the same name.
@@ -295,7 +301,7 @@ return inertia('Users/Index', {
   chart: Inertia.defer(() => buildChart()),
   // always present, even on partial reloads
   auth: Inertia.always({ user: request.user }),
-});
+})
 ```
 
 ## Redirects
@@ -323,8 +329,8 @@ export default (): InertiaConfig => {
     root_view: 'app',
     version: env('INERTIA_VERSION', null),
     ssr: { enabled: false },
-  };
-};
+  }
+}
 ```
 
 You can also set it at runtime: `Inertia.version(() => buildHash())`.
@@ -354,60 +360,60 @@ Create a server entry (`resources/js/ssr.ts`) that renders a page to `{ head, bo
 
 ```ts [Vue]
 // resources/js/ssr.ts
-import { createInertiaApp } from '@inertiajs/vue3';
-import createServer from '@inertiajs/vue3/server';
-import { renderToString } from '@vue/server-renderer';
-import { createSSRApp, h } from 'vue';
+import { createInertiaApp } from '@inertiajs/vue3'
+import createServer from '@inertiajs/vue3/server'
+import { renderToString } from '@vue/server-renderer'
+import { createSSRApp, h } from 'vue'
 
 createServer((page) =>
   createInertiaApp({
     page,
     render: renderToString,
     resolve: (name) => {
-      const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
-      return pages[`./Pages/${name}.vue`];
+      const pages = import.meta.glob('./Pages/**/*.vue', { eager: true })
+      return pages[`./Pages/${name}.vue`]
     },
     setup({ App, props, plugin }) {
-      return createSSRApp({ render: () => h(App, props) }).use(plugin);
+      return createSSRApp({ render: () => h(App, props) }).use(plugin)
     },
   }),
-);
+)
 ```
 
 ```tsx [React]
 // resources/js/ssr.tsx
-import { createInertiaApp } from '@inertiajs/react';
-import createServer from '@inertiajs/react/server';
-import ReactDOMServer from 'react-dom/server';
+import { createInertiaApp } from '@inertiajs/react'
+import createServer from '@inertiajs/react/server'
+import ReactDOMServer from 'react-dom/server'
 
 createServer((page) =>
   createInertiaApp({
     page,
     render: ReactDOMServer.renderToString,
     resolve: (name) => {
-      const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true });
-      return pages[`./Pages/${name}.tsx`];
+      const pages = import.meta.glob('./Pages/**/*.tsx', { eager: true })
+      return pages[`./Pages/${name}.tsx`]
     },
     setup: ({ App, props }) => <App {...props} />,
   }),
-);
+)
 ```
 
 ```ts [Svelte]
 // resources/js/ssr.ts
-import { createInertiaApp } from '@inertiajs/svelte';
-import createServer from '@inertiajs/svelte/server';
+import { createInertiaApp } from '@inertiajs/svelte'
+import createServer from '@inertiajs/svelte/server'
 
 createServer((page) =>
   createInertiaApp({
     page,
     resolve: (name) => {
-      const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true });
-      return pages[`./Pages/${name}.svelte`];
+      const pages = import.meta.glob('./Pages/**/*.svelte', { eager: true })
+      return pages[`./Pages/${name}.svelte`]
     },
     setup: ({ App, props }) => App.render(props),
   }),
-);
+)
 ```
 
 :::

@@ -4,17 +4,17 @@ import UserNotification from './UserNotification'
 import UserTwoFactor from './UserTwoFactor'
 
 export default class User extends BaseUser {
-    protected static table = 'users'
+  protected static table = 'users'
 
-    personalAccessTokens () {
-        return this.hasMany(PersonalAccessToken, 'userId')
-    }
+  personalAccessTokens() {
+    return this.hasMany(PersonalAccessToken, 'userId')
+  }
 
-    twoFactor () {
-        return this.hasOne(UserTwoFactor, 'userId')
-    }
+  twoFactor() {
+    return this.hasOne(UserTwoFactor, 'userId')
+  }
 
-    notifications () {
-        return this.hasMany(UserNotification, 'userId')
-    }
+  notifications() {
+    return this.hasMany(UserNotification, 'userId')
+  }
 }

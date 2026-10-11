@@ -14,35 +14,31 @@ import { randomUUID } from 'node:crypto'
  * manager and the drivers that need to serialize.
  */
 const defaultSerializer: JobSerializer = (job: Queueable): JobPayload => {
-    const data = typeof job.serialize === 'function'
-        ? job.serialize()
-        : { ...job }
+  const data = typeof job.serialize === 'function' ? job.serialize() : { ...job }
 
-    return {
-        id: randomUUID(),
-        displayName: job.constructor?.name ?? 'Closure',
-        attempts: 0,
-        maxTries: job.tries ?? null,
-        backoff: job.backoff ?? 0,
-        data,
-    }
+  return {
+    id: randomUUID(),
+    displayName: job.constructor?.name ?? 'Closure',
+    attempts: 0,
+    maxTries: job.tries ?? null,
+    backoff: job.backoff ?? 0,
+    data,
+  }
 }
 
 const defaultResolver: JobResolver = () => {
-    throw new Error(
-        'No job resolver registered. Install/boot @arkstack/jobs, or call Queue.resolveJobsUsing().',
-    )
+  throw new Error('No job resolver registered. Install/boot @arkstack/jobs, or call Queue.resolveJobsUsing().')
 }
 
 let serializer: JobSerializer = defaultSerializer
 let resolver: JobResolver = defaultResolver
 
 export const setSerializer = (fn: JobSerializer): void => {
-    serializer = fn
+  serializer = fn
 }
 
 export const setResolver = (fn: JobResolver): void => {
-    resolver = fn
+  resolver = fn
 }
 
 export const serializeJob = (job: Queueable): JobPayload => serializer(job)
@@ -53,6 +49,6 @@ export const resolveJob = (payload: JobPayload): Queueable | Promise<Queueable> 
  * Reset the strategies to their defaults. Intended for tests.
  */
 export const resetSerialization = (): void => {
-    serializer = defaultSerializer
-    resolver = defaultResolver
+  serializer = defaultSerializer
+  resolver = defaultResolver
 }

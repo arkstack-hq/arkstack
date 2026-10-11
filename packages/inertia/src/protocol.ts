@@ -7,5 +7,5 @@ export const SEE_OTHER_METHODS = new Set(['PUT', 'PATCH', 'DELETE'])
  * `GET`, which is required after `PUT`/`PATCH`/`DELETE` mutations.
  */
 export const shouldUpgradeRedirect = (method: string, status: number): boolean => {
-    return status === 302 && SEE_OTHER_METHODS.has(method.toUpperCase())
+  return status === 302 && SEE_OTHER_METHODS.has(method.toUpperCase())
 }
