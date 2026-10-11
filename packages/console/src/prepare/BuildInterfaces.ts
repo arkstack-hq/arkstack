@@ -4,6 +4,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 
 import { Arkstack } from '@arkstack/contract'
 import path from 'node:path'
+import { readFile } from 'node:fs/promises'
 
 export class BuildInterfaces {
   private static project: Project
@@ -22,14 +23,30 @@ export class BuildInterfaces {
     writeFileSync(path.join(Arkstack.rootDir(), '.arkstack/ark.d.ts'), declaration, 'utf8')
   }
 
-  static tsconfig() {
+  static async tsconfig() {
+    const pkg = JSON.parse(await readFile(path.join(process.cwd(), 'package.json'), 'utf-8'))
+    const deps = Object
+      .keys(pkg.dependencies ?? {})
+      .concat(Object.keys(pkg.devDependencies ?? {}))
+
+    if (deps.includes('@arkstack/inertia')) {
+      TSConfig['include'] = [...TSConfig['include'], '../resources']
+    }
+
+    if (deps.includes('react')) {
+      TSConfig['compilerOptions'] = {
+        ...TSConfig['compilerOptions'],
+        jsx: 'react-jsx'
+      } as never
+    }
+
     const configs = {
       '.arkstack/tsconfig.json': JSON.stringify(TSConfig, undefined, 2),
       'tsconfig.json': JSON.stringify(BaseTCConfig, undefined, 2),
     }
 
     for (const [file, config] of Object.entries(configs))
-      writeFileSync(path.join(Arkstack.rootDir(), file), config, 'utf8')
+      writeFileSync(path.join(Arkstack.rootDir(), file), config + '\n', 'utf8')
   }
 
   /**

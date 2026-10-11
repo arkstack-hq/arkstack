@@ -1,7 +1,3 @@
 {
-  "extends": "./.arkstack/tsconfig.json",
-  "compilerOptions": {
-    "jsx": "react-jsx"
-  },
-  "include": [".arkstack/*.d.ts", "src", "tests", "resources"]
+  "extends": "./.arkstack/tsconfig.json"
 }

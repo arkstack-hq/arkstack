@@ -1,7 +1,5 @@
 export const TSConfig = {
   compilerOptions: {
-    // baseUrl: '..',
-    // ignoreDeprecations: '6.0',
     module: 'es2022',
     target: 'es2022',
     lib: ['es2022', 'DOM'],

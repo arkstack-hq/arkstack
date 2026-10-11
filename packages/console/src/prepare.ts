@@ -23,7 +23,7 @@ if (!process.env.NODE_CI) {
   BuildInterfaces.env()
 }
 
-BuildInterfaces.tsconfig()
+await BuildInterfaces.tsconfig()
 await ArkormArtifacts.sync()
 
 const LOG_LEVEL = parseInt(process.env.VERBOSITY ?? '0') > 0 ? [] : ['--log-level=silent']
