@@ -37,6 +37,10 @@ export default (): NotificationConfig => {
          * pusher | firebase | firebase-database | polling | memory
          */
         transport: env('REALTIME_TRANSPORT', 'pusher'),
+        /**
+         * Also push user notifications to their devices: 'firebase' or false.
+         */
+        push: env('REALTIME_PUSH', false),
         channel_prefix: env('REALTIME_CHANNEL_PREFIX', 'user.'),
         event: env('REALTIME_EVENT', 'notification'),
         store: env('REALTIME_STORE', false),

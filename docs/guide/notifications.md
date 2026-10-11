@@ -181,6 +181,8 @@ pnpm add firebase-admin  # firebase, firebase-database
 
 To use a self-hosted Pusher-protocol server such as [soketi](https://soketi.app), set `host` and `port` (`PUSHER_HOST`, `PUSHER_PORT`) under `transports.pusher`. Clients receive the address through [the config route](#channel-authorization).
 
+When browsers reach the server at a different address than your app does, for example `soketi:6001` inside Docker but `localhost:6001` from the browser, or a TLS proxy in front of it, set `public_host`, `public_port` and `public_use_tls` (`PUSHER_PUBLIC_HOST`, `PUSHER_PUBLIC_PORT`, `PUSHER_PUBLIC_USE_TLS`). They only change what clients are provissioned with; each defaults to its server-side counterpart.
+
 `.channel()` (and `.recipient()`) also accept an **array**. For Pusher it fans out to multiple channels; for `firebase` it is treated as a list of **device registration tokens** and delivered via a chunked multicast (500 tokens per call). The multicast returns `{ successCount, failureCount, invalidTokens }`. Delete `invalidTokens` from your store, since FCM reports which are unregistered:
 
 ```ts

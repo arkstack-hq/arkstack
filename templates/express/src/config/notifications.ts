@@ -110,9 +110,6 @@ export default (): NotificationConfig => {
         secret: env('PUSHER_SECRET', ''),
         cluster: env('PUSHER_CLUSTER', 'mt1'),
         use_tls: env('PUSHER_USE_TLS', true),
-        // Set to use a self-hosted Pusher-protocol server such as soketi.
-        host: env('PUSHER_HOST', undefined),
-        port: env('PUSHER_PORT', undefined),
       },
 
       /**

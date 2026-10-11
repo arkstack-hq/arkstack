@@ -8,6 +8,7 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- `transports.pusher.public_host` / `public_port` / `public_use_tls` (`PUSHER_PUBLIC_*`) set the Pusher-protocol server address handed to browsers when it differs from the one the app uses, such as soketi inside Docker or behind a TLS proxy. Each defaults to its server-side counterpart.
 - `RealtimeConfig.importModule` loads the transport SDKs (`pusher-js`, `firebase/*`) for every transport and for device tokens, so pages without a bundler can load them from a CDN. Defaults to a dynamic `import()`. The `createPusherTransport`, `createFirebaseTransport`, `createFirebaseDatabaseTransport` and `requestDeviceToken` helpers accept it as an extra argument.
 - `RealtimeClient.deviceToken({ serviceWorker })` takes a service worker registration or script URL (registered with the Firebase web config as `firebaseConfig`), returns `null` where web push is unsupported, and falls back to the `firebase` config when streaming over another transport. `requestDeviceToken()` issues a token without a client.
 - Added the `Broadcast` facade to `@arkstack/notifications`: a channel authorization registry (`Broadcast.channel('private-team.{teamId}', authorizer)`) used by every transport, `Broadcast.broadcast()` for arbitrary events, `Broadcast.handleAuth()` for custom auth routes, `Broadcast.clientConfig()`, and `Broadcast.routes()` registering `POST /realtime/auth` and `GET /realtime/config`.
@@ -26,6 +27,7 @@ The format follows semantic versioning principles.
 
 ### Fixed
 
+- The H3 and Express-Inertia templates' notifications config now has the `realtime.push` setting and the Pusher `host` / `port` options the Express template already had.
 - `DotPath` (the key type behind `config()` and `configure()`) is now depth-bounded and stops at built-in object types, so configs holding deep or self-referencing library types (nodemailer transports) no longer fail to typecheck with "circularly references itself". The `@ts-expect-error` workarounds in the H3 template and the notifications config are gone.
 - `build:templates` builds the templates one at a time; run in parallel, each template's prebuild rebuilt the shared packages concurrently and the builds clobbered each other.
 - Fixed type errors in `@arkstack/auth` (`AuthenticationException` request typing and two tests) and in `@arkstack/common`'s `renderError`, which used the `view()` global without a type for it.

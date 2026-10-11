@@ -91,18 +91,35 @@ export class PusherRealtimeDriver implements RealtimeDriver {
   }
 
   /**
+   * The server address and TLS browsers connect with. Defaults to the address
+   * the server uses, which differs when it reaches the server over a private
+   * network (e.g. `soketi` inside Docker).
+   *
+   * @returns
+   */
+  private publicServer(): { host?: string; port?: number; useTLS: boolean } {
+    const server = this.server()
+    const host = this.options.public_host ?? (env('PUSHER_PUBLIC_HOST', '') || server.host)
+    const port = this.options.public_port ?? (Number(env('PUSHER_PUBLIC_PORT', 0)) || server.port)
+    const tls = env('PUSHER_PUBLIC_USE_TLS', '')
+    const useTLS = this.options.public_use_tls ?? (tls === '' ? this.useTLS() : String(tls) === 'true')
+
+    return { host, port, useTLS }
+  }
+
+  /**
    * Public settings a `pusher-js` client needs, including the self-hosted
-   * server address when `host` is set.
+   * server address when one is set.
    *
    * @returns
    */
   clientConfig(): Record<string, unknown> {
-    const { host, port } = this.server()
+    const { host, port, useTLS } = this.publicServer()
 
     return {
       key: this.key(),
       cluster: this.cluster(),
-      forceTLS: this.useTLS(),
+      forceTLS: useTLS,
       ...(host ? { wsHost: host, wsPort: port, wssPort: port } : {}),
     }
   }
