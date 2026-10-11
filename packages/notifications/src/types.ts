@@ -97,6 +97,12 @@ export type PusherTransportConfig = {
    */
   host?: string
   port?: number
+  /** The address browsers connect to, when it differs from `host` (defaults to `host`). */
+  public_host?: string
+  /** The port browsers connect to (defaults to `port`). */
+  public_port?: number
+  /** Whether browsers connect over TLS (defaults to `use_tls`). */
+  public_use_tls?: boolean
 }
 
 export type FirebaseTransportConfig = {
@@ -441,6 +447,9 @@ export interface NotificationConfig<T = any> {
       use_tls?: boolean
       host?: string
       port?: number
+      public_host?: string
+      public_port?: number
+      public_use_tls?: boolean
     }
     firebase?: (
       | {

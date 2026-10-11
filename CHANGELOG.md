@@ -8,6 +8,7 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- `transports.pusher.public_host` / `public_port` / `public_use_tls` (`PUSHER_PUBLIC_*`) set the Pusher-protocol server address handed to browsers when it differs from the one the app uses, such as soketi inside Docker or behind a TLS proxy. Each defaults to its server-side counterpart.
 - `RealtimeConfig.importModule` loads the transport SDKs (`pusher-js`, `firebase/*`) for every transport and for device tokens, so pages without a bundler can load them from a CDN. Defaults to a dynamic `import()`. The `createPusherTransport`, `createFirebaseTransport`, `createFirebaseDatabaseTransport` and `requestDeviceToken` helpers accept it as an extra argument.
 - `RealtimeClient.deviceToken({ serviceWorker })` takes a service worker registration or script URL (registered with the Firebase web config as `firebaseConfig`), returns `null` where web push is unsupported, and falls back to the `firebase` config when streaming over another transport. `requestDeviceToken()` issues a token without a client.
 - Added the `Broadcast` facade to `@arkstack/notifications`: a channel authorization registry (`Broadcast.channel('private-team.{teamId}', authorizer)`) used by every transport, `Broadcast.broadcast()` for arbitrary events, `Broadcast.handleAuth()` for custom auth routes, `Broadcast.clientConfig()`, and `Broadcast.routes()` registering `POST /realtime/auth` and `GET /realtime/config`.

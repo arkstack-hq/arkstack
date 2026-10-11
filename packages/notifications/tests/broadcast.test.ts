@@ -148,6 +148,51 @@ describe('Broadcast transports', () => {
     })
   })
 
+  it('hands browsers the public address when the server reaches Pusher privately', () => {
+    const driver = new PusherRealtimeDriver({
+      key: 'k',
+      cluster: 'eu',
+      use_tls: false,
+      host: 'soketi',
+      port: 6001,
+      public_host: 'ws.example.com',
+      public_port: 443,
+      public_use_tls: true,
+    })
+
+    expect(driver.clientConfig()).toEqual({
+      key: 'k',
+      cluster: 'eu',
+      forceTLS: true,
+      wsHost: 'ws.example.com',
+      wsPort: 443,
+      wssPort: 443,
+    })
+  })
+
+  it('defaults the public port and TLS to the server ones', () => {
+    const driver = new PusherRealtimeDriver({
+      key: 'k',
+      use_tls: false,
+      host: 'soketi',
+      port: 6001,
+      public_host: 'localhost',
+    })
+
+    expect(driver.clientConfig()).toMatchObject({ forceTLS: false, wsHost: 'localhost', wsPort: 6001 })
+  })
+
+  it('reads the public address from PUSHER_PUBLIC_* env', () => {
+    vi.stubEnv('PUSHER_PUBLIC_HOST', 'localhost')
+    vi.stubEnv('PUSHER_PUBLIC_PORT', '6002')
+    vi.stubEnv('PUSHER_PUBLIC_USE_TLS', 'false')
+
+    const driver = new PusherRealtimeDriver({ key: 'k', host: 'soketi', port: 6001 })
+
+    expect(driver.clientConfig()).toMatchObject({ forceTLS: false, wsHost: 'localhost', wsPort: 6002 })
+    vi.unstubAllEnvs()
+  })
+
   it('describes the active transport and the push transport for clients', () => {
     withSettings({
       transport: 'polling',
