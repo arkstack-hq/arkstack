@@ -1,4 +1,5 @@
-import type { FirebaseDatabaseClientConfig, RealtimeEventHandler, RealtimeTransport } from '../types'
+import type { FirebaseDatabaseClientConfig, ModuleImporter, RealtimeEventHandler, RealtimeTransport } from '../types'
+import { defaultImporter } from '../importer'
 
 /** The slices of the `firebase` SDK this transport uses. */
 interface FirebaseApp {
@@ -74,19 +75,17 @@ const tokenUid = (token: string): string | null => {
  * written after the transport connected are delivered.
  *
  * @param config
+ * @param importModule  Loads the `firebase` SDK modules.
  * @returns
  */
 export const createFirebaseDatabaseTransport = async (
     config: FirebaseDatabaseClientConfig,
+    importModule: ModuleImporter = defaultImporter,
 ): Promise<RealtimeTransport> => {
-    const appSpecifier = 'firebase/app'
-    const authSpecifier = 'firebase/auth'
-    const databaseSpecifier = 'firebase/database'
-
     const [appMod, authMod, databaseMod] = await Promise.all([
-        import(appSpecifier) as Promise<FirebaseAppModule>,
-        import(authSpecifier) as Promise<FirebaseAuthModule>,
-        import(databaseSpecifier) as Promise<FirebaseDatabaseModule>,
+        importModule('firebase/app') as Promise<FirebaseAppModule>,
+        importModule('firebase/auth') as Promise<FirebaseAuthModule>,
+        importModule('firebase/database') as Promise<FirebaseDatabaseModule>,
     ]).catch(() => {
         throw new Error(
             'The "firebase" package is required for the Firebase database transport. Install it with `npm i firebase`.',

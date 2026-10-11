@@ -160,6 +160,13 @@ export interface PollingClientConfig {
     interval?: number
 }
 
+/**
+ * Loads an SDK module (`pusher-js`, `firebase/app`, …) by package specifier.
+ * Supply one where bare imports cannot resolve, e.g. a plain `<script>` page
+ * that loads the SDKs from a CDN.
+ */
+export type ModuleImporter = (specifier: string) => Promise<unknown>
+
 export interface RealtimeConfig {
     transport?: RealtimeTransportName
     /** Event name broadcasts are published under (default `notification`). */
@@ -170,6 +177,8 @@ export interface RealtimeConfig {
     firebase?: FirebaseClientConfig
     'firebase-database'?: FirebaseDatabaseClientConfig
     polling?: PollingClientConfig
+    /** Loads the transport SDKs. Defaults to a dynamic `import()`. */
+    importModule?: ModuleImporter
     /** Inject a transport directly — bypasses the built-ins (tests, custom backends). */
     transportFactory?: () => RealtimeTransport | Promise<RealtimeTransport>
 }

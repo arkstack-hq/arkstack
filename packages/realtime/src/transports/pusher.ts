@@ -1,4 +1,5 @@
-import type { PusherClientConfig, RealtimeEventHandler, RealtimeTransport } from '../types'
+import type { ModuleImporter, PusherClientConfig, RealtimeEventHandler, RealtimeTransport } from '../types'
+import { defaultImporter } from '../importer'
 
 /** The slice of the `pusher-js` client this transport uses. */
 interface PusherChannel {
@@ -21,13 +22,14 @@ type PusherConstructor = new (key: string, options: Record<string, unknown>) => 
  * it in when they use the Pusher transport. 
  * 
  * @param config 
+ * @param importModule  Loads `pusher-js`.
  * @returns 
  */
 export const createPusherTransport = async (
-    config: PusherClientConfig
+    config: PusherClientConfig,
+    importModule: ModuleImporter = defaultImporter,
 ): Promise<RealtimeTransport> => {
-    const specifier = 'pusher-js'
-    const mod = await import(specifier).catch(() => {
+    const mod: any = await importModule('pusher-js').catch(() => {
         throw new Error(
             'The "pusher-js" package is required for the Pusher transport. Install it with `npm i pusher-js`.',
         )

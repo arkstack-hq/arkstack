@@ -1,4 +1,5 @@
-import type { DeviceTokenOptions, FirebaseClientConfig } from './types'
+import type { DeviceTokenOptions, FirebaseClientConfig, ModuleImporter } from './types'
+import { defaultImporter } from './importer'
 
 /** The slice of `firebase/messaging` used to issue device tokens. */
 interface FirebaseMessagingModule {
@@ -83,18 +84,17 @@ export const issueDeviceToken = async (
  *
  * @param config
  * @param options
+ * @param importModule  Loads the `firebase` SDK modules.
  * @returns
  */
 export const requestDeviceToken = async (
     config: FirebaseClientConfig,
     options: DeviceTokenOptions = {},
+    importModule: ModuleImporter = defaultImporter,
 ): Promise<string | null> => {
-    const appSpecifier = 'firebase/app'
-    const messagingSpecifier = 'firebase/messaging'
-
     const [appMod, messagingMod] = await Promise.all([
-        import(appSpecifier) as Promise<FirebaseAppModule>,
-        import(messagingSpecifier) as Promise<FirebaseMessagingModule>,
+        importModule('firebase/app') as Promise<FirebaseAppModule>,
+        importModule('firebase/messaging') as Promise<FirebaseMessagingModule>,
     ]).catch(() => {
         throw new Error('The "firebase" package is required for device tokens. Install it with `npm i firebase`.')
     })

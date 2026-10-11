@@ -438,6 +438,24 @@ await realtime.onPoll(refresh);
 
 For tests, use `transport: 'memory'` and feed subscribers with `emitMemoryEvent(channel, event, payload)`.
 
+The transport SDKs are loaded with a dynamic `import()` of their package name (`pusher-js`, `firebase/app`, …), which a bundler resolves. On a page without a bundler, such as a plain `<script>` embed, pass `importModule` to load them another way, for example from a CDN:
+
+```ts
+const realtime = createRealtime({
+  ...config,
+  importModule: (specifier) =>
+    import(/* @vite-ignore */ `https://cdn.jsdelivr.net/npm/${cdnPaths[specifier]}`),
+})
+
+const cdnPaths: Record<string, string> = {
+  'pusher-js': 'pusher-js@8/+esm',
+  'firebase/app': 'firebase@11/app/+esm',
+  'firebase/auth': 'firebase@11/auth/+esm',
+  'firebase/database': 'firebase@11/database/+esm',
+  'firebase/messaging': 'firebase@11/messaging/+esm',
+}
+```
+
 React and Vue bindings accumulate notifications for you (newest first):
 
 ::: code-group

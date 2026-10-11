@@ -48,12 +48,12 @@ export class RealtimeClient {
             case 'firebase': {
                 const { createFirebaseTransport } = await import('./transports/firebase')
 
-                return await createFirebaseTransport(this.required('firebase'))
+                return await createFirebaseTransport(this.required('firebase'), this.config.importModule)
             }
             case 'firebase-database': {
                 const { createFirebaseDatabaseTransport } = await import('./transports/firebase-database')
 
-                return await createFirebaseDatabaseTransport(this.required('firebase-database'))
+                return await createFirebaseDatabaseTransport(this.required('firebase-database'), this.config.importModule)
             }
             case 'polling': {
                 const { createPollingTransport } = await import('./transports/polling')
@@ -68,7 +68,7 @@ export class RealtimeClient {
             default: {
                 const { createPusherTransport } = await import('./transports/pusher')
 
-                return await createPusherTransport(this.required('pusher'))
+                return await createPusherTransport(this.required('pusher'), this.config.importModule)
             }
         }
     }
@@ -224,7 +224,7 @@ export class RealtimeClient {
 
         const { requestDeviceToken } = await import('./push')
 
-        return await requestDeviceToken(this.config.firebase, options)
+        return await requestDeviceToken(this.config.firebase, options, this.config.importModule)
     }
 
     /** Tear down the underlying transport connection. */

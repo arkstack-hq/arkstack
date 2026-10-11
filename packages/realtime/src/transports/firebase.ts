@@ -1,4 +1,5 @@
-import type { DeviceTokenOptions, FirebaseClientConfig, RealtimeEventHandler, RealtimeTransport } from '../types'
+import type { DeviceTokenOptions, FirebaseClientConfig, ModuleImporter, RealtimeEventHandler, RealtimeTransport } from '../types'
+import { defaultImporter } from '../importer'
 import { issueDeviceToken } from '../push'
 
 /** The slice of `firebase/messaging` this transport uses. */
@@ -42,15 +43,14 @@ const isFirebaseClientEvent = (value: unknown): value is FirebaseClientEvent => 
  * FCM delivers to the device (not per-channel), so the channel is informational;
  * messages are matched by `event` and the JSON-encoded payload is parsed back.
  */
-export const createFirebaseTransport = async (config: FirebaseClientConfig): Promise<RealtimeTransport> => {
-    const appSpecifier = 'firebase/app'
-    const messagingSpecifier = 'firebase/messaging'
-    const databaseSpecifier = 'firebase/database'
-
-    const [appMod, messagingMod, databaseMod] = await Promise.all([
-        import(appSpecifier),
-        import(messagingSpecifier),
-        import(databaseSpecifier),
+export const createFirebaseTransport = async (
+    config: FirebaseClientConfig,
+    importModule: ModuleImporter = defaultImporter,
+): Promise<RealtimeTransport> => {
+    const [appMod, messagingMod, databaseMod]: any[] = await Promise.all([
+        importModule('firebase/app'),
+        importModule('firebase/messaging'),
+        importModule('firebase/database'),
     ]).catch(() => {
         throw new Error(
             'The "firebase" package is required for the Firebase transport. Install it with `npm i firebase`.',
