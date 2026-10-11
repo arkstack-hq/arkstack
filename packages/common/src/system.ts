@@ -19,10 +19,8 @@ import { spawn } from 'node:child_process'
  * @param def
  * @returns
  */
-export const env: GlobalEnv = <X = never, D = undefined, K extends string = string>(
-    env: K,
-    defaultValue?: D,
-) => envLoader.get<X, D, K>(env, defaultValue)
+export const env: GlobalEnv = <X = never, D = undefined, K extends string = string>(env: K, defaultValue?: D) =>
+  envLoader.get<X, D, K>(env, defaultValue)
 
 /**
  * Build the app url
@@ -31,31 +29,31 @@ export const env: GlobalEnv = <X = never, D = undefined, K extends string = stri
  * @returns
  */
 export const appUrl = (link?: string): string => {
-    const port = env('PORT', env('APP_PORT', '3000'))
-    const defaultUrl = `http://localhost:${port}`
-    const appUrl = env('APP_URL', `http://localhost:${port}`)
+  const port = env('PORT', env('APP_PORT', '3000'))
+  const defaultUrl = `http://localhost:${port}`
+  const appUrl = env('APP_URL', `http://localhost:${port}`)
 
-    try {
-        const url = new URL(appUrl)
-        // Append port only if APP_URL has a port or is localhost
-        if (url.port || url.hostname === 'localhost') {
-            url.port = String(port)
-        }
-        // Remove trailing slash from base URL
-        const baseUrl = url.toString().replace(/\/$/, '')
-        // Append link with proper path separator
-        if (link) {
-            // Ensure link starts with '/' and remove duplicate slashes
-            const normalizedLink = `/${link.replace(/^\/+/, '')}`
-
-            return `${baseUrl}${normalizedLink}`
-        }
-
-        return baseUrl
-    } catch {
-        // Return default URL with link if provided
-        return link ? `${defaultUrl}/${link.replace(/^\/+/, '')}` : defaultUrl
+  try {
+    const url = new URL(appUrl)
+    // Append port only if APP_URL has a port or is localhost
+    if (url.port || url.hostname === 'localhost') {
+      url.port = String(port)
     }
+    // Remove trailing slash from base URL
+    const baseUrl = url.toString().replace(/\/$/, '')
+    // Append link with proper path separator
+    if (link) {
+      // Ensure link starts with '/' and remove duplicate slashes
+      const normalizedLink = `/${link.replace(/^\/+/, '')}`
+
+      return `${baseUrl}${normalizedLink}`
+    }
+
+    return baseUrl
+  } catch {
+    // Return default URL with link if provided
+    return link ? `${defaultUrl}/${link.replace(/^\/+/, '')}` : defaultUrl
+  }
 }
 
 /**
@@ -65,12 +63,9 @@ export const appUrl = (link?: string): string => {
  * @param defaultValue    The default value to return if the key is not found.
  * @returns               The configuration value.
  */
-export const config: GlobalConfig = <
-    X extends ConfigRegistry,
-    P extends DotPath<X> | undefined = undefined,
->(
-    key?: P,
-    defaultValue?: any,
+export const config: GlobalConfig = <X extends ConfigRegistry, P extends DotPath<X> | undefined = undefined>(
+  key?: P,
+  defaultValue?: any,
 ) => configLoader.resolve<X, P>(key, defaultValue)
 
 /**
@@ -90,15 +85,15 @@ export const config: GlobalConfig = <
  * @returns       The resolved key, or `undefined` when none is configured.
  */
 export const appKey = (legacy: string | string[] = []): string | undefined => {
-    const explicit = env('APP_KEY')
-    if (explicit) return explicit
+  const explicit = env('APP_KEY')
+  if (explicit) return explicit
 
-    for (const name of Array.isArray(legacy) ? legacy : [legacy]) {
-        const value = env(name)
-        if (value) return value
-    }
+  for (const name of Array.isArray(legacy) ? legacy : [legacy]) {
+    const value = env(name)
+    if (value) return value
+  }
 
-    return config('app.key') || undefined
+  return config('app.key') || undefined
 }
 
 /**
@@ -107,13 +102,13 @@ export const appKey = (legacy: string | string[] = []): string | undefined => {
  * @returns
  */
 export const nodeEnv = () => {
-    let envValue = env('NODE_ENV', 'development')
+  let envValue = env('NODE_ENV', 'development')
 
-    if (envValue !== 'development' && envValue !== 'production') {
-        envValue = 'development'
-    }
+  if (envValue !== 'development' && envValue !== 'production') {
+    envValue = 'development'
+  }
 
-    return envValue === 'production' ? 'prod' : 'dev'
+  return envValue === 'production' ? 'prod' : 'dev'
 }
 
 /**
@@ -123,46 +118,45 @@ export const nodeEnv = () => {
  * @returns
  */
 export const outputDir = (cwd?: string) => {
-    cwd ??= Arkstack.rootDir()
+  cwd ??= Arkstack.rootDir()
 
-    const NODE_ENV = nodeEnv()
+  const NODE_ENV = nodeEnv()
 
-    const output = {
-        dev: env('OUTPUT_DIR_DEV', '.arkstack/build'),
-        prod: env('OUTPUT_DIR', 'dist'),
-    }
+  const output = {
+    dev: env('OUTPUT_DIR_DEV', '.arkstack/build'),
+    prod: env('OUTPUT_DIR', 'dist'),
+  }
 
-    return path.isAbsolute(output[NODE_ENV] ?? output.dev)
-        ? (output[NODE_ENV] ?? output.dev)
-        : path.join(cwd, output[NODE_ENV] ?? output.dev)
+  return path.isAbsolute(output[NODE_ENV] ?? output.dev)
+    ? (output[NODE_ENV] ?? output.dev)
+    : path.join(cwd, output[NODE_ENV] ?? output.dev)
 }
 
 const SOURCE_DIR = 'src'
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts', '.js', '.mjs', '.cjs']
 const OUTPUT_EXTENSIONS = ['.js', '.mjs', '.cjs', '.ts']
 
-/** 
- * Strip a trailing known source/compiled extension from a path. 
- * 
- * @param value 
- * @returns 
+/**
+ * Strip a trailing known source/compiled extension from a path.
+ *
+ * @param value
+ * @returns
  */
-const stripKnownExtension = (value: string): string =>
-    value.replace(/\.(ts|tsx|mts|cts|js|mjs|cjs)$/i, '')
+const stripKnownExtension = (value: string): string => value.replace(/\.(ts|tsx|mts|cts|js|mjs|cjs)$/i, '')
 
 /**
  * Build the list of concrete file candidates for a base path. Any existing
  * source/compiled extension is dropped first so the correct runtime extension
  * can be tried (e.g. a `.ts` source maps to a `.js` candidate under `dist`).
- * 
- * @param base 
- * @param extensions 
- * @returns 
+ *
+ * @param base
+ * @param extensions
+ * @returns
  */
 const moduleCandidates = (base: string, extensions: string[]): string[] => {
-    const bare = stripKnownExtension(base)
+  const bare = stripKnownExtension(base)
 
-    return extensions.map((ext) => bare + ext)
+  return extensions.map((ext) => bare + ext)
 }
 
 /**
@@ -182,18 +176,18 @@ const moduleCandidates = (base: string, extensions: string[]): string[] => {
  * @param sourcePath  Absolute or root-relative source path.
  */
 export const toOutputPath = (sourcePath: string): string => {
-    const root = Arkstack.rootDir()
-    const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
-    const rel = path.relative(root, abs)
+  const root = Arkstack.rootDir()
+  const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
+  const rel = path.relative(root, abs)
 
-    if (!rel || rel.startsWith('..')) {
-        return abs
-    }
+  if (!rel || rel.startsWith('..')) {
+    return abs
+  }
 
-    const mapped = path.join(outputDir(), rel.replace(new RegExp(`^${SOURCE_DIR}[\\\\/]`), ''))
+  const mapped = path.join(outputDir(), rel.replace(new RegExp(`^${SOURCE_DIR}[\\\\/]`), ''))
 
-    // TypeScript sources compile to JavaScript; reflect that in the mapped path.
-    return mapped.replace(/\.(ts|tsx|mts|cts)$/i, '.js')
+  // TypeScript sources compile to JavaScript; reflect that in the mapped path.
+  return mapped.replace(/\.(ts|tsx|mts|cts)$/i, '.js')
 }
 
 /**
@@ -210,19 +204,18 @@ export const toOutputPath = (sourcePath: string): string => {
  * @returns           An existing importable path, or `sourcePath` unchanged when none exists.
  */
 export const resolveRuntimeModule = (sourcePath: string): string => {
-    const root = Arkstack.rootDir()
-    const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
+  const root = Arkstack.rootDir()
+  const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
 
-    const sourceCandidates = moduleCandidates(abs, SOURCE_EXTENSIONS)
-    const outputCandidates = moduleCandidates(toOutputPath(abs), OUTPUT_EXTENSIONS)
+  const sourceCandidates = moduleCandidates(abs, SOURCE_EXTENSIONS)
+  const outputCandidates = moduleCandidates(toOutputPath(abs), OUTPUT_EXTENSIONS)
 
-    const ordered = nodeEnv() === 'prod'
-        ? [...outputCandidates, ...sourceCandidates]
-        : [...sourceCandidates, ...outputCandidates]
+  const ordered =
+    nodeEnv() === 'prod' ? [...outputCandidates, ...sourceCandidates] : [...sourceCandidates, ...outputCandidates]
 
-    // Fall back to the absolute source path so the caller gets a clear,
-    // consistent error if it later tries to import a non-existent module.
-    return ordered.find((candidate) => existsSync(candidate)) ?? abs
+  // Fall back to the absolute source path so the caller gets a clear,
+  // consistent error if it later tries to import a non-existent module.
+  return ordered.find((candidate) => existsSync(candidate)) ?? abs
 }
 
 /**
@@ -238,15 +231,13 @@ export const resolveRuntimeModule = (sourcePath: string): string => {
  * @returns           An existing directory path, or the absolute source path when none exists.
  */
 export const resolveRuntimeDir = (sourcePath: string): string => {
-    const root = Arkstack.rootDir()
-    const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
-    const mapped = toOutputPath(abs)
+  const root = Arkstack.rootDir()
+  const abs = path.isAbsolute(sourcePath) ? sourcePath : path.join(root, sourcePath)
+  const mapped = toOutputPath(abs)
 
-    const ordered = nodeEnv() === 'prod'
-        ? [mapped, abs]
-        : [abs, mapped]
+  const ordered = nodeEnv() === 'prod' ? [mapped, abs] : [abs, mapped]
 
-    return ordered.find((candidate) => existsSync(candidate)) ?? abs
+  return ordered.find((candidate) => existsSync(candidate)) ?? abs
 }
 
 /**
@@ -258,53 +249,53 @@ export const resolveRuntimeDir = (sourcePath: string): string => {
  * inherits the current `NODE_ENV` so it targets the same dir the kernel reads.
  */
 export const rebuildOutput = async (): Promise<void> => {
-    await rm(outputDir(), { recursive: true, force: true })
+  await rm(outputDir(), { recursive: true, force: true })
 
-    await new Promise<void>((resolveBuild, reject) => {
-        const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
-        const child = spawn(command, ['exec', 'tsdown', '--log-level', 'silent'], {
-            cwd: Arkstack.rootDir(),
-            stdio: 'inherit',
-            env: Object.assign({}, process.env, { CLI_BUILD: 'true' }),
-        })
-
-        child.on('error', reject)
-        child.on('exit', (code) => {
-            if (code === 0 || code === null) {
-                resolveBuild()
-
-                return
-            }
-
-            reject(new Error(`tsdown exited with code ${code}`))
-        })
+  await new Promise<void>((resolveBuild, reject) => {
+    const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
+    const child = spawn(command, ['exec', 'tsdown', '--log-level', 'silent'], {
+      cwd: Arkstack.rootDir(),
+      stdio: 'inherit',
+      env: Object.assign({}, process.env, { CLI_BUILD: 'true' }),
     })
+
+    child.on('error', reject)
+    child.on('exit', (code) => {
+      if (code === 0 || code === null) {
+        resolveBuild()
+
+        return
+      }
+
+      reject(new Error(`tsdown exited with code ${code}`))
+    })
+  })
 }
 
 /**
- * 
- * Dynamically imports a file at the given path with full TypeScript support,
- * including `tsconfig.json` path aliases. 
  *
- * @param filePath - The path to the file to import. 
+ * Dynamically imports a file at the given path with full TypeScript support,
+ * including `tsconfig.json` path aliases.
+ *
+ * @param filePath - The path to the file to import.
  * @returns The imported module typed as `T`.
  *
  * @example
  * const config = await importFile<AppConfig>('./config/app.ts')
  */
 export const importFile: FileImporter = async <T = unknown>(
-    filePath: string,
-    userOptions?: JitiOptions | undefined,
-    resolveOptions?: (JitiResolveOptions & { default?: true })
+  filePath: string,
+  userOptions?: JitiOptions | undefined,
+  resolveOptions?: JitiResolveOptions & { default?: true },
 ): Promise<T> => {
-    const resolvedPath = resolve(filePath)
-    const jiti = createJiti(pathToFileURL(resolvedPath).href, {
-        ...userOptions,
-        interopDefault: false,
-        tsconfigPaths: true,
-    })
+  const resolvedPath = resolve(filePath)
+  const jiti = createJiti(pathToFileURL(resolvedPath).href, {
+    ...userOptions,
+    interopDefault: false,
+    tsconfigPaths: true,
+  })
 
-    return await jiti.import<T>(resolvedPath, resolveOptions)
+  return await jiti.import<T>(resolvedPath, resolveOptions)
 }
 
 /**
@@ -316,16 +307,13 @@ export const importFile: FileImporter = async <T = unknown>(
  * @param basename   The file name without extension.
  * @returns          The resolved command class, or undefined when none is found.
  */
-const resolveCommandExport = (
-    mod: Record<string, unknown>,
-    basename: string,
-): unknown => {
-    const named = mod[basename]
+const resolveCommandExport = (mod: Record<string, unknown>, basename: string): unknown => {
+  const named = mod[basename]
 
-    if (typeof named === 'function') return named
-    if (typeof mod.default === 'function') return mod.default
+  if (typeof named === 'function') return named
+  if (typeof mod.default === 'function') return mod.default
 
-    return Object.values(mod).find((value) => typeof value === 'function')
+  return Object.values(mod).find((value) => typeof value === 'function')
 }
 
 /**
@@ -344,59 +332,57 @@ const resolveCommandExport = (
  * @returns         The discovered command classes.
  */
 export const discoverCommands = async <T = unknown>(
-    subPath: string = path.join('app', 'console', 'commands'),
+  subPath: string = path.join('app', 'console', 'commands'),
 ): Promise<T[]> => {
-    const root = Arkstack.rootDir()
+  const root = Arkstack.rootDir()
 
-    const sourceDir = path.join(root, SOURCE_DIR, subPath)
-    const outputCommandDir = path.join(outputDir(), subPath)
+  const sourceDir = path.join(root, SOURCE_DIR, subPath)
+  const outputCommandDir = path.join(outputDir(), subPath)
 
-    // Production prefers the build output (a deploy ships only `dist`); dev
-    // prefers source so edits land without a rebuild. Either falls back.
-    const candidateDirs = nodeEnv() === 'prod'
-        ? [outputCommandDir, sourceDir]
-        : [sourceDir, outputCommandDir]
+  // Production prefers the build output (a deploy ships only `dist`); dev
+  // prefers source so edits land without a rebuild. Either falls back.
+  const candidateDirs = nodeEnv() === 'prod' ? [outputCommandDir, sourceDir] : [sourceDir, outputCommandDir]
 
-    let commandsDir: string | undefined
-    let files: Dirent<string>[] = []
+  let commandsDir: string | undefined
+  let files: Dirent<string>[] = []
 
-    for (const dir of candidateDirs) {
-        try {
-            const entries = readdirSync(dir, { withFileTypes: true }).filter(
-                (file) => file.isFile() && ['.ts', '.js', '.mjs'].includes(path.extname(file.name)),
-            )
+  for (const dir of candidateDirs) {
+    try {
+      const entries = readdirSync(dir, { withFileTypes: true }).filter(
+        (file) => file.isFile() && ['.ts', '.js', '.mjs'].includes(path.extname(file.name)),
+      )
 
-            if (entries.length > 0) {
-                commandsDir = dir
-                files = entries
+      if (entries.length > 0) {
+        commandsDir = dir
+        files = entries
 
-                break
-            }
-        } catch {
-            // Directory missing — try the next candidate.
-        }
+        break
+      }
+    } catch {
+      // Directory missing — try the next candidate.
     }
+  }
 
-    if (!commandsDir) return []
+  if (!commandsDir) return []
 
-    const commands: T[] = []
+  const commands: T[] = []
 
-    for (const file of files) {
-        const basename = path.basename(file.name, path.extname(file.name))
+  for (const file of files) {
+    const basename = path.basename(file.name, path.extname(file.name))
 
-        try {
-            const mod = await importFile<Record<string, unknown>>(path.join(commandsDir, file.name))
-            const command = resolveCommandExport(mod, basename)
+    try {
+      const mod = await importFile<Record<string, unknown>>(path.join(commandsDir, file.name))
+      const command = resolveCommandExport(mod, basename)
 
-            if (command) commands.push(command as T)
-        } catch (error) {
-            // Surface the failure so a broken command file is debuggable instead
-            // of silently vanishing from the command list.
-            console.error(`[arkstack] Failed to load command "${file.name}":`, error)
-        }
+      if (command) commands.push(command as T)
+    } catch (error) {
+      // Surface the failure so a broken command file is debuggable instead
+      // of silently vanishing from the command list.
+      console.error(`[arkstack] Failed to load command "${file.name}":`, error)
     }
+  }
 
-    return commands
+  return commands
 }
 
 /**
@@ -408,7 +394,5 @@ export const discoverCommands = async <T = unknown>(
  * @returns The resolved default export
  */
 export const interopDefault = <T>(imp: T | { default: T }): T => {
-    return typeof imp === 'function'
-        ? imp as T
-        : (imp as { default: T }).default
+  return typeof imp === 'function' ? (imp as T) : (imp as { default: T }).default
 }

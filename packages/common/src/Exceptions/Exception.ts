@@ -1,8 +1,8 @@
 export class Exception extends Error {
-    name: string
+  name: string
 
-    constructor(message?: string, options?: ErrorOptions) {
-        super(message, options)
-        this.name = 'Exception'
-    }
+  constructor(message?: string, options?: ErrorOptions) {
+    super(message, options)
+    this.name = 'Exception'
+  }
 }

@@ -23,12 +23,12 @@ A global, named hook registry for extending Arkstack internals without modifying
 Registers a hook. Multiple calls for the same name are merged.
 
 ```ts
-import { Hook } from '@arkstack/foundry';
+import { Hook } from '@arkstack/foundry'
 
 Hook.set('request:handle', {
   before: (ctx) => console.log('before handler'),
   after: (ctx) => console.log('after handler'),
-});
+})
 ```
 
 #### `Hook.get(name, pos?)`
@@ -36,8 +36,8 @@ Hook.set('request:handle', {
 Retrieves the full hook object or a specific positional handler.
 
 ```ts
-const hook = Hook.get('request:handle'); // IHook | undefined
-const before = Hook.get('request:handle', 'before'); // function | undefined
+const hook = Hook.get('request:handle') // IHook | undefined
+const before = Hook.get('request:handle', 'before') // function | undefined
 ```
 
 #### `Hook.has(name, pos?)`
@@ -45,8 +45,8 @@ const before = Hook.get('request:handle', 'before'); // function | undefined
 Checks whether a hook (or a specific position within it) exists.
 
 ```ts
-Hook.has('request:handle'); // true | false
-Hook.has('request:handle', 'after'); // true | false
+Hook.has('request:handle') // true | false
+Hook.has('request:handle', 'after') // true | false
 ```
 
 #### `Hook.unset(name?, pos?)`
@@ -54,9 +54,9 @@ Hook.has('request:handle', 'after'); // true | false
 Removes a hook or a single positional handler. If the hook becomes empty after removal, it is deleted entirely. Called with no arguments, it delegates to `Hook.clear()`.
 
 ```ts
-Hook.unset('request:handle', 'before'); // removes only the 'before' handler
-Hook.unset('request:handle'); // removes the entire hook
-Hook.unset(); // clears all hooks
+Hook.unset('request:handle', 'before') // removes only the 'before' handler
+Hook.unset('request:handle') // removes the entire hook
+Hook.unset() // clears all hooks
 ```
 
 #### `Hook.getAll()`
@@ -64,7 +64,7 @@ Hook.unset(); // clears all hooks
 Returns all registered hooks as a plain record.
 
 ```ts
-const hooks = Hook.getAll();
+const hooks = Hook.getAll()
 // { 'request:handle': { before: fn, after: fn } }
 ```
 

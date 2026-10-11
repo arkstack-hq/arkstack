@@ -14,7 +14,7 @@ export type ViewName = string
 export type ViewComposerHandler = (view: ViewInstance) => void | Promise<void>
 
 export interface ViewComposerObject {
-    compose: ViewComposerHandler
+  compose: ViewComposerHandler
 }
 
 export type ViewComposerClass = new () => ViewComposerObject
@@ -24,8 +24,8 @@ export type ViewComposer = ViewComposerHandler | ViewComposerObject | ViewCompos
 export type ViewComposerName = ViewName | ViewName[]
 
 export type ViewFactoryOptions = {
-    cache?: boolean
-    viewsPath?: string | URL
-    packageViewsPath?: string
-    edge?: Edge
+  cache?: boolean
+  viewsPath?: string | URL
+  packageViewsPath?: string
+  edge?: Edge
 }

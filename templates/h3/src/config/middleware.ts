@@ -19,10 +19,8 @@ export default (): MiddlewareConfig => {
       function ({ req }, next) {
         useH3UploadContext(req)
         next()
-      }
+      },
     ],
-    after: [
-      requestLogger()
-    ],
+    after: [requestLogger()],
   }
-} 
+}

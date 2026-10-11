@@ -1,18 +1,23 @@
-import type { DeviceTokenOptions, FirebaseClientConfig } from './types'
+import type { DeviceTokenOptions, FirebaseClientConfig, ModuleImporter } from './types'
+
+import { defaultImporter } from './importer'
 
 /** The slice of `firebase/messaging` used to issue device tokens. */
 interface FirebaseMessagingModule {
-    getMessaging(app: unknown): unknown
-    isSupported(): Promise<boolean>
-    getToken(
-        messaging: unknown,
-        options?: { vapidKey?: string, serviceWorkerRegistration?: ServiceWorkerRegistration },
-    ): Promise<string>
+  getMessaging(app: unknown): unknown
+  isSupported(): Promise<boolean>
+  getToken(
+    messaging: unknown,
+    options?: {
+      vapidKey?: string
+      serviceWorkerRegistration?: ServiceWorkerRegistration
+    },
+  ): Promise<string>
 }
 
 interface FirebaseAppModule {
-    getApps(): Array<{ name: string }>
-    initializeApp(options: Record<string, unknown>, name: string): unknown
+  getApps(): Array<{ name: string }>
+  initializeApp(options: Record<string, unknown>, name: string): unknown
 }
 
 const APP_NAME = 'arkstack-push'
@@ -24,10 +29,10 @@ const APP_NAME = 'arkstack-push'
  * @returns
  */
 const webConfig = (config: FirebaseClientConfig) => ({
-    apiKey: config.apiKey,
-    projectId: config.projectId,
-    appId: config.appId,
-    messagingSenderId: config.messagingSenderId,
+  apiKey: config.apiKey,
+  projectId: config.projectId,
+  appId: config.appId,
+  messagingSenderId: config.messagingSenderId,
 })
 
 /**
@@ -39,10 +44,10 @@ const webConfig = (config: FirebaseClientConfig) => ({
  * @returns
  */
 const registerServiceWorker = async (url: string, config: FirebaseClientConfig): Promise<ServiceWorkerRegistration> => {
-    const separator = url.includes('?') ? '&' : '?'
-    const query = `firebaseConfig=${encodeURIComponent(JSON.stringify(webConfig(config)))}`
+  const separator = url.includes('?') ? '&' : '?'
+  const query = `firebaseConfig=${encodeURIComponent(JSON.stringify(webConfig(config)))}`
 
-    return await navigator.serviceWorker.register(`${url}${separator}${query}`)
+  return await navigator.serviceWorker.register(`${url}${separator}${query}`)
 }
 
 /**
@@ -56,25 +61,26 @@ const registerServiceWorker = async (url: string, config: FirebaseClientConfig):
  * @returns
  */
 export const issueDeviceToken = async (
-    messagingMod: FirebaseMessagingModule,
-    messaging: unknown,
-    config: FirebaseClientConfig,
-    options: DeviceTokenOptions = {},
+  messagingMod: FirebaseMessagingModule,
+  messaging: unknown,
+  config: FirebaseClientConfig,
+  options: DeviceTokenOptions = {},
 ): Promise<string | null> => {
-    if (!(await messagingMod.isSupported().catch(() => false))) {
-        return null
-    }
+  if (!(await messagingMod.isSupported().catch(() => false))) {
+    return null
+  }
 
-    const serviceWorkerRegistration = typeof options.serviceWorker === 'string'
-        ? await registerServiceWorker(options.serviceWorker, config)
-        : options.serviceWorker
+  const serviceWorkerRegistration =
+    typeof options.serviceWorker === 'string'
+      ? await registerServiceWorker(options.serviceWorker, config)
+      : options.serviceWorker
 
-    const token = await messagingMod.getToken(messaging, {
-        ...(config.vapidKey ? { vapidKey: config.vapidKey } : {}),
-        ...(serviceWorkerRegistration ? { serviceWorkerRegistration } : {}),
-    })
+  const token = await messagingMod.getToken(messaging, {
+    ...(config.vapidKey ? { vapidKey: config.vapidKey } : {}),
+    ...(serviceWorkerRegistration ? { serviceWorkerRegistration } : {}),
+  })
 
-    return token || null
+  return token || null
 }
 
 /**
@@ -83,24 +89,23 @@ export const issueDeviceToken = async (
  *
  * @param config
  * @param options
+ * @param importModule  Loads the `firebase` SDK modules.
  * @returns
  */
 export const requestDeviceToken = async (
-    config: FirebaseClientConfig,
-    options: DeviceTokenOptions = {},
+  config: FirebaseClientConfig,
+  options: DeviceTokenOptions = {},
+  importModule: ModuleImporter = defaultImporter,
 ): Promise<string | null> => {
-    const appSpecifier = 'firebase/app'
-    const messagingSpecifier = 'firebase/messaging'
+  const [appMod, messagingMod] = await Promise.all([
+    importModule('firebase/app') as Promise<FirebaseAppModule>,
+    importModule('firebase/messaging') as Promise<FirebaseMessagingModule>,
+  ]).catch(() => {
+    throw new Error('The "firebase" package is required for device tokens. Install it with `npm i firebase`.')
+  })
 
-    const [appMod, messagingMod] = await Promise.all([
-        import(appSpecifier) as Promise<FirebaseAppModule>,
-        import(messagingSpecifier) as Promise<FirebaseMessagingModule>,
-    ]).catch(() => {
-        throw new Error('The "firebase" package is required for device tokens. Install it with `npm i firebase`.')
-    })
+  const app =
+    appMod.getApps().find((existing) => existing.name === APP_NAME) ?? appMod.initializeApp(webConfig(config), APP_NAME)
 
-    const app = appMod.getApps().find((existing) => existing.name === APP_NAME)
-        ?? appMod.initializeApp(webConfig(config), APP_NAME)
-
-    return await issueDeviceToken(messagingMod, messagingMod.getMessaging(app), config, options)
+  return await issueDeviceToken(messagingMod, messagingMod.getMessaging(app), config, options)
 }

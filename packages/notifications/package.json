@@ -1,76 +1,76 @@
 {
-    "name": "@arkstack/notifications",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Framework-agnostic notification module for Arkstack and Nodejs, providing support for multi-channel notification delivery.",
-    "homepage": "https://arkstack.toneflix.net/guide/notifications",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/notifications"
+  "name": "@arkstack/notifications",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Framework-agnostic notification module for Arkstack and Nodejs, providing support for multi-channel notification delivery.",
+  "homepage": "https://arkstack.toneflix.net/guide/notifications",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/notifications"
+  },
+  "keywords": [
+    "notifications",
+    "mail",
+    "email",
+    "sms",
+    "twilio",
+    "africastalking",
+    "database",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "resources"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/common": "workspace:^",
+    "africastalking": "^0.8.0",
+    "nodemailer": "^9.0.3",
+    "twilio": "^6.0.2"
+  },
+  "peerDependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/database": "workspace:^",
+    "@arkstack/driver-express": "workspace:^",
+    "@arkstack/driver-h3": "workspace:^",
+    "@arkstack/jobs": "workspace:^",
+    "@kanun-hq/plugin-phone": "catalog:",
+    "firebase-admin": "^13.0.0",
+    "pusher": "^5.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@arkstack/driver-express": {
+      "optional": true
     },
-    "keywords": [
-        "notifications",
-        "mail",
-        "email",
-        "sms",
-        "twilio",
-        "africastalking",
-        "database",
-        "arkstack"
-    ],
-    "files": [
-        "dist",
-        "resources"
-    ],
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "test": "vitest",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+    "@arkstack/driver-h3": {
+      "optional": true
     },
-    "publishConfig": {
-        "access": "public"
+    "pusher": {
+      "optional": true
     },
-    "exports": {
-        ".": "./dist/index.js",
-        "./package.json": "./package.json"
+    "firebase-admin": {
+      "optional": true
     },
-    "dependencies": {
-        "@arkstack/common": "workspace:^",
-        "africastalking": "^0.8.0",
-        "nodemailer": "^9.0.3",
-        "twilio": "^6.0.2"
-    },
-    "peerDependencies": {
-        "@arkstack/contract": "workspace:^",
-        "@arkstack/database": "workspace:^",
-        "@arkstack/driver-express": "workspace:^",
-        "@arkstack/driver-h3": "workspace:^",
-        "@arkstack/jobs": "workspace:^",
-        "@kanun-hq/plugin-phone": "catalog:",
-        "firebase-admin": "^13.0.0",
-        "pusher": "^5.2.0"
-    },
-    "peerDependenciesMeta": {
-        "@arkstack/driver-express": {
-            "optional": true
-        },
-        "@arkstack/driver-h3": {
-            "optional": true
-        },
-        "pusher": {
-            "optional": true
-        },
-        "firebase-admin": {
-            "optional": true
-        },
-        "@kanun-hq/plugin-phone": {
-            "optional": true
-        }
-    },
-    "devDependencies": {
-        "@types/africastalking": "^0.8.0",
-        "@types/nodemailer": "^7.0.11"
+    "@kanun-hq/plugin-phone": {
+      "optional": true
     }
+  },
+  "devDependencies": {
+    "@types/africastalking": "^0.8.0",
+    "@types/nodemailer": "^7.0.11"
+  }
 }

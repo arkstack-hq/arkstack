@@ -24,28 +24,28 @@ import type { RealtimeNotification } from './types'
  * @param limit     Caps the retained list (newest kept) when growing it.
  */
 export const supersede = (
-    list: RealtimeNotification[],
-    incoming: RealtimeNotification,
-    limit?: number,
+  list: RealtimeNotification[],
+  incoming: RealtimeNotification,
+  limit?: number,
 ): RealtimeNotification[] => {
-    const { tag, retracted } = incoming
+  const { tag, retracted } = incoming
 
-    if (retracted) {
-        return tag ? list.filter((notification) => notification.tag !== tag) : list
+  if (retracted) {
+    return tag ? list.filter((notification) => notification.tag !== tag) : list
+  }
+
+  if (tag) {
+    const index = list.findIndex((notification) => notification.tag === tag)
+
+    if (index !== -1) {
+      const next = list.slice()
+      next[index] = incoming
+
+      return next
     }
+  }
 
-    if (tag) {
-        const index = list.findIndex((notification) => notification.tag === tag)
+  const next = [incoming, ...list]
 
-        if (index !== -1) {
-            const next = list.slice()
-            next[index] = incoming
-
-            return next
-        }
-    }
-
-    const next = [incoming, ...list]
-
-    return limit ? next.slice(0, limit) : next
+  return limit ? next.slice(0, limit) : next
 }

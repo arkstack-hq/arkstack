@@ -5,28 +5,28 @@
 View module for Arkstack, providing template rendering and view integration utilities.
 
 ```ts
-import { View, view } from '@arkstack/view';
+import { View, view } from '@arkstack/view'
 
-View.share({ appName: 'Arkstack' });
-View.share('year', new Date().getFullYear());
+View.share({ appName: 'Arkstack' })
+View.share('year', new Date().getFullYear())
 
 View.composer('welcome', (view) => {
-  view.with({ title: 'Welcome' });
-});
+  view.with({ title: 'Welcome' })
+})
 
 class WelcomeComposer {
   compose(view) {
-    view.with('message', 'Your app is ready.');
+    view.with('message', 'Your app is ready.')
   }
 }
 
-View.composer('welcome', WelcomeComposer);
+View.composer('welcome', WelcomeComposer)
 
-const html = await view('welcome').with('name', 'Ada');
+const html = await view('welcome').with('name', 'Ada')
 
-const dashboard = await View.make('dashboard').with({ user }).render();
+const dashboard = await View.make('dashboard').with({ user }).render()
 
-const email = await view('~org/package-name.mail', { user });
+const email = await view('~org/package-name.mail', { user })
 ```
 
 Views are resolved from `src/resources/views` by default. Use `View.mount()` to add or replace mounted view directories.

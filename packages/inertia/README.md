@@ -40,9 +40,9 @@ inertia().share('appName', config('app.name'))
 // Partial-reload helpers
 inertia('Users/Index', {
   users: await User.all(),
-  stats: Inertia.lazy(() => expensiveStats()),   // only on a partial reload that asks for it
-  chart: Inertia.defer(() => buildChart()),       // fetched by the client after load
-  auth: Inertia.always({ user: request.user }),   // always present, even on partials
+  stats: Inertia.lazy(() => expensiveStats()), // only on a partial reload that asks for it
+  chart: Inertia.defer(() => buildChart()), // fetched by the client after load
+  auth: Inertia.always({ user: request.user }), // always present, even on partials
 })
 
 // Redirects (302 -> 303 for PUT/PATCH/DELETE) and external/full-page visits

@@ -19,40 +19,32 @@ import type { PusherRealtimeDriver } from '../drivers/realtime/PusherRealtimeDri
  * without a notion of priority (Pusher) are free to ignore it.
  */
 export interface RealtimeDriver {
-    broadcast(
-        channel: string | string[],
-        event: string,
-        payload: RealtimeBroadcastPayload,
-        delivery?: RealtimeDeliveryOptions,
-    ): Promise<unknown>
-    /**
-     * Sign or grant access to an already authorized channel. `socketId` is the
-     * Pusher socket id, or the subscriber's uid for transports without sockets.
-     */
-    auth(
-        socketId: string,
-        channel: string,
-        data?: unknown
-    ): unknown | Promise<unknown>
-    registerAuthRoute(
-        authEndpoint?: string,
-        middleware?: unknown | unknown[],
-        channelPrefix?: string,
-    ): Promise<void>
-    /**
-     * Public connection settings a browser client needs. Must never include secrets.
-     */
-    clientConfig?(): Record<string, unknown>
+  broadcast(
+    channel: string | string[],
+    event: string,
+    payload: RealtimeBroadcastPayload,
+    delivery?: RealtimeDeliveryOptions,
+  ): Promise<unknown>
+  /**
+   * Sign or grant access to an already authorized channel. `socketId` is the
+   * Pusher socket id, or the subscriber's uid for transports without sockets.
+   */
+  auth(socketId: string, channel: string, data?: unknown): unknown | Promise<unknown>
+  registerAuthRoute(authEndpoint?: string, middleware?: unknown | unknown[], channelPrefix?: string): Promise<void>
+  /**
+   * Public connection settings a browser client needs. Must never include secrets.
+   */
+  clientConfig?(): Record<string, unknown>
 }
 
 export type RealtimeNotificationDriver<T extends RealtimeDriverName> = T extends 'firebase'
-    ? FirebaseRealtimeDriver
-    : T extends 'firebase-database'
+  ? FirebaseRealtimeDriver
+  : T extends 'firebase-database'
     ? FirebaseDatabaseRealtimeDriver
     : T extends 'polling'
-    ? PollingRealtimeDriver
-    : T extends 'memory'
-    ? MemoryRealtimeDriver
-    : T extends 'pusher'
-    ? PusherRealtimeDriver
-    : RealtimeDriver
+      ? PollingRealtimeDriver
+      : T extends 'memory'
+        ? MemoryRealtimeDriver
+        : T extends 'pusher'
+          ? PusherRealtimeDriver
+          : RealtimeDriver

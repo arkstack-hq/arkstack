@@ -11,8 +11,8 @@ Filesystem module for Arkstack, providing shared file storage and filesystem uti
 **CloudinaryFileDriver.ts**
 
 ```ts
-import type { DriverContract, ObjectVisibility } from 'flydrive/types';
-import type { CustomDiskConfig } from '@arkstack/filesystem';
+import type { DriverContract, ObjectVisibility } from 'flydrive/types'
+import type { CustomDiskConfig } from '@arkstack/filesystem'
 
 export class CloudinaryFileDriver implements DriverContract {
   constructor(private config?: CustomDiskConfig) {}
@@ -40,7 +40,7 @@ export class CloudinaryFileDriver implements DriverContract {
 **src/config/filesystem.ts**
 
 ```ts
-import { CloudinaryFileDriver } from '../CloudinaryFileDriver';
+import { CloudinaryFileDriver } from '../CloudinaryFileDriver'
 export default () => {
   return {
     default: 'images',
@@ -54,8 +54,8 @@ export default () => {
     custom_drivers: {
       cloudinary: CloudinaryFileDriver,
     },
-  };
-};
+  }
+}
 ```
 
 To improve type safety and auto complete, you may augment the `CustomDiskDriverRegistry`
@@ -65,7 +65,7 @@ To improve type safety and auto complete, you may augment the `CustomDiskDriverR
 ```ts
 declare module '@arkstack/filesystem' {
   interface CustomDiskDriverRegistry {
-    cloudinary: { cloud_name: string; api_key: string; api_secret: string };
+    cloudinary: { cloud_name: string; api_key: string; api_secret: string }
   }
 }
 ```

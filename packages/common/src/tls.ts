@@ -1,18 +1,18 @@
 import { networkInterfaces } from 'node:os'
 
 export interface TlsCredentials {
-    /** PEM-encoded private key. */
-    key: string
-    /** PEM-encoded certificate. */
-    cert: string
+  /** PEM-encoded private key. */
+  key: string
+  /** PEM-encoded certificate. */
+  cert: string
 }
 
 /** Minimal shape of the `selfsigned` module we rely on. */
 interface Selfsigned {
-    generate(
-        attrs: Array<{ name: string; value: string }>,
-        options: Record<string, unknown>,
-    ): { private: string; cert: string }
+  generate(
+    attrs: Array<{ name: string; value: string }>,
+    options: Record<string, unknown>,
+  ): { private: string; cert: string }
 }
 
 let devCertCache: TlsCredentials | undefined
@@ -27,24 +27,25 @@ let devCertCache: TlsCredentials | undefined
  *
  * @param host  The common name for the certificate (defaults to `localhost`).
  */
-export const devTlsCredentials = async (
-    host: string = 'localhost'
-): Promise<TlsCredentials> => {
-    if (devCertCache) {
-        return devCertCache
-    }
-
-    const mod = await import('selfsigned') as unknown as { default?: Selfsigned } & Selfsigned
-    const selfsigned = mod.default ?? mod
-
-    const pems = selfsigned.generate(
-        [{ name: 'commonName', value: host }],
-        { days: 365, keySize: 2048, algorithm: 'sha256' },
-    )
-
-    devCertCache = { key: pems.private, cert: pems.cert }
-
+export const devTlsCredentials = async (host: string = 'localhost'): Promise<TlsCredentials> => {
+  if (devCertCache) {
     return devCertCache
+  }
+
+  const mod = (await import('selfsigned')) as unknown as {
+    default?: Selfsigned
+  } & Selfsigned
+  const selfsigned = mod.default ?? mod
+
+  const pems = selfsigned.generate([{ name: 'commonName', value: host }], {
+    days: 365,
+    keySize: 2048,
+    algorithm: 'sha256',
+  })
+
+  devCertCache = { key: pems.private, cert: pems.cert }
+
+  return devCertCache
 }
 
 /**
@@ -52,13 +53,13 @@ export const devTlsCredentials = async (
  * network — or `undefined` when only loopback interfaces are available.
  */
 export const localNetworkAddress = (): string | undefined => {
-    for (const list of Object.values(networkInterfaces())) {
-        for (const net of list ?? []) {
-            if (net.family === 'IPv4' && !net.internal) {
-                return net.address
-            }
-        }
+  for (const list of Object.values(networkInterfaces())) {
+    for (const net of list ?? []) {
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address
+      }
     }
+  }
 
-    return undefined
+  return undefined
 }

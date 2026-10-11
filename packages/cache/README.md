@@ -8,12 +8,12 @@ Cache module for Arkstack, providing a unified, driver based caching layer for t
 
 `@arkstack/cache` ships with four stores out of the box:
 
-| Driver     | Backing store                | Notes                                    |
-| ---------- | ---------------------------- | ---------------------------------------- |
-| `memory`   | in-process `Map`             | default; great for dev and tests         |
-| `file`     | JSON files on disk           | no external service required             |
-| `redis`    | Redis (via `ioredis`)        | distributed; atomic counters             |
-| `database` | a table via `@arkstack/database` | reuses your database connection      |
+| Driver     | Backing store                    | Notes                            |
+| ---------- | -------------------------------- | -------------------------------- |
+| `memory`   | in-process `Map`                 | default; great for dev and tests |
+| `file`     | JSON files on disk               | no external service required     |
+| `redis`    | Redis (via `ioredis`)            | distributed; atomic counters     |
+| `database` | a table via `@arkstack/database` | reuses your database connection  |
 
 ## Configuration
 
@@ -28,8 +28,15 @@ export default (): CacheConfig => ({
   prefix: env('CACHE_PREFIX', 'arkstack_cache_'),
   stores: {
     memory: { driver: 'memory' },
-    file: { driver: 'file', path: path.join(Arkstack.rootDir(), './storage/framework/cache') },
-    redis: { driver: 'redis', host: env('REDIS_HOST', '127.0.0.1'), port: env('REDIS_PORT', 6379) },
+    file: {
+      driver: 'file',
+      path: path.join(Arkstack.rootDir(), './storage/framework/cache'),
+    },
+    redis: {
+      driver: 'redis',
+      host: env('REDIS_HOST', '127.0.0.1'),
+      port: env('REDIS_PORT', 6379),
+    },
     database: { driver: 'database', table: 'cache' },
   },
 })
@@ -41,7 +48,7 @@ export default (): CacheConfig => ({
 import { Cache } from '@arkstack/cache'
 
 // default store
-await Cache.put('user:1', user, 60)        // ttl in seconds
+await Cache.put('user:1', user, 60) // ttl in seconds
 await Cache.get('user:1')
 await Cache.forget('user:1')
 
@@ -63,7 +70,9 @@ The ttl accepts a number of seconds, a `Date`, or `null` (forever).
 ```ts
 import { Cache, Store } from '@arkstack/cache'
 
-class TagStore extends Store { /* ... implement the Store contract ... */ }
+class TagStore extends Store {
+  /* ... implement the Store contract ... */
+}
 
 Cache.extend('tags', (config) => new TagStore(config))
 ```

@@ -3,11 +3,13 @@ import { MakeResource as MakeResourceBase, applyRuntimeConfig, getDefaultConfig 
 import { config } from '@arkstack/common'
 
 export class MakeResource extends MakeResourceBase {
-    async handle(): Promise<undefined> {
-        try {
-            applyRuntimeConfig({ ...getDefaultConfig(), ...config('resources', {}) })
-        } catch { /** */ }
-
-        return super.handle()
+  async handle(): Promise<undefined> {
+    try {
+      applyRuntimeConfig({ ...getDefaultConfig(), ...config('resources', {}) })
+    } catch {
+      /** */
     }
+
+    return super.handle()
+  }
 }

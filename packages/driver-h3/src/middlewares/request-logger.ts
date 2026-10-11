@@ -3,25 +3,27 @@ import { Logger, nodeEnv } from '@arkstack/common'
 import type { H3Middleware } from '../types'
 
 const colors: Record<string, 'green' | 'blue' | 'yellow' | 'red' | 'cyan'> = {
-    GET: 'green',
-    POST: 'blue',
-    PUT: 'yellow',
-    DELETE: 'red',
-    PATCH: 'cyan',
+  GET: 'green',
+  POST: 'blue',
+  PUT: 'yellow',
+  DELETE: 'red',
+  PATCH: 'cyan',
 }
 
 /**
  * Middleware to log incoming requests and their response times.
- * 
+ *
  * @param config Configuration options for the request logger middleware.
- * @param config.allowInProduction If true, the logger will also log requests in production environment. Default is false. 
+ * @param config.allowInProduction If true, the logger will also log requests in production environment. Default is false.
  * @returns H3Middleware function
  */
-export const requestLogger = ({
+export const requestLogger =
+  ({
     allowInProduction = false,
-}: {
+  }: {
     allowInProduction?: boolean
-} = {}): H3Middleware => async (event, next) => {
+  } = {}): H3Middleware =>
+  async (event, next) => {
     const VERBOSE = process.env.VERBOSITY != '0'
     if ((nodeEnv() === 'prod' && !allowInProduction) || !VERBOSE) return next()
 
@@ -32,18 +34,21 @@ export const requestLogger = ({
     const status = event.res.status || 200
     const duration = Date.now() - start
 
-    Logger.log([
+    Logger.log(
+      [
         [`[${req.method}]`, colors[req.method] || 'green'],
         [req.url, 'cyan'],
         [status.toString(), status >= 500 ? 'red' : status >= 400 ? 'yellow' : 'green'],
-        [`- ${duration}ms`, 'dim']
-    ], ' ')
-}
+        [`- ${duration}ms`, 'dim'],
+      ],
+      ' ',
+    )
+  }
 
 export class RequestLoggerMiddleware {
-    constructor(private options: { allowInProduction?: boolean } = {}) { }
+  constructor(private options: { allowInProduction?: boolean } = {}) {}
 
-    handler() {
-        return requestLogger(this.options)
-    }
+  handler() {
+    return requestLogger(this.options)
+  }
 }

@@ -10,7 +10,7 @@ From `src/core/bootstrap.ts`:
 - `app`: Arkstack `Application` instance
 
 ```ts
-import { app, expressApp } from 'src/core/bootstrap';
+import { app, expressApp } from 'src/core/bootstrap'
 ```
 
 ## Interaction Options
@@ -20,11 +20,11 @@ import { app, expressApp } from 'src/core/bootstrap';
 Use this for direct Express APIs.
 
 ```ts
-import { expressApp } from 'src/core/bootstrap';
+import { expressApp } from 'src/core/bootstrap'
 
-expressApp.set('trust proxy', 1);
-expressApp.disable('x-powered-by');
-expressApp.locals.serviceName = 'api';
+expressApp.set('trust proxy', 1)
+expressApp.disable('x-powered-by')
+expressApp.locals.serviceName = 'api'
 ```
 
 ### 2. Instance runtime accessor: `app.getAppInstance()`
@@ -32,13 +32,13 @@ expressApp.locals.serviceName = 'api';
 Get the runtime instance from the Arkstack wrapper.
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-const runtime = app.getAppInstance();
+const runtime = app.getAppInstance()
 runtime.use((req, _res, next) => {
-  req.headers['x-runtime'] = 'express';
-  next();
-});
+  req.headers['x-runtime'] = 'express'
+  next()
+})
 ```
 
 ### 3. Static runtime accessor: `Application.getAppInstance()`
@@ -46,10 +46,10 @@ runtime.use((req, _res, next) => {
 Access the static runtime reference.
 
 ```ts
-import Application from 'src/core/app';
+import Application from 'src/core/app'
 
-const runtime = Application.getAppInstance();
-runtime.set('etag', false);
+const runtime = Application.getAppInstance()
+runtime.set('etag', false)
 ```
 
 ### 4. Driver interaction: `app.getDriver()`
@@ -57,11 +57,11 @@ runtime.set('etag', false);
 Use the runtime driver for lifecycle-level integration.
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-const driver = app.getDriver();
-const runtime = app.getAppInstance();
-await driver.applyMiddleware(runtime, (req, _res, next) => next());
+const driver = app.getDriver()
+const runtime = app.getAppInstance()
+await driver.applyMiddleware(runtime, (req, _res, next) => next())
 ```
 
 ### 5. Router contract interaction: `app.getRouter()`
@@ -69,23 +69,23 @@ await driver.applyMiddleware(runtime, (req, _res, next) => next());
 Use the runtime-agnostic router contract.
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-const router = app.getRouter();
-await router.bind(app.getAppInstance());
+const router = app.getRouter()
+await router.bind(app.getAppInstance())
 
-const routes = await router.list({ path: '/api' });
-console.log(routes);
+const routes = await router.list({ path: '/api' })
+console.log(routes)
 ```
 
 ### 6. Lifecycle control: `boot` and `shutdown`
 
 ```ts
-import { app } from 'src/core/bootstrap';
+import { app } from 'src/core/bootstrap'
 
-await app.boot(3000);
+await app.boot(3000)
 // later
-await app.shutdown();
+await app.shutdown()
 ```
 
 ## Unified HTTP Context
@@ -94,14 +94,14 @@ The Express driver automatically installs `arkstackHttpPlugin`. Clear Router han
 
 ```ts
 Router.get('/account', ({ req, res, clearRequest, clearResponse }) => {
-  const token = clearRequest.bearerToken();
+  const token = clearRequest.bearerToken()
 
   return clearResponse.status(200).json({
     ip: req.ip,
     token,
     headersSent: res.headersSent,
-  });
-});
+  })
+})
 ```
 
 Controllers decorated with `@Bind()` can inject `Request`, `Response`, and `Session` from `@arkstack/http`. The injected values are the same instances exposed on the route context and by the global HTTP helpers. See the [HTTP guide](/guide/http#controller-injection).
@@ -119,13 +119,13 @@ Default behavior:
 If you need different static asset behavior, override `mountPublicAssets` in `src/core/app.ts` when constructing `ExpressDriver`.
 
 ```ts
-import express from 'express';
-import path from 'path';
-import { ExpressDriver } from '@arkstack/driver-express';
+import express from 'express'
+import path from 'path'
+import { ExpressDriver } from '@arkstack/driver-express'
 
 this.driver = new ExpressDriver({
   bindRouter: async (runtime) => {
-    runtime.use(await Router.bind());
+    runtime.use(await Router.bind())
   },
   mountPublicAssets: (runtime, publicPath) => {
     runtime.use(
@@ -133,10 +133,10 @@ this.driver = new ExpressDriver({
       express.static(path.resolve(publicPath), {
         maxAge: '7d',
       }),
-    );
+    )
   },
   errorHandler: ErrorHandler,
-});
+})
 ```
 
 ## Host & Port Binding

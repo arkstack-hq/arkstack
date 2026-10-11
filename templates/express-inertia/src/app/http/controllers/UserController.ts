@@ -81,7 +81,7 @@ export default class UserController extends BaseController {
   }
 
   /**
-   * Delete a specific resource 
+   * Delete a specific resource
    */
   async destroy() {
     return new Resource({})

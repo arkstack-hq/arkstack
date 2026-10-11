@@ -12,17 +12,12 @@ export class SendNotification extends Job {
     private message: string,
     private subject?: string,
     private recipient?: NotificationRecipient,
-    private data?: NotificationData
+    private data?: NotificationData,
   ) {
     super()
   }
 
   async handle() {
-    await this.notification.send(
-      this.message,
-      this.subject,
-      this.recipient,
-      this.data
-    )
+    await this.notification.send(this.message, this.subject, this.recipient, this.data)
   }
 }

@@ -9,15 +9,15 @@ import { DotPath, DotPathValue, config } from '@arkstack/common'
  * @param key           Dot path within the database config.
  * @param defaultValue  Value returned when the key is not set.
  */
-export const configure = <T extends DotPath<DatabaseConfig>> (
-    key: T,
-    defaultValue: unknown,
+export const configure = <T extends DotPath<DatabaseConfig>>(
+  key: T,
+  defaultValue: unknown,
 ): DotPathValue<DatabaseConfig, T> => {
-    try {
-        return config(`database.${key}`, defaultValue) as never
-    } catch {
-        return defaultValue as never
-    }
+  try {
+    return config(`database.${key}`, defaultValue) as never
+  } catch {
+    return defaultValue as never
+  }
 }
 
 /**
@@ -28,13 +28,13 @@ export const configure = <T extends DotPath<DatabaseConfig>> (
  * @throws when the named connection is not configured.
  */
 export const resolveConnection = (name?: string): ConnectionConfig => {
-    const connection = name ?? (configure('default', 'pgsql'))
-    const connections = configure('connections', {})
-    const resolved = connections[connection]
+  const connection = name ?? configure('default', 'pgsql')
+  const connections = configure('connections', {})
+  const resolved = connections[connection]
 
-    if (!resolved) {
-        throw new Error(`Database connection "${connection}" is not configured.`)
-    }
+  if (!resolved) {
+    throw new Error(`Database connection "${connection}" is not configured.`)
+  }
 
-    return resolved
+  return resolved
 }

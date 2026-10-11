@@ -47,41 +47,41 @@ By default, Arkstack looks in `src/app/models`.
 
 ```ts
 // src/app/models/User.ts
-import { User as BaseUser } from '@arkstack/auth';
-import PersonalAccessToken from './PersonalAccessToken';
+import { User as BaseUser } from '@arkstack/auth'
+import PersonalAccessToken from './PersonalAccessToken'
 
 export default class User extends BaseUser {
-  declare email: string;
-  declare password: string;
-  declare name: string;
-  declare createdAt: Date;
-  declare updatedAt: Date;
+  declare email: string
+  declare password: string
+  declare name: string
+  declare createdAt: Date
+  declare updatedAt: Date
 
   protected static columns = {
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-  };
+  }
 
   personalAccessTokens() {
-    return this.hasMany(PersonalAccessToken, 'userId');
+    return this.hasMany(PersonalAccessToken, 'userId')
   }
 }
 ```
 
 ```ts
 // src/app/models/PersonalAccessToken.ts
-import { PersonalAccessToken as BasePersonalAccessToken } from '@arkstack/auth';
-import User from './User';
+import { PersonalAccessToken as BasePersonalAccessToken } from '@arkstack/auth'
+import User from './User'
 
 export default class PersonalAccessToken extends BasePersonalAccessToken {
-  declare name: string;
-  declare token: string;
-  declare abilities: string[];
-  declare deviceInfo: Record<string, unknown>;
-  declare lastUsedAt: Date;
-  declare expiresAt: Date;
-  declare createdAt: Date;
-  declare updatedAt: Date;
+  declare name: string
+  declare token: string
+  declare abilities: string[]
+  declare deviceInfo: Record<string, unknown>
+  declare lastUsedAt: Date
+  declare expiresAt: Date
+  declare createdAt: Date
+  declare updatedAt: Date
 
   protected static columns = {
     userId: 'user_id',
@@ -90,10 +90,10 @@ export default class PersonalAccessToken extends BasePersonalAccessToken {
     expiresAt: 'expires_at',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-  };
+  }
 
   user() {
-    return this.belongsTo(User, 'userId');
+    return this.belongsTo(User, 'userId')
   }
 }
 ```
@@ -103,19 +103,19 @@ export default class PersonalAccessToken extends BasePersonalAccessToken {
 Use `Auth` inside a Clear Router route to verify credentials and create a personal access token.
 
 ```ts
-import { Auth } from '@arkstack/auth';
-import { Router } from '@arkstack/driver-express';
+import { Auth } from '@arkstack/auth'
+import { Router } from '@arkstack/driver-express'
 
 Router.post('/auth/login', async ({ req, res }) => {
-  const { email, password } = req.body;
-  const auth = Auth.make().setRequest(req);
-  const personalAccessToken = await auth.login(email, password);
+  const { email, password } = req.body
+  const auth = Auth.make().setRequest(req)
+  const personalAccessToken = await auth.login(email, password)
 
   return res.status(200).json({
     token: personalAccessToken.token,
     user: personalAccessToken.user,
-  });
-});
+  })
+})
 ```
 
 `Auth.login()` validates the user password with Arkstack's hash utility, creates a JWT with `jose`, stores it as a personal access token, and associates the token with the current device when request information is available.
@@ -125,18 +125,18 @@ Router.post('/auth/login', async ({ req, res }) => {
 Clear Router accepts middleware as the final argument on a route. Use the auth middleware from your active driver package and attach it to any protected route.
 
 ```ts
-import { auth } from '@arkstack/driver-express/middlewares';
-import { Router } from '@arkstack/driver-express';
+import { auth } from '@arkstack/driver-express/middlewares'
+import { Router } from '@arkstack/driver-express'
 
 Router.get(
   '/account',
   ({ req, res }) => {
     return res.status(200).json({
       user: req.authUser,
-    });
+    })
   },
   [auth],
-);
+)
 ```
 
 For other runtimes, import `auth` from `@arkstack/driver-[framework]/middlewares`. The middleware placement in the Clear Router route stays the same.
@@ -154,21 +154,21 @@ The auth middleware exposes a runtime-agnostic `middleware:auth` hook through `H
 The hook contract is the same across runtime drivers: middleware context is passed as `{ req, res }`, and error hooks receive the error first.
 
 ```ts
-import { Hook } from '@arkstack/foundry';
+import { Hook } from '@arkstack/foundry'
 
 Hook.set('middleware:auth', {
   before: ({ req, res }) => {
-    console.log('auth middleware starting');
+    console.log('auth middleware starting')
   },
   after: ({ req, res }) => {
     console.log('auth middleware passed', {
       userId: req.authUser?.id,
-    });
+    })
   },
   error: (error, { req, res }) => {
-    console.error('auth middleware failed', { error });
+    console.error('auth middleware failed', { error })
   },
-});
+})
 ```
 
 Hook positions receive:
@@ -184,9 +184,9 @@ Calling `Hook.set('middleware:auth', ...)` again merges the supplied positions w
 Use a Clear Router group when several routes share the same auth gate:
 
 ```ts
-import { auth } from '@arkstack/driver-express/middlewares';
-import { Auth } from '@arkstack/auth';
-import { Router } from '@arkstack/driver-express';
+import { auth } from '@arkstack/driver-express/middlewares'
+import { Auth } from '@arkstack/auth'
+import { Router } from '@arkstack/driver-express'
 
 await Router.group(
   '/account',
@@ -194,19 +194,19 @@ await Router.group(
     Router.get('/profile', ({ req, res }) => {
       return res.status(200).json({
         user: req.authUser,
-      });
-    });
+      })
+    })
 
     Router.get('/sessions', async ({ req, res }) => {
-      const session = await Auth.make().setRequest(req).session().token();
+      const session = await Auth.make().setRequest(req).session().token()
 
       return res.status(200).json({
         session,
-      });
-    });
+      })
+    })
   },
   [auth],
-);
+)
 ```
 
 ## Authenticated Context
@@ -225,21 +225,21 @@ For most application code, prefer using those values from the Clear Router handl
 Use `session()` when you need the database record for the current bearer token:
 
 ```ts
-import { Auth } from '@arkstack/auth';
-import { auth } from '@arkstack/driver-express/middlewares';
-import { Router } from '@arkstack/driver-express';
+import { Auth } from '@arkstack/auth'
+import { auth } from '@arkstack/driver-express/middlewares'
+import { Router } from '@arkstack/driver-express'
 
 Router.get(
   '/account/session',
   async ({ req, res }) => {
-    const session = await Auth.make().setRequest(req).session().token();
+    const session = await Auth.make().setRequest(req).session().token()
 
     return res.status(200).json({
       session,
-    });
+    })
   },
   [auth],
-);
+)
 ```
 
 This is useful for showing device/session metadata or revoking the current token.
@@ -249,11 +249,8 @@ This is useful for showing device/session metadata or revoking the current token
 Temporary tokens are useful for flows like two-factor authentication:
 
 ```ts
-const token = await Auth.make().createTemporaryToken(user, 'two-factor', '10m');
-const verifiedUser = await Auth.make().authorizeTemporaryToken(
-  token,
-  'two-factor',
-);
+const token = await Auth.make().createTemporaryToken(user, 'two-factor', '10m')
+const verifiedUser = await Auth.make().authorizeTemporaryToken(token, 'two-factor')
 ```
 
 Temporary tokens are JWTs and are not stored as personal access tokens.
@@ -281,21 +278,18 @@ TWO_FACTOR_SMS_TTL_MINUTES="10"
 Create a setup secret, show the returned `otpauthUrl` as a QR code, then persist the secret after the user confirms a valid code.
 
 ```ts
-import { TwoFactor } from '@arkstack/auth';
+import { TwoFactor } from '@arkstack/auth'
 
-const setup = TwoFactor.createSetup(user);
+const setup = TwoFactor.createSetup(user)
 
-await TwoFactor.setSecret(user.id, setup.secret);
+await TwoFactor.setSecret(user.id, setup.secret)
 
 if (TwoFactor.verifyCode(user, setup.secret, code)) {
-  const recoveryCodes = TwoFactor.generateBackupCodes();
+  const recoveryCodes = TwoFactor.generateBackupCodes()
 
-  await TwoFactor.setMethod(user.id, 'authenticator');
-  await TwoFactor.setEnabledAt(user.id);
-  await TwoFactor.writeRecoveryCodeHashes(
-    user.id,
-    await TwoFactor.hashBackupCodes(recoveryCodes),
-  );
+  await TwoFactor.setMethod(user.id, 'authenticator')
+  await TwoFactor.setEnabledAt(user.id)
+  await TwoFactor.writeRecoveryCodeHashes(user.id, await TwoFactor.hashBackupCodes(recoveryCodes))
 }
 ```
 
@@ -304,23 +298,21 @@ if (TwoFactor.verifyCode(user, setup.secret, code)) {
 `TwoFactor.issueSmsCode()` creates and stores a hashed challenge. Deliver the returned code with `@arkstack/notifications`.
 
 ```ts
-import { TwoFactor } from '@arkstack/auth';
-import { Notification } from '@arkstack/notifications';
+import { TwoFactor } from '@arkstack/auth'
+import { Notification } from '@arkstack/notifications'
 
-const issued = await TwoFactor.issueSmsCode(user, 'login');
+const issued = await TwoFactor.issueSmsCode(user, 'login')
 
-await Notification.sms()
-  .recipient(user.phone)
-  .send('Your {app} login code is {code}.', undefined, undefined, {
-    app: 'Arkstack',
-    code: issued.code,
-  });
+await Notification.sms().recipient(user.phone).send('Your {app} login code is {code}.', undefined, undefined, {
+  app: 'Arkstack',
+  code: issued.code,
+})
 ```
 
 Configure the SMS transport in `src/config/notifications.ts`:
 
 ```ts
-import { env } from '@arkstack/common';
+import { env } from '@arkstack/common'
 
 export default () => ({
   default_driver: 'mail',
@@ -342,7 +334,7 @@ export default () => ({
       from: env('TWILIO_FROM'),
     },
   },
-});
+})
 ```
 
 `drivers.sms.transport` selects the provider transport. Use `SMS_TRANSPORT=twilio` or `SMS_TRANSPORT=africastalking` in template config if you want to choose it from the environment.
@@ -350,22 +342,19 @@ export default () => ({
 Verify and consume the code:
 
 ```ts
-const verified = await TwoFactor.verifySmsCode(user.id, code, 'login');
+const verified = await TwoFactor.verifySmsCode(user.id, code, 'login')
 
 if (!verified) {
-  throw new Error('Invalid or expired two-factor code');
+  throw new Error('Invalid or expired two-factor code')
 }
 ```
 
 Recovery codes can be generated for either two-factor method:
 
 ```ts
-const recoveryCodes = TwoFactor.generateBackupCodes();
+const recoveryCodes = TwoFactor.generateBackupCodes()
 
-await TwoFactor.writeRecoveryCodeHashes(
-  user.id,
-  await TwoFactor.hashBackupCodes(recoveryCodes),
-);
+await TwoFactor.writeRecoveryCodeHashes(user.id, await TwoFactor.hashBackupCodes(recoveryCodes))
 
-const consumed = await TwoFactor.consumeRecoveryCode(user.id, recoveryCode);
+const consumed = await TwoFactor.consumeRecoveryCode(user.id, recoveryCode)
 ```

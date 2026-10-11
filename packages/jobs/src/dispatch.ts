@@ -14,20 +14,20 @@ import { PendingDispatch } from './PendingDispatch'
  * await dispatch(new SendReport(id), { queue: 'reports', delay: 30 })
  * ```
  */
-export const dispatch = <T extends Job> (job: T, options: DispatchOptions = {}): PendingDispatch<T> => {
-    const pending = new PendingDispatch(job)
+export const dispatch = <T extends Job>(job: T, options: DispatchOptions = {}): PendingDispatch<T> => {
+  const pending = new PendingDispatch(job)
 
-    if (options.connection) {
-        pending.onConnection(options.connection)
-    }
+  if (options.connection) {
+    pending.onConnection(options.connection)
+  }
 
-    if (options.queue) {
-        pending.onQueue(options.queue)
-    }
+  if (options.queue) {
+    pending.onQueue(options.queue)
+  }
 
-    if (options.delay !== undefined) {
-        pending.withDelay(options.delay)
-    }
+  if (options.delay !== undefined) {
+    pending.withDelay(options.delay)
+  }
 
-    return pending
+  return pending
 }

@@ -27,7 +27,7 @@ yarn add @arkstack/jobs @arkstack/queue
 Importing `@arkstack/jobs` anywhere wires the queue (de)serialization automatically. For an explicit bootstrap hook — alongside `@arkstack/database/setup` — import the setup entry:
 
 ```ts
-import '@arkstack/jobs/setup';
+import '@arkstack/jobs/setup'
 ```
 
 ## Writing a job
@@ -42,11 +42,11 @@ This creates `src/app/jobs/SendWelcomeEmail.ts`. Extend `Job` and implement `han
 
 ```ts
 // src/app/jobs/SendWelcomeEmail.ts
-import { Job } from '@arkstack/jobs';
+import { Job } from '@arkstack/jobs'
 
 export class SendWelcomeEmail extends Job {
   constructor(public userId: number) {
-    super();
+    super()
   }
 
   async handle() {
@@ -60,17 +60,17 @@ A job's constructor arguments become its serialized state, so keep them to plain
 ## Dispatching
 
 ```ts
-import { dispatch } from '@arkstack/jobs';
-import { SendWelcomeEmail } from '@app/jobs/SendWelcomeEmail';
+import { dispatch } from '@arkstack/jobs'
+import { SendWelcomeEmail } from '@app/jobs/SendWelcomeEmail'
 
 // static helper
-await SendWelcomeEmail.dispatch(user.id);
-await SendWelcomeEmail.dispatch(user.id).onQueue('mail').withDelay(60);
-await SendWelcomeEmail.dispatchSync(user.id); // run inline now
+await SendWelcomeEmail.dispatch(user.id)
+await SendWelcomeEmail.dispatch(user.id).onQueue('mail').withDelay(60)
+await SendWelcomeEmail.dispatchSync(user.id) // run inline now
 
 // functional helper
-await dispatch(new SendWelcomeEmail(user.id));
-await dispatch(new SendWelcomeEmail(user.id), { queue: 'mail', delay: 60 });
+await dispatch(new SendWelcomeEmail(user.id))
+await dispatch(new SendWelcomeEmail(user.id), { queue: 'mail', delay: 60 })
 ```
 
 The pending dispatch is awaitable and chainable:
@@ -92,14 +92,14 @@ ark queue:work
 Control attempts and backoff with instance properties, and react to permanent failure with a `failed` hook:
 
 ```ts
-import { Job } from '@arkstack/jobs';
+import { Job } from '@arkstack/jobs'
 
 export class ChargeInvoice extends Job {
-  tries = 3; // max attempts before the job is marked failed
-  backoff = 30; // seconds to wait before a released job retries
+  tries = 3 // max attempts before the job is marked failed
+  backoff = 30 // seconds to wait before a released job retries
 
   constructor(public invoiceId: number) {
-    super();
+    super()
   }
 
   async handle() {
@@ -125,9 +125,9 @@ serialize() {
 A dedicated worker **process** constructs none of your jobs, so `ark queue:work` imports every job module in `src/app/jobs` (or its build output) before it starts working, registering each class it finds under its class name. Jobs kept elsewhere can be registered by loading that directory instead:
 
 ```ts
-import { loadJobs } from '@arkstack/jobs';
+import { loadJobs } from '@arkstack/jobs'
 
-await loadJobs('domain/jobs'); // relative to src/, or the build output
+await loadJobs('domain/jobs') // relative to src/, or the build output
 ```
 
 `JobRegistry.register(MyJob)` still registers a single class explicitly.

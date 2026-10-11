@@ -9,11 +9,11 @@ Authentication module for Arkstack, providing core authentication and identity f
 ## Usage
 
 ```ts
-import { Auth } from '@arkstack/auth';
+import { Auth } from '@arkstack/auth'
 
-const auth = Auth.make();
-const token = await auth.login(email, password);
-const user = await auth.authorizeToken(token.token);
+const auth = Auth.make()
+const token = await auth.login(email, password)
+const user = await auth.authorizeToken(token.token)
 ```
 
 Auth resolves your app's `User` and `PersonalAccessToken` models with `getModel()` from `@arkstack/common`.
@@ -21,20 +21,17 @@ Auth resolves your app's `User` and `PersonalAccessToken` models with `getModel(
 ## Two-Factor Authentication
 
 ```ts
-import { TwoFactor } from '@arkstack/auth';
+import { TwoFactor } from '@arkstack/auth'
 
-const setup = TwoFactor.createSetup(user);
-await TwoFactor.setSecret(user.id, setup.secret);
+const setup = TwoFactor.createSetup(user)
+await TwoFactor.setSecret(user.id, setup.secret)
 
 if (TwoFactor.verifyCode(user, setup.secret, code)) {
-  const recoveryCodes = TwoFactor.generateBackupCodes();
+  const recoveryCodes = TwoFactor.generateBackupCodes()
 
-  await TwoFactor.setMethod(user.id, 'authenticator');
-  await TwoFactor.setEnabledAt(user.id);
-  await TwoFactor.writeRecoveryCodeHashes(
-    user.id,
-    await TwoFactor.hashBackupCodes(recoveryCodes),
-  );
+  await TwoFactor.setMethod(user.id, 'authenticator')
+  await TwoFactor.setEnabledAt(user.id)
+  await TwoFactor.writeRecoveryCodeHashes(user.id, await TwoFactor.hashBackupCodes(recoveryCodes))
 }
 ```
 
@@ -43,15 +40,13 @@ Apps that use persisted 2FA state should provide a `UserTwoFactor` model backed 
 SMS 2FA issues and stores the challenge in `@arkstack/auth`, then delivers the code through `@arkstack/notifications`:
 
 ```ts
-import { Notification } from '@arkstack/notifications';
+import { Notification } from '@arkstack/notifications'
 
-const issued = await TwoFactor.issueSmsCode(user, 'login');
+const issued = await TwoFactor.issueSmsCode(user, 'login')
 
-await Notification.sms()
-  .recipient(user.phone)
-  .send('Your login code is {code}', undefined, undefined, {
-    code: issued.code,
-  });
+await Notification.sms().recipient(user.phone).send('Your login code is {code}', undefined, undefined, {
+  code: issued.code,
+})
 ```
 
 Configure the SMS provider with `notifications.drivers.sms.transport` and transport credentials in `notifications.transports.twilio` or `notifications.transports.africastalking`.
@@ -59,8 +54,8 @@ Configure the SMS provider with `notifications.drivers.sms.transport` and transp
 Driver middleware lives in the runtime packages:
 
 ```ts
-import { auth } from '@arkstack/driver-express/middlewares';
-import { auth as h3Auth } from '@arkstack/driver-h3/middlewares';
+import { auth } from '@arkstack/driver-express/middlewares'
+import { auth as h3Auth } from '@arkstack/driver-h3/middlewares'
 ```
 
 See the documentation Authentication guide for the full setup.

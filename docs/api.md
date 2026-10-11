@@ -202,13 +202,13 @@ Driver packages:
 Express:
 
 ```ts
-import { auth } from '@arkstack/driver-express/middlewares';
+import { auth } from '@arkstack/driver-express/middlewares'
 ```
 
 H3:
 
 ```ts
-import { auth } from '@arkstack/driver-h3/middlewares';
+import { auth } from '@arkstack/driver-h3/middlewares'
 ```
 
 Both middlewares expect an `Authorization: Bearer <token>` header.
@@ -365,13 +365,13 @@ The `pusher-js` / `firebase` SDKs (and `react` / `vue` for the bindings) are opt
 Express:
 
 ```ts
-import { inertia } from '@arkstack/driver-express/middlewares';
+import { inertia } from '@arkstack/driver-express/middlewares'
 ```
 
 H3:
 
 ```ts
-import { inertia } from '@arkstack/driver-h3/middlewares';
+import { inertia } from '@arkstack/driver-h3/middlewares'
 ```
 
 Register it in `src/config/middleware.ts` under `before` (alongside `resora()`). The middleware binds the Inertia request context and upgrades mutation redirects to `303`.
@@ -420,14 +420,14 @@ Decorating a controller method with `@Bind()` enables typed injection of `Reques
 Uncaught exceptions are serialized to a standard payload — `{ status, code, message, errors?, stack? }`. To add fields to, or reshape, that response, set a `body` on an `AppException` (or a subclass). When present, `body` is merged **over** the standard payload, so it can both add custom fields and override the defaults (`status`, `code`, `message`, …).
 
 ```ts
-import { AppException } from '@arkstack/common';
+import { AppException } from '@arkstack/common'
 
 // Add fields to the standard error payload
 class PaymentException extends AppException {
-  body = { error_code: 'PAYMENT_FAILED', retryable: true };
+  body = { error_code: 'PAYMENT_FAILED', retryable: true }
 }
 
-throw new PaymentException('Payment failed', 402);
+throw new PaymentException('Payment failed', 402)
 // → { status: 'error', code: 402, message: 'Payment failed',
 //     error_code: 'PAYMENT_FAILED', retryable: true }
 ```

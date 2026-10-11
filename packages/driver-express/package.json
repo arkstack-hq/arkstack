@@ -1,73 +1,73 @@
 {
-    "name": "@arkstack/driver-express",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Express driver for Arkstack, providing Express-based runtime integration for the framework.",
-    "homepage": "https://arkstack.toneflix.net",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/driver-express"
+  "name": "@arkstack/driver-express",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Express driver for Arkstack, providing Express-based runtime integration for the framework.",
+  "homepage": "https://arkstack.toneflix.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/driver-express"
+  },
+  "keywords": [
+    "express",
+    "driver",
+    "integration",
+    "routing",
+    "middleware",
+    "database",
+    "arkstack",
+    "http",
+    "server",
+    "rest",
+    "api",
+    "framework"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./middlewares": "./dist/middlewares/index.js",
+    "./types": "./dist/types.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/http": "workspace:^",
+    "@ngrok/ngrok": "^1.7.0",
+    "@resora/plugin-clear-router": "catalog:",
+    "clear-router": "catalog:",
+    "express-rate-limit": "^8.4.1",
+    "multer": "^2.1.1",
+    "resora": "catalog:"
+  },
+  "peerDependencies": {
+    "@arkstack/auth": "workspace:^",
+    "@arkstack/common": "workspace:^",
+    "@arkstack/foundry": "workspace:^",
+    "@arkstack/inertia": "workspace:^",
+    "express": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@arkstack/auth": {
+      "optional": true
     },
-    "keywords": [
-        "express",
-        "driver",
-        "integration",
-        "routing",
-        "middleware",
-        "database",
-        "arkstack",
-        "http",
-        "server",
-        "rest",
-        "api",
-        "framework"
-    ],
-    "files": [
-        "dist",
-        "stubs"
-    ],
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./dist/index.js",
-        "./middlewares": "./dist/middlewares/index.js",
-        "./types": "./dist/types.js",
-        "./package.json": "./package.json"
-    },
-    "dependencies": {
-        "@arkstack/contract": "workspace:^",
-        "@arkstack/http": "workspace:^",
-        "@ngrok/ngrok": "^1.7.0",
-        "@resora/plugin-clear-router": "catalog:",
-        "clear-router": "catalog:",
-        "express-rate-limit": "^8.4.1",
-        "multer": "^2.1.1",
-        "resora": "catalog:"
-    },
-    "peerDependencies": {
-        "@arkstack/auth": "workspace:^",
-        "@arkstack/common": "workspace:^",
-        "@arkstack/foundry": "workspace:^",
-        "@arkstack/inertia": "workspace:^",
-        "express": "catalog:"
-    },
-    "peerDependenciesMeta": {
-        "@arkstack/auth": {
-            "optional": true
-        },
-        "@arkstack/inertia": {
-            "optional": true
-        }
-    },
-    "devDependencies": {
-        "@types/express": "^5.0.6",
-        "@types/multer": "^2.1.0"
+    "@arkstack/inertia": {
+      "optional": true
     }
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.1.0"
+  }
 }

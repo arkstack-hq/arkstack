@@ -1,59 +1,59 @@
 {
-    "name": "@arkstack/queue",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Queue module for Arkstack, providing a driver based queue transport and worker for background processing.",
-    "homepage": "https://arkstack.toneflix.net/guide/queue",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/queue"
+  "name": "@arkstack/queue",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Queue module for Arkstack, providing a driver based queue transport and worker for background processing.",
+  "homepage": "https://arkstack.toneflix.net/guide/queue",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/queue"
+  },
+  "keywords": [
+    "queue",
+    "worker",
+    "jobs",
+    "background",
+    "sync",
+    "redis",
+    "database",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./commands/QueueClearCommand": "./dist/commands/QueueClearCommand.js",
+    "./commands/QueueWorkCommand": "./dist/commands/QueueWorkCommand.js",
+    "./setup": "./dist/setup.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/common": "workspace:^"
+  },
+  "peerDependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/database": "workspace:^",
+    "@h3ravel/musket": "catalog:",
+    "ioredis": "^5.4.1"
+  },
+  "peerDependenciesMeta": {
+    "@arkstack/database": {
+      "optional": true
     },
-    "keywords": [
-        "queue",
-        "worker",
-        "jobs",
-        "background",
-        "sync",
-        "redis",
-        "database",
-        "arkstack"
-    ],
-    "files": [
-        "dist",
-        "stubs"
-    ],
-    "scripts": {
-        "build": "tsdown",
-        "test": "vitest",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./dist/index.js",
-        "./commands/QueueClearCommand": "./dist/commands/QueueClearCommand.js",
-        "./commands/QueueWorkCommand": "./dist/commands/QueueWorkCommand.js",
-        "./setup": "./dist/setup.js",
-        "./package.json": "./package.json"
-    },
-    "dependencies": {
-        "@arkstack/common": "workspace:^"
-    },
-    "peerDependencies": {
-        "@arkstack/contract": "workspace:^",
-        "@arkstack/database": "workspace:^",
-        "@h3ravel/musket": "catalog:",
-        "ioredis": "^5.4.1"
-    },
-    "peerDependenciesMeta": {
-        "@arkstack/database": {
-            "optional": true
-        },
-        "ioredis": {
-            "optional": true
-        }
+    "ioredis": {
+      "optional": true
     }
+  }
 }

@@ -39,10 +39,10 @@ Cache configuration lives in `src/config/cache.ts` — a default store, a global
 
 ```ts
 // src/config/cache.ts
-import { Arkstack } from '@arkstack/contract';
-import { CacheConfig } from '@arkstack/cache';
-import { env } from '@arkstack/common';
-import path from 'node:path';
+import { Arkstack } from '@arkstack/contract'
+import { CacheConfig } from '@arkstack/cache'
+import { env } from '@arkstack/common'
+import path from 'node:path'
 
 export default (): CacheConfig => ({
   default: env('CACHE_STORE', 'memory'),
@@ -60,7 +60,7 @@ export default (): CacheConfig => ({
     },
     database: { driver: 'database', table: 'cache' },
   },
-});
+})
 ```
 
 The `database` store expects a table with `key` (string, primary), `value` (text), and `expiration` (nullable integer, epoch seconds) columns. Publish the ready-made migration with:
@@ -75,12 +75,12 @@ pnpm ark migrate
 Reach for the static `Cache` facade, which proxies the default store:
 
 ```ts
-import { Cache } from '@arkstack/cache';
+import { Cache } from '@arkstack/cache'
 
-await Cache.put('user:1', user, 60); // ttl in seconds
-await Cache.get('user:1');
-await Cache.has('user:1');
-await Cache.forget('user:1');
+await Cache.put('user:1', user, 60) // ttl in seconds
+await Cache.get('user:1')
+await Cache.has('user:1')
+await Cache.forget('user:1')
 ```
 
 The TTL accepts a number of seconds, a `Date`, or `null` (store forever). A non-positive TTL is treated as already expired.
@@ -90,21 +90,21 @@ The TTL accepts a number of seconds, a `Date`, or `null` (store forever). A non-
 `remember` returns a cached value or computes, stores, and returns it (read-through caching):
 
 ```ts
-const stats = await Cache.remember('stats', 300, async () => computeStats());
+const stats = await Cache.remember('stats', 300, async () => computeStats())
 
 // never expires
-const config = await Cache.rememberForever('config', () => loadConfig());
+const config = await Cache.rememberForever('config', () => loadConfig())
 ```
 
 ### Other helpers
 
 ```ts
-await Cache.add('once', 'value', 60); // only stores if absent; returns false otherwise
-await Cache.pull('flash'); // get and forget in one call
-await Cache.forever('flag', true); // store with no expiration
-await Cache.increment('hits'); // atomic on redis
-await Cache.decrement('hits', 2);
-await Cache.flush(); // clear the whole store
+await Cache.add('once', 'value', 60) // only stores if absent; returns false otherwise
+await Cache.pull('flash') // get and forget in one call
+await Cache.forever('flag', true) // store with no expiration
+await Cache.increment('hits') // atomic on redis
+await Cache.decrement('hits', 2)
+await Cache.flush() // clear the whole store
 ```
 
 | Method                                      | Description                                             |
@@ -125,8 +125,8 @@ await Cache.flush(); // clear the whole store
 Target a specific store with `store()`:
 
 ```ts
-await Cache.store('redis').forever('flag', true);
-await Cache.store('file').remember('report', 3600, buildReport);
+await Cache.store('redis').forever('flag', true)
+await Cache.store('file').remember('report', 3600, buildReport)
 ```
 
 ## Console
@@ -143,13 +143,13 @@ ark cache:clear --store=redis
 Implement the `Store` contract and register it with `Cache.extend`:
 
 ```ts
-import { Cache, Store } from '@arkstack/cache';
+import { Cache, Store } from '@arkstack/cache'
 
 class TagStore extends Store {
   /* implement get/put/forever/increment/decrement/forget/flush/getPrefix */
 }
 
-Cache.extend('tags', (config) => new TagStore(/* ... */));
+Cache.extend('tags', (config) => new TagStore(/* ... */))
 ```
 
 Then reference it in a store config: `{ driver: 'tags' }`.

@@ -21,7 +21,7 @@ export class SendWelcomeEmail extends Job {
     super()
   }
 
-  async handle () {
+  async handle() {
     // ... send the email
   }
 }
@@ -36,7 +36,7 @@ import { SendWelcomeEmail } from '@app/jobs/SendWelcomeEmail'
 // static helper
 await SendWelcomeEmail.dispatch(user.id)
 await SendWelcomeEmail.dispatch(user.id).onQueue('mail').withDelay(60)
-await SendWelcomeEmail.dispatchSync(user.id)   // run inline now
+await SendWelcomeEmail.dispatchSync(user.id) // run inline now
 
 // functional helper
 await dispatch(new SendWelcomeEmail(user.id))

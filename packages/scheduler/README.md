@@ -18,19 +18,19 @@ Full app templates include it and a `src/routes/console.ts` already.
 In `src/routes/console.ts`:
 
 ```ts
-import { Schedule } from '@arkstack/scheduler';
+import { Schedule } from '@arkstack/scheduler'
 
-Schedule.command('cache:prune').hourly();
+Schedule.command('cache:prune').hourly()
 
 Schedule.call(async () => {
-  await pruneTempFiles();
+  await pruneTempFiles()
 })
   .dailyAt('01:30')
-  .withoutOverlapping();
+  .withoutOverlapping()
 
-Schedule.job(new SendDigest()).weeklyOn(1, '08:00');
+Schedule.job(new SendDigest()).weeklyOn(1, '08:00')
 
-Schedule.exec('backup.sh').daily().onOneServer();
+Schedule.exec('backup.sh').daily().onOneServer()
 ```
 
 | Task type                       | Runs                                           |
@@ -58,36 +58,36 @@ ark schedule:list    # list tasks with their next run time
 ## Frequencies
 
 ```ts
-Schedule.command('x').everyMinute();
-Schedule.command('x').everyFiveMinutes(); // */5 * * * *
-Schedule.command('x').everyThirtyMinutes();
-Schedule.command('x').hourly();
-Schedule.command('x').hourlyAt(15);
-Schedule.command('x').daily();
-Schedule.command('x').dailyAt('13:00');
-Schedule.command('x').twiceDaily(1, 13);
-Schedule.command('x').weekly();
-Schedule.command('x').weeklyOn(1, '8:00'); // Monday 08:00
-Schedule.command('x').monthly();
-Schedule.command('x').monthlyOn(15, '17:00');
-Schedule.command('x').quarterly();
-Schedule.command('x').yearly();
-Schedule.command('x').cron('*/10 9-17 * * 1-5'); // raw cron
+Schedule.command('x').everyMinute()
+Schedule.command('x').everyFiveMinutes() // */5 * * * *
+Schedule.command('x').everyThirtyMinutes()
+Schedule.command('x').hourly()
+Schedule.command('x').hourlyAt(15)
+Schedule.command('x').daily()
+Schedule.command('x').dailyAt('13:00')
+Schedule.command('x').twiceDaily(1, 13)
+Schedule.command('x').weekly()
+Schedule.command('x').weeklyOn(1, '8:00') // Monday 08:00
+Schedule.command('x').monthly()
+Schedule.command('x').monthlyOn(15, '17:00')
+Schedule.command('x').quarterly()
+Schedule.command('x').yearly()
+Schedule.command('x').cron('*/10 9-17 * * 1-5') // raw cron
 ```
 
 Day-of-week constraints, with time layered on top:
 
 ```ts
-Schedule.command('x').weekdays().at('9:00');
-Schedule.command('x').weekends().hourly();
-Schedule.command('x').mondays();
-Schedule.command('x').days([1, 4]); // Monday & Thursday
+Schedule.command('x').weekdays().at('9:00')
+Schedule.command('x').weekends().hourly()
+Schedule.command('x').mondays()
+Schedule.command('x').days([1, 4]) // Monday & Thursday
 ```
 
 Set the timezone the expression is evaluated in:
 
 ```ts
-Schedule.command('x').dailyAt('09:00').timezone('America/New_York');
+Schedule.command('x').dailyAt('09:00').timezone('America/New_York')
 ```
 
 ## Constraints
@@ -98,7 +98,7 @@ Schedule.command('x')
   .when(async () => await featureEnabled('reports')) // run only when truthy
   .skip(() => isHoliday()) // skip when truthy
   .environments('production', 'staging') // limit by APP_ENV
-  .between('09:00', '17:00'); // only within a daily window
+  .between('09:00', '17:00') // only within a daily window
 ```
 
 `unlessBetween('22:00', '06:00')` runs _outside_ a window (overnight ranges handled).
@@ -106,9 +106,9 @@ Schedule.command('x')
 ## Overlaps, single-server & background
 
 ```ts
-Schedule.command('report:build').everyFiveMinutes().withoutOverlapping();
-Schedule.exec('backup.sh').daily().onOneServer();
-Schedule.exec('long-import.sh').daily().runInBackground();
+Schedule.command('report:build').everyFiveMinutes().withoutOverlapping()
+Schedule.exec('backup.sh').daily().onOneServer()
+Schedule.exec('long-import.sh').daily().runInBackground()
 ```
 
 `withoutOverlapping()` and `onOneServer()` coordinate through `@arkstack/cache`, so they work across processes and servers. Configure a shared cache store (`redis` or `database`) for `onOneServer()` to be effective; without a cache the scheduler falls back to a process-local lock.
@@ -121,7 +121,7 @@ Schedule.command('report:build')
   .before(() => logger.info('building report'))
   .onSuccess(() => notifyOk())
   .onFailure((error) => notifyFailed(error))
-  .after(() => logger.info('done'));
+  .after(() => logger.info('done'))
 ```
 
 ## API

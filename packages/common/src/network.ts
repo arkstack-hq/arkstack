@@ -8,19 +8,19 @@ import { detect } from 'detect-port'
 import { str } from '@h3ravel/support'
 
 /**
- * Boots the app using an available port close to the requested port 
+ * Boots the app using an available port close to the requested port
  *when requested port is not available
- * 
- * @param boot 
- * @param preferredPort 
- * @param app 
- * @param defer 
+ *
+ * @param boot
+ * @param preferredPort
+ * @param app
+ * @param defer
  */
-export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = unknown> (
+export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = unknown>(
   boot: (port: number) => Promise<void>,
   preferredPort: number = 3000,
   app?: Arkstack<TApp, TRoutes, THandler>,
-  defer?: boolean
+  defer?: boolean,
 ) => {
   const port = await detect(preferredPort)
 
@@ -56,10 +56,10 @@ export const renderError = ({
   title,
   code = 500,
 }: {
-  message?: string;
-  stack?: string;
-  code?: number;
-  title?: string;
+  message?: string
+  stack?: string
+  code?: number
+  title?: string
 }) => {
   const titleMap: Record<number, string> = {
     400: 'Bad Request',
@@ -74,10 +74,12 @@ export const renderError = ({
 
   title = titleMap[code] || title || 'Error'
 
-  return (globalThis as unknown as ViewGlobal).view('~arkstack/common.error', {
-    code,
-    title,
-    stack,
-    message,
-  }).renderSync()
+  return (globalThis as unknown as ViewGlobal)
+    .view('~arkstack/common.error', {
+      code,
+      title,
+      stack,
+      message,
+    })
+    .renderSync()
 }

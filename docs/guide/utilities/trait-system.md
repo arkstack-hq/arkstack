@@ -9,27 +9,27 @@ The trait system is built around `trait()` to define a behaviour unit, `use()` t
 A trait is created with the `trait()` factory. It receives a `Base` class and returns a new class extending it with the desired methods. This factory pattern is what makes traits stackable — each one builds on whatever base it receives, so they can be combined in any order without conflicts.
 
 ```ts
-import { trait } from '@arkstack/common/utils';
+import { trait } from '@arkstack/common/utils'
 
 const Addable = trait(
   (Base) =>
     class Addable extends Base {
       add() {
-        this.value = this.value + 1;
-        return this.value;
+        this.value = this.value + 1
+        return this.value
       }
     },
-);
+)
 
 const Subtractable = trait(
   (Base) =>
     class Subtractable extends Base {
       subtract() {
-        this.value = this.value - 1;
-        return this.value;
+        this.value = this.value - 1
+        return this.value
       }
     },
-);
+)
 ```
 
 ## Applying Traits
@@ -39,49 +39,49 @@ const Subtractable = trait(
 `use()` also accepts a regular class as its **last argument**. When provided, it becomes the root of the composition chain — all traits are applied on top of it, and `instanceof` checks against the base class work as expected. Only one regular class is permitted, and it must always come after all traits.
 
 ```ts
-import { use } from '@arkstack/common/utils';
+import { use } from '@arkstack/common/utils'
 
 // Single trait
 class MyClass extends use(Subtractable) {
-  value = 1;
+  value = 1
 }
-new MyClass().subtract(); // 0
+new MyClass().subtract() // 0
 
 // Multiple traits
 class MyClass extends use(Subtractable, Addable) {
-  value = 0;
+  value = 0
 }
-const instance = new MyClass();
-instance.add(); // 1
-instance.subtract(); // 0
+const instance = new MyClass()
+instance.add() // 1
+instance.subtract() // 0
 
 // Extend a class that already has traits
 class MySubClass extends use(Addable, MyClass) {}
-new MySubClass().subtract(); // 0 — inherited from MyClass
+new MySubClass().subtract() // 0 — inherited from MyClass
 
 // Regular class as the base — must be last
 class BaseClass {
-  static label = 'base';
-  value = 1;
+  static label = 'base'
+  value = 1
 
   increment() {
-    return this.value + 1;
+    return this.value + 1
   }
 }
 
 class MyClass extends use(BaseClass) {}
-new MyClass().increment(); // 2
-new MyClass() instanceof BaseClass; // true
-MyClass.label; // "base"
+new MyClass().increment() // 2
+new MyClass() instanceof BaseClass // true
+MyClass.label // "base"
 
 // Traits and a regular base class combined
 class MyClass extends use(Addable, Subtractable, BaseClass) {}
-const instance = new MyClass();
-instance.add(); // 2
-instance.subtract(); // 1
-instance.increment(); // 2
-instance instanceof BaseClass; // true
-MyClass.label; // "base"
+const instance = new MyClass()
+instance.add() // 2
+instance.subtract() // 1
+instance.increment() // 2
+instance instanceof BaseClass // true
+MyClass.label // "base"
 ```
 
 > **Note:** The regular base class must always be the last argument to `use()`. Placing it before any trait will result in unexpected behaviour.
@@ -93,11 +93,11 @@ When multiple traits or the base class define the same method, Arkstack keeps th
 This can be called from inside the consuming class by passing `this`:
 
 ```ts
-import { callTraitMethods, trait, use } from '@arkstack/common/utils';
+import { callTraitMethods, trait, use } from '@arkstack/common/utils'
 
 class BaseService {
   boot() {
-    return 'base';
+    return 'base'
   }
 }
 
@@ -105,42 +105,42 @@ const LogsBoot = trait(
   (Base) =>
     class LogsBoot extends Base {
       boot() {
-        return 'logger';
+        return 'logger'
       }
     },
-);
+)
 
 const TracksBoot = trait(
   (Base) =>
     class TracksBoot extends Base {
       boot() {
-        return 'tracker';
+        return 'tracker'
       }
     },
-);
+)
 
 class Service extends use(LogsBoot, TracksBoot, BaseService) {
   bootAll() {
-    return callTraitMethods(this, 'boot');
+    return callTraitMethods(this, 'boot')
   }
 }
 
-const service = new Service();
+const service = new Service()
 
-service.boot(); // "logger" — the leftmost trait is active
-service.bootAll(); // ["base", "tracker", "logger"]
+service.boot() // "logger" — the leftmost trait is active
+service.bootAll() // ["base", "tracker", "logger"]
 ```
 
 Use `getTraitMethods()` when you need to inspect, filter, or invoke the bound methods yourself:
 
 ```ts
-import { getTraitMethods } from '@arkstack/common/utils';
+import { getTraitMethods } from '@arkstack/common/utils'
 
 class Service extends use(LogsBoot, TracksBoot, BaseService) {
   bootUntilReady() {
     for (const boot of getTraitMethods(this, 'boot')) {
-      const result = boot();
-      if (result === 'logger') return result;
+      const result = boot()
+      if (result === 'logger') return result
     }
   }
 }
@@ -153,28 +153,28 @@ const LogsStaticBoot = trait(
   (Base) =>
     class LogsStaticBoot extends Base {
       static boot() {
-        return 'logger';
+        return 'logger'
       }
     },
-);
+)
 
 const TracksStaticBoot = trait(
   (Base) =>
     class TracksStaticBoot extends Base {
       static boot() {
-        return 'tracker';
+        return 'tracker'
       }
     },
-);
+)
 
 class Service extends use(LogsStaticBoot, TracksStaticBoot) {
   static bootAll() {
-    return callTraitMethods(Service, 'boot');
+    return callTraitMethods(Service, 'boot')
   }
 }
 
-Service.boot(); // "logger"
-Service.bootAll(); // ["tracker", "logger"]
+Service.boot() // "logger"
+Service.bootAll() // ["tracker", "logger"]
 ```
 
 Only method conflicts are registered. Calling `callTraitMethods()` for a method without conflicting implementations logs a warning and returns an empty array; `getTraitMethods()` returns an empty array without logging.
@@ -186,14 +186,14 @@ Pass `true` as the first argument to `use()` to attach `getTraitMethods()` and `
 ```ts
 class Service extends use(true, LogsBoot, TracksBoot, BaseService) {
   boot() {
-    return this.callTraitMethods<string>('boot').at(-1);
+    return this.callTraitMethods<string>('boot').at(-1)
   }
 }
 
-const service = new Service();
+const service = new Service()
 
-service.boot(); // "logger"
-service.getTraitMethods('boot'); // Bound conflicting methods
+service.boot() // "logger"
+service.getTraitMethods('boot') // Bound conflicting methods
 ```
 
 The helpers are also available statically when enabled:
@@ -201,12 +201,12 @@ The helpers are also available statically when enabled:
 ```ts
 class Service extends use(true, LogsStaticBoot, TracksStaticBoot) {
   static boot() {
-    return Service.callTraitMethods<string>('boot').at(-1);
+    return Service.callTraitMethods<string>('boot').at(-1)
   }
 }
 
-Service.boot(); // "logger"
-Service.getTraitMethods('boot'); // Bound conflicting static methods
+Service.boot() // "logger"
+Service.getTraitMethods('boot') // Bound conflicting static methods
 ```
 
 The consuming overrides are not added to the conflict registry, so these calls do not recurse back into `Service.boot()`. Classes composed with the regular `use(...)` signature do not receive the helper methods.
@@ -216,29 +216,29 @@ The consuming overrides are not added to the conflict registry, so these calls d
 `uses()` lets you check at runtime whether a given trait was applied anywhere in a class's composition chain. This is useful for conditional logic, guards, or introspection without relying on duck typing.
 
 ```ts
-import { uses } from '@arkstack/common/utils';
+import { uses } from '@arkstack/common/utils'
 
 class MyClass extends use(Addable) {
-  value = 0;
+  value = 0
 }
 
-const instance = new MyClass();
-uses(instance, Addable); // true
-uses(instance, Subtractable); // false
-instance.subtract; // undefined — never applied
+const instance = new MyClass()
+uses(instance, Addable) // true
+uses(instance, Subtractable) // false
+instance.subtract // undefined — never applied
 ```
 
 `instanceof` also works correctly across the full hierarchy, including parent classes that had traits applied:
 
 ```ts
 class MyClass extends use(Addable) {
-  value = 0;
+  value = 0
 }
 class MySubClass extends use(Subtractable, MyClass) {}
 
-const instance = new MySubClass();
-instance instanceof MySubClass; // true
-instance instanceof MyClass; // true
+const instance = new MySubClass()
+instance instanceof MySubClass // true
+instance instanceof MyClass // true
 ```
 
 ## Static Method Support
@@ -250,24 +250,24 @@ const IRouter = trait(
   (Base) =>
     class IRouter extends Base {
       static call() {
-        return 'Called';
+        return 'Called'
       }
     },
-);
+)
 
 const Magical = trait(
   (Base) =>
     class Magical extends Base {
       static pause() {
-        return 'Paused';
+        return 'Paused'
       }
     },
-);
+)
 
 class Router extends use(IRouter, Magical) {}
 
-Router.call(); // "Called"
-Router.pause(); // "Paused"
+Router.call() // "Called"
+Router.pause() // "Paused"
 ```
 
 ## Constructor Access
@@ -279,25 +279,25 @@ const Magic = trait(
   (Base) =>
     class Magic extends Base {
       makeMagic() {
-        return 'makeMagic';
+        return 'makeMagic'
       }
     },
-);
+)
 
 const Magical = trait(
   (Base) =>
     class Magical extends Base {
       play() {
-        return 'Playing';
+        return 'Playing'
       }
     },
-);
+)
 
 class Router extends use(Magic, Magical) {
   constructor() {
-    super();
-    console.log(this.makeMagic()); // "makeMagic"
-    console.log(this.play()); // "Playing"
+    super()
+    console.log(this.makeMagic()) // "makeMagic"
+    console.log(this.play()) // "Playing"
   }
 }
 ```
@@ -311,24 +311,24 @@ const Proxiable = trait(
   (Base) =>
     class Proxiable extends Base {
       constructor() {
-        super();
+        super()
         return new Proxy(this, {
           get(target, prop, receiver) {
-            const val = Reflect.get(target, prop, receiver);
+            const val = Reflect.get(target, prop, receiver)
             if (typeof val === 'function' && val.name === 'proxied') {
-              return () => val().toUpperCase();
+              return () => val().toUpperCase()
             }
-            return val;
+            return val
           },
-        });
+        })
       }
 
       proxied() {
-        return 'it worked';
+        return 'it worked'
       }
     },
-);
+)
 
 class MyClass extends use(Proxiable) {}
-new MyClass().proxied(); // "IT WORKED"
+new MyClass().proxied() // "IT WORKED"
 ```

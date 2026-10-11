@@ -3,18 +3,18 @@ import User from './User'
 import { BelongsToRelation } from 'arkormx/relationship'
 
 export default class UserTwoFactor extends BaseUserTwoFactor {
-    protected static override table = 'user_two_factors'
-    protected static override columns = {
-        userId: 'user_id',
-        secretCiphertext: 'secret_ciphertext',
-        smsCodeHash: 'sms_code_hash',
-        smsCodeExpiresAt: 'sms_code_expires_at',
-        smsCodePurpose: 'sms_code_purpose',
-        enabledAt: 'enabled_at',
-        recoveryCodeHashes: 'recovery_code_hashes',
-    }
+  protected static override table = 'user_two_factors'
+  protected static override columns = {
+    userId: 'user_id',
+    secretCiphertext: 'secret_ciphertext',
+    smsCodeHash: 'sms_code_hash',
+    smsCodeExpiresAt: 'sms_code_expires_at',
+    smsCodePurpose: 'sms_code_purpose',
+    enabledAt: 'enabled_at',
+    recoveryCodeHashes: 'recovery_code_hashes',
+  }
 
-    user (): BelongsToRelation<this, User> {
-        return this.belongsTo(User, 'userId', 'id') as never
-    }
+  user(): BelongsToRelation<this, User> {
+    return this.belongsTo(User, 'userId', 'id') as never
+  }
 }

@@ -8,7 +8,7 @@ export class UserResource extends Resource {
    * Build the response object
    * @returns this
    */
-  data () {
+  data() {
     return this.toObject()
   }
 }

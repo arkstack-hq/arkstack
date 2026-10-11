@@ -5,10 +5,10 @@ export const DEFAULT_SSR_URL = 'http://127.0.0.1:13714/render'
 
 /** The payload returned by an Inertia SSR server for a rendered page. */
 export interface SsrResponse {
-    /** HTML strings to inject into the document `<head>` (title, meta, style). */
-    head: string[]
-    /** The rendered mount markup (JSON `<script data-page>` + server-rendered `<div>`). */
-    body: string
+  /** HTML strings to inject into the document `<head>` (title, meta, style). */
+  head: string[]
+  /** The rendered mount markup (JSON `<script data-page>` + server-rendered `<div>`). */
+  body: string
 }
 
 /**
@@ -21,32 +21,29 @@ export interface SsrResponse {
  *
  * @see https://inertiajs.com/server-side-rendering
  */
-export const renderViaSsr = async (
-    page: InertiaPage,
-    url: string = DEFAULT_SSR_URL,
-): Promise<SsrResponse | null> => {
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(page),
-        })
+export const renderViaSsr = async (page: InertiaPage, url: string = DEFAULT_SSR_URL): Promise<SsrResponse | null> => {
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(page),
+    })
 
-        if (!response.ok) {
-            return null
-        }
-
-        const data = await response.json() as Partial<SsrResponse> | null
-
-        if (!data || typeof data.body !== 'string') {
-            return null
-        }
-
-        return {
-            head: Array.isArray(data.head) ? data.head : [],
-            body: data.body,
-        }
-    } catch {
-        return null
+    if (!response.ok) {
+      return null
     }
+
+    const data = (await response.json()) as Partial<SsrResponse> | null
+
+    if (!data || typeof data.body !== 'string') {
+      return null
+    }
+
+    return {
+      head: Array.isArray(data.head) ? data.head : [],
+      body: data.body,
+    }
+  } catch {
+    return null
+  }
 }

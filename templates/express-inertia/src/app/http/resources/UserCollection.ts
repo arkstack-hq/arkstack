@@ -10,7 +10,7 @@ export class UserCollection extends ResourceCollection {
    * Build the response object
    * @returns this
    */
-  data () {
+  data() {
     return this.toObject()
   }
 }

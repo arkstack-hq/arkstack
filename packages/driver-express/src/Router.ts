@@ -12,11 +12,11 @@ import type { Handler, HttpContext, Middleware } from 'clear-router/types/expres
 registerPlugin(clearRouterExpressPlugin)
 void ClearRouter.use(arkstackHttpPlugin)
 ClearRouter.configure({
-  inferParamName: true
+  inferParamName: true,
 })
 
 export class Router extends ClearRouter {
-  static async bind (): Promise<ExpressRouter> {
+  static async bind(): Promise<ExpressRouter> {
     const router = express.Router()
 
     // Register API routes
@@ -45,9 +45,7 @@ export class Router extends ClearRouter {
     return router
   }
 
-  static async list (
-    _options: ArkstackRouteListOptions = {}
-  ): Promise<Array<Route<HttpContext, Middleware, Handler>>> {
+  static async list(_options: ArkstackRouteListOptions = {}): Promise<Array<Route<HttpContext, Middleware, Handler>>> {
     await this.bind()
 
     return this.allRoutes() as never

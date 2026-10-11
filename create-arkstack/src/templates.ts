@@ -42,7 +42,6 @@ export const templates: Template[] = [
   // },
 ]
 
-
 export const projectScopes = [
   {
     name: 'Lean',

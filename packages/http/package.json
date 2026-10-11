@@ -1,51 +1,51 @@
 {
-    "name": "@arkstack/http",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "HTTP module for Arkstack, providing framework-agnostic request and response primitives.",
-    "homepage": "https://arkstack.toneflix.net/guide/http",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/http"
-    },
-    "keywords": [
-        "http",
-        "request",
-        "response",
-        "adapter",
-        "arkstack"
-    ],
-    "files": [
-        "dist",
-        "stubs"
-    ],
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./dist/index.js",
-        "./setup": "./dist/setup.js",
-        "./package.json": "./package.json"
-    },
-    "dependencies": {
-        "@arkstack/contract": "workspace:^",
-        "@arkstack/common": "workspace:^",
-        "clear-router": "catalog:",
-        "dotenv": "catalog:"
-    },
-    "peerDependencies": {
-        "arkormx": "catalog:",
-        "kanun": "catalog:"
-    },
-    "peerDependenciesMeta": {
-        "arkormx": {
-            "optional": true
-        }
+  "name": "@arkstack/http",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "HTTP module for Arkstack, providing framework-agnostic request and response primitives.",
+  "homepage": "https://arkstack.toneflix.net/guide/http",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/http"
+  },
+  "keywords": [
+    "http",
+    "request",
+    "response",
+    "adapter",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./setup": "./dist/setup.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/common": "workspace:^",
+    "clear-router": "catalog:",
+    "dotenv": "catalog:"
+  },
+  "peerDependencies": {
+    "arkormx": "catalog:",
+    "kanun": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "arkormx": {
+      "optional": true
     }
+  }
 }

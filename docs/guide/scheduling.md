@@ -16,19 +16,19 @@ ark publish --package @arkstack/scheduler   # writes src/routes/console.ts
 Define tasks in `src/routes/console.ts` using the `Schedule` facade:
 
 ```ts
-import { Schedule } from '@arkstack/scheduler';
+import { Schedule } from '@arkstack/scheduler'
 
-Schedule.command('cache:prune').hourly();
+Schedule.command('cache:prune').hourly()
 
 Schedule.call(async () => {
-  await pruneTempFiles();
+  await pruneTempFiles()
 })
   .dailyAt('01:30')
-  .withoutOverlapping();
+  .withoutOverlapping()
 
-Schedule.job(new SendDigest()).weeklyOn(1, '08:00');
+Schedule.job(new SendDigest()).weeklyOn(1, '08:00')
 
-Schedule.exec('backup.sh').daily().onOneServer();
+Schedule.exec('backup.sh').daily().onOneServer()
 ```
 
 ### Task types
@@ -65,36 +65,36 @@ ark schedule:list
 Frequency methods build the underlying cron expression:
 
 ```ts
-Schedule.command('x').everyMinute();
-Schedule.command('x').everyFiveMinutes(); // */5 * * * *
-Schedule.command('x').everyThirtyMinutes();
-Schedule.command('x').hourly();
-Schedule.command('x').hourlyAt(15); // 15 past every hour
-Schedule.command('x').daily(); // midnight
-Schedule.command('x').dailyAt('13:00');
-Schedule.command('x').twiceDaily(1, 13);
-Schedule.command('x').weekly(); // Sunday midnight
-Schedule.command('x').weeklyOn(1, '8:00'); // Monday 08:00
-Schedule.command('x').monthly();
-Schedule.command('x').monthlyOn(15, '17:00');
-Schedule.command('x').quarterly();
-Schedule.command('x').yearly();
-Schedule.command('x').cron('*/10 9-17 * * 1-5'); // raw cron
+Schedule.command('x').everyMinute()
+Schedule.command('x').everyFiveMinutes() // */5 * * * *
+Schedule.command('x').everyThirtyMinutes()
+Schedule.command('x').hourly()
+Schedule.command('x').hourlyAt(15) // 15 past every hour
+Schedule.command('x').daily() // midnight
+Schedule.command('x').dailyAt('13:00')
+Schedule.command('x').twiceDaily(1, 13)
+Schedule.command('x').weekly() // Sunday midnight
+Schedule.command('x').weeklyOn(1, '8:00') // Monday 08:00
+Schedule.command('x').monthly()
+Schedule.command('x').monthlyOn(15, '17:00')
+Schedule.command('x').quarterly()
+Schedule.command('x').yearly()
+Schedule.command('x').cron('*/10 9-17 * * 1-5') // raw cron
 ```
 
 Constrain the day of week, and layer time on top:
 
 ```ts
-Schedule.command('x').weekdays().at('9:00');
-Schedule.command('x').mondays();
-Schedule.command('x').weekends().hourly();
-Schedule.command('x').days([1, 4]); // Monday & Thursday
+Schedule.command('x').weekdays().at('9:00')
+Schedule.command('x').mondays()
+Schedule.command('x').weekends().hourly()
+Schedule.command('x').days([1, 4]) // Monday & Thursday
 ```
 
 Set the timezone the expression is evaluated in:
 
 ```ts
-Schedule.command('x').dailyAt('09:00').timezone('America/New_York');
+Schedule.command('x').dailyAt('09:00').timezone('America/New_York')
 ```
 
 ## Constraints
@@ -107,7 +107,7 @@ Schedule.command('x')
   .when(async () => await featureEnabled('reports')) // run only when truthy
   .skip(() => isHoliday()) // skip when truthy
   .environments('production', 'staging') // limit by APP_ENV
-  .between('09:00', '17:00'); // only within a daily window
+  .between('09:00', '17:00') // only within a daily window
 ```
 
 Use `unlessBetween('22:00', '06:00')` to run _outside_ a window (overnight ranges are handled).
@@ -115,9 +115,9 @@ Use `unlessBetween('22:00', '06:00')` to run _outside_ a window (overnight range
 ## Preventing overlaps & multi-server runs
 
 ```ts
-Schedule.command('report:build').everyFiveMinutes().withoutOverlapping(); // skip if the previous run is still going
+Schedule.command('report:build').everyFiveMinutes().withoutOverlapping() // skip if the previous run is still going
 
-Schedule.exec('backup.sh').daily().onOneServer(); // run on only one server per due minute
+Schedule.exec('backup.sh').daily().onOneServer() // run on only one server per due minute
 ```
 
 Both use `@arkstack/cache` for their locks, so they coordinate across processes and servers. Install and configure a shared cache store (e.g. `redis` or `database`) for `onOneServer()` to be effective; without a cache the scheduler falls back to a process-local lock.
@@ -125,7 +125,7 @@ Both use `@arkstack/cache` for their locks, so they coordinate across processes 
 Long-running commands can be pushed to the background so they don't delay other due tasks:
 
 ```ts
-Schedule.exec('long-import.sh').daily().runInBackground();
+Schedule.exec('long-import.sh').daily().runInBackground()
 ```
 
 ## Hooks
@@ -138,7 +138,7 @@ Schedule.command('report:build')
   .before(() => logger.info('building report'))
   .onSuccess(() => notifyOk())
   .onFailure((error) => notifyFailed(error))
-  .after(() => logger.info('done'));
+  .after(() => logger.info('done'))
 ```
 
 ## How it works

@@ -23,7 +23,10 @@ export default defineConfig([
     deps: {
       skipNodeModulesBundle: true,
     },
-    watch: env === 'dev' && process.env.CLI_BUILD !== 'true' ? ['.env', '.env.*', 'src', 'tsconfig.json'] : false,
+    watch:
+      env === 'dev' && process.env.CLI_BUILD !== 'true'
+        ? ['.env', '.env.*', 'src', 'tsconfig.json']
+        : false,
     plugins: [
       devServer({
         env: Object.assign({}, process.env, {
@@ -31,7 +34,7 @@ export default defineConfig([
         }),
         execArgv: ['-r', 'source-map-support/register'],
         input: path.join(Arkstack.rootDir(), 'src/server.ts'),
-      })
+      }),
     ],
     outExtensions: () => {
       return {

@@ -8,47 +8,45 @@ import { Arkstack } from '@arkstack/contract'
 import { BaseSessionDriver } from './BaseSessionDriver'
 
 export class FileSessionDriver extends BaseSessionDriver {
-    readonly directory: string
+  readonly directory: string
 
-    constructor(options: BaseSessionDriverOptions & { directory?: string } = {}) {
-        super(options)
-        this.directory =
-            options.directory ||
-            join(Arkstack.rootDir(), 'storage', 'framework', 'sessions')
+  constructor(options: BaseSessionDriverOptions & { directory?: string } = {}) {
+    super(options)
+    this.directory = options.directory || join(Arkstack.rootDir(), 'storage', 'framework', 'sessions')
+  }
+
+  private path(id: string) {
+    return join(this.directory, id)
+  }
+
+  async start(context: HttpContextLike): Promise<SessionDriverResult> {
+    const id = this.readSessionId(context) || generateSessionId()
+    this.writeSessionId(context, id)
+    let state: SessionPayload | undefined
+    try {
+      const contents = await readFile(this.path(id), 'utf8')
+      const payload = this.decryptPayload(contents) ?? contents
+      state = decodeSessionPayload<SessionPayload>(payload) ?? (JSON.parse(payload) as SessionPayload)
+    } catch {
+      state = undefined
     }
 
-    private path (id: string) {
-        return join(this.directory, id)
+    const save = async (payload: SessionPayload) => {
+      const path = this.path(id)
+      await mkdir(dirname(path), { recursive: true })
+      await writeFile(path, this.encryptPayload(encodeSessionPayload(payload)), 'utf8')
+      this.writeSessionId(context, id)
     }
 
-    async start (context: HttpContextLike): Promise<SessionDriverResult> {
-        const id = this.readSessionId(context) || generateSessionId()
-        this.writeSessionId(context, id)
-        let state: SessionPayload | undefined
-        try {
-            const contents = await readFile(this.path(id), 'utf8')
-            const payload = this.decryptPayload(contents) ?? contents
-            state = decodeSessionPayload<SessionPayload>(payload) ?? JSON.parse(payload) as SessionPayload
-        } catch {
-            state = undefined
-        }
-
-        const save = async (payload: SessionPayload) => {
-            const path = this.path(id)
-            await mkdir(dirname(path), { recursive: true })
-            await writeFile(path, this.encryptPayload(encodeSessionPayload(payload)), 'utf8')
-            this.writeSessionId(context, id)
-        }
-
-        const destroy = async () => {
-            await rm(this.path(id), { force: true })
-            setCookie(context, this.cookie, '', {
-                ...this.cookie_options,
-                maxAge: 0,
-                expires: new Date(0),
-            })
-        }
-
-        return { id, state, save, destroy }
+    const destroy = async () => {
+      await rm(this.path(id), { force: true })
+      setCookie(context, this.cookie, '', {
+        ...this.cookie_options,
+        maxAge: 0,
+        expires: new Date(0),
+      })
     }
+
+    return { id, state, save, destroy }
+  }
 }

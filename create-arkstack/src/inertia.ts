@@ -21,7 +21,10 @@ export const sharedInertiaFiles: InertiaFile[] = [
   { from: 'config/inertia.ts.stub', to: 'src/config/inertia.ts' },
   { from: 'config/app.css.stub', to: 'resources/css/app.css' },
   { from: 'views/app.edge.stub', to: 'src/resources/views/app.edge' },
-  { from: 'shared/resources/js/vite-env.d.ts.stub', to: 'resources/js/vite-env.d.ts' },
+  {
+    from: 'shared/resources/js/vite-env.d.ts.stub',
+    to: 'resources/js/vite-env.d.ts',
+  },
 ]
 
 /** Server-side dependencies shared by every stack. */
@@ -55,7 +58,10 @@ export const inertiaStacks: InertiaStackSpec[] = [
     files: [
       { from: 'react/resources/js/app.tsx.stub', to: 'resources/js/app.tsx' },
       { from: 'react/vite.config.ts.stub', to: 'vite.config.ts' },
-      { from: 'react/resources/js/Pages/Index.tsx.stub', to: 'resources/js/Pages/Index.tsx' },
+      {
+        from: 'react/resources/js/Pages/Index.tsx.stub',
+        to: 'resources/js/Pages/Index.tsx',
+      },
     ],
   },
   {
@@ -73,7 +79,10 @@ export const inertiaStacks: InertiaStackSpec[] = [
     files: [
       { from: 'vue/resources/js/app.ts.stub', to: 'resources/js/app.ts' },
       { from: 'vue/vite.config.ts.stub', to: 'vite.config.ts' },
-      { from: 'vue/resources/js/Pages/Index.vue.stub', to: 'resources/js/Pages/Index.vue' },
+      {
+        from: 'vue/resources/js/Pages/Index.vue.stub',
+        to: 'resources/js/Pages/Index.vue',
+      },
     ],
   },
   {
@@ -91,16 +100,19 @@ export const inertiaStacks: InertiaStackSpec[] = [
     files: [
       { from: 'svelte/resources/js/app.ts.stub', to: 'resources/js/app.ts' },
       { from: 'svelte/vite.config.ts.stub', to: 'vite.config.ts' },
-      { from: 'svelte/resources/js/Pages/Index.svelte.stub', to: 'resources/js/Pages/Index.svelte' },
+      {
+        from: 'svelte/resources/js/Pages/Index.svelte.stub',
+        to: 'resources/js/Pages/Index.svelte',
+      },
     ],
   },
 ]
 
-/** 
- * Look up a stack spec by its identifier. 
- * 
- * @param stack 
- * @returns 
+/**
+ * Look up a stack spec by its identifier.
+ *
+ * @param stack
+ * @returns
  */
 export const findInertiaStack = (stack: string): InertiaStackSpec | undefined =>
   inertiaStacks.find((s) => s.value === stack)
@@ -112,9 +124,7 @@ export const findInertiaStack = (stack: string): InertiaStackSpec | undefined =>
  * @param content  The raw stub contents.
  * @param spec     The selected stack.
  */
-export const transformInertiaStub = (
-  content: string,
-  spec: InertiaStackSpec
-): string => content
-  .replaceAll('{{ext}}', spec.ext)
-  .replaceAll('{{reactRefresh}}', spec.reactRefresh ? '@viteReactRefresh\n    ' : '')
+export const transformInertiaStub = (content: string, spec: InertiaStackSpec): string =>
+  content
+    .replaceAll('{{ext}}', spec.ext)
+    .replaceAll('{{reactRefresh}}', spec.reactRefresh ? '@viteReactRefresh\n    ' : '')

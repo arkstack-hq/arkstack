@@ -18,19 +18,19 @@ import { RouteList } from './commands/RouteList'
 import logo from './logo'
 
 export interface RunConsoleOptions {
-    logo?: string;
+  logo?: string
 }
 
-/** 
- * A missing-module error from importing a stale/incomplete build artifact. 
- * 
- * @param error 
- * @returns 
+/**
+ * A missing-module error from importing a stale/incomplete build artifact.
+ *
+ * @param error
+ * @returns
  */
 const isMissingModuleError = (error: unknown): boolean => {
-    const code = (error as { code?: string })?.code
+  const code = (error as { code?: string })?.code
 
-    return code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND'
+  return code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND'
 }
 
 /**
@@ -45,89 +45,87 @@ const isMissingModuleError = (error: unknown): boolean => {
  * @returns
  */
 const loadCoreApp = async () => {
-    const dist = path.relative(Arkstack.rootDir(), outputDir())
-    const bootstrapPath = join(Arkstack.rootDir(), `${dist}/core/bootstrap.js`)
+  const dist = path.relative(Arkstack.rootDir(), outputDir())
+  const bootstrapPath = join(Arkstack.rootDir(), `${dist}/core/bootstrap.js`)
 
-    try {
-        return (await importFile<{ app: any }>(bootstrapPath)).app
-    } catch (error) {
-        if (!isMissingModuleError(error) || !existsSync(join(Arkstack.rootDir(), 'src'))) {
-            throw error
-        }
-
-        await rebuildOutput()
-
-        return (await importFile<{ app: any }>(bootstrapPath)).app
+  try {
+    return (await importFile<{ app: any }>(bootstrapPath)).app
+  } catch (error) {
+    if (!isMissingModuleError(error) || !existsSync(join(Arkstack.rootDir(), 'src'))) {
+      throw error
     }
+
+    await rebuildOutput()
+
+    return (await importFile<{ app: any }>(bootstrapPath)).app
+  }
 }
 
 /**
  * Runs the console kernel, initializing the application and registering commands.
- * 
- * @param options 
+ *
+ * @param options
  */
 export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
-    loadPrototypes()
+  loadPrototypes()
 
-    const app = await loadCoreApp()
-    const stubsDir = process.env.ARKSTACK_STUBS_DIR
-    globalThis.app = () => app as never
-    globalThis.env = env
-    globalThis.config = config
-    globalThis.arkctx = {
-        runtime: 'CLI',
-    }
+  const app = await loadCoreApp()
+  const stubsDir = process.env.ARKSTACK_STUBS_DIR
+  globalThis.app = () => app as never
+  globalThis.env = env
+  globalThis.config = config
+  globalThis.arkctx = {
+    runtime: 'CLI',
+  }
 
-    // Discover user commands from source via jiti so they are picked up without a
-    // build and reflect edits on every run. Musket's glob discovery uses native
-    // import(), which silently skips .ts files (see discoverCommands).
-    const userCommands = await discoverCommands<typeof Command>()
+  // Discover user commands from source via jiti so they are picked up without a
+  // build and reflect edits on every run. Musket's glob discovery uses native
+  // import(), which silently skips .ts files (see discoverCommands).
+  const userCommands = await discoverCommands<typeof Command>()
 
-    await Kernel.init(await new ArkstackConsoleApp(app, { stubsDir }).loadConfig(), {
-        logo: options.logo ?? logo,
-        name: 'Cmd',
-        baseCommands: [
-            RouteList,
-            MakeResource,
-            MakeController,
-            MakeFullResource,
-            DevCommand,
-            BuildCommand,
-            MakeCommand,
-            ...userCommands,
-        ],
-        discoveryPaths: [
-            join(Arkstack.rootDir(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js'),
-        ],
-        exceptionHandler (exception) {
-            throw exception
-        },
-    })
+  await Kernel.init(await new ArkstackConsoleApp(app, { stubsDir }).loadConfig(), {
+    logo: options.logo ?? logo,
+    name: 'Cmd',
+    baseCommands: [
+      RouteList,
+      MakeResource,
+      MakeController,
+      MakeFullResource,
+      DevCommand,
+      BuildCommand,
+      MakeCommand,
+      ...userCommands,
+    ],
+    discoveryPaths: [join(Arkstack.rootDir(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js')],
+    exceptionHandler(exception) {
+      throw exception
+    },
+  })
 }
 
 /**
- * Determines if the current module is being executed as the entry 
+ * Determines if the current module is being executed as the entry
  * point of the application.
- * 
- * @returns 
+ *
+ * @returns
  */
 const isEntrypointExecution = () => {
-    const argvEntry = process.argv[1]
+  const argvEntry = process.argv[1]
 
-    if (!argvEntry) {
-        return false
-    }
+  if (!argvEntry) {
+    return false
+  }
 
-    try {
-        const currentModulePath = realpathSync(fileURLToPath(import.meta.url))
-        const entryPath = realpathSync(argvEntry)
+  try {
+    const currentModulePath = realpathSync(fileURLToPath(import.meta.url))
+    const entryPath = realpathSync(argvEntry)
 
-        return currentModulePath === entryPath
-    } catch {
-        return import.meta.url === pathToFileURL(argvEntry).href
-    }
+    return currentModulePath === entryPath
+  } catch {
+    return import.meta.url === pathToFileURL(argvEntry).href
+  }
 }
 
 if (isEntrypointExecution()) {
-    await runConsoleKernel()
+  await runConsoleKernel()
 }

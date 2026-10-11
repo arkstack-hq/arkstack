@@ -7,10 +7,10 @@ import { Router } from '@arkstack/driver-h3'
 
 export default class Application extends Arkstack<H3, unknown, H3Middleware> {
   /**
-   * Creates an instance of the Application class, initializing 
+   * Creates an instance of the Application class, initializing
    * the H3 driver with the provided options and creating an H3 application instance.
-   * 
-   * @param app 
+   *
+   * @param app
    */
   constructor(app?: H3) {
     super()
@@ -28,8 +28,8 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
 
   /**
    * Gets the ArkstackRouterContract implementation for the H3 framework.
-   * 
-   * @returns 
+   *
+   * @returns
    */
   getRouter(): ArkstackRouterContract<H3, unknown> {
     return {
@@ -39,9 +39,9 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
   }
 
   /**
-   * Boots the application by mounting public assets, binding the 
+   * Boots the application by mounting public assets, binding the
    * router, applying middleware, and starting the server.
-   * 
+   *
    * @param port    The numeric port to run the server on
    * @param defer   Set to true to skip server startup
    */

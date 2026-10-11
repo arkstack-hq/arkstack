@@ -1,39 +1,39 @@
 {
-    "name": "@arkstack/contract",
-    "version": "0.19.2",
-    "type": "module",
-    "description": "Contract module for Arkstack, providing shared interfaces and type contracts used across the framework.",
-    "homepage": "https://arkstack.toneflix.net",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/arkstack-hq/arkstack.git",
-        "directory": "packages/contract"
-    },
-    "keywords": [
-        "contract",
-        "interface",
-        "types",
-        "validation",
-        "schema",
-        "arkstack"
-    ],
-    "files": [
-        "dist",
-        "stubs"
-    ],
-    "scripts": {
-        "build": "tsdown --config-loader unrun",
-        "version:patch": "pnpm version patch",
-        "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "exports": {
-        ".": "./dist/index.js",
-        "./package.json": "./package.json"
-    },
-    "dependencies": {
-        "@arkstack/foundry": "workspace:^"
-    }
+  "name": "@arkstack/contract",
+  "version": "0.19.2",
+  "type": "module",
+  "description": "Contract module for Arkstack, providing shared interfaces and type contracts used across the framework.",
+  "homepage": "https://arkstack.toneflix.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/contract"
+  },
+  "keywords": [
+    "contract",
+    "interface",
+    "types",
+    "validation",
+    "schema",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/foundry": "workspace:^"
+  }
 }

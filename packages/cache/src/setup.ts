@@ -14,23 +14,23 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
  * copy the migration for the `database` cache store into the app.
  */
 Publisher.publishes({
-    package: '@arkstack/cache',
-    tag: 'cache-migrations',
-    entries: [
-        {
-            from: join(root, 'stubs/migrations/20260601000000_create_cache_table.ts.stub'),
-            to: 'src/database/migrations/20260601000000_create_cache_table.ts',
-        },
-    ],
+  package: '@arkstack/cache',
+  tag: 'cache-migrations',
+  entries: [
+    {
+      from: join(root, 'stubs/migrations/20260601000000_create_cache_table.ts.stub'),
+      to: 'src/database/migrations/20260601000000_create_cache_table.ts',
+    },
+  ],
 })
 
 Publisher.publishes({
-    package: '@arkstack/cache',
-    tag: 'cache-config',
-    entries: [
-        {
-            from: join(root, 'stubs/config/cache.ts.stub'),
-            to: 'src/config/cache.ts',
-        },
-    ],
+  package: '@arkstack/cache',
+  tag: 'cache-config',
+  entries: [
+    {
+      from: join(root, 'stubs/config/cache.ts.stub'),
+      to: 'src/config/cache.ts',
+    },
+  ],
 })

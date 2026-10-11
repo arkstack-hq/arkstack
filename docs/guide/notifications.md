@@ -28,7 +28,7 @@ Notification configuration is split into a default notification driver, driver-l
 
 ```ts
 // src/config/notifications.ts
-import { env } from '@arkstack/common';
+import { env } from '@arkstack/common'
 
 export default () => ({
   default_driver: env('NOTIFICATION_DRIVER', 'mail'),
@@ -67,7 +67,7 @@ export default () => ({
       from: env('TWILIO_FROM'),
     },
   },
-});
+})
 ```
 
 `default_driver` selects the notification channel used by `Notification.channel()`. `drivers.sms.transport` selects the SMS transport provider, and starter config reads that value from `SMS_TRANSPORT`.
@@ -77,20 +77,17 @@ export default () => ({
 Mail uses the configured SMTP transport. Recipients can be a string, an array of strings, a named address object, or an array of named address objects.
 
 ```ts
-import { Notification } from '@arkstack/notifications';
+import { Notification } from '@arkstack/notifications'
 
 await Notification.mail()
   .recipient({ 'ada@example.com': 'Ada Lovelace' })
   .subject('Welcome, {name}')
   .data({ name: 'Ada' })
-  .send('Hello {name}, thanks for joining.');
+  .send('Hello {name}, thanks for joining.')
 
 await Notification.mail()
-  .recipient([
-    { 'grace@example.com': 'Grace Hopper' },
-    { 'katherine@example.com': 'Katherine Johnson' },
-  ])
-  .send('The report is ready.');
+  .recipient([{ 'grace@example.com': 'Grace Hopper' }, { 'katherine@example.com': 'Katherine Johnson' }])
+  .send('The report is ready.')
 ```
 
 ## SMS
@@ -98,19 +95,17 @@ await Notification.mail()
 SMS supports `africastalking` and `twilio` transports.
 
 ```ts
-import { Notification } from '@arkstack/notifications';
+import { Notification } from '@arkstack/notifications'
 
-await Notification.sms()
-  .recipient('+2348012345678')
-  .send('Your login code is {code}', undefined, undefined, {
-    code: '123456',
-  });
+await Notification.sms().recipient('+2348012345678').send('Your login code is {code}', undefined, undefined, {
+  code: '123456',
+})
 
 await Notification.sms({ transport: 'twilio' })
   .recipient('+15551234567')
   .send('Your login code is {code}', undefined, undefined, {
     code: '123456',
-  });
+  })
 ```
 
 ## Database Notifications
@@ -123,7 +118,7 @@ await Notification.db()
   .type('security')
   .action('Review login', '/account/security')
   .meta({ device: 'Chrome on macOS' })
-  .send('A new login was detected.', 'Security alert');
+  .send('A new login was detected.', 'Security alert')
 ```
 
 You can also broacast the new database notifcation using the configured realtime driver by channing the `broadcast` method.
@@ -135,7 +130,7 @@ await Notification.db()
   .type('security')
   .action('Review login', '/account/security')
   .meta({ device: 'Chrome on macOS' })
-  .send('A new login was detected.', 'Security alert');
+  .send('A new login was detected.', 'Security alert')
 ```
 
 The notification is stored, broadcast on the user's channel, and pushed to their devices when [device push](#device-push) is configured.
@@ -143,11 +138,11 @@ The notification is stored, broadcast on the user's channel, and pushed to their
 Use `UserNotificationCenter` when you need to list, mark, or delete stored notifications:
 
 ```ts
-import { UserNotificationCenter } from '@arkstack/notifications';
+import { UserNotificationCenter } from '@arkstack/notifications'
 
-const unread = await UserNotificationCenter.unreadForUser(user);
-await UserNotificationCenter.markRead(unread[0]);
-await UserNotificationCenter.delete(unread[0]);
+const unread = await UserNotificationCenter.unreadForUser(user)
+await UserNotificationCenter.markRead(unread[0])
+await UserNotificationCenter.delete(unread[0])
 ```
 
 ## Realtime Notifications
@@ -160,7 +155,7 @@ await Notification.realtime()
   .type('transaction')
   .action('View', '/wallet')
   .store() // also persist so the client can load history
-  .send('You received $20.00', 'Payment received');
+  .send('You received $20.00', 'Payment received')
 ```
 
 `.store()` is opt-in: when enabled the notification is written via `UserNotificationCenter` (giving it a real id and timestamps) **and** broadcast; otherwise it is broadcast only. Broadcast on an explicit channel with `.channel('team.updates')`, or change the client event name with `.event('alert')`.
@@ -169,13 +164,13 @@ await Notification.realtime()
 
 `drivers.realtime.transport` picks how events reach clients:
 
-| Transport           | Delivers to                          | Server SDK       | Client SDK  |
-| ------------------- | ------------------------------------ | ---------------- | ----------- |
+| Transport           | Delivers to                           | Server SDK       | Client SDK  |
+| ------------------- | ------------------------------------- | ---------------- | ----------- |
 | `pusher`            | Pusher Channels, or soketi via `host` | `pusher`         | `pusher-js` |
-| `firebase`          | FCM devices and topics               | `firebase-admin` | `firebase`  |
-| `firebase-database` | Firebase Realtime Database channels  | `firebase-admin` | `firebase`  |
-| `polling`           | Nothing; clients poll on an interval | none             | none        |
-| `memory`            | An in-process buffer, for tests      | none             | none        |
+| `firebase`          | FCM devices and topics                | `firebase-admin` | `firebase`  |
+| `firebase-database` | Firebase Realtime Database channels   | `firebase-admin` | `firebase`  |
+| `polling`           | Nothing; clients poll on an interval  | none             | none        |
+| `memory`            | An in-process buffer, for tests       | none             | none        |
 
 The SDKs are optional peer dependencies; install only the ones you use:
 
@@ -191,7 +186,7 @@ To use a self-hosted Pusher-protocol server such as [soketi](https://soketi.app)
 ```ts
 await Notification.realtime({ transport: 'firebase' })
   .channel(user.deviceTokens) // string[] of FCM registration tokens
-  .send('You have a new message');
+  .send('You have a new message')
 ```
 
 ### Broadcasting events
@@ -199,13 +194,12 @@ await Notification.realtime({ transport: 'firebase' })
 A channel is just a channel. Use `Broadcast` to send your own event shapes over the configured transport, and pick them up with the client's `listen()`:
 
 ```ts
-import { Broadcast } from '@arkstack/notifications';
+import { Broadcast } from '@arkstack/notifications'
 
-await Broadcast.broadcast(
-  [`private-order.${order.id}`, `private-team.${order.teamId}`],
-  'order.updated',
-  { id: order.id, status: order.status },
-);
+await Broadcast.broadcast([`private-order.${order.id}`, `private-team.${order.teamId}`], 'order.updated', {
+  id: order.id,
+  status: order.status,
+})
 ```
 
 ### Channel authorization
@@ -214,13 +208,13 @@ Register who may join each private channel. `{name}` placeholders match one segm
 
 ```ts
 // src/routes/realtime.ts
-import { Broadcast } from '@arkstack/notifications';
+import { Broadcast } from '@arkstack/notifications'
 
 Broadcast.channel('private-team.{teamId}', async (user, { teamId }) => {
-  return await TeamMember.where({ teamId, userId: user.id }).exists();
-});
+  return await TeamMember.where({ teamId, userId: user.id }).exists()
+})
 
-await Broadcast.routes(); // POST /realtime/auth, GET /realtime/config
+await Broadcast.routes() // POST /realtime/auth, GET /realtime/config
 ```
 
 `Broadcast.routes()` registers two routes behind the framework `auth` middleware (pass `{ prefix, middleware }` to change them):
@@ -246,10 +240,10 @@ realtime: {
 The send result carries the multicast outcome, so prune dead tokens there:
 
 ```ts
-const result = await Notification.realtime().recipient(user).send('Your payout has settled.');
+const result = await Notification.realtime().recipient(user).send('Your payout has settled.')
 
 if (result.push?.invalidTokens.length) {
-  await UserPushToken.whereIn('token', result.push.invalidTokens).delete();
+  await UserPushToken.whereIn('token', result.push.invalidTokens).delete()
 }
 ```
 
@@ -303,7 +297,7 @@ await Notification.realtime({ transport: 'firebase' })
   .priority('high')
   .ttl(60)
   .collapseKey(`signin:${attemptId}`) // a retry replaces the prompt it repeats
-  .send('Approve sign-in from Lagos?');
+  .send('Approve sign-in from Lagos?')
 ```
 
 Pass TTL in seconds; each platform's unit is converted for you. Set defaults under `drivers.realtime.delivery`, override per send, and reach anything unmapped through `.delivery({ android, apns, webpush })`. Pusher ignores all of it — it pushes over a connection the client already holds open.
@@ -322,14 +316,14 @@ await Notification.realtime({ transport: 'firebase' })
   .collapseKey(`signin:${attemptId}`)
   .priority('high')
   .ttl(60)
-  .send('Approve sign-in from Lagos?');
+  .send('Approve sign-in from Lagos?')
 
 // answered elsewhere
 await Notification.realtime({ transport: 'firebase' })
   .channel(tokens)
   .tag(`signin:${attemptId}`)
   .collapseKey(`signin:${attemptId}`)
-  .send('Sign-in approved');
+  .send('Sign-in approved')
 ```
 
 Tag by the thing it is about (`order:42`), not the message. `tag` supersedes what was **displayed**; `collapseKey` supersedes what is still **queued** — set both when you want both. They stay separate because FCM allows only four collapse keys per device, so deriving one per tag would starve that budget.
@@ -339,9 +333,9 @@ Tag by the thing it is about (`order:42`), not the message. `tag` supersedes wha
 The React and Vue bindings apply this for you; for your own list, use the same reducer:
 
 ```ts
-import { supersede } from '@arkstack/realtime';
+import { supersede } from '@arkstack/realtime'
 
-client.subscribe(channel, (n) => setItems((items) => supersede(items, n, 50)));
+client.subscribe(channel, (n) => setItems((items) => supersede(items, n, 50)))
 ```
 
 Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) and its credentials under `transports.*`.
@@ -349,7 +343,7 @@ Configure the transport in `src/config/notifications.ts` (`drivers.realtime`) an
 **Bringing your own transport.** `driverFactory` replaces the built-ins with anything implementing `RealtimeDriver` — a backend this package does not ship, or a fake in a test. Set it per send, or under `drivers.realtime` for the whole app; it takes precedence over `transport`. Do connection setup lazily inside the driver, as the bundled ones do.
 
 ```ts
-Notification.realtime({ driverFactory: () => new MyApnsDriver() });
+Notification.realtime({ driverFactory: () => new MyApnsDriver() })
 ```
 
 `broadcast()` also accepts payloads that are not notifications, so an application can push its own event shapes over the same channel and pick them up with the client's `listen()`.
@@ -378,9 +372,9 @@ Everything else stays unreadable, so the grants and the event index are never ex
 Events are not deleted automatically. Schedule a prune; each call removes at most `limit` events:
 
 ```ts
-import { Broadcast, FirebaseDatabaseRealtimeDriver } from '@arkstack/notifications';
+import { Broadcast, FirebaseDatabaseRealtimeDriver } from '@arkstack/notifications'
 
-const driver = Broadcast.make('firebase-database') as FirebaseDatabaseRealtimeDriver;
+const driver = Broadcast.make('firebase-database') as FirebaseDatabaseRealtimeDriver
 
 while ((await driver.prune(24 * 3600, 500)) > 0);
 ```
@@ -390,13 +384,13 @@ while ((await driver.prune(24 * 3600, 500)) > 0);
 Set the transport to `memory` and read what was sent. The buffer lives on `globalThis`, so broadcasts made by code loaded separately from your tests are recorded too:
 
 ```ts
-import { MemoryRealtimeDriver } from '@arkstack/notifications';
+import { MemoryRealtimeDriver } from '@arkstack/notifications'
 
-beforeEach(() => MemoryRealtimeDriver.clear());
+beforeEach(() => MemoryRealtimeDriver.clear())
 
 expect(MemoryRealtimeDriver.broadcasts()).toContainEqual(
   expect.objectContaining({ channel: 'user.7', event: 'notification' }),
-);
+)
 ```
 
 **Firebase credentials** can be provided two ways. Point `admin_sdk_path` (`FIREBASE_ADMINSDK`, default `firebase-adminsdk.json`, resolved from the project root) at a downloaded service-account JSON file; if that file is absent, the driver falls back to the inline `project_id` / `client_email` / `private_key` values (`FIREBASE_PROJECT_ID` / `FIREBASE_CLIENT_EMAIL` / `FIREBASE_PRIVATE_KEY`). `app_name` (`FIREBASE_APP_NAME`, default your `APP_NAME`) names the Firebase Admin app instance so repeated broadcasts reuse it.
@@ -406,65 +400,82 @@ expect(MemoryRealtimeDriver.broadcasts()).toContainEqual(
 Install `@arkstack/realtime` in your front-end and the matching client SDK (`pusher-js` or `firebase`). The simplest setup creates the client from the server's config route and adds your API's auth header:
 
 ```ts
-import { createRealtime } from '@arkstack/realtime';
+import { createRealtime } from '@arkstack/realtime'
 
-const headers = { Authorization: `Bearer ${token}` };
-const config = await fetch('/api/realtime/config', { headers }).then((r) => r.json());
+const headers = { Authorization: `Bearer ${token}` }
+const config = await fetch('/api/realtime/config', { headers }).then((r) => r.json())
 
 const realtime = createRealtime({
   ...config,
-  pusher: config.pusher && { ...config.pusher, apiBase: '/api', auth: { headers } },
+  pusher: config.pusher && {
+    ...config.pusher,
+    apiBase: '/api',
+    auth: { headers },
+  },
   'firebase-database': config['firebase-database'] && {
     ...config['firebase-database'],
     apiBase: '/api',
     auth: { headers },
   },
-});
+})
 
 const unsubscribe = await realtime.forUser(user.id, (notification) => {
-  console.log(notification.title, notification.description);
-});
+  console.log(notification.title, notification.description)
+})
 
 // Your own events
-await realtime.listen(`private-order.${order.id}`, 'order.updated', refresh);
+await realtime.listen(`private-order.${order.id}`, 'order.updated', refresh)
 ```
 
 Under `polling` nothing arrives on a channel. `onPoll()` runs a handler on the advertised interval only while polling, so one code path serves every transport:
 
 ```ts
-await realtime.listen(channel, 'order.updated', refresh);
-await realtime.onPoll(refresh);
+await realtime.listen(channel, 'order.updated', refresh)
+await realtime.onPoll(refresh)
 ```
 
 For tests, use `transport: 'memory'` and feed subscribers with `emitMemoryEvent(channel, event, payload)`.
+
+The transport SDKs are loaded with a dynamic `import()` of their package name (`pusher-js`, `firebase/app`, …), which a bundler resolves. On a page without a bundler, such as a plain `<script>` embed, pass `importModule` to load them another way, for example from a CDN:
+
+```ts
+const realtime = createRealtime({
+  ...config,
+  importModule: (specifier) => import(/* @vite-ignore */ `https://cdn.jsdelivr.net/npm/${cdnPaths[specifier]}`),
+})
+
+const cdnPaths: Record<string, string> = {
+  'pusher-js': 'pusher-js@8/+esm',
+  'firebase/app': 'firebase@11/app/+esm',
+  'firebase/auth': 'firebase@11/auth/+esm',
+  'firebase/database': 'firebase@11/database/+esm',
+  'firebase/messaging': 'firebase@11/messaging/+esm',
+}
+```
 
 React and Vue bindings accumulate notifications for you (newest first):
 
 ::: code-group
 
 ```tsx [React]
-import { useNotifications } from '@arkstack/realtime/react';
+import { useNotifications } from '@arkstack/realtime/react'
 
 function Bell({ realtime, userId }) {
-  const { notifications, latest, clear } = useNotifications(
-    realtime,
-    realtime.channelFor(userId),
-    { limit: 20 },
-  );
+  const { notifications, latest, clear } = useNotifications(realtime, realtime.channelFor(userId), { limit: 20 })
 
   return (
     <span>
       {notifications.length} · {latest?.title}
     </span>
-  );
+  )
 }
 ```
 
 ```vue [Vue]
 <script setup>
-import { useNotifications } from '@arkstack/realtime/vue';
+import { useNotifications } from "@arkstack/realtime/vue";
 
-const props = defineProps(['realtime', 'userId']);
+const props = defineProps(["realtime", "userId"]);
 const { notifications, latest } = useNotifications(
   props.realtime,
   props.realtime.channelFor(props.userId),
@@ -484,17 +495,11 @@ const { notifications, latest } = useNotifications(
 `Notification.prepare()` can derive the recipient from a user-like object:
 
 ```ts
-await Notification.channel('mail')
-  .prepare(user, { name: user.name })
-  .send('Hello {name}');
+await Notification.channel('mail').prepare(user, { name: user.name }).send('Hello {name}')
 
-await Notification.channel('sms')
-  .prepare(user)
-  .send('Your verification code is {code}', undefined, undefined, {
-    code,
-  });
+await Notification.channel('sms').prepare(user).send('Your verification code is {code}', undefined, undefined, {
+  code,
+})
 
-await Notification.channel('db')
-  .prepare(user)
-  .send('Your payout has settled.', 'Payout settled');
+await Notification.channel('db').prepare(user).send('Your payout has settled.', 'Payout settled')
 ```

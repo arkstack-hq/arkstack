@@ -4,35 +4,35 @@ import { Exception } from '@arkstack/common'
 import type { User } from '@app/models/User'
 
 export class AuthenticationException extends Exception {
-    #errors?: Record<string, any>
-    #request?: Request<User>
-    #response?: Response
-    statusCode: number = 401
-    name: string
+  #errors?: Record<string, any>
+  #request?: Request<User>
+  #response?: Response
+  statusCode: number = 401
+  name: string
 
-    constructor(
-        message: string = 'Authentication failed',
-        ctx?: {
-            req?: Request<User> | RequestSource<User>,
-            res?: Response | ResponseSource,
-            status?: number,
-            errors?: Record<string, any>
-        }
-    ) {
-        super(message)
-        this.name = 'AuthenticationException'
-        this.statusCode = ctx?.status ?? 401
-        if (ctx) {
-            this.#request = Request.from(ctx.req)
-            this.#response = Response.from(ctx.res as never)
-            this.#errors = ctx.errors
-        }
-
-        void this.#response
-        void this.#request
+  constructor(
+    message: string = 'Authentication failed',
+    ctx?: {
+      req?: Request<User> | RequestSource<User>
+      res?: Response | ResponseSource
+      status?: number
+      errors?: Record<string, any>
+    },
+  ) {
+    super(message)
+    this.name = 'AuthenticationException'
+    this.statusCode = ctx?.status ?? 401
+    if (ctx) {
+      this.#request = Request.from(ctx.req)
+      this.#response = Response.from(ctx.res as never)
+      this.#errors = ctx.errors
     }
 
-    errors(): Record<string, any> | undefined {
-        return this.#errors
-    }
+    void this.#response
+    void this.#request
+  }
+
+  errors(): Record<string, any> | undefined {
+    return this.#errors
+  }
 }

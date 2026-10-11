@@ -9,18 +9,15 @@ Generated applications include Parasito as a development dependency and use it w
 Pass the Arkstack application exported by your bootstrap directly to `request()`. You do not need to start a listening server:
 
 ```ts
-import { describe, it } from 'vitest';
-import request from 'parasito';
-import { app } from '../src/core/bootstrap';
+import { describe, it } from 'vitest'
+import request from 'parasito'
+import { app } from '../src/core/bootstrap'
 
 describe('users API', () => {
   it('returns users', async () => {
-    await request(app)
-      .get('/api/users')
-      .expect(200)
-      .expect('content-type', /json/);
-  });
-});
+    await request(app).get('/api/users').expect(200).expect('content-type', /json/)
+  })
+})
 ```
 
 The same test shape works with both Arkstack drivers.
@@ -44,7 +41,7 @@ await request(app)
       name: 'Ada Lovelace',
       email: 'ada@example.com',
     },
-  });
+  })
 ```
 
 `send()` selects JSON, form, multipart, or text content types from the supplied body. Set `content-type` explicitly when a test needs to override that behavior.
@@ -54,13 +51,13 @@ await request(app)
 Await a request to inspect the normalized response with your test runner's assertions:
 
 ```ts
-import { expect } from 'vitest';
+import { expect } from 'vitest'
 
-const response = await request(app).get('/api/users/1');
+const response = await request(app).get('/api/users/1')
 
-expect(response.status).toBe(200);
-expect(response.body.data.id).toBe(1);
-expect(response.headers.get('content-type')).toMatch(/json/);
+expect(response.status).toBe(200)
+expect(response.body.data.id).toBe(1)
+expect(response.headers.get('content-type')).toMatch(/json/)
 ```
 
 Responses expose `status`, `statusCode`, `ok`, `headers`, `header`, `text`, `body`, and the underlying `raw` response.
@@ -70,4 +67,3 @@ Responses expose `status`, `statusCode`, `ok`, `headers`, `header`, `text`, `bod
 Parasito can also test Express, H3, Fastify, Hono, Koa, Node handlers, fetch-style applications, listening servers, and remote URLs. This is useful when an Arkstack package or runtime adapter needs to be tested outside a complete application.
 
 See the [Parasito reference and examples](https://github.com/arkstack-hq/parasito#readme) for request bodies, target adapters, remote URLs, and the full assertion API.
-

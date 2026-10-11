@@ -6,15 +6,12 @@ export const truncate = (text: string, length = 120, suffix = '...') => {
   const truncated = text.slice(0, length - suffix.length)
   const lastSpace = truncated.lastIndexOf(' ')
 
-  const result = lastSpace <= 0
-    ? truncated
-    : truncated.slice(0, lastSpace)
+  const result = lastSpace <= 0 ? truncated : truncated.slice(0, lastSpace)
 
-  return (result.trimEnd().replace(/[.,;:!?]+$/, '') + suffix)
+  return result.trimEnd().replace(/[.,;:!?]+$/, '') + suffix
 }
 
 export const fitText = (text: string) => {
-
   const parse1 = text.split('package for')
   const parse2 = (parse1.at(1) ?? parse1.at(0))?.split('providing') ?? []
   const fixed = parse2.at(1) ?? parse2.at(0)?.trim() ?? ''
@@ -49,28 +46,26 @@ export const abbreviateNumber = (value: string | number) => {
   return `${Math.floor(number / 1_000_000_000)}b`
 }
 
-export async function getTotalDownloads (packageName: string, fromYear = 2015) {
+export async function getTotalDownloads(packageName: string, fromYear = 2015) {
   const currentYear = new Date().getFullYear()
   let total = 0
 
   try {
     for (let year = fromYear; year <= currentYear; year++) {
       const from = `${year}-01-01`
-      const to = year === currentYear
-        ? new Date().toISOString().slice(0, 10)
-        : `${year}-12-31`
+      const to = year === currentYear ? new Date().toISOString().slice(0, 10) : `${year}-12-31`
 
       const encoded = encodeURIComponent(packageName)
       const url = `https://api.npmjs.org/downloads/range/${from}:${to}/${encoded}`
 
-      const response = await fetch(url).catch(e => e)
+      const response = await fetch(url).catch((e) => e)
       const data = await response.json()
 
-      total += data.downloads?.reduce((sum: number, item: any) => {
-        return sum + item.downloads
-      }, 0) ?? 0
+      total +=
+        data.downloads?.reduce((sum: number, item: any) => {
+          return sum + item.downloads
+        }, 0) ?? 0
     }
-
   } catch {
     //
   }

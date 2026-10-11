@@ -13,51 +13,49 @@ import { Queue } from '@arkstack/queue'
  * ```
  */
 export class PendingDispatch<T extends Job = Job> implements PromiseLike<string> {
-    constructor(private readonly job: T) { }
+  constructor(private readonly job: T) {}
 
-    /** Set the connection this job is dispatched to. */
-    onConnection (connection: string): this {
-        this.job.connection = connection
+  /** Set the connection this job is dispatched to. */
+  onConnection(connection: string): this {
+    this.job.connection = connection
 
-        return this
+    return this
+  }
+
+  /** Set the queue this job is dispatched to. */
+  onQueue(queue: string): this {
+    this.job.queue = queue
+
+    return this
+  }
+
+  /** Delay the dispatch by a number of seconds (or until a Date). */
+  withDelay(delay: number | Date): this {
+    this.job.delay = delay instanceof Date ? Math.max(0, Math.round((delay.getTime() - Date.now()) / 1000)) : delay
+
+    return this
+  }
+
+  /** The underlying job instance. */
+  getJob(): T {
+    return this.job
+  }
+
+  /**
+   * Perform the dispatch, returning the resulting job id.
+   */
+  private send(): Promise<string> {
+    if (this.job.delay && this.job.delay > 0) {
+      return Queue.later(this.job.delay, this.job, this.job.queue)
     }
 
-    /** Set the queue this job is dispatched to. */
-    onQueue (queue: string): this {
-        this.job.queue = queue
+    return Queue.push(this.job, this.job.queue)
+  }
 
-        return this
-    }
-
-    /** Delay the dispatch by a number of seconds (or until a Date). */
-    withDelay (delay: number | Date): this {
-        this.job.delay = delay instanceof Date
-            ? Math.max(0, Math.round((delay.getTime() - Date.now()) / 1000))
-            : delay
-
-        return this
-    }
-
-    /** The underlying job instance. */
-    getJob (): T {
-        return this.job
-    }
-
-    /**
-     * Perform the dispatch, returning the resulting job id.
-     */
-    private send (): Promise<string> {
-        if (this.job.delay && this.job.delay > 0) {
-            return Queue.later(this.job.delay, this.job, this.job.queue)
-        }
-
-        return Queue.push(this.job, this.job.queue)
-    }
-
-    then<TResult1 = string, TResult2 = never> (
-        onfulfilled?: ((value: string) => TResult1 | PromiseLike<TResult1>) | null,
-        onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
-    ): PromiseLike<TResult1 | TResult2> {
-        return this.send().then(onfulfilled, onrejected)
-    }
+  then<TResult1 = string, TResult2 = never>(
+    onfulfilled?: ((value: string) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.send().then(onfulfilled, onrejected)
+  }
 }

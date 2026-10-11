@@ -17,128 +17,126 @@ const now = (): number => Math.floor(Date.now() / 1000)
  * that creates this table.
  */
 export class DatabaseQueue extends QueueContract {
-    private db?: DatabaseFacade
+  private db?: DatabaseFacade
 
-    constructor(private readonly options: DatabaseConnectionConfig) {
-        super()
+  constructor(private readonly options: DatabaseConnectionConfig) {
+    super()
+  }
+
+  private get defaultQueue(): string {
+    return this.getDefaultQueue()
+  }
+
+  /** The configured queue this connection works when none is named. */
+  getDefaultQueue(): string {
+    return this.options.queue ?? 'default'
+  }
+
+  private async database(): Promise<DatabaseFacade> {
+    if (this.db) {
+      return this.db
     }
 
-    private get defaultQueue(): string {
-        return this.getDefaultQueue()
+    try {
+      const { DB } = await import('@arkstack/database' as string)
+      this.db = DB as unknown as DatabaseFacade
+    } catch {
+      throw new Error('The database queue connection requires the "@arkstack/database" package.')
     }
 
-    /** The configured queue this connection works when none is named. */
-    getDefaultQueue(): string {
-        return this.options.queue ?? 'default'
+    return this.db
+  }
+
+  async push(job: Queueable, queue?: string): Promise<string> {
+    return this.pushRaw(serializeJob(job), queue ?? job.queue)
+  }
+
+  async pushRaw(payload: JobPayload, queue?: string, availableAt: number = now()): Promise<string> {
+    const db = await this.database()
+
+    await db.table(this.options.table).insert({
+      queue: queue ?? this.defaultQueue,
+      payload: JSON.stringify(payload),
+      attempts: payload.attempts,
+      reserved_at: null,
+      available_at: availableAt,
+      created_at: now(),
+    })
+
+    return payload.id
+  }
+
+  async later(delay: number | Date, job: Queueable, queue?: string): Promise<string> {
+    const availableAt = delay instanceof Date ? Math.floor(delay.getTime() / 1000) : now() + delay
+
+    return this.pushRaw(serializeJob(job), queue ?? job.queue, availableAt)
+  }
+
+  async pop(queue?: string): Promise<Job | null> {
+    const db = await this.database()
+    const name = queue ?? this.defaultQueue
+
+    // Next available, unreserved (or expired-reservation) job in id order.
+    const row = await this.availableQuery(db, name).orderBy({ id: 'asc' }).first()
+
+    if (!row) {
+      return null
     }
 
-    private async database(): Promise<DatabaseFacade> {
-        if (this.db) {
-            return this.db
-        }
+    const attempts = row.attempts + 1
 
-        try {
-            const { DB } = await import('@arkstack/database' as string)
-            this.db = DB as unknown as DatabaseFacade
-        } catch {
-            throw new Error('The database queue connection requires the "@arkstack/database" package.')
-        }
+    await db.table(this.options.table).where({ id: row.id }).update({ reserved_at: now(), attempts })
 
-        return this.db
-    }
+    const payload = { ...(JSON.parse(row.payload) as JobPayload), attempts }
 
-    async push(job: Queueable, queue?: string): Promise<string> {
-        return this.pushRaw(serializeJob(job), queue ?? job.queue)
-    }
-
-    async pushRaw(
-        payload: JobPayload,
-        queue?: string,
-        availableAt: number = now()
-    ): Promise<string> {
-        const db = await this.database()
-
-        await db.table(this.options.table).insert({
-            queue: queue ?? this.defaultQueue,
-            payload: JSON.stringify(payload),
-            attempts: payload.attempts,
+    return new Job(payload, name, {
+      delete: async () => {
+        await db.table(this.options.table).where({ id: row.id }).delete()
+      },
+      release: async (delay: number) => {
+        await db
+          .table(this.options.table)
+          .where({ id: row.id })
+          .update({
             reserved_at: null,
-            available_at: availableAt,
-            created_at: now(),
-        })
+            available_at: now() + delay,
+          })
+      },
+    })
+  }
 
-        return payload.id
-    }
+  async size(queue?: string): Promise<number> {
+    const db = await this.database()
 
-    async later(delay: number | Date, job: Queueable, queue?: string): Promise<string> {
-        const availableAt = delay instanceof Date
-            ? Math.floor(delay.getTime() / 1000)
-            : now() + delay
+    return db
+      .table(this.options.table)
+      .where({ queue: queue ?? this.defaultQueue })
+      .count()
+  }
 
-        return this.pushRaw(serializeJob(job), queue ?? job.queue, availableAt)
-    }
+  async clear(queue?: string): Promise<number> {
+    const db = await this.database()
+    const name = queue ?? this.defaultQueue
+    const count = await this.size(name)
 
-    async pop(queue?: string): Promise<Job | null> {
-        const db = await this.database()
-        const name = queue ?? this.defaultQueue
+    await db.table(this.options.table).where({ queue: name }).delete()
 
-        // Next available, unreserved (or expired-reservation) job in id order.
-        const row =
-            await this.availableQuery(db, name).orderBy({ id: 'asc' }).first()
+    return count
+  }
 
-        if (!row) {
-            return null
-        }
-
-        const attempts = row.attempts + 1
-
-        await db.table(this.options.table)
-            .where({ id: row.id })
-            .update({ reserved_at: now(), attempts })
-
-        const payload = { ...(JSON.parse(row.payload) as JobPayload), attempts }
-
-        return new Job(payload, name, {
-            delete: async () => {
-                await db.table(this.options.table).where({ id: row.id }).delete()
-            },
-            release: async (delay: number) => {
-                await db.table(this.options.table).where({ id: row.id }).update({
-                    reserved_at: null,
-                    available_at: now() + delay,
-                })
-            },
-        })
-    }
-
-    async size(queue?: string): Promise<number> {
-        const db = await this.database()
-
-        return db.table(this.options.table).where({ queue: queue ?? this.defaultQueue }).count()
-    }
-
-    async clear(queue?: string): Promise<number> {
-        const db = await this.database()
-        const name = queue ?? this.defaultQueue
-        const count = await this.size(name)
-
-        await db.table(this.options.table).where({ queue: name }).delete()
-
-        return count
-    }
-
-    /**
-     * Due, unreserved jobs on the given queue, oldest first. Released jobs become
-     * unreserved with a future `available_at`, so they naturally wait their turn.
-     * 
-     * @param db 
-     * @param queue 
-     * @returns 
-     */
-    private availableQuery(db: DatabaseFacade, queue: string): Query {
-        return db.table(this.options.table)
-            .where({ queue })
-            .whereNull('reserved_at')
-            .whereRaw('available_at <= ' + now())
-    }
+  /**
+   * Due, unreserved jobs on the given queue, oldest first. Released jobs become
+   * unreserved with a future `available_at`, so they naturally wait their turn.
+   *
+   * @param db
+   * @param queue
+   * @returns
+   */
+  private availableQuery(db: DatabaseFacade, queue: string): Query {
+    return db
+      .table(this.options.table)
+      .where({ queue })
+      .whereNull('reserved_at')
+      .whereRaw('available_at <= ' + now())
+  }
 }

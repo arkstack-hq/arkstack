@@ -38,8 +38,8 @@ The Redis connection relies on `ioredis`, and the database connection on `@arkst
 
 ```ts
 // src/config/queue.ts
-import { QueueConfig } from '@arkstack/queue';
-import { env } from '@arkstack/common';
+import { QueueConfig } from '@arkstack/queue'
+import { env } from '@arkstack/common'
 
 export default (): QueueConfig => ({
   default: env('QUEUE_CONNECTION', 'sync'),
@@ -57,7 +57,7 @@ export default (): QueueConfig => ({
       port: env('REDIS_PORT', 6379),
     },
   },
-});
+})
 ```
 
 The `database` connection expects a `jobs` table with `id` (auto increment), `queue` (string), `payload` (text), `attempts` (int), `reserved_at` (nullable int), `available_at` (int), and `created_at` (int) columns. Publish the ready-made migration with:
@@ -72,13 +72,13 @@ pnpm ark migrate
 In most apps you dispatch through [Jobs](/guide/jobs). To push directly onto a connection, use the `Queue` facade:
 
 ```ts
-import { Queue } from '@arkstack/queue';
+import { Queue } from '@arkstack/queue'
 
-await Queue.push(new SendWelcomeEmail(user)); // default connection
-await Queue.later(60, new ChargeInvoice(invoiceId)); // available after 60 seconds
-await Queue.connection('redis').push(job, 'emails'); // a specific connection + queue
-await Queue.size('emails');
-await Queue.clear('emails');
+await Queue.push(new SendWelcomeEmail(user)) // default connection
+await Queue.later(60, new ChargeInvoice(invoiceId)) // available after 60 seconds
+await Queue.connection('redis').push(job, 'emails') // a specific connection + queue
+await Queue.size('emails')
+await Queue.clear('emails')
 ```
 
 With the `sync` connection, pushed work runs immediately and inline.
@@ -97,10 +97,10 @@ ark queue:clear redis --queue=emails
 Or drive a worker programmatically:
 
 ```ts
-import { Queue } from '@arkstack/queue';
+import { Queue } from '@arkstack/queue'
 
-const worker = Queue.worker('database');
-await worker.daemon({ queue: 'default', sleep: 3 });
+const worker = Queue.worker('database')
+await worker.daemon({ queue: 'default', sleep: 3 })
 ```
 
 ### Retries & failures
@@ -112,12 +112,10 @@ A job is **deleted** on success. On failure it is **released** for another attem
 Connections other than `sync` store a serialized payload and must reconstruct job instances inside the worker. [Jobs](/guide/jobs) registers these strategies automatically. To wire them manually:
 
 ```ts
-import { Queue } from '@arkstack/queue';
+import { Queue } from '@arkstack/queue'
 
-Queue.serializeUsing((job) => ({
-  /* JobPayload */
-}));
-Queue.resolveJobsUsing((payload) => rebuildJob(payload));
+Queue.serializeUsing((job) => ({/* JobPayload */}))
+Queue.resolveJobsUsing((payload) => rebuildJob(payload))
 ```
 
 ## Custom connections
@@ -125,11 +123,11 @@ Queue.resolveJobsUsing((payload) => rebuildJob(payload));
 Register a custom transport with `Queue.extend`:
 
 ```ts
-import { Queue, QueueContract } from '@arkstack/queue';
+import { Queue, QueueContract } from '@arkstack/queue'
 
 class SqsQueue extends QueueContract {
   /* implement push/pushRaw/later/pop/size/clear */
 }
 
-Queue.extend('sqs', (config, name) => new SqsQueue(/* ... */));
+Queue.extend('sqs', (config, name) => new SqsQueue(/* ... */))
 ```

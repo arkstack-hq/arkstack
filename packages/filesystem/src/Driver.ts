@@ -1,4 +1,12 @@
-import { CustomDiskConfig, CustomDiskDriverRegistry, DiskConfig, FtpDriverConfig, GcsDiskDriverConfig, LocalDriverConfig, S3DriverConfig } from './types'
+import {
+  CustomDiskConfig,
+  CustomDiskDriverRegistry,
+  DiskConfig,
+  FtpDriverConfig,
+  GcsDiskDriverConfig,
+  LocalDriverConfig,
+  S3DriverConfig,
+} from './types'
 import { DriverContract, SignedURLOptions } from 'flydrive/types'
 
 import { FSDriver } from 'flydrive/drivers/fs'
@@ -10,127 +18,125 @@ import { appUrl } from '@arkstack/common'
 type BuiltInDriverMap = { [K in keyof Driver]: Driver[K] }
 
 type DriverFor<K extends string> = K extends keyof BuiltInDriverMap
-    ? ReturnType<BuiltInDriverMap[K]>
-    : ReturnType<BuiltInDriverMap['custom']>
+  ? ReturnType<BuiltInDriverMap[K]>
+  : ReturnType<BuiltInDriverMap['custom']>
 
 export class Driver {
-    private static customDrivers = new Map<
-        keyof CustomDiskDriverRegistry | (string & {}),
-        DriverContract | (new (config?: CustomDiskConfig) => DriverContract)
-    >()
+  private static customDrivers = new Map<
+    keyof CustomDiskDriverRegistry | (string & {}),
+    DriverContract | (new (config?: CustomDiskConfig) => DriverContract)
+  >()
 
-    constructor(private config: DiskConfig) { }
+  constructor(private config: DiskConfig) {}
 
-    static make<K extends 'local' | 'ftp' | 'gcs' | 's3' | (string & {})> (
-        config: DiskConfig
-    ): DriverFor<K> {
-        const name = config.driver
+  static make<K extends 'local' | 'ftp' | 'gcs' | 's3' | (string & {})>(config: DiskConfig): DriverFor<K> {
+    const name = config.driver
 
-        if (!['local', 'ftp', 's3', 'gcs'].includes(name) && !this.customDrivers.has(name)) {
-            throw new Error(`Unsupported driver: ${name}`)
-        }
-
-        const driver = new Driver(config)
-
-        if (this.customDrivers.has(name)) {
-            return driver.custom(name) as DriverFor<K>
-        }
-
-        const factory = driver[name as 'local']
-
-        return factory.call(driver) as DriverFor<K>
+    if (!['local', 'ftp', 's3', 'gcs'].includes(name) && !this.customDrivers.has(name)) {
+      throw new Error(`Unsupported driver: ${name}`)
     }
 
-    local () {
-        const config = this.config as LocalDriverConfig
+    const driver = new Driver(config)
 
-        return new FSDriver({
-            location: config.location ?? new URL(config.root!, import.meta.url),
-            visibility: config.visibility ?? 'public',
-            urlBuilder: {
-                async generateURL (key: string, _path: string) {
-                    if (config.url) return `${config.url}/key`.replace(/^(https?:\/)\/+/, '$1/').replace(/([^:]\/)\/+/g, '$1')
-
-                    return appUrl(key)
-                },
-
-                async generateSignedURL (key: string, _path: string, _opts: SignedURLOptions) {
-                    if (config.url) return `${config.url}/key`.replace(/^(https?:\/)\/+/, '$1/').replace(/([^:]\/)\/+/g, '$1')
-
-                    return appUrl(key)
-                },
-            },
-        })
+    if (this.customDrivers.has(name)) {
+      return driver.custom(name) as DriverFor<K>
     }
 
-    s3 () {
-        const config = this.config as S3DriverConfig
+    const factory = driver[name as 'local']
 
-        return new S3Driver({
-            credentials: config.credentials ?? {
-                accessKeyId: config.key!,
-                secretAccessKey: config.secret!,
-            },
-            endpoint: config.endpoint,
-            region: config.region,
-            bucket: config.bucket,
-            visibility: 'private',
-            cdnUrl: config.cdnUrl ?? config.url,
-        })
+    return factory.call(driver) as DriverFor<K>
+  }
+
+  local() {
+    const config = this.config as LocalDriverConfig
+
+    return new FSDriver({
+      location: config.location ?? new URL(config.root!, import.meta.url),
+      visibility: config.visibility ?? 'public',
+      urlBuilder: {
+        async generateURL(key: string, _path: string) {
+          if (config.url) return `${config.url}/key`.replace(/^(https?:\/)\/+/, '$1/').replace(/([^:]\/)\/+/g, '$1')
+
+          return appUrl(key)
+        },
+
+        async generateSignedURL(key: string, _path: string, _opts: SignedURLOptions) {
+          if (config.url) return `${config.url}/key`.replace(/^(https?:\/)\/+/, '$1/').replace(/([^:]\/)\/+/g, '$1')
+
+          return appUrl(key)
+        },
+      },
+    })
+  }
+
+  s3() {
+    const config = this.config as S3DriverConfig
+
+    return new S3Driver({
+      credentials: config.credentials ?? {
+        accessKeyId: config.key!,
+        secretAccessKey: config.secret!,
+      },
+      endpoint: config.endpoint,
+      region: config.region,
+      bucket: config.bucket,
+      visibility: 'private',
+      cdnUrl: config.cdnUrl ?? config.url,
+    })
+  }
+
+  gcs() {
+    const config = this.config as GcsDiskDriverConfig & { driver?: string }
+    const { driver: _driver, ...options } = config
+
+    return new GCSDriver(options)
+  }
+
+  ftp() {
+    const config = this.config as FtpDriverConfig
+
+    return new FtpDriver({
+      host: config.host,
+      username: config.username,
+      password: config.password,
+      port: config.port,
+      verbose: config.verbose,
+      privateKey: config.privateKey,
+    })
+  }
+
+  custom(name: string): DriverContract {
+    if (!Driver.customDrivers.has(name)) {
+      throw new Error(`Unsupported driver: ${name} has not been registered`)
     }
 
-    gcs () {
-        const config = this.config as GcsDiskDriverConfig & { driver?: string }
-        const { driver: _driver, ...options } = config
+    const DriverInstance = Driver.customDrivers.get(name)!
 
-        return new GCSDriver(options)
+    if (typeof DriverInstance === 'function') {
+      const config = this.config as CustomDiskConfig
+
+      return new DriverInstance(config)
     }
 
-    ftp () {
-        const config = this.config as FtpDriverConfig
+    return DriverInstance
+  }
 
-        return new FtpDriver({
-            host: config.host,
-            username: config.username,
-            password: config.password,
-            port: config.port,
-            verbose: config.verbose,
-            privateKey: config.privateKey,
-        })
-    }
+  /**
+   * Register a new custom driver
+   *
+   * @param name
+   * @param driver
+   */
+  static registerDriver(name: string, driver: DriverContract) {
+    Driver.customDrivers.set(name, driver)
+  }
 
-    custom (name: string): DriverContract {
-        if (!Driver.customDrivers.has(name)) {
-            throw new Error(`Unsupported driver: ${name} has not been registered`)
-        }
-
-        const DriverInstance = Driver.customDrivers.get(name)!
-
-        if (typeof DriverInstance === 'function') {
-            const config = this.config as CustomDiskConfig
-
-            return new DriverInstance(config)
-        }
-
-        return DriverInstance
-    }
-
-    /**
-     * Register a new custom driver
-     * 
-     * @param name 
-     * @param driver 
-     */
-    static registerDriver (name: string, driver: DriverContract) {
-        Driver.customDrivers.set(name, driver)
-    }
-
-    /**
-     * Unregister a new custom driver
-     * 
-     * @param name 
-     */
-    static removeDriver (name: string) {
-        Driver.customDrivers.delete(name)
-    }
+  /**
+   * Unregister a new custom driver
+   *
+   * @param name
+   */
+  static removeDriver(name: string) {
+    Driver.customDrivers.delete(name)
+  }
 }

@@ -15,16 +15,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
  * table into the app.
  */
 Publisher.publishes({
-    package: '@arkstack/auth',
-    tag: 'two-factor',
-    entries: [
-        {
-            from: join(root, 'stubs/models/UserTwoFactor.ts.stub'),
-            to: 'src/app/models/UserTwoFactor.ts',
-        },
-        {
-            from: join(root, 'stubs/migrations/20260505110000_create_user_two_factors_table.ts.stub'),
-            to: 'src/database/migrations/20260505110000_create_user_two_factors_table.ts',
-        },
-    ],
+  package: '@arkstack/auth',
+  tag: 'two-factor',
+  entries: [
+    {
+      from: join(root, 'stubs/models/UserTwoFactor.ts.stub'),
+      to: 'src/app/models/UserTwoFactor.ts',
+    },
+    {
+      from: join(root, 'stubs/migrations/20260505110000_create_user_two_factors_table.ts.stub'),
+      to: 'src/database/migrations/20260505110000_create_user_two_factors_table.ts',
+    },
+  ],
 })

@@ -49,12 +49,12 @@ All three are exported from `@arkstack/common`.
 Resolve an application module's **source path** to a file that can be imported at runtime. Production prefers the compiled output; development prefers source. The leading `src/` segment is remapped to the output directory and the correct extension is chosen (`.ts` source → `.js` output). Returns the absolute source path when nothing exists, so a missing module fails with a clear error.
 
 ```ts
-import { resolveRuntimeModule, importFile } from '@arkstack/common';
+import { resolveRuntimeModule, importFile } from '@arkstack/common'
 
 // dev  -> <root>/src/app/models/User.ts
 // prod -> <root>/dist/app/models/User.js
-const path = resolveRuntimeModule('src/app/models/User');
-const module = await importFile(path);
+const path = resolveRuntimeModule('src/app/models/User')
+const module = await importFile(path)
 ```
 
 ### `resolveRuntimeDir(sourcePath)`
@@ -62,11 +62,11 @@ const module = await importFile(path);
 The directory counterpart of `resolveRuntimeModule`: maps a **source directory** to its build-output location without any file-extension handling. Returns the absolute source directory when neither exists.
 
 ```ts
-import { resolveRuntimeDir } from '@arkstack/common';
+import { resolveRuntimeDir } from '@arkstack/common'
 
 // dev  -> <root>/src/routes
 // prod -> <root>/dist/routes
-const dir = resolveRuntimeDir('src/routes');
+const dir = resolveRuntimeDir('src/routes')
 ```
 
 ### `toOutputPath(sourcePath)`
@@ -74,10 +74,10 @@ const dir = resolveRuntimeDir('src/routes');
 Map a source path to its build-output counterpart: strips the leading `src/` and rewrites a TypeScript source extension to `.js` (directories keep their shape). It's a **pure path transform** — it does not check the filesystem.
 
 ```ts
-import { toOutputPath } from '@arkstack/common';
+import { toOutputPath } from '@arkstack/common'
 
-toOutputPath('src/app/models/User.ts'); // <root>/dist/app/models/User.js (prod)
-toOutputPath('src/routes'); // <root>/dist/routes (prod)
+toOutputPath('src/app/models/User.ts') // <root>/dist/app/models/User.js (prod)
+toOutputPath('src/routes') // <root>/dist/routes (prod)
 ```
 
 > `resolveRuntimeModule` / `resolveRuntimeDir` consult the filesystem and pick the existing file/dir for the current environment; `toOutputPath` just computes the mapped location.
