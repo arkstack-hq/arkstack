@@ -25,9 +25,7 @@ export class BuildInterfaces {
 
   static async tsconfig() {
     const pkg = JSON.parse(await readFile(path.join(process.cwd(), 'package.json'), 'utf-8'))
-    const deps = Object
-      .keys(pkg.dependencies ?? {})
-      .concat(Object.keys(pkg.devDependencies ?? {}))
+    const deps = Object.keys(pkg.dependencies ?? {}).concat(Object.keys(pkg.devDependencies ?? {}))
 
     if (deps.includes('@arkstack/inertia')) {
       TSConfig['include'] = [...TSConfig['include'], '../resources']
@@ -36,7 +34,7 @@ export class BuildInterfaces {
     if (deps.includes('react')) {
       TSConfig['compilerOptions'] = {
         ...TSConfig['compilerOptions'],
-        jsx: 'react-jsx'
+        jsx: 'react-jsx',
       } as never
     }
 

@@ -2,9 +2,16 @@ import { Job } from './Job'
 import { QueueContract } from './Contracts/QueueContract'
 import { resolveJob } from './serialization'
 
+/** Matches every queue on the connection in a worker's queue list. */
+export const ANY_QUEUE = '*'
+
 export interface WorkerOptions {
-  /** The queue name to pull from. */
-  queue?: string
+  /**
+   * The queue(s) to pull from. A list is a strict priority order: each loop
+   * takes the first job found walking the list. {@link ANY_QUEUE} (`*`) matches
+   * any queue, so `['webhook', '*']` means "webhook first, then anything".
+   */
+  queue?: string | string[]
   /** Seconds to wait when the queue is empty before polling again. */
   sleep?: number
   /** Stop after processing this many jobs (0 = unlimited). */
@@ -64,10 +71,13 @@ export class Worker {
 
   /**
    * Pop and process the next job. Returns `true` if a job was processed,
-   * `false` when the queue was empty.
+   * `false` when every queue asked for was empty.
+   *
+   * @param queue  A queue, or a priority-ordered list of queues (see
+   *               {@link WorkerOptions.queue}). Omitted: the connection's default.
    */
-  async runNextJob(queue?: string): Promise<boolean> {
-    const job = await this.connection.pop(queue)
+  async runNextJob(queue?: string | string[]): Promise<boolean> {
+    const job = await this.nextJob(queue)
 
     if (!job) {
       return false
@@ -76,6 +86,25 @@ export class Worker {
     await this.process(job)
 
     return true
+  }
+
+  /**
+   * Reserve the next job, walking the queues in priority order.
+   *
+   * @param queue
+   */
+  private async nextJob(queue?: string | string[]): Promise<Job | null> {
+    const queues = Array.isArray(queue) ? queue : [queue]
+
+    for (const name of queues) {
+      const job = name === ANY_QUEUE ? await this.connection.popAny() : await this.connection.pop(name)
+
+      if (job) {
+        return job
+      }
+    }
+
+    return null
   }
 
   /**

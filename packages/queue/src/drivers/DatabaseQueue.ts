@@ -1,4 +1,4 @@
-import type { DatabaseConnectionConfig, DatabaseFacade, JobPayload, Query, Queueable } from '../types'
+import type { DatabaseConnectionConfig, DatabaseFacade, JobPayload, JobRow, Query, Queueable } from '../types'
 
 import { Job } from '../Job'
 import { QueueContract } from '../Contracts/QueueContract'
@@ -74,22 +74,40 @@ export class DatabaseQueue extends QueueContract {
 
   async pop(queue?: string): Promise<Job | null> {
     const db = await this.database()
-    const name = queue ?? this.defaultQueue
 
     // Next available, unreserved (or expired-reservation) job in id order.
-    const row = await this.availableQuery(db, name).orderBy({ id: 'asc' }).first()
+    const row = await this.availableQuery(db, queue ?? this.defaultQueue)
+      .orderBy({ id: 'asc' })
+      .first()
 
-    if (!row) {
-      return null
-    }
+    return row ? this.reserve(db, row) : null
+  }
 
+  /**
+   * The oldest due job on any queue. Ordering by id across queues is FIFO by
+   * arrival, so a busy queue can't starve a quiet one.
+   */
+  async popAny(): Promise<Job | null> {
+    const db = await this.database()
+    const row = await this.availableQuery(db).orderBy({ id: 'asc' }).first()
+
+    return row ? this.reserve(db, row) : null
+  }
+
+  /**
+   * Reserve a fetched row and wrap it as a {@link Job}.
+   *
+   * @param db
+   * @param row
+   */
+  private async reserve(db: DatabaseFacade, row: JobRow): Promise<Job> {
     const attempts = row.attempts + 1
 
     await db.table(this.options.table).where({ id: row.id }).update({ reserved_at: now(), attempts })
 
     const payload = { ...(JSON.parse(row.payload) as JobPayload), attempts }
 
-    return new Job(payload, name, {
+    return new Job(payload, row.queue, {
       delete: async () => {
         await db.table(this.options.table).where({ id: row.id }).delete()
       },
@@ -125,18 +143,18 @@ export class DatabaseQueue extends QueueContract {
   }
 
   /**
-   * Due, unreserved jobs on the given queue, oldest first. Released jobs become
-   * unreserved with a future `available_at`, so they naturally wait their turn.
+   * Due, unreserved jobs, oldest first: on one queue, or on every queue when
+   * `queue` is omitted. Released jobs become unreserved with a future
+   * `available_at`, so they naturally wait their turn.
    *
    * @param db
    * @param queue
    * @returns
    */
-  private availableQuery(db: DatabaseFacade, queue: string): Query {
-    return db
-      .table(this.options.table)
-      .where({ queue })
-      .whereNull('reserved_at')
-      .whereRaw('available_at <= ' + now())
+  private availableQuery(db: DatabaseFacade, queue?: string): Query {
+    const table = db.table(this.options.table)
+    const scoped = queue === undefined ? table : table.where({ queue })
+
+    return scoped.whereNull('reserved_at').whereRaw('available_at <= ' + now())
   }
 }

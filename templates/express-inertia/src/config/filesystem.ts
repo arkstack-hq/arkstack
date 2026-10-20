@@ -62,10 +62,7 @@ export default (): FilesystemConfig => {
      * The key of the object represents the link location, while the value represents the target location.  
      */
     links: {
-      [path.join(Arkstack.rootDir(), './public/storage')]: path.join(
-        Arkstack.rootDir(),
-        './storage/app/public',
-      ),
+      [path.join(Arkstack.rootDir(), './public/storage')]: path.join(Arkstack.rootDir(), './storage/app/public'),
     },
 
     /**

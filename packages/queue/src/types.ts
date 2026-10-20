@@ -152,5 +152,6 @@ export interface RedisClient {
   zrem(key: string, member: string): Promise<number>
   zcard(key: string): Promise<number>
   zrangebyscore(key: string, min: string | number, max: string | number): Promise<string[]>
+  scan(cursor: string | number, ...args: (string | number)[]): Promise<[cursor: string, keys: string[]]>
   quit(): Promise<unknown>
 }

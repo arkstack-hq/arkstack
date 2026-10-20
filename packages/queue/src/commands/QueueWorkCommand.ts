@@ -1,6 +1,6 @@
 import { Command } from '@h3ravel/musket'
 import { Queue } from '../QueueManager'
-import { Worker } from '../Worker'
+import { ANY_QUEUE, Worker } from '../Worker'
 import { bootArkorm } from '@arkstack/database'
 
 /** The message of a thrown value, whatever it is. */
@@ -12,7 +12,7 @@ const reason = (error: unknown): string => (error instanceof Error ? error.messa
 export class QueueWorkCommand extends Command {
   protected signature = `queue:work
         {connection? : The queue connection to work. Defaults to the configured default.}
-        {--queue= : The queue to process.}
+        {--queue= : The queue(s) to process: a name, a comma-separated priority list, or * for every queue.}
         {--sleep=3 : Seconds to sleep when no job is available.}
         {--max-jobs=0 : Stop after processing this many jobs (0 for unlimited).}
         {--once : Process a single job and exit.}
@@ -35,7 +35,7 @@ export class QueueWorkCommand extends Command {
       },
     })
 
-    const queue = (this.option('queue') as string | undefined) ?? connection.getDefaultQueue()
+    const queue = this.queues(connection.getDefaultQueue())
 
     try {
       bootArkorm()
@@ -56,7 +56,7 @@ export class QueueWorkCommand extends Command {
       return
     }
 
-    this.info(`Processing jobs from the [${connection.getConnectionName()}] connection on the [${queue}] queue.`)
+    this.info(`Processing jobs from the [${connection.getConnectionName()}] connection on ${this.describe(queue)}.`)
 
     await worker.daemon({
       queue,
@@ -64,6 +64,34 @@ export class QueueWorkCommand extends Command {
       maxJobs: Number(this.flag('maxJobs', 'max-jobs') ?? 0),
       stopWhenEmpty: Boolean(this.flag('stopWhenEmpty', 'stop-when-empty')),
     })
+  }
+
+  /**
+   * The queues to work, from `--queue`: `ocr` → `['ocr']`, `webhook,ocr` → a
+   * priority list, `*` → every queue. Falls back to the connection's default.
+   *
+   * @param fallback  The connection's default queue.
+   */
+  private queues(fallback: string): string[] {
+    const names = String(this.option('queue') ?? '')
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean)
+
+    return names.length ? [...new Set(names)] : [fallback]
+  }
+
+  /**
+   * How the worker's queues read in its startup line.
+   *
+   * @param queues
+   */
+  private describe(queues: string[]): string {
+    if (queues.length === 1) {
+      return queues[0] === ANY_QUEUE ? 'every queue' : `the [${queues[0]}] queue`
+    }
+
+    return `the [${queues.join(', ')}] queues, in that order`
   }
 
   /**
