@@ -75,8 +75,7 @@ export default function Index({
           <br />
           Router.<span className="fn">get</span>(<span className="str">'/'</span>, () =&gt; {'{'}
           <br />
-          &nbsp;&nbsp;<span className="kw">return</span> {'{'} status:{' '}
-          <span className="str">'ok'</span> {'}'}
+          &nbsp;&nbsp;<span className="kw">return</span> {'{'} status: <span className="str">'ok'</span> {'}'}
           <br />
           {'}'})
         </code>

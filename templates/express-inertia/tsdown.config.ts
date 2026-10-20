@@ -23,10 +23,7 @@ export default defineConfig([
     deps: {
       skipNodeModulesBundle: true,
     },
-    watch:
-      env === 'dev' && process.env.CLI_BUILD !== 'true'
-        ? ['.env', '.env.*', 'src', 'tsconfig.json']
-        : false,
+    watch: env === 'dev' && process.env.CLI_BUILD !== 'true' ? ['.env', '.env.*', 'src', 'tsconfig.json'] : false,
     plugins: [
       devServer({
         env: Object.assign({}, process.env, {

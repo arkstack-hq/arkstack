@@ -4,10 +4,7 @@ import { Controller } from 'clear-router'
 import { HttpContext } from 'clear-router/types/express'
 
 export class BaseController extends Controller<HttpContext> {
-  async validate<D extends Record<string, any>, R extends RulesForData<D>>(
-    rules: R,
-    camelizeKeys = false,
-  ) {
+  async validate<D extends Record<string, any>, R extends RulesForData<D>>(rules: R, camelizeKeys = false) {
     const data = await Validator.make(this.body, rules).validate()
 
     if (camelizeKeys) {
