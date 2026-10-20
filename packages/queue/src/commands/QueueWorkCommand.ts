@@ -12,7 +12,7 @@ const reason = (error: unknown): string => (error instanceof Error ? error.messa
 export class QueueWorkCommand extends Command {
   protected signature = `queue:work
         {connection? : The queue connection to work. Defaults to the configured default.}
-        {--queue= : The queue(s) to process: a name, a comma-separated priority list, or * for every queue.}
+        {--queue= : The queue(s) to process. One name, a comma-separated priority list, or * for every queue.}
         {--sleep=3 : Seconds to sleep when no job is available.}
         {--max-jobs=0 : Stop after processing this many jobs (0 for unlimited).}
         {--once : Process a single job and exit.}
