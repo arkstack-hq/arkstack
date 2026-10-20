@@ -49,11 +49,28 @@ await Queue.clear('emails')
 ## Workers
 
 ```bash
-ark queue:work                      # daemon on the default connection
+ark queue:work                      # daemon on the default connection's default queue
 ark queue:work redis --queue=emails
+ark queue:work --queue=high,default # priority list: high first, then default
+ark queue:work --queue=*            # every queue on the connection
 ark queue:work --once               # process a single job and exit
 ark queue:clear redis --queue=emails
 ```
+
+`--queue` takes one queue, a comma-separated list, or `*`:
+
+- **No `--queue`**: only the connection's default queue (`queue` in its config). Jobs
+  sent elsewhere with `onQueue(...)` or a job's `queue` property are **not** processed.
+- **A list** (`--queue=webhook,ocr,default`) is a strict priority order: on every
+  loop the worker takes the first job it finds walking the list, so later queues
+  run only while earlier ones are empty.
+- **`*`** works every queue on the connection. The `database` driver takes the
+  oldest due job across all queues; the `redis` driver discovers queues with
+  `SCAN` and works them round-robin. Combine it with names to prioritize some:
+  `--queue=webhook,*`.
+
+Every queue that receives jobs needs a worker that lists it (or `*`), or its jobs
+wait forever.
 
 Programmatically:
 
@@ -62,7 +79,11 @@ import { Queue } from '@arkstack/queue'
 
 const worker = Queue.worker('database')
 await worker.daemon({ queue: 'default', sleep: 3 })
+await worker.daemon({ queue: ['webhook', '*'], sleep: 3 }) // priority list / wildcard
 ```
+
+A custom driver supports `*` by overriding `popAny()` on `QueueContract`; the base
+implementation works only the default queue.
 
 A job is **deleted** on success, **released** for another attempt on failure, and **marked failed** (invoking its `failed` hook) once it exhausts `tries`.
 

@@ -52,6 +52,16 @@ export abstract class QueueContract {
   abstract pop(queue?: string): Promise<Job | null>
 
   /**
+   * Reserve the next job from any queue on this connection, for the worker's `*`
+   * wildcard. Drivers that can list their queues override this; the default
+   * works only the default queue, so a driver without that ability behaves
+   * exactly as a worker given no queue.
+   */
+  async popAny(): Promise<Job | null> {
+    return this.pop()
+  }
+
+  /**
    * The number of jobs waiting on the given queue.
    */
   abstract size(queue?: string): Promise<number>

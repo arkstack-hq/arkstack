@@ -16,6 +16,8 @@ const now = (): number => Math.floor(Date.now() / 1000)
  */
 export class RedisQueue extends QueueContract {
   private client?: RedisClient
+  /** Rotates which queue {@link popAny} tries first, so none is starved. */
+  private anyCursor = 0
 
   constructor(private readonly options: RedisConnectionConfig) {
     super()
@@ -126,6 +128,27 @@ export class RedisQueue extends QueueContract {
     })
   }
 
+  /**
+   * Reserve the next job from any queue. Redis has no ordering across lists, so
+   * the queues are discovered with `SCAN` (never the blocking `KEYS`) and tried
+   * round-robin, starting one further along on each call.
+   */
+  async popAny(): Promise<Job | null> {
+    const queues = await this.queueNames(await this.connection())
+
+    for (let offset = 0; offset < queues.length; offset++) {
+      const job = await this.pop(queues[(this.anyCursor + offset) % queues.length])
+
+      if (job) {
+        this.anyCursor = (this.anyCursor + offset + 1) % queues.length
+
+        return job
+      }
+    }
+
+    return null
+  }
+
   async size(queue?: string): Promise<number> {
     const client = await this.connection()
     const name = queue ?? this.defaultQueue
@@ -147,6 +170,28 @@ export class RedisQueue extends QueueContract {
     await client.del(this.key(name), this.key(name, ':delayed'), this.key(name, ':reserved'))
 
     return count
+  }
+
+  /**
+   * Every queue with jobs in any state (waiting, delayed or reserved), sorted so
+   * the round-robin order is stable.
+   */
+  private async queueNames(client: RedisClient): Promise<string[]> {
+    const prefix = this.options.prefix ?? 'queues:'
+    const names = new Set<string>()
+    let cursor = '0'
+
+    do {
+      const [next, keys] = await client.scan(cursor, 'MATCH', `${prefix}*`, 'COUNT', 100)
+
+      for (const key of keys) {
+        names.add(key.slice(prefix.length).replace(/:(delayed|reserved)$/, ''))
+      }
+
+      cursor = next
+    } while (cursor !== '0')
+
+    return [...names].sort()
   }
 
   /**
