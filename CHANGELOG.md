@@ -28,6 +28,7 @@ The format follows semantic versioning principles.
 
 ### Fixed
 
+- `ark queue:work --queue` rejected every value in 0.19.5 ("argument '…' is invalid. Allowed choices are …"): musket reads a trailing `: a, b, c` in an option's description as its allowed choices, and the new `--queue` description had one. The description no longer does, and a test pins that `queue:work` options declare no choices.
 - `DotPath` (the key type behind `config()` and `configure()`) is now depth-bounded and stops at built-in object types, so configs holding deep or self-referencing library types (nodemailer transports) no longer fail to typecheck with "circularly references itself". The `@ts-expect-error` workarounds in the H3 template and the notifications config are gone.
 - `build:templates` builds the templates one at a time; run in parallel, each template's prebuild rebuilt the shared packages concurrently and the builds clobbered each other.
 - Fixed type errors in `@arkstack/auth` (`AuthenticationException` request typing and two tests) and in `@arkstack/common`'s `renderError`, which used the `view()` global without a type for it.

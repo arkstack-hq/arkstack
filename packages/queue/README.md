@@ -52,7 +52,7 @@ await Queue.clear('emails')
 ark queue:work                      # daemon on the default connection's default queue
 ark queue:work redis --queue=emails
 ark queue:work --queue=high,default # priority list: high first, then default
-ark queue:work --queue=*            # every queue on the connection
+ark queue:work '--queue=*'          # every queue on the connection (quote the *)
 ark queue:work --once               # process a single job and exit
 ark queue:clear redis --queue=emails
 ```
@@ -67,7 +67,8 @@ ark queue:clear redis --queue=emails
 - **`*`** works every queue on the connection. The `database` driver takes the
   oldest due job across all queues; the `redis` driver discovers queues with
   `SCAN` and works them round-robin. Combine it with names to prioritize some:
-  `--queue=webhook,*`.
+  `--queue=webhook,*`. Quote any `*` in a shell (`'--queue=webhook,*'`), or
+  zsh/bash may expand it as a glob.
 
 Every queue that receives jobs needs a worker that lists it (or `*`), or its jobs
 wait forever.

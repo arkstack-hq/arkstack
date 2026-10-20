@@ -87,7 +87,7 @@ With the default `sync` connection the job runs immediately. Configure a `databa
 ark queue:work
 ```
 
-A bare `ark queue:work` processes only the connection's default queue. If jobs go to other queues (`onQueue(...)` or a `queue` property), name them, e.g. `ark queue:work --queue=emails,default`, or use `ark queue:work --queue=*` to work them all.
+A bare `ark queue:work` processes only the connection's default queue. If jobs go to other queues (`onQueue(...)` or a `queue` property), name them, e.g. `ark queue:work --queue=emails,default`, or use `ark queue:work '--queue=*'` to work them all (quote the `*` so the shell doesn't expand it).
 
 ## Retries & failure handling
 
