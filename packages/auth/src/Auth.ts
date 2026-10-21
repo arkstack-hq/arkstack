@@ -1,5 +1,6 @@
 import { Concrete, Hash, appKey, env, getModel } from '@arkstack/common'
 import { JWTPayload, SignJWT, jwtVerify } from 'jose'
+import { randomUUID } from 'node:crypto'
 
 import { AuthContract } from './Contracts/AuthContract'
 import { AuthenticationException } from './Exceptions/AuthenticationException'
@@ -371,7 +372,10 @@ export class Auth extends AuthContract {
   }
 
   /**
-   * Create a JWT token
+   * Create a JWT token. Each carries a random `jti`: without it, two tokens for
+   * the same user issued within the same second (`iat` has one-second precision)
+   * are identical, and the second collides with the first on the unique
+   * `personal_access_tokens.token` column.
    *
    * @param payload
    * @returns
@@ -379,6 +383,7 @@ export class Auth extends AuthContract {
   private async createJWT(payload: JWTPayload, expiresIn: string = env('JWT_EXPIRES_IN', '1h')): Promise<string> {
     const jwt = await new SignJWT(payload)
       .setProtectedHeader({ alg: 'HS256' })
+      .setJti(randomUUID())
       .setIssuedAt()
       .setExpirationTime(expiresIn)
       .sign(new TextEncoder().encode(this.getSecret()))
