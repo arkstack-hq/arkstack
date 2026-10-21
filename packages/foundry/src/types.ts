@@ -28,3 +28,7 @@ export type HookArgs<N extends string, P extends string> = N extends keyof HookR
       : any[]
     : any[]
   : any[]
+
+// What running a hook position returns (a Promise for async hooks)
+export type HookResult<N extends string, P extends string> =
+  HookPos<N, P> extends (...args: any[]) => infer R ? R : unknown

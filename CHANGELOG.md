@@ -8,6 +8,8 @@ The format follows semantic versioning principles.
 
 ### Added
 
+- `Hook.emit(name, pos, ...args)` calls a hook position and returns its result (a Promise for async hooks); it is a no-op when nothing is registered, so call sites drop the `if (Hook.has(...))` guard. `Hook.on()`, `Hook.off()` and `Hook.all()` are the new names for `set()`, `unset()` and `getAll()`.
+- `server:start` hook, run by the Express and H3 drivers once the server is listening, after the startup banner and any tunnel. `after` always runs and receives `ServerStartInfo` (exported from `@arkstack/contract`): `host`, `port`, `scheme`, `secure`, a browsable `url`, and `tunnelUrl` (`TUNNEL_URL`, or the URL `ark dev -t` opened). `tunneled` runs next, only when a tunnel is open, with `TunneledServerStartInfo` (where `tunnelUrl` is always a string). A failing listener is logged and never stops the server or skips the other position.
 - `ark queue:work --queue` accepts a comma-separated priority list (`--queue=webhook,ocr,default`) and the `*` wildcard for every queue on the connection (`--queue=*`, or `--queue=webhook,*` to put some first). `Worker.runNextJob()` and `daemon({ queue })` take a string or a list. `QueueContract.popAny()` backs the wildcard: the `database` driver takes the oldest due job across all queues, and the `redis` driver discovers queues with `SCAN` and works them round-robin. A bare `queue:work` still works only the default queue.
 - `transports.pusher.public_host` / `public_port` / `public_use_tls` (`PUSHER_PUBLIC_*`) set the Pusher-protocol server address handed to browsers when it differs from the one the app uses, such as soketi inside Docker or behind a TLS proxy. Each defaults to its server-side counterpart.
 - `RealtimeConfig.importModule` loads the transport SDKs (`pusher-js`, `firebase/*`) for every transport and for device tokens, so pages without a bundler can load them from a CDN. Defaults to a dynamic `import()`. The `createPusherTransport`, `createFirebaseTransport`, `createFirebaseDatabaseTransport` and `requestDeviceToken` helpers accept it as an extra argument.
@@ -20,6 +22,8 @@ The format follows semantic versioning principles.
 
 ### Changed
 
+- `@arkstack/common` re-exports `Hook` and its types from `@arkstack/foundry` instead of shipping its own copy. Declare typed hook names by augmenting `HookRegistry` on `@arkstack/foundry`; an augmentation of `@arkstack/common` no longer has any effect.
+- Deprecated `Hook.set()`, `Hook.unset()`, `Hook.getAll()`, and calling a hook through `Hook.get(name, pos, ...args)`; they keep working. `on()` accepts a partial set of positions for typed hooks.
 - `env()` now reads a value as a number only when the number says exactly what was written. `Number()` accepts hexadecimal, binary and octal literals, exponents, surrounding whitespace, and integers wider than a double can hold, and coercing those loses information silently. `'6379'` is still a number; `'0x1f'`, `'007'`, `'1e5'`, `' 12 '`, `'0b1010'`, `'Infinity'` and `'12345678901234567890'` are now the strings they were written as.
 
 ### Docs
@@ -28,6 +32,11 @@ The format follows semantic versioning principles.
 
 ### Fixed
 
+- `@arkstack/common` and `@arkstack/foundry` each had their own `Hook` registry, so hooks registered through one import never fired for code reading the other. The Express auth middleware read `common`'s, so `middleware:auth` hooks registered as documented (via `foundry`) never ran on Express.
+- The `shutdown` hook checked for a `before` position but called `after`; it now runs `before`.
+- `Hook.unset(name)` / `remove(name)` with a name that wasn't registered cleared every hook.
+- H3's auth middleware now awaits `middleware:auth` hooks, as Express already did.
+- A failing Express `after` middleware exited the process: `Logger.error` exits by default, and the post-response handler didn't pass `exit = false`.
 - `ark queue:work --queue` rejected every value in 0.19.5 ("argument '…' is invalid. Allowed choices are …"): musket reads a trailing `: a, b, c` in an option's description as its allowed choices, and the new `--queue` description had one. The description no longer does, and a test pins that `queue:work` options declare no choices.
 - `DotPath` (the key type behind `config()` and `configure()`) is now depth-bounded and stops at built-in object types, so configs holding deep or self-referencing library types (nodemailer transports) no longer fail to typecheck with "circularly references itself". The `@ts-expect-error` workarounds in the H3 template and the notifications config are gone.
 - `build:templates` builds the templates one at a time; run in parallel, each template's prebuild rebuilt the shared packages concurrently and the builds clobbered each other.

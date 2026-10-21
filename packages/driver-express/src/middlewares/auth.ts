@@ -1,13 +1,12 @@
 import type { Handler, NextFunction, Request, Response } from 'express'
 
-import { Hook } from '@arkstack/common'
+import { Hook } from '@arkstack/foundry'
 
 export const auth: Handler = async (req, res, next) => {
   const { Auth, AuthenticationException } = await import('@arkstack/auth')
 
   try {
-    if (Hook.has('middleware:auth', 'before'))
-      await Promise.resolve(Hook.get('middleware:auth', 'before')?.({ req, res }))
+    await Hook.emit('middleware:auth', 'before', { req, res })
 
     const token = readBearerToken(req.headers.authorization)
 
@@ -27,18 +26,11 @@ export const auth: Handler = async (req, res, next) => {
     req.session = auth.session()
     req.authToken = token
 
-    if (Hook.has('middleware:auth', 'after'))
-      await Promise.resolve(Hook.get('middleware:auth', 'after')?.({ req, res }))
+    await Hook.emit('middleware:auth', 'after', { req, res })
 
     next()
   } catch (error) {
-    if (Hook.has('middleware:auth', 'error'))
-      await Promise.resolve(
-        Hook.get('middleware:auth', 'error')?.(error, {
-          req,
-          res,
-        }),
-      )
+    await Hook.emit('middleware:auth', 'error', error, { req, res })
 
     next(error)
   }

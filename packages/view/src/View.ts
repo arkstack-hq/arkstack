@@ -9,7 +9,7 @@ export class View {
   private static usesDefaultFactoryRoot = true
 
   static {
-    Hook.set('set:root-dir', {
+    Hook.on('set:root-dir', {
       after: () => {
         if (View.usesDefaultFactoryRoot) View.factory = new ViewFactory()
       },

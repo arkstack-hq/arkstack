@@ -19,7 +19,7 @@ export const auth = async (event: H3Event, next: () => unknown | Promise<unknown
       })
     }
 
-    if (Hook.has('middleware:auth', 'before')) Hook.get('middleware:auth', 'before')?.(event as never)
+    await Hook.emit('middleware:auth', 'before', event as never)
 
     const requestSource = {
       headers: event.req.headers,
@@ -41,11 +41,11 @@ export const auth = async (event: H3Event, next: () => unknown | Promise<unknown
     ;(event.req as any).authUser = user
     ;(event.req as any).authToken = token
 
-    if (Hook.has('middleware:auth', 'after')) Hook.get('middleware:auth', 'after')?.(event as never)
+    await Hook.emit('middleware:auth', 'after', event as never)
 
     return await next()
   } catch (error) {
-    if (Hook.has('middleware:auth', 'error')) Hook.get('middleware:auth', 'error')?.(error, event as never)
+    await Hook.emit('middleware:auth', 'error', error, event as never)
 
     throw error
   }

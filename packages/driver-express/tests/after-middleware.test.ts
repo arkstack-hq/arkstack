@@ -32,4 +32,31 @@ describe('ExpressDriver after middleware', () => {
     expect(handler).toHaveBeenCalledOnce()
     expect(fallthrough).not.toHaveBeenCalled()
   })
+
+  it('logs a failing after middleware without exiting the process', async () => {
+    const app = express()
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let failed!: () => void
+    const done = new Promise<void>((resolve) => (failed = resolve))
+    const after = vi.fn(async () => {
+      setTimeout(failed, 0)
+      throw new Error('after blew up')
+    })
+
+    new ExpressDriver({ bindRouter: vi.fn() }).applyMiddleware(app, {
+      after: [after],
+    } as never)
+    app.get('/thing', (_req, res) => res.json({ ok: true }))
+
+    const res = await request(app).get('/thing')
+    await done
+
+    expect(res.status).toBe(200)
+    expect(errors.mock.calls.flat().join(' ')).toContain('after blew up')
+    expect(exit).not.toHaveBeenCalled()
+
+    exit.mockRestore()
+    errors.mockRestore()
+  })
 })

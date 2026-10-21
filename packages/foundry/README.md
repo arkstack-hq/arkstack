@@ -16,24 +16,32 @@ pnpm add @arkstack/foundry
 
 **`src/Hook.ts`**
 
-A global, named hook registry for extending Arkstack internals without modifying core code. Hooks are keyed by name and support positional slots (`before`, `after`, or any custom string).
+A global, named hook registry for extending Arkstack internals without modifying core code. Hooks are keyed by name and support positional slots (`before`, `after`, or any custom string). There is one registry per process: `@arkstack/common` re-exports this same `Hook`.
 
-#### `Hook.set(name, hook)`
+#### `Hook.on(name, positions)`
 
-Registers a hook. Multiple calls for the same name are merged.
+Registers callbacks for a hook's positions. Registering the same name again merges: only the positions supplied are added or replaced.
 
 ```ts
 import { Hook } from '@arkstack/foundry'
 
-Hook.set('request:handle', {
+Hook.on('request:handle', {
   before: (ctx) => console.log('before handler'),
   after: (ctx) => console.log('after handler'),
 })
 ```
 
+#### `Hook.emit(name, pos, ...args)`
+
+Calls a position with the given arguments and returns its result: a Promise for an async hook, so it can be awaited. When nothing is registered there it does nothing and returns `undefined`, so callers need no `has()` check.
+
+```ts
+await Hook.emit('request:handle', 'before', ctx)
+```
+
 #### `Hook.get(name, pos?)`
 
-Retrieves the full hook object or a specific positional handler.
+Retrieves the full hook object or one position's callback, without calling it.
 
 ```ts
 const hook = Hook.get('request:handle') // IHook | undefined
@@ -49,25 +57,29 @@ Hook.has('request:handle') // true | false
 Hook.has('request:handle', 'after') // true | false
 ```
 
-#### `Hook.unset(name?, pos?)`
+#### `Hook.off(name?, pos?)`
 
-Removes a hook or a single positional handler. If the hook becomes empty after removal, it is deleted entirely. Called with no arguments, it delegates to `Hook.clear()`.
+Removes a hook or a single position. A hook left with no positions is deleted. Called with no arguments it clears every hook; a name that isn't registered is a no-op.
 
 ```ts
-Hook.unset('request:handle', 'before') // removes only the 'before' handler
-Hook.unset('request:handle') // removes the entire hook
-Hook.unset() // clears all hooks
+Hook.off('request:handle', 'before') // removes only the 'before' callback
+Hook.off('request:handle') // removes the entire hook
+Hook.off() // clears all hooks
 ```
 
-#### `Hook.getAll()`
+#### `Hook.all()`
 
 Returns all registered hooks as a plain record.
 
 ```ts
-const hooks = Hook.getAll()
+const hooks = Hook.all()
 // { 'request:handle': { before: fn, after: fn } }
 ```
 
 #### `Hook.clear()`
 
 Clears all registered hooks.
+
+#### Deprecated aliases
+
+`set()` → `on()`, `unset()` → `off()`, `getAll()` → `all()`. `get(name, pos, ...args)` with arguments still calls the hook, but use `emit()`; `get()` should only retrieve.
