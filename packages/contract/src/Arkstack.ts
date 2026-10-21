@@ -129,6 +129,6 @@ export abstract class Arkstack<TApp, TRoutes = unknown, THandler = unknown> {
       return
     }
 
-    if (Hook.has('set:root-dir', 'after')) Hook.get('set:root-dir', 'after', dir)
+    Hook.emit('set:root-dir', 'after', dir)
   }
 }

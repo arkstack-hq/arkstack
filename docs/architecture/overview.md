@@ -150,12 +150,12 @@ For example, an authenticated route uses driver middleware to validate the beare
 
 ### Hooks
 
-`Hook` from `@arkstack/foundry` provides named callback positions.
+`Hook` from `@arkstack/foundry` provides named callback positions (`@arkstack/common` re-exports the same registry). Callers fire a position with `Hook.emit(name, pos, ...args)`, which is a no-op when nothing is registered.
 
 The auth middleware exposes `middleware:auth`, with a runtime-agnostic context shape:
 
 ```ts
-Hook.set('middleware:auth', {
+Hook.on('middleware:auth', {
   before: ({ req, res }) => {},
   after: ({ req, res }) => {},
   error: (error, { req, res }) => {},

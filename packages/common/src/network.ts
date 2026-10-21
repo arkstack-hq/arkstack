@@ -24,7 +24,7 @@ export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = u
 ) => {
   const port = await detect(preferredPort)
 
-  if (Hook.has('boot', 'before')) Hook.get('boot', 'before', port, app)
+  await Hook.emit('boot', 'before', port, app)
 
   if (app && !globalThis.app) globalThis.app = () => app as never
   globalThis.env = env
@@ -42,7 +42,7 @@ export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = u
   // Handle graceful shutdown
   bindGracefulShutdown(async () => await app?.shutdown(), defer)
 
-  if (Hook.has('boot', 'after')) Hook.get('boot', 'after', port, app)
+  await Hook.emit('boot', 'after', port, app)
 }
 
 /** The `view()` global registered by `@arkstack/view`. */

@@ -3,10 +3,46 @@ import { H3, serve, toResponse } from 'h3'
 import { H3DriverOptions, H3Middleware, Middleware, MiddlewareConfig } from './types'
 import { Logger, devTlsCredentials, env, localNetworkAddress } from '@arkstack/common'
 
+import { Hook } from '@arkstack/foundry'
+import type { ServerStartInfo } from '@arkstack/contract'
 import { defaultErrorHandler } from './error-handler'
 import ngrok from '@ngrok/ngrok'
 import { resolveMiddleware } from '@arkstack/http'
 import { staticAssetHandler } from './middlewares'
+
+/**
+ * Run one `server:start` position. A failing listener is logged, never thrown: it
+ * must not take down a server that is already up, nor skip the next position.
+ *
+ * @param position
+ * @param run
+ */
+const emitServerStartPosition = async (position: string, run: () => unknown): Promise<void> => {
+  try {
+    await run()
+  } catch (error) {
+    Logger.error(
+      `server:start ${position} hook failed: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    )
+  }
+}
+
+/**
+ * Run the `server:start` hook once the server is listening: `after` always, then
+ * `tunneled` when the server is reachable through a tunnel.
+ *
+ * @param info
+ */
+const emitServerStart = async (info: ServerStartInfo): Promise<void> => {
+  await emitServerStartPosition('after', () => Hook.emit('server:start', 'after', info))
+
+  const { tunnelUrl } = info
+
+  if (tunnelUrl) {
+    await emitServerStartPosition('tunneled', () => Hook.emit('server:start', 'tunneled', { ...info, tunnelUrl }))
+  }
+}
 
 /**
  * Build the "Server is running" startup lines, adding a local-network URL when
@@ -185,7 +221,7 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
     const secure = env('APP_SECURE', false) === true
     const tunneled = env('TUNNEL', false)
     const tunnelUrl = env('TUNNEL_URL')
-    const scheme = secure ? 'https' : 'http'
+    const scheme: ServerStartInfo['scheme'] = secure ? 'https' : 'http'
 
     // Dev HTTPS: serve with an in-memory self-signed certificate.
     const tls = secure ? await devTlsCredentials() : undefined
@@ -241,5 +277,14 @@ export class H3Driver extends ArkstackKitDriver<H3, H3Middleware> {
     }
 
     console.log(log.join('\n'))
+
+    await emitServerStart({
+      host,
+      port,
+      scheme,
+      secure,
+      url: `${scheme}://${host === '0.0.0.0' || host === '::' ? 'localhost' : host}:${port}`,
+      tunnelUrl: this.tunnel_url || undefined,
+    })
   }
 }

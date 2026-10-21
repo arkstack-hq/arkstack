@@ -7,11 +7,51 @@ import { defaultErrorHandler } from './error-handler'
 import { ExpressDriverOptions, Middleware, MiddlewareConfig } from './types'
 import { resolveMiddleware } from '@arkstack/http'
 import ngrok from '@ngrok/ngrok'
+import { Hook } from '@arkstack/foundry'
+import type { ServerStartInfo } from '@arkstack/contract'
+
+/**
+ * Run one `server:start` position. A failing listener is logged, never thrown: it
+ * must not take down a server that is already up, nor skip the next position.
+ *
+ * @param position
+ * @param run
+ */
+const emitServerStartPosition = async (position: string, run: () => unknown): Promise<void> => {
+  try {
+    await run()
+  } catch (error) {
+    Logger.error(
+      `server:start ${position} hook failed: ${error instanceof Error ? error.message : String(error)}`,
+      false,
+    )
+  }
+}
+
+/**
+ * Run the `server:start` hook once the server is listening: `after` always, then
+ * `tunneled` when the server is reachable through a tunnel.
+ *
+ * @param info
+ */
+const emitServerStart = async (info: ServerStartInfo): Promise<void> => {
+  await emitServerStartPosition('after', () => Hook.emit('server:start', 'after', info))
+
+  const { tunnelUrl } = info
+  if (tunnelUrl) {
+    await emitServerStartPosition('tunneled', () => Hook.emit('server:start', 'tunneled', { ...info, tunnelUrl }))
+  }
+}
 
 /**
  * Build the "Server is running" startup lines, adding a local-network URL when
  * the server is bound to all interfaces (`0.0.0.0`/`::`) so it is reachable from
  * other devices.
+ *
+ * @param scheme
+ * @param host
+ * @param port
+ * @returns
  */
 const startupLogLines = (scheme: string, host: string, port: number): string[] => {
   const bindsAll = host === '0.0.0.0' || host === '::'
@@ -133,7 +173,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
             // The response is already sent, so `next` must not resume the router.
             res.once('finish', () => {
               Promise.resolve(entry(req, res, () => {})).catch((error) => {
-                Logger.error(error instanceof Error ? error.message : String(error))
+                Logger.error(error instanceof Error ? error.message : String(error), false)
               })
             })
             next()
@@ -180,7 +220,7 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
     const secure = env('APP_SECURE', false) === true
     const tunneled = env('TUNNEL', false)
     const tunnelUrl = env('TUNNEL_URL')
-    const scheme = secure ? 'https' : 'http'
+    const scheme: ServerStartInfo['scheme'] = secure ? 'https' : 'http'
 
     const onListen = async () => {
       let log = startupLogLines(scheme, host, port)
@@ -227,6 +267,15 @@ export class ExpressDriver extends ArkstackKitDriver<Express, Handler> {
       }
 
       console.log(log.join('\n'))
+
+      await emitServerStart({
+        host,
+        port,
+        scheme,
+        secure,
+        url: `${scheme}://${host === '0.0.0.0' || host === '::' ? 'localhost' : host}:${port}`,
+        tunnelUrl: this.tunnel_url || undefined,
+      })
     }
 
     if (secure) {

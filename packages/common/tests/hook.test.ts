@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Hook as FoundryHook } from '@arkstack/foundry'
 import { Hook } from '../src/Hook'
 
 describe('Hook', () => {
@@ -30,5 +31,14 @@ describe('Hook', () => {
 
     expect(Hook.get('middleware:auth', 'before')).toBe(nextBefore)
     expect(Hook.get('middleware:auth', 'after')).toBe(after)
+  })
+
+  it('is the same registry as @arkstack/foundry (not a separate copy)', () => {
+    const before = vi.fn()
+
+    expect(Hook).toBe(FoundryHook)
+
+    FoundryHook.on('middleware:auth', { before })
+    expect(Hook.get('middleware:auth', 'before')).toBe(before)
   })
 })

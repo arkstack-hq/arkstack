@@ -156,7 +156,7 @@ The hook contract is the same across runtime drivers: middleware context is pass
 ```ts
 import { Hook } from '@arkstack/foundry'
 
-Hook.set('middleware:auth', {
+Hook.on('middleware:auth', {
   before: ({ req, res }) => {
     console.log('auth middleware starting')
   },
@@ -177,7 +177,7 @@ Hook positions receive:
 - `after({ req, res })` after the token is authorized and `req.user`, `req.authUser`, and `req.authToken` are attached.
 - `error(error, { req, res })` when authentication throws before the error is passed back to the active runtime.
 
-Calling `Hook.set('middleware:auth', ...)` again merges the supplied positions with existing ones, so packages can add an `error` hook without replacing an existing `before` hook.
+Each position is awaited, so it may be async. Calling `Hook.on('middleware:auth', ...)` again merges the supplied positions with existing ones, so packages can add an `error` hook without replacing an existing `before` hook.
 
 ## Protect Route Groups
 

@@ -2,6 +2,25 @@ import { ArkstackMiddlewareConfig } from './http'
 import { PromiseOrValue } from './Arkstack'
 
 /**
+ * What a driver passes to the `server:start` hook (`after` position) once its
+ * server is listening, and any tunnel is open.
+ */
+export interface ServerStartInfo {
+  /** The address the server is bound to, e.g. `0.0.0.0`. */
+  host: string
+  port: number
+  scheme: 'http' | 'https'
+  secure: boolean
+  /** A browsable local URL (`localhost` when bound to every interface). */
+  url: string
+  /** The public tunnel URL (`TUNNEL_URL`, or the one `ark dev -t` opened), if any. */
+  tunnelUrl?: string
+}
+
+/** What the `server:start` hook's `tunneled` position receives: a tunnel is always open. */
+export type TunneledServerStartInfo = ServerStartInfo & { tunnelUrl: string }
+
+/**
  * The ArkstackKitDriver class defines the contract for a driver
  * that can be used with the ArkstackKitContract.
  */
