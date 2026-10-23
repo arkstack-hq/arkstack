@@ -1,7 +1,8 @@
 import { Secret, TOTP } from 'otpauth'
+import { appKey, env } from '../system'
 import { compare, genSalt, hash } from 'bcryptjs'
 
-import { env } from '../system'
+import { createHmac } from 'node:crypto'
 
 export class Hash {
   /**
@@ -42,8 +43,24 @@ export class Hash {
       issuer: env('APP_NAME', 'Roseed'),
       algorithm: 'SHA1',
       period, // in seconds.
-      secret: 'US3WHSG7X5KAPV27VANWKQHF3SH3HULL',
+      secret: Hash.otpSecret(label),
     })
+  }
+
+  /**
+   * The OTP secret for a label, derived from the application key so codes
+   * differ per label and cannot be computed without the key.
+   *
+   * @param label
+   * @returns
+   */
+  private static otpSecret(label: string): Secret {
+    const key = appKey()
+    if (!key) throw new Error('APP_KEY is required to generate one-time passwords. Run `ark key:generate`.')
+
+    const digest = createHmac('sha256', key).update(`otp:${label}`).digest()
+
+    return new Secret({ buffer: new Uint8Array(digest).buffer })
   }
 
   static totp(secret: string, label: string, issuer: string = env('APP_NAME', 'Roseed'), period: number = 30) {
