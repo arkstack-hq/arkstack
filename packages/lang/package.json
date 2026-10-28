@@ -1,6 +1,6 @@
 {
   "name": "@arkstack/lang",
-  "version": "0.20.2",
+  "version": "0.21.0",
   "type": "module",
   "description": "Localization module for Arkstack, providing file-based translations, pluralization and per-request locales.",
   "homepage": "https://arkstack.toneflix.net/guide/localization",
