@@ -59,6 +59,7 @@ export const depsList: Record<string, string> = {
   '@arkstack/driver-h3': '^0.20.2',
   '@arkstack/filesystem': '^0.20.2',
   '@arkstack/http': '^0.20.2',
+  '@arkstack/lang': '^0.20.2',
   '@arkstack/view': '^0.20.2',
   '@arkstack/queue': '^0.20.2',
   '@arkstack/scheduler': '^0.20.2',

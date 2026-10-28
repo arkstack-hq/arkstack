@@ -2,6 +2,7 @@ import { formdata, requestLogger, resora } from '@arkstack/driver-express/middle
 
 import { MiddlewareConfig } from '@arkstack/driver-express/types'
 import cors from 'cors'
+import { localeMiddleware } from '@arkstack/lang'
 import corsConfig from './cors'
 import express from 'express'
 import { useExpressUploadContext } from '@kanun-hq/plugin-file'
@@ -26,6 +27,7 @@ export default (): MiddlewareConfig => {
     ],
     before: [
       resora(),
+      localeMiddleware(),
       (req, _res, next) => {
         useExpressUploadContext(req as never)
         next()

@@ -653,6 +653,25 @@ importers:
         specifier: 'catalog:'
         version: 2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0))
 
+  packages/lang:
+    dependencies:
+      '@arkstack/common':
+        specifier: workspace:^
+        version: link:../common
+      jiti:
+        specifier: ^2.7.0
+        version: 2.7.0
+    devDependencies:
+      '@arkstack/contract':
+        specifier: workspace:^
+        version: link:../contract
+      '@arkstack/view':
+        specifier: workspace:^
+        version: link:../view
+      '@h3ravel/musket':
+        specifier: 'catalog:'
+        version: 2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0))
+
   packages/notifications:
     dependencies:
       '@arkstack/common':
@@ -813,6 +832,9 @@ importers:
       '@arkstack/jobs':
         specifier: workspace:^
         version: link:../../packages/jobs
+      '@arkstack/lang':
+        specifier: workspace:^
+        version: link:../../packages/lang
       '@arkstack/notifications':
         specifier: workspace:^
         version: link:../../packages/notifications
@@ -1103,6 +1125,9 @@ importers:
       '@arkstack/jobs':
         specifier: workspace:^
         version: link:../../packages/jobs
+      '@arkstack/lang':
+        specifier: workspace:^
+        version: link:../../packages/lang
       '@arkstack/notifications':
         specifier: workspace:^
         version: link:../../packages/notifications

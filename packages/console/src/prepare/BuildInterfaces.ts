@@ -84,6 +84,192 @@ export class BuildInterfaces {
   }
 
   /**
+   * Generate a `TranslationRegistry` augmentation from the application's
+   * translation files, giving `__()`, `trans()` and `Lang.get()` key
+   * autocomplete — the translation counterpart of {@link configs}.
+   *
+   * Keys come from one reference locale (the fallback locale, which should be
+   * the most complete): `APP_FALLBACK_LOCALE`, then `APP_LOCALE`, then `en`,
+   * then the first locale directory found. The declaration is appended to
+   * `.arkstack/ark.d.ts`. Skipped when `@arkstack/lang` is not a dependency,
+   * since augmenting a missing module is a type error.
+   *
+   * @param langDir  Explicit lang directory; defaults to `src/lang`.
+   * @param locale   Explicit reference locale.
+   */
+  static translations(langDir?: string, locale?: string) {
+    const root = Arkstack.rootDir()
+
+    langDir ??= path.join(root, 'src/lang')
+
+    if (!existsSync(langDir) || !BuildInterfaces.hasDependency(root, '@arkstack/lang')) return
+
+    const reference = BuildInterfaces.resolveReferenceLocale(langDir, locale)
+
+    if (!reference) return
+
+    const declaration = BuildInterfaces.generateTranslations(path.join(langDir, reference))
+
+    if (!declaration) return
+
+    const target = path.join(root, '.arkstack/ark.d.ts')
+    const existing = existsSync(target) ? readFileSync(target, 'utf8') : ''
+
+    let content = `${existing}\n${declaration}\n`
+
+    if (!/^\s*export\s|\bimport\s/m.test(content)) {
+      content += '\nexport {}\n'
+    }
+
+    writeFileSync(target, content, 'utf8')
+  }
+
+  /**
+   * Render a `TranslationRegistry` augmentation for the translation files in
+   * one locale directory.
+   *
+   * @param localeDir  e.g. `src/lang/en`.
+   * @returns          The `declare module` block, or `''` when there are no files.
+   */
+  static generateTranslations(localeDir: string): string {
+    let files: string[]
+
+    try {
+      files = readdirSync(localeDir)
+        .filter((file) => /\.(ts|mts|js|mjs|json)$/.test(file) && !file.endsWith('.d.ts'))
+        .sort()
+    } catch {
+      return ''
+    }
+
+    if (!files.length) return ''
+
+    const project = new Project({
+      compilerOptions: { allowJs: true, resolveJsonModule: true, strict: true },
+      skipAddingFilesFromTsConfig: true,
+      useInMemoryFileSystem: false,
+    })
+
+    const checker = project.getTypeChecker()
+    const properties: string[] = []
+    const seen = new Set<string>()
+
+    for (const file of files) {
+      const group = path.basename(file, path.extname(file))
+
+      if (seen.has(group)) continue
+      seen.add(group)
+
+      const fullPath = path.join(localeDir, file)
+
+      if (file.endsWith('.json')) {
+        try {
+          const lines = JSON.parse(readFileSync(fullPath, 'utf8'))
+          properties.push(`        ${BuildInterfaces.propertyKey(group)}: ${BuildInterfaces.linesFromValue(lines, 2)}`)
+        } catch {
+          /* invalid JSON — leave the group untyped */
+        }
+
+        continue
+      }
+
+      const sourceFile = project.addSourceFileAtPath(fullPath)
+      const exportAssignment = sourceFile.getExportAssignment((e) => !e.isExportEquals())
+
+      if (!exportAssignment) continue
+
+      const type = checker.getTypeAtLocation(exportAssignment.getExpression())
+      const signatures = type.getCallSignatures()
+      const resolved = signatures.length ? signatures[0].getReturnType() : type
+
+      properties.push(
+        `        ${BuildInterfaces.propertyKey(group)}: ${BuildInterfaces.linesFromType(resolved, checker, 2)}`,
+      )
+    }
+
+    if (!properties.length) return ''
+
+    return [
+      "declare module '@arkstack/lang' {",
+      '    interface TranslationRegistry {',
+      ...properties,
+      '    }',
+      '}',
+    ].join('\n')
+  }
+
+  /**
+   * Render translation lines from a type: nested objects keep their keys and
+   * every leaf becomes `string` (values are text, never literal types).
+   */
+  private static linesFromType(type: Type, checker: ReturnType<Project['getTypeChecker']>, indent: number): string {
+    const props = type.isObject() && !type.isArray() && !type.getCallSignatures().length ? type.getProperties() : []
+
+    if (!props.length) return type.isObject() && !type.isArray() ? 'Record<string, string>' : 'string'
+
+    const pad = '    '.repeat(indent)
+    const innerPad = '    '.repeat(indent + 1)
+
+    const lines = props.map((prop) => {
+      const decl = prop.getValueDeclaration() ?? prop.getDeclarations()[0]
+      const propType = decl ? checker.getTypeOfSymbolAtLocation(prop, decl) : undefined
+      const value = propType ? BuildInterfaces.linesFromType(propType, checker, indent + 1) : 'string'
+
+      return `${innerPad}${BuildInterfaces.propertyKey(prop.getName())}: ${value}`
+    })
+
+    return `{\n${lines.join('\n')}\n${pad}}`
+  }
+
+  /**
+   * Render translation lines from a parsed JSON value.
+   */
+  private static linesFromValue(value: unknown, indent: number): string {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return 'string'
+
+    const entries = Object.entries(value)
+
+    if (!entries.length) return 'Record<string, string>'
+
+    const pad = '    '.repeat(indent)
+    const innerPad = '    '.repeat(indent + 1)
+
+    const lines = entries.map(
+      ([key, item]) =>
+        `${innerPad}${BuildInterfaces.propertyKey(key)}: ${BuildInterfaces.linesFromValue(item, indent + 1)}`,
+    )
+
+    return `{\n${lines.join('\n')}\n${pad}}`
+  }
+
+  /**
+   * The locale whose files define the translation keys.
+   */
+  private static resolveReferenceLocale(langDir: string, explicit?: string): string | undefined {
+    const available = readdirSync(langDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && entry.name !== 'vendor')
+      .map((entry) => entry.name)
+      .sort()
+
+    const preferred = [explicit, process.env.APP_FALLBACK_LOCALE, process.env.APP_LOCALE, 'en']
+
+    return preferred.find((locale) => locale && available.includes(locale)) ?? available[0]
+  }
+
+  /**
+   * Whether the app lists a package in its dependencies.
+   */
+  private static hasDependency(root: string, name: string): boolean {
+    try {
+      const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'))
+
+      return !!(pkg.dependencies?.[name] ?? pkg.devDependencies?.[name])
+    } catch {
+      return false
+    }
+  }
+
+  /**
    * Render an `EnvRegistry` augmentation for the variables declared in the
    * given `.env` contents. Pure (no filesystem) for testability.
    *

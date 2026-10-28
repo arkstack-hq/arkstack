@@ -28,6 +28,7 @@
     "@arkstack/foundry": "workspace:^",
     "@arkstack/http": "workspace:^",
     "@arkstack/jobs": "workspace:^",
+    "@arkstack/lang": "workspace:^",
     "@arkstack/notifications": "workspace:^",
     "@arkstack/queue": "workspace:^",
     "@arkstack/scheduler": "workspace:^",

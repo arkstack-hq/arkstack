@@ -33,3 +33,38 @@ describe('queue:work signature', () => {
     }
   })
 })
+
+/**
+ * musket hands an omitted `--queue=` over as an empty string, not undefined.
+ * 0.18.x fell back with `??`, so a bare `queue:work` polled a queue named ""
+ * and never saw a job dispatched to the default queue.
+ */
+describe('queue:work --queue resolution', () => {
+  const resolve = (value: unknown, fallback = 'default'): string[] => {
+    const command = new QueueWorkCommand(undefined as never, undefined as never) as unknown as {
+      option: (name: string) => unknown
+      queues: (fallback: string) => string[]
+    }
+    command.option = (name) => (name === 'queue' ? value : undefined)
+
+    return command.queues(fallback)
+  }
+
+  it('falls back to the default queue when the flag is omitted', () => {
+    expect(resolve(undefined)).toEqual(['default'])
+    expect(resolve(null)).toEqual(['default'])
+  })
+
+  it('falls back to the default queue when the flag is empty', () => {
+    expect(resolve('')).toEqual(['default'])
+    expect(resolve(' , ')).toEqual(['default'])
+  })
+
+  it('keeps named queues in priority order, without duplicates', () => {
+    expect(resolve('webhook, ocr,webhook')).toEqual(['webhook', 'ocr'])
+  })
+
+  it('passes the * wildcard through', () => {
+    expect(resolve('*')).toEqual(['*'])
+  })
+})

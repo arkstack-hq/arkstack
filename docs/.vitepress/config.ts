@@ -185,6 +185,7 @@ export default defineConfig({
           { text: 'Authentication', link: '/guide/authentication' },
           { text: 'Notifications', link: '/guide/notifications' },
           { text: 'Cache', link: '/guide/cache' },
+          { text: 'Localization', link: '/guide/localization' },
           { text: 'Queue', link: '/guide/queue' },
           { text: 'Jobs', link: '/guide/jobs' },
           { text: 'Task Scheduling', link: '/guide/scheduling' },

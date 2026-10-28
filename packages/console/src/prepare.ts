@@ -21,6 +21,7 @@ if (!existsSync(path.join(Arkstack.rootDir(), '.arkstack/build')))
 if (!process.env.NODE_CI) {
   BuildInterfaces.configs()
   BuildInterfaces.env()
+  BuildInterfaces.translations()
 }
 
 await BuildInterfaces.tsconfig()

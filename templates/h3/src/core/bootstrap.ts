@@ -3,6 +3,7 @@ import '@arkstack/http/setup'
 import '@arkstack/auth/setup'
 import '@arkstack/queue/setup'
 import '@arkstack/cache/setup'
+import '@arkstack/lang/setup'
 
 import Application from '../core/app'
 import { Validator } from 'kanun'

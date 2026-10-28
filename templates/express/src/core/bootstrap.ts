@@ -3,6 +3,7 @@ import '@arkstack/http/setup'
 import '@arkstack/auth/setup'
 import '@arkstack/queue/setup'
 import '@arkstack/cache/setup'
+import '@arkstack/lang/setup'
 
 import * as express from 'express'
 

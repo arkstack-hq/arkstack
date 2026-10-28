@@ -1,0 +1,61 @@
+{
+  "name": "@arkstack/lang",
+  "version": "0.20.2",
+  "type": "module",
+  "description": "Localization module for Arkstack, providing file-based translations, pluralization and per-request locales.",
+  "homepage": "https://arkstack.toneflix.net/guide/localization",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/lang"
+  },
+  "keywords": [
+    "lang",
+    "i18n",
+    "localization",
+    "translation",
+    "pluralization",
+    "arkstack"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "test": "vitest",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./setup": "./dist/setup.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/common": "workspace:^",
+    "jiti": "^2.7.0"
+  },
+  "devDependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/view": "workspace:^",
+    "@h3ravel/musket": "catalog:"
+  },
+  "peerDependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/view": "workspace:^",
+    "@h3ravel/musket": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@arkstack/view": {
+      "optional": true
+    },
+    "@h3ravel/musket": {
+      "optional": true
+    }
+  }
+}
