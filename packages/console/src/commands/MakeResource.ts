@@ -1,4 +1,5 @@
-import { MakeResource as MakeResourceBase, applyRuntimeConfig, getDefaultConfig } from 'resora'
+import { applyRuntimeConfig, getDefaultConfig } from 'resora'
+import { MakeResource as MakeResourceBase } from 'resora/cli'
 
 import { config } from '@arkstack/common'
 

@@ -1,4 +1,5 @@
-import { CliApp, applyRuntimeConfig, getDefaultConfig } from 'resora'
+import { applyRuntimeConfig, getDefaultConfig } from 'resora'
+import { CliApp } from 'resora/cli'
 import { ConsoleAppOptions, Core } from './types'
 // oxlint-disable typescript/no-explicit-any
 import path, { join } from 'node:path'
