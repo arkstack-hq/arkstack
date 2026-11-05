@@ -22,7 +22,7 @@ export const catalog: Record<string, string> = {
     "kanun": "^1.2.0",
     "parasito": "^0.2.6",
     "pg": "^8.22.0",
-    "resora": "^1.3.34",
+    "resora": "^1.3.35",
     "tsdown": "^0.22.14"
 }
 
