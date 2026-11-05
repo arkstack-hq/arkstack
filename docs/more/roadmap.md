@@ -22,8 +22,7 @@ This roadmap tracks Arkstack progress and upcoming priorities.
   - `dev`
   - `build`
 - ✅ Lean and full starter profiles in create-arkstack
-  - `express`, `h3`, `fastify`
-  - `express-lean`, `h3-lean`
+  - `express`, `h3`, `fastify`, each as a lean or full profile
 - ✅ Lean profile stripping of app/api/database scaffolding
   - Removes `src/app`
   - Removes `src/routes/api.ts`

@@ -125,12 +125,7 @@ NODE_ENV=production pnpm exec tsdown
 
 ## Template Profiles
 
-Arkstack currently provides four template aliases in `create-arkstack`:
-
-- `express`
-- `express-lean`
-- `h3`
-- `h3-lean`
+`create-arkstack` provides three runtime templates: `express`, `h3` and `fastify`. Each one can be scaffolded with the full or the lean profile. Pick the profile at the prompt, or pass `--lean` or `--full`.
 
 ### Full Profiles
 
