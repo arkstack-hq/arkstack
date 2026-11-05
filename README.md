@@ -219,10 +219,7 @@ npm start
 
 Next:
 
-- Plugin and extension model for drivers and the console
 - End-to-end tests for commands and scaffolding
-- Package versioning and release guidance
-- Upgrade guides between template versions
 
 Later:
 
