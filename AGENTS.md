@@ -9,7 +9,7 @@ Read `SKILL.md` first, then use these workflows to combine the available skills 
 - Start from the scaffolded app root.
 - Inspect the local `package.json` before running commands.
 - Use the package manager indicated by the lockfile.
-- Detect whether the app is Express or H3 before editing routes, middleware, or runtime code.
+- Detect whether the app is Express, H3 or Fastify before editing routes, middleware, or runtime code.
 - Detect whether the app is full or lean before using database, auth, resource, or controller workflows.
 - Prefer `ark` generators when the project structure supports them.
 - Ask before destructive database, storage, overwrite, delete, publish, or release operations.
@@ -21,6 +21,7 @@ Read `SKILL.md` first, then use these workflows to combine the available skills 
 3. Identify the runtime:
    - Express: `@arkstack/driver-express`.
    - H3: `@arkstack/driver-h3`.
+   - Fastify: `@arkstack/driver-fastify`.
 4. Identify the scope:
    - Full: has `src/app`, `src/database`, `src/routes/api.ts`, and `arkormx.config.ts`.
    - Lean: lacks those full-template files.

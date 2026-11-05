@@ -13,6 +13,7 @@
 [![Console Slim Downloads](https://img.shields.io/npm/dt/@arkstack/console-slim?style=flat-square&label=@arkstack/console-slim&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/console-slim)](https://www.npmjs.com/package/@arkstack/console-slim)
 [![Console Slim Downloads](https://img.shields.io/npm/dt/@arkstack/filesystem?style=flat-square&label=@arkstack/filesystem&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/filesystem)](https://www.npmjs.com/package/@arkstack/filesystem)
 [![Driver Express Downloads](https://img.shields.io/npm/dt/@arkstack/driver-express?style=flat-square&label=@arkstack/driver-express&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/driver-express)](https://www.npmjs.com/package/@arkstack/driver-express)
+[![Driver Fastify Downloads](https://img.shields.io/npm/dt/@arkstack/driver-fastify?style=flat-square&label=@arkstack/driver-fastify&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/driver-fastify)](https://www.npmjs.com/package/@arkstack/driver-fastify)
 [![Driver H3 Downloads](https://img.shields.io/npm/dt/@arkstack/driver-h3?style=flat-square&label=@arkstack/driver-h3&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/driver-h3)](https://www.npmjs.com/package/@arkstack/driver-h3)
 [![Auth Downloads](https://img.shields.io/npm/dt/@arkstack/auth?style=flat-square&label=@arkstack/auth&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/auth)](https://www.npmjs.com/package/@arkstack/auth)
 [![HTTP Downloads](https://img.shields.io/npm/dt/@arkstack/http?style=flat-square&label=@arkstack/http&link=https%3A%2F%2Fwww.npmjs.com%2Fpackage%2F@arkstack/http)](https://www.npmjs.com/package/@arkstack/http)
@@ -26,7 +27,7 @@
 
 Arkstack is a runtime-agnostic TypeScript backend framework for building structured, production-ready server applications.
 
-It gives you a complete application layer with routing conventions, console commands, authentication, notifications, views, hooks, shared contracts, and runtime drivers for Express, H3, and future transports.
+It gives you a complete application layer with routing conventions, console commands, authentication, notifications, views, hooks, shared contracts, and runtime drivers for Express, H3, Fastify, and future transports.
 
 Arkstack is opinionated about application architecture while staying flexible about the HTTP runtime beneath it.
 
@@ -38,7 +39,7 @@ It prioritizes the Arkstack application model first, runtime adapters second.
 
 Most backend frameworks are tightly coupled to one HTTP runtime. Arkstack is designed around a stable application model, clean architecture, and transport-layer abstraction.
 
-- Runtime driver support (Express, H3 — more coming)
+- Runtime driver support (Express, H3, Fastify — more coming)
 - Opinionated framework conventions without runtime lock-in
 - Clean and scalable application structure
 - TypeScript native
@@ -127,7 +128,7 @@ Switching frameworks should not require rewriting business logic.
 | --------- | ------- |
 | Express   | Stable  |
 | H3        | Stable  |
-| Fastify   | Planned |
+| Fastify   | Beta    |
 | Bun       | Planned |
 
 New adapters can be added without affecting the application layer.
@@ -141,7 +142,7 @@ New adapters can be added without affecting the application layer.
 - `@arkstack/encryption`: isomorphic AES-256-GCM and ECDH primitives shared by server and browser.
 - `@arkstack/console`: shared console runtime used by kits.
 
-Each runtime kit (Express, H3, future Fastify/Bun) implements a framework-specific driver that conforms to the same contract.
+Each runtime kit (Express, H3, Fastify, future Bun) implements a framework-specific driver that conforms to the same contract.
 
 ---
 
@@ -216,7 +217,6 @@ npm start
 
 ## Roadmap
 
-- Fastify adapter
 - Bun adapter
 - CLI scaffolding generators
 - Plugin system

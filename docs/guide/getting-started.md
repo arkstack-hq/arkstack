@@ -2,7 +2,7 @@
 
 Arkstack is a runtime-agnostic TypeScript backend framework for building structured, production-ready server applications.
 
-It gives you a complete application layer with routing conventions, console commands, authentication, notifications, views, hooks, shared contracts, and runtime drivers for Express, H3, and future transports.
+It gives you a complete application layer with routing conventions, console commands, authentication, notifications, views, hooks, shared contracts, and runtime drivers for Express, H3, Fastify, and future transports.
 
 Arkstack is opinionated about application architecture while staying flexible about the HTTP runtime beneath it.
 
@@ -63,6 +63,7 @@ $ yarn create arkstack@latest my-app
 - `express-lean` - lean Express-driver app stripped of database features and app scaffolding
 - `h3` - full Arkstack app on the H3 driver with database features
 - `h3-lean` - lean H3-driver app stripped of database features and app scaffolding
+- `fastify` - full Arkstack app on the Fastify driver with database features (no Inertia support yet)
 
 ## Install and Run
 

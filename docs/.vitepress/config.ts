@@ -202,6 +202,7 @@ export default defineConfig({
         items: [
           { text: 'Express', link: '/guide/express-runtime' },
           { text: 'H3', link: '/guide/h3-runtime' },
+          { text: 'Fastify', link: '/guide/fastify-runtime' },
         ],
       },
       {
