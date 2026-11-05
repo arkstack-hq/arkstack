@@ -6,6 +6,7 @@ import { Router as ClearRouter } from 'clear-router/fastify'
 import { type Route } from 'clear-router'
 import { arkstackHttpPlugin } from '@arkstack/http'
 import { clearRouterFastifyPlugin } from '@resora/plugin-clear-router'
+import { existsSync } from 'node:fs'
 import { registerPlugin } from 'resora'
 
 registerPlugin(clearRouterFastifyPlugin)
@@ -41,19 +42,25 @@ export class Router extends ClearRouter {
   }
 
   /**
-   * Registers the routes declared in the api and web route files.
+   * Registers the routes declared in the api and web route files. A missing
+   * file is skipped, since lean projects have no api routes.
    */
   static async load(): Promise<void> {
-    try {
-      await ClearRouter.group('/api', resolveRuntimeModule('src/routes/api.ts'))
-    } catch (e: any) {
-      Logger.error('ERROR: Unable to load "api.ts" routes: ' + e.message, false)
-    }
+    const groups = [
+      ['/api', 'api.ts'],
+      ['/', 'web.ts'],
+    ] as const
 
-    try {
-      await ClearRouter.group('/', resolveRuntimeModule('src/routes/web.ts'))
-    } catch (e: any) {
-      Logger.error('ERROR: Unable to load "web.ts" routes: ' + e.message, false)
+    for (const [prefix, file] of groups) {
+      const source = resolveRuntimeModule(`src/routes/${file}`)
+
+      if (!existsSync(source)) continue
+
+      try {
+        await ClearRouter.group(prefix, source)
+      } catch (e: any) {
+        Logger.error(`ERROR: Unable to load "${file}" routes: ` + e.message, false)
+      }
     }
   }
 }

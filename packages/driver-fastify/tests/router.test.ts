@@ -104,16 +104,24 @@ describe('Fastify Router', () => {
     expect(missing.json().message).toBe('Cannot find any route matching [GET] /api/missing')
   })
 
-  it('logs route files that cannot be loaded', async () => {
+  it('skips route files that do not exist', async () => {
     vi.spyOn(Arkstack, 'rootDir').mockReturnValue(path.join(__dirname, 'fixtures/missing'))
 
     const error = vi.spyOn(Logger, 'error').mockImplementation(() => undefined as never)
     const routes = await Router.list()
 
     expect(routes).toEqual([])
-    expect(error.mock.calls.map(([message]) => message)).toEqual([
-      expect.stringContaining('Unable to load "api.ts" routes'),
-      expect.stringContaining('Unable to load "web.ts" routes'),
-    ])
+    expect(error).not.toHaveBeenCalled()
+  })
+
+  it('logs route files that fail to load', async () => {
+    vi.spyOn(Arkstack, 'rootDir').mockReturnValue(path.join(__dirname, 'fixtures/broken'))
+
+    const error = vi.spyOn(Logger, 'error').mockImplementation(() => undefined as never)
+
+    await Router.list()
+
+    expect(error).toHaveBeenCalledOnce()
+    expect(error.mock.calls[0][0]).toContain('Unable to load "api.ts" routes')
   })
 })
