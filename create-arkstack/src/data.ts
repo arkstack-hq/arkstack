@@ -56,6 +56,7 @@ export const depsList: Record<string, string> = {
   '@arkstack/contract': '^0.21.1',
   '@arkstack/database': '^0.21.1',
   '@arkstack/driver-express': '^0.21.1',
+  '@arkstack/driver-fastify': '^0.21.1',
   '@arkstack/driver-h3': '^0.21.1',
   '@arkstack/filesystem': '^0.21.1',
   '@arkstack/http': '^0.21.1',

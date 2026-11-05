@@ -17,6 +17,7 @@ export const catalog: Record<string, string> = {
     "clear-router": "^2.9.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "fastify": "^5.8.5",
     "h3": "^2.0.1-rc.22",
     "kysely": "^0.29.2",
     "kanun": "^1.2.0",
