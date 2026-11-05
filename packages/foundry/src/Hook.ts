@@ -2,6 +2,7 @@ import { HookArgs, HookFor, HookName, HookPos, HookPositions, HookRegistry, Hook
 
 export class Hook {
   private static hooks = new Map<string, IHook>()
+  private static listeners = new Map<string, IHook[]>()
 
   /**
    * Register callbacks for a hook's positions. Registering the same name again
@@ -17,6 +18,27 @@ export class Hook {
       ...oldhook,
       ...(hook as IHook),
     })
+  }
+
+  /**
+   * Add callbacks for a hook's positions alongside any others already there.
+   * Unlike {@link Hook.on}, nothing is replaced, so several packages can listen
+   * to the same position. Returns a function that removes these callbacks.
+   *
+   * @param name
+   * @param hook
+   */
+  static listen<N extends HookName>(name: N | (string & {}), hook: Partial<HookFor<N>>): () => void {
+    const listener = { ...(hook as IHook) }
+
+    this.listeners.set(name, [...(this.listeners.get(name) ?? []), listener])
+
+    return () => {
+      const remaining = (this.listeners.get(name) ?? []).filter((entry) => entry !== listener)
+
+      if (remaining.length > 0) this.listeners.set(name, remaining)
+      else this.listeners.delete(name)
+    }
   }
 
   /**
@@ -36,16 +58,17 @@ export class Hook {
    * @param pos
    */
   static has<N extends HookName, P extends HookPositions<N>>(name: N | (string & {}), pos?: P) {
-    if (pos && this.hooks.has(name)) return Boolean(this.hooks.get(name)?.[pos as string])
+    if (pos) return this.callbacks(name, pos as string).length > 0
 
-    return this.hooks.has(name)
+    return this.hooks.has(name) || this.listeners.has(name)
   }
 
   /**
-   * Run a hook position with the given arguments and return its result (a
-   * Promise for an async hook, so it can be awaited). A no-op returning
-   * `undefined` when nothing is registered there, so call sites need no
-   * {@link Hook.has} check.
+   * Run a hook position with the given arguments: the {@link Hook.on} callback
+   * first, then every {@link Hook.listen} callback in the order they were added.
+   * Returns the first callback's result, as a Promise when any callback is
+   * async, so it can be awaited. A no-op returning `undefined` when nothing is
+   * registered there, so call sites need no {@link Hook.has} check.
    *
    * @param name
    * @param pos
@@ -56,9 +79,18 @@ export class Hook {
     pos: P,
     ...args: HookArgs<N, P & string>
   ): HookResult<N, P & string> | undefined {
-    const fn = this.hooks.get(name)?.[pos as string]
+    const [first, ...rest] = this.callbacks(name, pos as string)
 
-    return fn ? (fn(...args) as HookResult<N, P & string>) : undefined
+    if (!first) return undefined
+
+    const result = first(...args)
+    let pending: unknown = result
+
+    for (const fn of rest) {
+      pending = pending instanceof Promise ? pending.then(() => fn(...args)) : fn(...args)
+    }
+
+    return (pending instanceof Promise ? pending.then(() => result) : result) as HookResult<N, P & string>
   }
 
   /**
@@ -113,22 +145,38 @@ export class Hook {
   static getAll = () => this.all()
 
   /**
-   * Remove a hook, or one position of it. With no name, removes every hook.
+   * Remove a hook, or one position of it, including its {@link Hook.listen}
+   * callbacks. With no name, removes every hook.
    *
    * @param name
    * @param pos
    */
   static off<N extends HookName, P extends HookPositions<N>>(name?: N | (string & {}), pos?: P) {
-    if (name && this.hooks.has(name)) {
-      if (pos !== undefined) {
-        const hook = this.hooks.get(name)
-        if (hook?.[pos as string]) delete hook[pos as string]
+    if (!name) return this.clear()
 
-        return Object.keys(hook ?? {}).length < 1 ? void this.hooks.delete(name) : undefined
-      }
-
+    if (pos === undefined) {
       this.hooks.delete(name)
-    } else if (!name) this.clear()
+      this.listeners.delete(name)
+
+      return
+    }
+
+    const hook = this.hooks.get(name)
+
+    if (hook) {
+      delete hook[pos as string]
+
+      if (Object.keys(hook).length < 1) this.hooks.delete(name)
+    }
+
+    const listeners = (this.listeners.get(name) ?? []).filter((listener) => {
+      delete listener[pos as string]
+
+      return Object.keys(listener).length > 0
+    })
+
+    if (listeners.length > 0) this.listeners.set(name, listeners)
+    else this.listeners.delete(name)
   }
 
   /**
@@ -146,5 +194,18 @@ export class Hook {
    */
   static clear = () => {
     this.hooks.clear()
+    this.listeners.clear()
+  }
+
+  /**
+   * Every callback registered for a position, in the order {@link Hook.emit} runs them.
+   *
+   * @param name
+   * @param pos
+   */
+  private static callbacks(name: string, pos: string) {
+    return [this.hooks.get(name), ...(this.listeners.get(name) ?? [])]
+      .map((hook) => hook?.[pos])
+      .filter((fn): fn is (...args: any[]) => unknown => typeof fn === 'function')
   }
 }

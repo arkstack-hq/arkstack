@@ -1,4 +1,4 @@
-import { Arkstack, ServerStartInfo, TunneledServerStartInfo } from '.'
+import { Arkstack, DriverPrepareContext, ServerStartInfo, TunneledServerStartInfo } from '.'
 
 declare global {
   function app(): Arkstack<never, never>
@@ -14,6 +14,17 @@ declare module '@arkstack/foundry' {
   interface HookRegistry {
     'set:root-dir': {
       after: (dir: string) => void
+    }
+    /**
+     * Fired by `driver.prepare()` while the runtime app is set up for serving.
+     */
+    'driver:prepare': {
+      /** Before public assets and middleware are applied. */
+      before: (context: DriverPrepareContext) => void | Promise<void>
+      /** After the app middleware, just before routes are bound. */
+      router: (context: DriverPrepareContext) => void | Promise<void>
+      /** After routes and the error handler are in place. */
+      after: (context: DriverPrepareContext) => void | Promise<void>
     }
     /**
      * Fired by every driver once its server is listening (dev and production),

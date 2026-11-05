@@ -46,14 +46,11 @@ export default class Application extends Arkstack<H3, unknown, H3Middleware> {
    * @param defer   Set to true to skip server startup
    */
   public async boot(port: number, defer = false) {
-    // Load public assets
-    await this.driver.mountPublicAssets(this.app, 'public')
-
-    // Apply all middleware
-    await this.driver.applyMiddleware(this.app, config('middleware') as never)
-
-    // Bind the router
-    await this.driver.bindRouter(this.app)
+    // Load public assets, middleware, routes and the error handler
+    await this.driver.prepare(this.app, {
+      publicPath: 'public',
+      middleware: config('middleware') as never,
+    })
 
     // Start the server
     if (defer !== true) {

@@ -46,17 +46,11 @@ export default class Application extends Arkstack<Express, unknown, Handler> {
    * @param defer   Set to true to skip server startup
    */
   public async boot(port: number, defer = false) {
-    // Load public assets
-    await this.driver.mountPublicAssets(this.app, path.join(Arkstack.rootDir(), 'public'))
-
-    // Apply all middleware
-    await this.driver.applyMiddleware(this.app, config('middleware') as any)
-
-    // Bind the router
-    await this.driver.bindRouter(this.app)
-
-    // Error Handler
-    await this.driver.registerErrorHandler?.(this.app)
+    // Load public assets, middleware, routes and the error handler
+    await this.driver.prepare(this.app, {
+      publicPath: path.join(Arkstack.rootDir(), 'public'),
+      middleware: config('middleware') as any,
+    })
 
     // Start the server
     if (defer !== true) {

@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 
-import { config, discoverCommands, env, importFile, loadPrototypes, outputDir, rebuildOutput } from '@arkstack/common'
+import {
+  Plugins,
+  config,
+  discoverCommands,
+  env,
+  importFile,
+  loadPrototypes,
+  outputDir,
+  rebuildOutput,
+} from '@arkstack/common'
 import { existsSync, realpathSync } from 'node:fs'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import path, { join } from 'node:path'
@@ -94,6 +103,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
       DevCommand,
       BuildCommand,
       MakeCommand,
+      ...(Plugins.commands() as Array<typeof Command>),
       ...userCommands,
     ],
     discoveryPaths: [join(Arkstack.rootDir(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js')],

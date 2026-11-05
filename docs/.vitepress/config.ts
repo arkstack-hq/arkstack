@@ -192,6 +192,7 @@ export default defineConfig({
           { text: 'Views', link: '/guide/views' },
           { text: 'Inertia', link: '/guide/inertia' },
           { text: 'Hooks', link: '/guide/hooks' },
+          { text: 'Plugins', link: '/guide/plugins' },
           { text: 'HTTP', link: '/guide/http' },
           { text: 'Deployment', link: '/guide/deployment' },
           { text: 'Upgrading', link: '/guide/upgrading' },

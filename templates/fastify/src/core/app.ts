@@ -54,17 +54,11 @@ export default class Application extends Arkstack<FastifyInstance, unknown, Fast
     if (!this.prepared) {
       this.prepared = true
 
-      // Load public assets
-      await this.driver.mountPublicAssets(this.app, path.join(Arkstack.rootDir(), 'public'))
-
-      // Apply all middleware
-      await this.driver.applyMiddleware(this.app, config('middleware') as never)
-
-      // Bind the router
-      await this.driver.bindRouter(this.app)
-
-      // Error Handler
-      await this.driver.registerErrorHandler?.(this.app)
+      // Load public assets, middleware, routes and the error handler
+      await this.driver.prepare(this.app, {
+        publicPath: path.join(Arkstack.rootDir(), 'public'),
+        middleware: config('middleware') as never,
+      })
     }
 
     // Start the server

@@ -32,3 +32,11 @@ export type HookArgs<N extends string, P extends string> = N extends keyof HookR
 // What running a hook position returns (a Promise for async hooks)
 export type HookResult<N extends string, P extends string> =
   HookPos<N, P> extends (...args: any[]) => infer R ? R : unknown
+
+// Hook callbacks keyed by hook name, as a plugin declares them
+export type HookMap = { [N in keyof HookRegistry]?: Partial<HookRegistry[N]> } & {
+  [name: string]: IHook | undefined
+}
+
+// A console command class; the console kernel decides its exact shape
+export type CommandConstructor = abstract new (...args: any[]) => unknown

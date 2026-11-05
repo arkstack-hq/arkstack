@@ -31,9 +31,23 @@ Hook.on('middleware:auth', {
 })
 ```
 
+## Listen Alongside Others
+
+`Hook.on()` keeps one callback per position, so a second registration replaces the first. When several packages need the same position, use `Hook.listen()`. It adds callbacks without replacing any, and returns a function that removes them.
+
+```ts
+const stop = Hook.listen('server:start', {
+  after: ({ url }) => console.log(`ready at ${url}`),
+})
+
+stop()
+```
+
+[Plugins](./plugins) add their hooks this way.
+
 ## Emit Hooks
 
-Use `Hook.emit(name, position, ...args)` to fire a position. Unlike Node's `EventEmitter.emit()`, which returns a boolean, it returns the callback's result: a Promise for an async hook, so it can be awaited. When nothing is registered there it does nothing and returns `undefined`, so call sites need no `has()` check.
+Use `Hook.emit(name, position, ...args)` to fire a position. It runs the `on()` callback first, then the `listen()` callbacks in the order they were added, each one after the previous has settled. Unlike Node's `EventEmitter.emit()`, which returns a boolean, it returns the first callback's result: a Promise when any callback is async, so it can be awaited. When nothing is registered there it does nothing and returns `undefined`, so call sites need no `has()` check.
 
 ```ts
 await Hook.emit('middleware:auth', 'before', { req, res })
@@ -41,7 +55,7 @@ await Hook.emit('middleware:auth', 'before', { req, res })
 
 ## Read Hooks
 
-`Hook.get()` retrieves the full hook object or one position's callback without calling it, and `Hook.has()` checks for one.
+`Hook.get()` retrieves the `on()` hook object or one of its positions without calling it. `Hook.has()` checks for any callback, including `listen()` ones.
 
 ```ts
 const beforeAuth = Hook.get('middleware:auth', 'before')
@@ -57,7 +71,7 @@ const hooks = Hook.all()
 
 ## Stop Listening
 
-Remove a single position, a whole hook, or every registered hook:
+Remove a single position, a whole hook, or every registered hook. These remove `listen()` callbacks too:
 
 ```ts
 Hook.off('middleware:auth', 'before')
@@ -85,13 +99,14 @@ Augment `@arkstack/foundry`, not `@arkstack/common`: `common` only re-exports th
 
 ## Built-in Hooks
 
-| Hook              | Positions                  | Arguments                                   |
-| ----------------- | -------------------------- | ------------------------------------------- |
-| `server:start`    | `after`, `tunneled`        | `ServerStartInfo` (see below)               |
-| `middleware:auth` | `before`, `after`, `error` | see [Authentication](./authentication)      |
-| `boot`            | `before`, `after`          | `(port, app)`                               |
-| `shutdown`        | `before`                   | `({})`, on `SIGINT` / `SIGTERM` / `SIGQUIT` |
-| `set:root-dir`    | `after`                    | `(dir)`                                     |
+| Hook              | Positions                   | Arguments                                                        |
+| ----------------- | --------------------------- | ---------------------------------------------------------------- |
+| `server:start`    | `after`, `tunneled`         | `ServerStartInfo` (see below)                                    |
+| `driver:prepare`  | `before`, `router`, `after` | `({ app, driver })`, see [Plugins](./plugins#driver-integration) |
+| `middleware:auth` | `before`, `after`, `error`  | see [Authentication](./authentication)                           |
+| `boot`            | `before`, `after`           | `(port, app)`                                                    |
+| `shutdown`        | `before`                    | `({})`, on `SIGINT` / `SIGTERM` / `SIGQUIT`                      |
+| `set:root-dir`    | `after`                     | `(dir)`                                                          |
 
 ### Server start
 

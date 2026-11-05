@@ -1,3 +1,5 @@
+import { Hook, Plugins } from '@arkstack/foundry'
+
 import { ArkstackMiddlewareConfig } from './http'
 import { PromiseOrValue } from './Arkstack'
 
@@ -21,6 +23,25 @@ export interface ServerStartInfo {
 export type TunneledServerStartInfo = ServerStartInfo & { tunnelUrl: string }
 
 /**
+ * What {@link ArkstackKitDriver.prepare} sets up on the runtime app.
+ */
+export interface DriverPrepareOptions<TMiddleware> {
+  /** The directory static assets are served from. Skipped when not set. */
+  publicPath?: string
+  /** The app middleware, usually `config('middleware')`. Skipped when not set. */
+  middleware?: ArkstackMiddlewareConfig<TMiddleware> | TMiddleware
+}
+
+/**
+ * What each position of the `driver:prepare` hook receives.
+ */
+export interface DriverPrepareContext<TApp = unknown> {
+  /** The runtime app, such as an Express app or a Fastify instance. */
+  app: TApp
+  driver: ArkstackKitDriver<TApp, unknown>
+}
+
+/**
  * The ArkstackKitDriver class defines the contract for a driver
  * that can be used with the ArkstackKitContract.
  */
@@ -35,6 +56,31 @@ export abstract class ArkstackKitDriver<TApp, TMiddleware> {
     return
   }
   abstract start(app: TApp, port: number): PromiseOrValue<void>
+
+  /**
+   * Sets the app up for serving: public assets, middleware, routes, then the
+   * error handler. Plugins join in through the `driver:prepare` hook, which
+   * runs `before` all of it, `router` just before routes are bound, and `after`
+   * the error handler.
+   *
+   * @param app
+   * @param options
+   */
+  async prepare(app: TApp, options: DriverPrepareOptions<TMiddleware> = {}): Promise<void> {
+    Plugins.assertSupports(this.name)
+
+    const context: DriverPrepareContext<TApp> = { app, driver: this }
+
+    await Hook.emit('driver:prepare', 'before', context)
+
+    if (options.publicPath) await this.mountPublicAssets(app, options.publicPath)
+    if (options.middleware) await this.applyMiddleware(app, options.middleware as TMiddleware)
+
+    await Hook.emit('driver:prepare', 'router', context)
+    await this.bindRouter(app)
+    await this.registerErrorHandler(app)
+    await Hook.emit('driver:prepare', 'after', context)
+  }
 }
 
 /**

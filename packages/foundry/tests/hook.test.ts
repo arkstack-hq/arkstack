@@ -129,4 +129,73 @@ describe('Hook', () => {
       expect(Object.keys(Hook.all())).toEqual([])
     })
   })
+  describe('listen', () => {
+    it('runs listeners after the on() callback, keeping its result', () => {
+      const calls: string[] = []
+
+      Hook.on('test:hook', { after: () => (calls.push('on'), 'primary') })
+      Hook.listen('test:hook', { after: () => calls.push('first') })
+      Hook.listen('test:hook', { after: () => calls.push('second') })
+
+      expect(Hook.emit('test:hook', 'after')).toBe('primary')
+      expect(calls).toEqual(['on', 'first', 'second'])
+    })
+
+    it('is not replaced by a later on() registration', () => {
+      const listener = vi.fn()
+
+      Hook.listen('test:hook', { after: listener })
+      Hook.on('test:hook', { after: vi.fn() })
+      Hook.emit('test:hook', 'after')
+
+      expect(listener).toHaveBeenCalledTimes(1)
+    })
+
+    it('awaits async callbacks in order', async () => {
+      const calls: string[] = []
+
+      Hook.listen('test:hook', {
+        after: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 5))
+          calls.push('slow')
+        },
+      })
+      Hook.listen('test:hook', { after: () => calls.push('fast') })
+
+      await Hook.emit('test:hook', 'after')
+
+      expect(calls).toEqual(['slow', 'fast'])
+    })
+
+    it('returns a function that removes the listener', () => {
+      const listener = vi.fn()
+      const dispose = Hook.listen('test:hook', { after: listener })
+
+      dispose()
+      Hook.emit('test:hook', 'after')
+
+      expect(listener).not.toHaveBeenCalled()
+      expect(Hook.has('test:hook')).toBe(false)
+    })
+
+    it('counts for has() and is removed by off()', () => {
+      const listener = vi.fn()
+      const other = vi.fn()
+
+      Hook.listen('test:hook', { after: listener, before: other })
+
+      expect(Hook.has('test:hook', 'after')).toBe(true)
+
+      Hook.off('test:hook', 'after')
+      Hook.emit('test:hook', 'after')
+      Hook.emit('test:hook', 'before')
+
+      expect(listener).not.toHaveBeenCalled()
+      expect(other).toHaveBeenCalledTimes(1)
+
+      Hook.off('test:hook')
+
+      expect(Hook.has('test:hook')).toBe(false)
+    })
+  })
 })

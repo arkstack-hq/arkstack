@@ -11,6 +11,7 @@ import {
   initializeGlobalContext,
   loadPrototypes,
   outputDir,
+  Plugins,
   rebuildOutput,
 } from '@arkstack/common'
 import { existsSync, realpathSync } from 'node:fs'
@@ -116,6 +117,7 @@ export const runConsoleKernel = async (options: RunConsoleOptions = {}) => {
       MakeCommand,
       KeyGenerateCommand,
       PublishCommand,
+      ...(Plugins.commands() as Array<typeof Command>),
       ...userCommands,
     ],
     discoveryPaths: [join(Arkstack.rootDir(), 'node_modules', '@arkstack/*', 'dist', 'commands', '*.js')],

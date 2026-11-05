@@ -76,6 +76,20 @@ A few things to keep in mind when reading the diff:
 
 These notes cover what an existing application has to do. New features that need no change are in the [changelog](/more/changelog).
 
+### Unreleased
+
+Plugins need no change to install or to add `ark` commands. To let them hook into the driver setup through `driver:prepare`, replace the four driver calls in `boot()` in `src/core/app.ts` with `driver.prepare()`:
+
+```ts
+// Load public assets, middleware, routes and the error handler
+await this.driver.prepare(this.app, {
+  publicPath: path.join(Arkstack.rootDir(), 'public'),
+  middleware: config('middleware') as never,
+})
+```
+
+On H3 the template passes `publicPath: 'public'`. On Fastify, keep the call inside the `if (!this.prepared)` guard. See [Plugins](/guide/plugins).
+
 ### 0.21 to 0.22
 
 No changes are needed for Express and H3 apps.
