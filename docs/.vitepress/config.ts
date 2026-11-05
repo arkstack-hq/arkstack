@@ -194,6 +194,7 @@ export default defineConfig({
           { text: 'Hooks', link: '/guide/hooks' },
           { text: 'HTTP', link: '/guide/http' },
           { text: 'Deployment', link: '/guide/deployment' },
+          { text: 'Upgrading', link: '/guide/upgrading' },
           { text: 'API Reference', link: '/api' },
         ],
       },
