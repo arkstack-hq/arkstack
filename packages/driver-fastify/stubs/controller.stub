@@ -1,0 +1,10 @@
+import { BaseController } from '@controllers/BaseController'
+
+/**
+ * {{ControllerName}}
+ */
+export default class {{ControllerName}} extends BaseController {
+    async index () {
+        return '<p>Hello!</p>'
+    }
+}

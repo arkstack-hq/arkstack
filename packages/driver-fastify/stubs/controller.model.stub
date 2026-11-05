@@ -1,0 +1,87 @@
+import { BaseController } from '@controllers/BaseController'
+import { Bind } from 'clear-router/decorators'
+import { Resource, ResourceCollection } from 'resora'
+import { {{Model}} } from '@app/models/{{Model}}'
+import { Request } from '@arkstack/http'
+
+/**
+ * {{ControllerName}}
+ */
+export default class {{ControllerName}} extends BaseController {
+    /**
+     * Get all resource from the database
+     */
+    async index () {
+        return new ResourceCollection(await {{Model}}.query().orderBy({ id: 'asc' }).get()).additional({
+            status: 'success',
+            message: 'OK',
+            code: 200,
+        }).response().setStatusCode(200)
+    }
+
+    /**
+     * Get a specific resource from the database
+     * 
+     * @param {{Param}}  
+     */
+     @Bind()
+    async show ({{Param}}: {{Model}}) {
+        return new Resource({{Param}}).additional({
+            status: 'success',
+            message: 'OK',
+            code: 200,
+        }).response().setStatusCode(200)
+    }
+
+    /**
+     * Create a new resource in the database
+     * 
+     * @param req 
+     */
+    @Bind()
+    async create (req: Request) {
+        const data = await {{Model}}.query().create({
+            data: req.body,
+        })
+
+        return new Resource({ data }).additional({
+            status: 'success',
+            message: 'New {{ModelName}} created successfully',
+            code: 201,
+        }).response().setStatusCode(201)
+    }
+
+    /**
+     * Update a specific resource in the database
+     * 
+     * @param {{Param}} 
+     * @param req 
+     */
+    @Bind()
+    async update (req: Request, {{Param}}: {{Model}}) {
+        await {{Param}}.update({
+            data: req.body,
+        })
+
+        return new Resource({{Param}}).additional({
+            status: 'success',
+            message: '{{ModelName}} updated successfully',
+            code: 202,
+        }).response().setStatusCode(202)
+    }
+
+    /**
+     * Delete a specific resource from the database
+     * 
+     * @param {{Param}}  
+     */
+    async destroy ({{Param}}: {{Model}}) {
+        await {{Param}}.delete()
+
+        return new Resource({ data: {} }).additional({
+            status: 'success',
+            message: '{{ModelName}} deleted successfully',
+            code: 202,
+        }).response().setStatusCode(202)
+    }
+}

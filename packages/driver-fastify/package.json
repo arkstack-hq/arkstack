@@ -1,0 +1,65 @@
+{
+  "name": "@arkstack/driver-fastify",
+  "version": "0.21.1",
+  "type": "module",
+  "description": "Fastify driver for Arkstack, providing Fastify-based runtime integration for the framework.",
+  "homepage": "https://arkstack.toneflix.net",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkstack-hq/arkstack.git",
+    "directory": "packages/driver-fastify"
+  },
+  "keywords": [
+    "fastify",
+    "driver",
+    "integration",
+    "routing",
+    "middleware",
+    "arkstack",
+    "http",
+    "server",
+    "rest",
+    "api",
+    "framework"
+  ],
+  "files": [
+    "dist",
+    "stubs"
+  ],
+  "scripts": {
+    "build": "tsdown --config-loader unrun",
+    "version:patch": "pnpm version patch",
+    "prepublishOnly": "node ../../scripts/prepublish-only.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./middlewares": "./dist/middlewares/index.js",
+    "./types": "./dist/types.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@arkstack/contract": "workspace:^",
+    "@arkstack/http": "workspace:^",
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/multipart": "^9.0.3",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/static": "^8.2.0",
+    "@resora/plugin-clear-router": "catalog:",
+    "clear-router": "catalog:",
+    "resora": "catalog:"
+  },
+  "peerDependencies": {
+    "@arkstack/auth": "workspace:^",
+    "@arkstack/common": "workspace:^",
+    "@arkstack/foundry": "workspace:^",
+    "fastify": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "@arkstack/auth": {
+      "optional": true
+    }
+  }
+}
