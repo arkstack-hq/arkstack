@@ -128,7 +128,7 @@ Switching frameworks should not require rewriting business logic.
 | --------- | ------- |
 | Express   | Stable  |
 | H3        | Stable  |
-| Fastify   | Beta    |
+| Fastify   | Stable  |
 | Bun       | Planned |
 
 New adapters can be added without affecting the application layer.

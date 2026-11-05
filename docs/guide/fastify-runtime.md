@@ -128,6 +128,6 @@ Host, port, dev HTTPS (`APP_SECURE`) and tunnels (`TUNNEL`, `TUNNEL_URL`) work t
 
 ## Notes
 
-- Inertia is not available on Fastify yet.
+- Inertia works the same as on Express and H3. See [Inertia](/guide/inertia).
 - The error handler is set when the app is created, so routes added at any point use it.
 - `app.boot(port)` sets the app up once; later calls only start the server.

@@ -54,6 +54,19 @@ export default (): MiddlewareConfig => {
 }
 ```
 
+```ts [Fastify]
+// src/config/middleware.ts
+import { inertia, resora } from '@arkstack/driver-fastify/middlewares'
+
+import { MiddlewareConfig } from '@arkstack/driver-fastify/types'
+
+export default (): MiddlewareConfig => {
+  return {
+    before: [resora(), inertia()],
+  }
+}
+```
+
 :::
 
 ### 2. Publish the config and root template
