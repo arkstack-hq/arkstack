@@ -14,7 +14,7 @@ export const catalog: Record<string, string> = {
     "@kanun-hq/plugin-file": "^0.1.12",
     "@kanun-hq/plugin-phone": "^0.1.8",
     "arkormx": "^2.12.8",
-    "clear-router": "^2.9.3",
+    "clear-router": "^2.9.4",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "fastify": "^5.8.5",
