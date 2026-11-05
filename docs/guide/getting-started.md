@@ -59,11 +59,11 @@ $ yarn create arkstack@latest my-app
 
 ## Available Templates
 
-- `express` - full Arkstack app on the Express driver with database features
-- `express-lean` - lean Express-driver app stripped of database features and app scaffolding
-- `h3` - full Arkstack app on the H3 driver with database features
-- `h3-lean` - lean H3-driver app stripped of database features and app scaffolding
-- `fastify` - full Arkstack app on the Fastify driver with database features (no Inertia support yet)
+- `express` - Arkstack app on the Express driver
+- `h3` - Arkstack app on the H3 driver
+- `fastify` - Arkstack app on the Fastify driver
+
+Each template comes in two profiles. The full profile includes the app scaffolding and database features. The lean profile strips them out. Pick the profile at the prompt, or pass `--lean` or `--full`.
 
 ## Install and Run
 

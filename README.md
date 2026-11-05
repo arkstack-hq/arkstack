@@ -128,7 +128,7 @@ Switching frameworks should not require rewriting business logic.
 | --------- | ------- |
 | Express   | Stable  |
 | H3        | Stable  |
-| Fastify   | Beta    |
+| Fastify   | Stable  |
 | Bun       | Planned |
 
 New adapters can be added without affecting the application layer.
@@ -217,12 +217,21 @@ npm start
 
 ## Roadmap
 
-- Bun adapter
-- CLI scaffolding generators
-- Plugin system
+Next:
+
+- Plugin and extension model for drivers and the console
+- End-to-end tests for commands and scaffolding
+- Package versioning and release guidance
+- Upgrade guides between template versions
+
+Later:
+
+- Bun driver
 - Authentication presets
-- Validation layer abstraction
-- Framework Switching
+- Validation presets
+- Runtime starter comparison matrix
+
+See the [full roadmap](docs/more/roadmap.md) for what has shipped.
 
 ---
 

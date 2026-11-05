@@ -22,8 +22,7 @@ This roadmap tracks Arkstack progress and upcoming priorities.
   - `dev`
   - `build`
 - ✅ Lean and full starter profiles in create-arkstack
-  - `express`, `h3`, `fastify`
-  - `express-lean`, `h3-lean`
+  - `express`, `h3`, `fastify`, each as a lean or full profile
 - ✅ Lean profile stripping of app/api/database scaffolding
   - Removes `src/app`
   - Removes `src/routes/api.ts`
@@ -33,6 +32,8 @@ This roadmap tracks Arkstack progress and upcoming priorities.
   - `ArkstackPlugin` and the `Plugins` registry in `@arkstack/foundry`
   - `driver.prepare()` and the `driver:prepare` hook
   - Plugin commands in `ark`
+- ✅ [Package versioning and release workflow guidance](/more/releases)
+- ✅ [Upgrade guides between template versions](/guide/upgrading)
 
 ### In Progress
 
@@ -41,8 +42,6 @@ This roadmap tracks Arkstack progress and upcoming priorities.
 ## Next Priorities
 
 1. 🔲 Ship richer end-to-end command and scaffolding tests
-2. 🔲 Publish package-level versioning/release workflow guidance
-3. 🔲 Add migration and upgrade guides between template versions
 
 ## Future
 

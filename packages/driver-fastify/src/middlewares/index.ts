@@ -1,5 +1,6 @@
 export * from './auth'
 export * from './formdata'
+export * from './inertia'
 export * from './limiter'
 export * from './request-logger'
 export * from './resora'
