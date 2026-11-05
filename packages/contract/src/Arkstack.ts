@@ -1,6 +1,6 @@
 import { ArkstackKitDriver } from './kits'
 import { ArkstackRouterContract } from './routing'
-import { Hook } from '@arkstack/foundry'
+import { ArkstackPlugin, Hook, Plugins } from '@arkstack/foundry'
 
 export type PromiseOrValue<T> = T | Promise<T>
 
@@ -39,6 +39,18 @@ export abstract class Arkstack<TApp, TRoutes = unknown, THandler = unknown> {
    */
   static getAppInstance<TApp = unknown>(): TApp {
     return Arkstack.app as TApp
+  }
+
+  /**
+   * Installs plugins for this app. See {@link Plugins.use}.
+   *
+   * @param plugins
+   * @returns
+   */
+  use(...plugins: ArkstackPlugin[]): this {
+    Plugins.use(...plugins)
+
+    return this
   }
 
   /**
