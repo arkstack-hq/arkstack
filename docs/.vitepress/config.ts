@@ -221,6 +221,7 @@ export default defineConfig({
           { text: 'AI Agents', link: '/more/agents' },
           { text: 'Roadmap', link: '/more/roadmap' },
           { text: 'Contributing', link: '/more/contributing' },
+          { text: 'Versioning and Releases', link: '/more/releases' },
           { text: 'Changelog', link: '/more/changelog' },
         ],
       },
