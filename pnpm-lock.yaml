@@ -337,6 +337,9 @@ importers:
       '@h3ravel/support':
         specifier: 'catalog:'
         version: 2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22)
+      '@ngrok/ngrok':
+        specifier: ^1.7.0
+        version: 1.7.0
       '@pictwo/faker':
         specifier: ^1.1.0
         version: 1.1.0
@@ -492,9 +495,6 @@ importers:
       '@arkstack/inertia':
         specifier: workspace:^
         version: link:../inertia
-      '@ngrok/ngrok':
-        specifier: ^1.7.0
-        version: 1.7.0
       '@resora/plugin-clear-router':
         specifier: 'catalog:'
         version: 1.0.72(@h3ravel/musket@2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(clear-router@2.9.3(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))
@@ -541,9 +541,6 @@ importers:
       '@arkstack/inertia':
         specifier: workspace:^
         version: link:../inertia
-      '@ngrok/ngrok':
-        specifier: ^1.7.0
-        version: 1.7.0
       '@resora/plugin-clear-router':
         specifier: 'catalog:'
         version: 1.0.72(@h3ravel/musket@2.2.13(@types/node@25.6.2)(tsdown@0.22.14(tsx@4.21.0)(typescript@6.0.3)(unrun@0.3.0)))(clear-router@2.9.3(@h3ravel/support@2.2.7(@types/node@25.6.2)(h3@2.0.1-rc.22))(express@5.2.1)(h3@2.0.1-rc.22)(hono@4.12.10)(reflect-metadata@0.2.2))

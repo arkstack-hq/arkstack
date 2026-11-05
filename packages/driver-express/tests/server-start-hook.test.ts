@@ -4,10 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Express } from 'express'
 import { ExpressDriver } from '../src/index'
 import { Hook } from '@arkstack/foundry'
+import { ServerDriver } from '@arkstack/common'
 
-vi.mock('@ngrok/ngrok', () => ({
-  default: { forward: vi.fn(async () => ({ url: () => 'https://opened.ngrok.app' })) },
-}))
+/** The driver's ngrok call, stubbed so no tunnel is opened. */
+type Tunnel = { forward: (port: number) => Promise<string | undefined> }
 
 /** A fake app whose `listen` "binds" immediately, so no real port is opened. */
 const fakeApp = () => ({ listen: vi.fn((_port, _host, onListen: () => void) => onListen()) }) as unknown as Express
@@ -24,6 +24,7 @@ describe('ExpressDriver server:start hook', () => {
 
   beforeEach(() => {
     Hook.clear()
+    vi.spyOn(ServerDriver.prototype as unknown as Tunnel, 'forward').mockResolvedValue('https://opened.ngrok.app')
     vi.spyOn(console, 'log').mockImplementation(() => {})
     for (const key of ['APP_HOST', 'HOST', 'APP_SECURE', 'TUNNEL', 'TUNNEL_URL']) delete process.env[key]
   })

@@ -4,16 +4,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { H3 } from 'h3'
 import { H3Driver } from '../src/index'
 import { Hook } from '@arkstack/foundry'
-
-vi.mock('@ngrok/ngrok', () => ({
-  default: { forward: vi.fn(async () => ({ url: () => 'https://opened.ngrok.app' })) },
-}))
+import { ServerDriver } from '@arkstack/common'
 
 // `serve` "binds" immediately, so no real port is opened.
 vi.mock('h3', async (original) => ({
   ...(await original<typeof import('h3')>()),
   serve: vi.fn(() => ({ ready: async () => undefined })),
 }))
+
+/** The driver's ngrok call, stubbed so no tunnel is opened. */
+type Tunnel = { forward: (port: number) => Promise<string | undefined> }
 
 /** Start the driver and return what the `server:start` hook received. */
 const startAndCapture = async (port = 4321) => {
@@ -31,6 +31,7 @@ describe('H3Driver server:start hook', () => {
 
   beforeEach(() => {
     Hook.clear()
+    vi.spyOn(ServerDriver.prototype as unknown as Tunnel, 'forward').mockResolvedValue('https://opened.ngrok.app')
     vi.spyOn(console, 'log').mockImplementation(() => {})
     for (const key of ['APP_HOST', 'HOST', 'APP_SECURE', 'TUNNEL', 'TUNNEL_URL']) delete process.env[key]
   })

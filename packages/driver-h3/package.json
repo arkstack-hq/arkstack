@@ -44,7 +44,6 @@
   "dependencies": {
     "@arkstack/contract": "workspace:^",
     "@arkstack/http": "workspace:^",
-    "@ngrok/ngrok": "^1.7.0",
     "@resora/plugin-clear-router": "catalog:",
     "clear-router": "catalog:",
     "resora": "catalog:"
