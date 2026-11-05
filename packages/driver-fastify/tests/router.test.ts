@@ -60,6 +60,26 @@ describe('Fastify Router', () => {
     expect(before).toHaveBeenCalledOnce()
   })
 
+  it('serves api resources, including method overrides', async () => {
+    class UserController {
+      show = () => ({ action: 'show' })
+      update = () => ({ action: 'update' })
+      destroy = () => ({ action: 'destroy' })
+    }
+
+    await boot(() => {
+      Router.apiResource('/users', UserController, { only: ['show', 'update', 'destroy'] })
+    })
+
+    const show = await app.inject().get('/users/1')
+    const update = await app.inject().post('/users/1').payload({ _method: 'PUT' })
+    const destroy = await app.inject().post('/users/1').payload({ _method: 'DELETE' })
+
+    expect(show.json()).toEqual({ action: 'show' })
+    expect(update.json()).toEqual({ action: 'update' })
+    expect(destroy.json()).toEqual({ action: 'destroy' })
+  })
+
   it('lists the registered routes', async () => {
     Router.get('/listed', () => ({ ok: true }))
 
