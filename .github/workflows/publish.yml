@@ -131,6 +131,7 @@ jobs:
         run: |
           cd templates/express && pnpm prepare
           cd ../h3 && pnpm prepare
+          cd ../fastify && pnpm prepare
 
       - name: Run linter
         run: pnpm lint

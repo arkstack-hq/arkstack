@@ -12,6 +12,7 @@ const packageJsonPaths = [
   'create-arkstack/package.json',
   'templates/express/package.json',
   'templates/h3/package.json',
+  'templates/fastify/package.json',
   ...(await packagePaths('packages')),
 ]
 
