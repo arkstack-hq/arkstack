@@ -157,7 +157,7 @@ The server binds to `0.0.0.0` by default so it is reachable on all network inter
 
 ## Notes
 
-- `app.boot(port)` mounts public assets, binds router, applies middleware, registers error handling, starts the server, and attaches graceful shutdown.
+- `app.boot(port)` calls `driver.prepare()` to mount public assets, apply middleware, bind the router and register error handling, then starts the server and attaches graceful shutdown. [Plugins](/guide/plugins) can join in between those steps.
 - Static asset mounting happens before configured middleware is applied.
 - For middleware layering and recommended usage, see [Middleware Guide](/guide/middleware).
 - Use the router contract (`getRouter`) for runtime-agnostic behavior where possible.
