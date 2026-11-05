@@ -1,6 +1,6 @@
 {
   "name": "@arkstack/driver-fastify",
-  "version": "0.21.1",
+  "version": "0.22.0",
   "type": "module",
   "description": "Fastify driver for Arkstack, providing Fastify-based runtime integration for the framework.",
   "homepage": "https://arkstack.toneflix.net",
