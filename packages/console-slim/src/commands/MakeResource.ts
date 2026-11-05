@@ -1,3 +1,3 @@
-import { MakeResource as MakeResourceBase } from 'resora'
+import { MakeResource as MakeResourceBase } from 'resora/cli'
 
 export class MakeResource extends MakeResourceBase {}

@@ -2,7 +2,7 @@
 import path, { isAbsolute, join } from 'node:path'
 
 import { Arkstack } from '@arkstack/contract'
-import { CliApp } from 'resora'
+import { CliApp } from 'resora/cli'
 import { defaultConfig } from './config'
 import { existsSync } from 'node:fs'
 
