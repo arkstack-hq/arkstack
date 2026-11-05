@@ -119,7 +119,7 @@ export class CreateArkstackCommand extends Command {
             })),
           ],
           default: 'none',
-          when: () => !options.stack,
+          when: () => !options.stack && templates.find((e) => e.alias === (options.kit || template))?.inertia !== false,
         },
       ])
       .catch((err) => {
@@ -183,6 +183,11 @@ export class CreateArkstackCommand extends Command {
      */
     if (kit && !kit.source) {
       this.error(`ERROR: The ${kit.name} kit is not currently available`)
+      process.exit(1)
+    }
+
+    if (kit.inertia === false && stack !== 'none') {
+      this.error(`ERROR: Inertia is not available for the ${kit.name} kit yet`)
       process.exit(1)
     }
 

@@ -13,6 +13,7 @@ This roadmap tracks Arkstack progress and upcoming priorities.
 - ✅ Driver packages for current runtimes
   - `@arkstack/driver-express`
   - `@arkstack/driver-h3`
+  - `@arkstack/driver-fastify`
 - ✅ Shared console command surface
   - `route:list`
   - `make:controller`
@@ -21,7 +22,7 @@ This roadmap tracks Arkstack progress and upcoming priorities.
   - `dev`
   - `build`
 - ✅ Lean and full starter profiles in create-arkstack
-  - `express`, `h3`
+  - `express`, `h3`, `fastify`
   - `express-lean`, `h3-lean`
 - ✅ Lean profile stripping of app/api/database scaffolding
   - Removes `src/app`
@@ -35,11 +36,10 @@ This roadmap tracks Arkstack progress and upcoming priorities.
 
 ## Next Priorities
 
-1. 🔲 Add first additional runtime driver (Fastify candidate)
-2. 🔲 Add a plugin/extension model for driver and console integration
-3. 🔲 Ship richer end-to-end command and scaffolding tests
-4. 🔲 Publish package-level versioning/release workflow guidance
-5. 🔲 Add migration and upgrade guides between template versions
+1. 🔲 Add a plugin/extension model for driver and console integration
+2. 🔲 Ship richer end-to-end command and scaffolding tests
+3. 🔲 Publish package-level versioning/release workflow guidance
+4. 🔲 Add migration and upgrade guides between template versions
 
 ## Future
 

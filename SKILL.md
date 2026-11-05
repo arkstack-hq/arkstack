@@ -2,7 +2,7 @@
 
 This file is for AI agents working inside an application created with `pnpm create arkstack`, `npm init arkstack`, `yarn create arkstack`, or `npx create-arkstack`.
 
-Assume the agent is in a scaffolded Arkstack project, not in the Arkstack framework monorepo. The project normally contains one runtime template, either Express or H3, plus any files the user has added.
+Assume the agent is in a scaffolded Arkstack project, not in the Arkstack framework monorepo. The project normally contains one runtime template, Express, H3 or Fastify, plus any files the user has added.
 
 ## First Checks
 
@@ -17,6 +17,7 @@ Before changing code:
 - Detect the runtime driver from dependencies and imports:
   - `@arkstack/driver-express`: Express runtime.
   - `@arkstack/driver-h3`: H3 runtime.
+  - `@arkstack/driver-fastify`: Fastify runtime.
 - Detect project scope:
   - Full project: has `src/app`, `src/database`, `src/routes/api.ts`, `arkormx.config.ts`, and database/auth dependencies.
   - Lean project: usually lacks `src/app`, `src/database`, `src/routes/api.ts`, `arkormx.config.ts`, and database/auth dependencies.
@@ -122,6 +123,7 @@ Use the runtime-specific router import already present in the project:
 
 - Express apps import `Router` from `@arkstack/driver-express`.
 - H3 apps import `Router` from `@arkstack/driver-h3`.
+- Fastify apps import `Router` from `@arkstack/driver-fastify`.
 
 Default route locations:
 
@@ -244,6 +246,7 @@ Runtime-specific middleware imports differ:
 
 - Express apps use `@arkstack/driver-express/middlewares`.
 - H3 apps use `@arkstack/driver-h3/middlewares`.
+- Fastify apps use `@arkstack/driver-fastify/middlewares`; Fastify plugins such as CORS go in `src/config/plugins.ts`.
 
 Add app-specific middleware under `src/app/http/middlewares` in full templates. In lean templates, keep middleware small inside config or create a local directory only if the task justifies it.
 

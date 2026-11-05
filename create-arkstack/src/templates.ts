@@ -32,6 +32,13 @@ export const templates: Template[] = [
     hint: 'Arkstack application running on H3',
     source: 'github:arkstack-hq/arkstack',
   },
+  {
+    name: 'Fastify',
+    alias: 'fastify',
+    hint: 'Arkstack application running on Fastify',
+    source: 'github:arkstack-hq/arkstack',
+    inertia: false,
+  },
   // {
   //   name: 'H3 Lean Runtime Template',
   //   alias: 'h3-lean',

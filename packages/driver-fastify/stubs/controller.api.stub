@@ -1,0 +1,62 @@
+import { BaseController } from '@controllers/BaseController'
+import { Resource, ResourceCollection } from 'resora'
+
+/**
+ * {{ControllerName}}
+ */
+export default class {{ControllerName}} extends BaseController {
+    /**
+     * Get all resources
+     */
+    async index () {
+        return new ResourceCollection({ data: [] }).additional({
+            status: 'success',
+            message: 'OK',
+            code: 200,
+        }).response().setStatusCode(200)
+    }
+
+    /**
+     * Get a specific resource
+     */
+    async show () {
+        return new Resource({ data: {} }).additional({
+            status: 'success',
+            message: 'OK',
+            code: 200,
+        }).response().setStatusCode(200)
+    }
+
+    /**
+     * Create a resource
+     */
+    async create () {
+        return new Resource({ data: {} }).additional({
+            status: 'success',
+            message: 'New {{Name}} created successfully',
+            code: 201,
+        }).response().setStatusCode(201)
+    }
+
+    /**
+     * Update a specific resource
+     */
+    async update () {
+        return new Resource({ data: {} }).additional({
+            status: 'success',
+            message: '{{Name}} updated successfully',
+            code: 202,
+        }).response().setStatusCode(202)
+    }
+
+    /**
+     * Delete a specific resource
+     */
+    async destroy () {
+        return new Resource({ data: {}} ).additional({
+            status: 'success',
+            message: '{{Name}} deleted successfully',
+            code: 202,
+        }).response().setStatusCode(202)
+    }
+}
