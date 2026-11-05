@@ -29,6 +29,8 @@ This roadmap tracks Arkstack progress and upcoming priorities.
   - Removes `src/routes/api.ts`
   - Removes Prisma and database runtime/dependencies
 - ✅ Root-level test coverage for shared architecture and command surface
+- ✅ [Package versioning and release workflow guidance](/more/releases)
+- ✅ [Upgrade guides between template versions](/guide/upgrading)
 
 ### In Progress
 
@@ -38,8 +40,6 @@ This roadmap tracks Arkstack progress and upcoming priorities.
 
 1. 🔲 Add a plugin/extension model for driver and console integration
 2. 🔲 Ship richer end-to-end command and scaffolding tests
-3. 🔲 Publish package-level versioning/release workflow guidance
-4. 🔲 Add migration and upgrade guides between template versions
 
 ## Future
 
