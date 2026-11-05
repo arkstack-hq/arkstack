@@ -3,18 +3,19 @@ import corsConfig from './cors'
 import fastifyCors from '@fastify/cors'
 
 /**
- * Fastify plugins registered when the app is created.
+ * Fastify plugins registered when the app is created. Options are given as
+ * functions so the config is read when Fastify loads the plugin, after boot.
  */
-export default (): FastifyPluginEntry[] => {
-  const cConf = corsConfig()
+export default (): FastifyPluginEntry[] => [
+  [
+    fastifyCors,
+    () => {
+      const { allowed_origins } = corsConfig()
 
-  return [
-    [
-      fastifyCors,
-      {
-        origin: cConf.allowed_origins.length > 0 ? cConf.allowed_origins : true,
+      return {
+        origin: allowed_origins.length > 0 ? allowed_origins : true,
         credentials: true,
-      },
-    ],
-  ]
-}
+      }
+    },
+  ],
+]

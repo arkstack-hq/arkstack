@@ -3,6 +3,7 @@ import type {
   FastifyInstance,
   FastifyPluginAsync,
   FastifyPluginCallback,
+  FastifyRegisterOptions,
   FastifyReply,
   FastifyRequest,
 } from 'fastify'
@@ -29,11 +30,12 @@ export type FastifyErrorHandler = (
 
 /**
  * A Fastify plugin with its options, registered when the app is created.
+ * Options can be a function, which Fastify calls when it loads the plugin.
  */
 export type FastifyPluginEntry =
   | FastifyPluginAsync<any>
   | FastifyPluginCallback<any>
-  | [FastifyPluginAsync<any> | FastifyPluginCallback<any>, Record<string, any>]
+  | [FastifyPluginAsync<any> | FastifyPluginCallback<any>, FastifyRegisterOptions<any>]
 
 export interface FastifyDriverOptions {
   bindRouter: (app: FastifyInstance) => PromiseOrValue<void>

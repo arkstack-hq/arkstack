@@ -47,6 +47,19 @@ describe('FastifyDriver', () => {
     expect(plugin.mock.calls[0][1]).toMatchObject({ a: 1 })
   })
 
+  it('reads plugin options from a function when the plugin loads', async () => {
+    const plugin = vi.fn(async () => {})
+    const options = vi.fn(() => ({ a: 2 }))
+
+    ;({ app } = makeApp(new FastifyDriver({ bindRouter: vi.fn(), plugins: [[plugin, options]] })))
+
+    expect(options).not.toHaveBeenCalled()
+
+    await app.ready()
+
+    expect(plugin.mock.calls[0][1]).toMatchObject({ a: 2 })
+  })
+
   it('runs global, before and after middleware at their lifecycle points', async () => {
     const seen: string[] = []
     let finished!: () => void

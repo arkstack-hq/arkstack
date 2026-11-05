@@ -1,5 +1,6 @@
 import { formdata, requestLogger, resora } from '@arkstack/driver-fastify/middlewares'
 
+import type { FastifyRequest } from 'fastify'
 import { MiddlewareConfig } from '@arkstack/driver-fastify/types'
 import { localeMiddleware } from '@arkstack/lang'
 import { useExpressUploadContext } from '@kanun-hq/plugin-file'
@@ -11,7 +12,7 @@ export default (): MiddlewareConfig => {
       formdata(),
       resora(),
       localeMiddleware() as never,
-      async (req) => {
+      async (req: FastifyRequest) => {
         useExpressUploadContext({ files: req.uploads })
       },
     ],
