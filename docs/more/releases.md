@@ -42,7 +42,7 @@ Prefer deprecating over removing. When an API is renamed, keep the old name work
 1. Make sure CI on `main` is green. `ci.yml` runs lint and the full test suite against PostgreSQL on Node 22, 24 and 25.
 2. Release changes that templates depend on promptly. `create-arkstack` always downloads the templates from the tip of `main`, while the dependencies it writes point at the last published version. A template on `main` that uses a package API that hasn't been published yet produces broken new projects until the next release.
 3. Bump the third-party versions in the `catalog` of `pnpm-workspace.yaml` if the release needs newer versions of resora, kanun, arkormx, clear-router or others. Templates and `create-arkstack` read their versions from there.
-4. Update `CHANGELOG.md`: rename the `[Unreleased]` section to `[x.y.z] - YYYY-MM-DD` and start a new, empty `[Unreleased]` above it. Copy the release notes to `docs/more/changelog.md`, which is the published copy.
+4. Update `CHANGELOG.md`: rename the `[Unreleased]` section to `[x.y.z] - YYYY-MM-DD` and start a new, empty `[Unreleased]` above it. Keep `docs/more/changelog.md`, the published copy, identical to it.
 5. If the release has breaking changes or template changes apps should copy, add a section to [Upgrading](/guide/upgrading).
 
 Do not edit `version` fields by hand. The release workflow sets them.

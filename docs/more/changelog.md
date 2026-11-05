@@ -8,6 +8,146 @@ The format follows semantic versioning principles.
 
 No unreleased changes are documented yet.
 
+## [0.22.0] - 2026-11-05
+
+### Added
+
+- Added the Fastify runtime: `@arkstack/driver-fastify`, the `fastify` starter template, and a Fastify option in `create-arkstack`. Inertia is not available for Fastify yet.
+- Added the `ServerDriver` base class to `@arkstack/common`, which the Express, H3 and Fastify drivers share for server startup.
+- Added the Versioning and Releases and Upgrading guides to the docs.
+
+### Changed
+
+- Updated resora to `1.3.36`, `@resora/plugin-clear-router` to `1.0.73`, and clear-router to `2.9.4`.
+
+## [0.21.0 - 0.21.1] - 2026-10-28 to 2026-11-05
+
+Released versions: `0.21.0`, `0.21.1`.
+
+### Added
+
+- Added `@arkstack/lang` with file-based translations under `src/lang/{locale}`, the `__()` helpers, plural forms, per-request locale middleware (`localeMiddleware()` and `h3LocaleMiddleware()`), and translation commands. The Express and H3 templates include it.
+
+### Changed
+
+- `@arkstack/console` and `@arkstack/console-slim` import resora's CLI classes from `resora/cli`, and the resora catalog version is `^1.3.35`. `@h3ravel/musket` is now an optional peer of resora.
+
+## [0.20.0 - 0.20.2] - 2026-10-21 to 2026-10-23
+
+Released versions: `0.20.0`, `0.20.1`, `0.20.2`.
+
+### Added
+
+- `Hook.emit(name, pos, ...args)` calls a hook position and returns its result (a Promise for async hooks); it is a no-op when nothing is registered, so call sites drop the `if (Hook.has(...))` guard. `Hook.on()`, `Hook.off()` and `Hook.all()` are the new names for `set()`, `unset()` and `getAll()`.
+- `server:start` hook, run by the Express and H3 drivers once the server is listening, after the startup banner and any tunnel. `after` always runs and receives `ServerStartInfo` (exported from `@arkstack/contract`): `host`, `port`, `scheme`, `secure`, a browsable `url`, and `tunnelUrl` (`TUNNEL_URL`, or the URL `ark dev -t` opened). `tunneled` runs next, only when a tunnel is open, with `TunneledServerStartInfo` (where `tunnelUrl` is always a string). A failing listener is logged and never stops the server or skips the other position.
+
+### Changed
+
+- `@arkstack/common` re-exports `Hook` and its types from `@arkstack/foundry` instead of shipping its own copy. Declare typed hook names by augmenting `HookRegistry` on `@arkstack/foundry`; an augmentation of `@arkstack/common` no longer has any effect.
+- Deprecated `Hook.set()`, `Hook.unset()`, `Hook.getAll()`, and calling a hook through `Hook.get(name, pos, ...args)`; they keep working. `on()` accepts a partial set of positions for typed hooks.
+- The templates are formatted with Prettier.
+
+### Fixed
+
+- `@arkstack/common` and `@arkstack/foundry` each had their own `Hook` registry, so hooks registered through one import never fired for code reading the other. The Express auth middleware read `common`'s, so `middleware:auth` hooks registered as documented (via `foundry`) never ran on Express.
+- The `shutdown` hook checked for a `before` position but called `after`; it now runs `before`.
+- `Hook.unset(name)` / `remove(name)` with a name that wasn't registered cleared every hook.
+- H3's auth middleware now awaits `middleware:auth` hooks, as Express already did.
+- Every JWT now carries a random `jti`. Two logins by the same user within one second produced identical tokens, and the second failed on the unique `personal_access_tokens.token` column.
+- `Hash.otp` derives each label's TOTP secret from `APP_KEY`. It used one hardcoded secret for every label, so a code issued for one account was valid for all of them.
+
+## [0.19.0 - 0.19.6] - 2026-10-10 to 2026-10-21
+
+Released versions: `0.19.0` through `0.19.6`.
+
+### Added
+
+- Added the `Broadcast` facade to `@arkstack/notifications`: a channel authorization registry (`Broadcast.channel('private-team.{teamId}', authorizer)`) used by every transport, `Broadcast.broadcast()` for arbitrary events, `Broadcast.handleAuth()` for custom auth routes, `Broadcast.clientConfig()`, and `Broadcast.routes()` registering `POST /realtime/auth` and `GET /realtime/config`.
+- Added the `firebase-database` realtime transport (Firebase Realtime Database channels with per-user, time-limited grants checked by security rules, plus bounded `prune()`), the signal-only `polling` transport, and the `memory` transport for tests, on both server and client.
+- Added device push alongside any streaming transport: `drivers.realtime.push: 'firebase'` pushes notifications sent to a user to their devices, with `push_tokens` for resolving tokens, `.push(false)` and `.devices(tokens)` per send, and the multicast outcome on `result.push`.
+- Added self-hosted Pusher-protocol servers (soketi) through `transports.pusher.host` / `port` and the client's `wsHost` / `wsPort`.
+- Added `RealtimeClient.onPoll()`, `RealtimeClient.deviceToken()` and `RealtimeClient.transportName` to `@arkstack/realtime`, with `createFirebaseDatabaseTransport`, `createPollingTransport`, `createMemoryTransport` and `emitMemoryEvent`.
+- `RealtimeClient.deviceToken({ serviceWorker })` takes a service worker registration or script URL (registered with the Firebase web config as `firebaseConfig`), returns `null` where web push is unsupported, and falls back to the `firebase` config when streaming over another transport. `requestDeviceToken()` issues a token without a client.
+- `RealtimeConfig.importModule` loads the transport SDKs (`pusher-js`, `firebase/*`) for every transport and for device tokens, so pages without a bundler can load them from a CDN. Defaults to a dynamic `import()`. The `createPusherTransport`, `createFirebaseTransport`, `createFirebaseDatabaseTransport` and `requestDeviceToken` helpers accept it as an extra argument.
+- `transports.pusher.public_host` / `public_port` / `public_use_tls` (`PUSHER_PUBLIC_*`) set the Pusher-protocol server address handed to browsers when it differs from the one the app uses, such as soketi inside Docker or behind a TLS proxy. Each defaults to its server-side counterpart.
+- `ark queue:work --queue` accepts a comma-separated priority list (`--queue=webhook,ocr,default`) and the `*` wildcard for every queue on the connection (`--queue=*`, or `--queue=webhook,*` to put some first). `Worker.runNextJob()` and `daemon({ queue })` take a string or a list. `QueueContract.popAny()` backs the wildcard: the `database` driver takes the oldest due job across all queues, and the `redis` driver discovers queues with `SCAN` and works them round-robin. A bare `queue:work` still works only the default queue.
+
+### Changed
+
+- The templates' `src/config/notifications.ts` includes the new transports, `realtime.push`, and the Pusher host options.
+
+### Docs
+
+- Documented realtime transports, channel authorization, device push, Firebase Realtime Database rules and pruning, polling, and testing with the memory transport in the notifications guide.
+
+### Fixed
+
+- `ark queue:work --queue` rejected every value in 0.19.5 ("argument '…' is invalid. Allowed choices are …"): musket reads a trailing `: a, b, c` in an option's description as its allowed choices, and the new `--queue` description had one. The description no longer does, and a test pins that `queue:work` options declare no choices.
+- `DotPath` (the key type behind `config()` and `configure()`) is now depth-bounded and stops at built-in object types, so configs holding deep or self-referencing library types (nodemailer transports) no longer fail to typecheck with "circularly references itself". The `@ts-expect-error` workarounds in the H3 template and the notifications config are gone.
+- `build:templates` builds the templates one at a time; run in parallel, each template's prebuild rebuilt the shared packages concurrently and the builds clobbered each other.
+- Fixed type errors in `@arkstack/auth` (`AuthenticationException` request typing and two tests) and in `@arkstack/common`'s `renderError`, which used the `view()` global without a type for it.
+- Express `after` middleware no longer resumes the router once the response has finished. It used to receive the real `next`, so a middleware such as `requestLogger()` sent each request on through the remaining routes after responding, raising "Cannot set headers after they are sent to the client".
+- A failing Express `after` middleware exited the process: `Logger.error` exits by default, and the post-response handler didn't pass `exit = false`.
+- `UserNotificationCenter.markAllRead()` now marks every unread notification read; it used a single-row `update()` and marked only one. `unreadForUser(user, perPage)` now honours `perPage`, and both filter unread rows with `whereNull('readAt')`.
+- `UserNotificationCenter.send()` (and `Notification.db().broadcast()`) now broadcast on the user's channel. They previously sent to the user's push tokens as channels, so nothing was broadcast at all for users without tokens. Apps on the `firebase` transport still reach their users' devices without changes, because device push is on there unless `drivers.realtime.push` is `false`.
+- `Notification.db().broadcast()` now returns the builder, so it chains as documented.
+- The Pusher auth route registered by `registerAuthRoute()` now answers with HTTP 200 (pusher-js rejects any other status), registers on the H3 driver instead of the Express one, and authorizes through the channel registry.
+
+## [0.18.0 - 0.18.12] - 2026-08-27 to 2026-09-28
+
+Released versions: `0.18.0` through `0.18.12`.
+
+### Added
+
+- Added `@arkstack/encryption`, a zero-dependency isomorphic encryption package built on the Web Crypto API, with symmetric encryption, key helpers, end-to-end secure channels and sealed boxes. `@arkstack/common` re-exports it as `Encryption`.
+- Added `.priority()`, `.ttl()` and `.collapseKey()` to the realtime notification builder, with defaults under `drivers.realtime.delivery`, so Firebase broadcasts can wake a device and replace earlier ones.
+- Added `loadJobs()`, which registers the application's job classes in `queue:work` processes.
+- Added `setModelResolver()` to `@arkstack/common`, so `getModel()` resolves models through the configured database integration instead of loading a specific ORM.
+
+### Changed
+
+- Moved the Express and H3 drivers into their own `ExpressDriver` and `H3Driver` modules, and streamlined the `TwoFactor` class.
+- `queue:work` logs each job's outcome, including whether a failed job will be retried.
+- The console works without arkormx installed.
+- Scheduled tasks are due for the whole minute they are scheduled in.
+
+### Fixed
+
+- Fixed `env()` destroying hexadecimal secrets. A `0x`-prefixed 32-byte key parses as a number, so it was silently replaced by a float keeping roughly its first thirteen digits. `env()` now reads a value as a number only when the number says exactly what was written: `'6379'` is still a number; `'0x1f'`, `'007'`, `'1e5'`, `' 12 '`, `'0b1010'`, `'Infinity'` and `'12345678901234567890'` are now the strings they were written as.
+- Fixed `queue:work` workers failing every job with "Job X is not registered", and deleting it without a record.
+- `queue:work --stop-when-empty` and `--max-jobs` now take effect.
+- Fixed `FormDataMiddleware` option types.
+
+## [0.17.4 - 0.17.24] - 2026-07-15 to 2026-08-25
+
+Released versions: `0.17.4` through `0.17.24`.
+
+### Added
+
+- Added `getModelSync()`.
+- Added `sendmail` and `ses` mail transports, wider nodemailer config options, and custom realtime and mail notification transports.
+- Added mail attachments and queued notifications.
+- Added the `resolvePagination()` helper, with optional defaults for it and `perPage()`.
+- Added the realtime `apiUrl` config, Pusher channel authorization, and `registerAuthRoute()`.
+- Added realtime client events for the Pusher and Firebase transports.
+- Added ngrok tunneling to `ark dev`.
+- Added resource copying to the tsdown build configuration.
+
+### Changed
+
+- Upgraded musket and used its CLI lifecycle for teardown.
+- `env()` and `config()` are available globally to the prepare command and every subsystem.
+- The console syncs arkormx artifacts during prepare, and generated tsconfigs include `.arkormx/*.d.ts`.
+
+### Fixed
+
+- Fixed the mail from-address being undefined for custom transports.
+- `registerAuthRoute()` now validates requests.
+- `requestLogger()` reports the full request duration.
+- `MailNotification.attachment()` and `attachments()` return the notification, so they chain.
+- The dev tunnel stays the same across restarts.
+- Arkorm boots at every place that needs it.
+
 ## [0.17.3] - 2026-07-14
 
 ### Added
@@ -159,7 +299,8 @@ Released versions: `0.12.0`, `0.12.1`, and `0.12.3` through `0.12.37`.
 - Fixed authentication request synchronization and hydration of bound HTTP requests.
 - Fixed filesystem disk registration when disk and driver names differ.
 - Preserved conflicting trait methods and made invalid trait errors clearer.
-- Made console builds recover from stale `.arkstack/build` output and ensured config is ready before tsdown runs.
+- Made console builds recover from stale `.arkstack/build` output and ensured config is ready before tsdown runs. `rebuildOutput()` in `@arkstack/common` wipes the output directory and runs a build-only tsdown pass.
+- Templates clean the output directory on build and prepare, so renamed or removed source files can't leave stale modules behind.
 - Improved route-loading errors and prevented dot-path config updates from replacing the entire store.
 
 ## [0.11.0 - 0.11.6] - 2026-05-28
