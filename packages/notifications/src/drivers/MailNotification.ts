@@ -22,7 +22,8 @@ import Mail, { Attachment } from 'nodemailer/lib/mailer'
 export class MailNotification extends NotificationContract {
   driver!: Transporter
   private options: MailDriverOptions = {}
-  private ViewName: string = '~arkstack/notifications.mail'
+  private static readonly defaultView = '~arkstack/notifications.mail'
+  private ViewName: string = MailNotification.defaultView
   private transport: NonNullable<MailDriverOptions['transport']> | Transport = 'smtp'
   private sesOptions?: Record<string, any>
   private recipients?: MailRecipient
@@ -226,6 +227,35 @@ export class MailNotification extends NotificationContract {
   }
 
   /**
+   * Render the html body from the html template, the configured view, or the
+   * built-in layout when `@arkstack/view` is not installed.
+   */
+  private async renderHtml(data: NotificationData) {
+    if (this.htmlTemplate) {
+      return interpolate(this.htmlTemplate, data)
+    }
+
+    if (typeof globalThis.view === 'function') {
+      return await globalThis.view(this.ViewName, data)
+    }
+
+    if (this.ViewName !== MailNotification.defaultView) {
+      throw new Error(`Mail view [${this.ViewName}] requires @arkstack/view to be installed.`)
+    }
+
+    return [
+      '<!doctype html>',
+      '<html>',
+      '<body style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">',
+      `<h2>${data.subject ?? ''}</h2>`,
+      `<div>${data.message ?? ''}</div>`,
+      `<p style="color:#6b7280;font-size:12px">&copy; ${new Date().getFullYear()} ${data.app_name ?? ''}</p>`,
+      '</body>',
+      '</html>',
+    ].join('\n')
+  }
+
+  /**
    * Prepare a notification to be sent.
    *
    * @param user The recipient user(s) for the notification.
@@ -284,9 +314,7 @@ export class MailNotification extends NotificationContract {
         ...templateData,
         message: textMessage,
       }),
-      html: this.htmlTemplate
-        ? interpolate(this.htmlTemplate, templateData)
-        : await globalThis.view(this.ViewName, templateData),
+      html: await this.renderHtml(templateData),
     }
 
     if (this.transport === 'ses') {

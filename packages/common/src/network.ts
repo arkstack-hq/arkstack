@@ -1,6 +1,7 @@
 import { abort, abortIf, assertFound, initializeGlobalContext } from './utils'
 import { config, env } from './system'
 
+import { ErrorPage, type ErrorPageOptions } from './ErrorPage'
 import { Arkstack } from '@arkstack/contract'
 import { Hook } from '@arkstack/foundry'
 import { bindGracefulShutdown } from './lifecycle'
@@ -45,41 +46,5 @@ export const bootWithDetectedPort = async <TApp, TRoutes = unknown, THandler = u
   await Hook.emit('boot', 'after', port, app)
 }
 
-/** The `view()` global registered by `@arkstack/view`. */
-type ViewGlobal = {
-  view: (name: string, data?: Record<string, unknown>) => { renderSync(): string }
-}
-
-export const renderError = ({
-  message = 'An unexpected error occurred.',
-  stack,
-  title,
-  code = 500,
-}: {
-  message?: string
-  stack?: string
-  code?: number
-  title?: string
-}) => {
-  const titleMap: Record<number, string> = {
-    400: 'Bad Request',
-    401: 'Unauthorized',
-    403: 'Forbidden',
-    404: 'Not Found',
-    500: 'Internal Server Error',
-    502: 'Bad Gateway',
-    503: 'Service Unavailable',
-    504: 'Gateway Timeout',
-  }
-
-  title = titleMap[code] || title || 'Error'
-
-  return (globalThis as unknown as ViewGlobal)
-    .view('~arkstack/common.error', {
-      code,
-      title,
-      stack,
-      message,
-    })
-    .renderSync()
-}
+/** Renders the HTML error page, with or without `@arkstack/view` installed. */
+export const renderError = (options: ErrorPageOptions = {}) => ErrorPage.render(options)
