@@ -258,6 +258,33 @@ describe('Notification', () => {
     expect(content).toContain('<body><strong>Hello Ada</strong></body>')
   })
 
+  it('delivers mail with the built-in layout when @arkstack/view is not installed', async () => {
+    const view = globalThis.view
+
+    delete (globalThis as Record<string, unknown>).view
+
+    try {
+      await Notification.mail({ from: 'noreply@arkstack.test', host: 'smtp.arkstack.test', port: 2525 })
+        .recipient('ada@example.com')
+        .subject('Welcome, {name}')
+        .data({ app_name: 'Arkstack', name: 'Ada' })
+        .send('<strong>Hello {name}</strong>')
+
+      const content = String(mocks.sendMail.mock.calls[0][0].html)
+
+      expect(content).toContain('<h2>Welcome, Ada</h2>')
+      expect(content).toContain('<div><strong>Hello Ada</strong></div>')
+      await expect(
+        Notification.mail({ from: 'noreply@arkstack.test', host: 'smtp.arkstack.test', port: 2525 })
+          .recipient('ada@example.com')
+          .view('emails.welcome')
+          .send('Hello'),
+      ).rejects.toThrow('requires @arkstack/view')
+    } finally {
+      globalThis.view = view
+    }
+  })
+
   it('delivers mail to named address recipients', async () => {
     const recipients = [{ 'ada@example.com': 'Ada Lovelace' }, { 'grace@example.com': 'Grace Hopper' }]
     const nodemailerRecipients = [
