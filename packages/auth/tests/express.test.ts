@@ -294,4 +294,44 @@ describe('Express auth integration', () => {
     expect(String(profile.body.userId)).toBe(String(user.id))
     expect(sessions.body.sessionToken).toBe(token)
   })
+
+  it('authenticates the request being handled when a shared instance signs in', async () => {
+    const password = 'password'
+    const user = await createAuthUser({ password: await Hash.make(password) })
+    const other = await createAuthUser()
+    const otherToken = await createAuthToken(other.id)
+
+    await createPersonalAccessToken(other.id, otherToken)
+
+    const shared = Auth.make()
+    const app = express()
+    const router = express.Router()
+    const Router = createRouter('shared-instance')
+
+    await import('../../http/src/setup')
+    await ClearRouter.use(arkstackHttpPlugin)
+    await (ClearRouter as any).pluginsReady()
+
+    Router.get('/account', ({ res }) => res.status(200).json({}), [auth])
+    Router.post('/auth/login', async ({ req, res }) => {
+      const personalAccessToken = await shared.login(req.body.email, req.body.password)
+
+      return res.status(200).json({
+        authToken: req.authToken,
+        token: personalAccessToken.token,
+        userId: req.user?.id,
+      })
+    })
+
+    Router.apply(router)
+    app.use(express.json())
+    app.use(router)
+
+    await request(app).get('/account').set('Authorization', `Bearer ${otherToken}`).expect(200)
+
+    const response = await request(app).post('/auth/login').send({ email: user.email, password }).expect(200)
+
+    expect(response.body.authToken).toBe(response.body.token)
+    expect(String(response.body.userId)).toBe(String(user.id))
+  })
 })

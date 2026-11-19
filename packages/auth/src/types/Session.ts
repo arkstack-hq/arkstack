@@ -9,6 +9,8 @@ export interface SessionDeviceInfo extends Record<string, unknown> {
   platform: string | null
   ipAddress: string | null
   userAgent: string | null
+  /** Keyed hash of the client's `X-Device-Id`, the only thing that identifies one device. */
+  installKey: string | null
 }
 
 export type DeviceAgentPayload = {

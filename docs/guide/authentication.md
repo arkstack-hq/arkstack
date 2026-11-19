@@ -120,6 +120,12 @@ Router.post('/auth/login', async ({ req, res }) => {
 
 `Auth.login()` validates the user password with Arkstack's hash utility, creates a JWT with `jose`, stores it as a personal access token, and associates the token with the current device when request information is available.
 
+### Sessions per device
+
+Each device keeps its own session. A client that sends an installation id as `X-Device-Id` (16 to 128 letters, digits, `_` or `-`, generated once per install and kept on the device) replaces only that installation's earlier session when it signs in again. A request without one always gets a new session. Browser, OS and model are stored for display only, since every device of the same kind shares them.
+
+An `Auth` instance serves the request it was given with `setRequest()`, or else the request currently being handled, so one instance can be shared across requests.
+
 ## Protect Routes
 
 Clear Router accepts middleware as the final argument on a route. Use the auth middleware from your active driver package and attach it to any protected route.

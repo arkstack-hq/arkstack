@@ -6,7 +6,14 @@ The format follows semantic versioning principles.
 
 ## [Unreleased]
 
-No unreleased changes are documented yet.
+### Fixed
+
+- `Auth` no longer keeps its request in a static field shared by every request. An instance serves the request given to `setRequest()`, or else the request being handled, so signing in no longer records another request's device or replaces another device's session.
+
+### Changed
+
+- Sessions are matched to a device only by the client's `X-Device-Id` installation id, stored as a keyed hash in `deviceInfo.installKey`. A request without one gets a new session instead of replacing the session of any device that looks the same.
+- `@arkstack/http` exports `currentRequest()`.
 
 ## [0.22.0] - 2026-11-05
 

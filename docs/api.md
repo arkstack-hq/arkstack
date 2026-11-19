@@ -167,8 +167,8 @@ Driver packages:
 ### `Auth`
 
 - `Auth.make(secret?)` — create an auth service instance.
-- `Auth.setRequest(req)` — set the current normalized request on the static auth context.
-- `setRequest(req)` — set the request source for the current auth instance.
+- `Auth.setRequest(req)` — set the request used when there is neither an instance request nor a request being handled, such as in tests.
+- `setRequest(req)` — set the request this instance serves. Without one, an instance serves the request currently being handled.
 - `verify(email, password)` — verify credentials.
 - `attempt(email, password)` — authenticate and return the user or throw `AuthenticationException`.
 - `login(email, password)` — authenticate and create a personal access token.

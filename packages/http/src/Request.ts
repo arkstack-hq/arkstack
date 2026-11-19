@@ -7,7 +7,8 @@ import type { User } from '@app/models/User'
 let fallbackRequest: Request<any> | undefined
 const requestResolvers = new Set<() => Request<any> | undefined>()
 
-const currentRequest = () => {
+/** The request currently being handled, resolved through the registered request resolvers. */
+export const currentRequest = () => {
   for (const resolver of requestResolvers) {
     const request = resolver()
 
