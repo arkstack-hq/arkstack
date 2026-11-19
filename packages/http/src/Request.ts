@@ -7,16 +7,21 @@ import type { User } from '@app/models/User'
 let fallbackRequest: Request<any> | undefined
 const requestResolvers = new Set<() => Request<any> | undefined>()
 
-/** The request currently being handled, resolved through the registered request resolvers. */
-export const currentRequest = () => {
+/**
+ * The request being handled, from the registered request resolvers only. Unlike
+ * the `request()` helper it never falls back to the last request constructed.
+ */
+export const handledRequest = (): Request<any> | undefined => {
   for (const resolver of requestResolvers) {
     const request = resolver()
 
     if (request) return request
   }
 
-  return fallbackRequest
+  return undefined
 }
+
+const currentRequest = () => handledRequest() ?? fallbackRequest
 
 const requestHelper = ((key?: string) => {
   const request = currentRequest()

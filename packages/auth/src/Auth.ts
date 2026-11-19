@@ -6,7 +6,7 @@ import { AuthContract } from './Contracts/AuthContract'
 import { AuthenticationException } from './Exceptions/AuthenticationException'
 import { AuthSession } from './AuthSession'
 import type { PersonalAccessToken } from '@app/models/PersonalAccessToken'
-import { Request, type RequestSource, currentRequest } from '@arkstack/http'
+import { Request, type RequestSource, handledRequest } from '@arkstack/http'
 import { SessionDevice } from './SessionDevice'
 import type { User } from '@app/models/User'
 
@@ -72,7 +72,7 @@ export class Auth extends AuthContract {
    * @returns The request, or undefined when there is none.
    */
   getRequest(): Request<User> | undefined {
-    return this.#req ?? (currentRequest() as Request<User> | undefined) ?? Auth.req
+    return this.#req ?? (handledRequest() as Request<User> | undefined) ?? Auth.req
   }
 
   /**
