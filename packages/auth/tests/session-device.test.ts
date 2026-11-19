@@ -51,4 +51,9 @@ describe('SessionDevice', () => {
     expect(device.installKey).toMatch(/^[a-f0-9]{64}$/)
     expect(JSON.stringify(device)).not.toContain('stored-installation-0004')
   })
+
+  it('ignores an installation id that is not opaque', () => {
+    expect(SessionDevice.fromRequest(deviceRequest({ 'x-device-id': 'short' })).installKey).toBeNull()
+    expect(SessionDevice.fromRequest(deviceRequest({ 'x-device-id': 'has spaces in it, sadly' })).installKey).toBeNull()
+  })
 })

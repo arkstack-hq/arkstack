@@ -13,7 +13,7 @@ The format follows semantic versioning principles.
 ### Changed
 
 - Sessions are matched to a device only by the client's `X-Device-Id` installation id, stored as a keyed hash in `deviceInfo.installKey`. A request without one gets a new session instead of replacing the session of any device that looks the same.
-- `@arkstack/http` exports `currentRequest()`.
+- `@arkstack/http` exports `handledRequest()`, the request being handled according to the registered request resolvers, without the `request()` helper's fallback to the last request constructed.
 
 ## [0.22.0] - 2026-11-05
 
