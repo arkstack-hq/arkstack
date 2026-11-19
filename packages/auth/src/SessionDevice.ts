@@ -1,18 +1,11 @@
 import { type Request } from '@arkstack/http'
+import { appKey } from '@arkstack/common'
+import { createHmac } from 'node:crypto'
 import { DeviceAgentPayload, SessionDeviceInfo } from './types/Session'
 import { UAParser } from 'ua-parser-js'
 
 export class SessionDevice {
-  private static readonly uniqueIdentityFields = [
-    'deviceName',
-    'manufacturer',
-    'model',
-    'platform',
-    'os',
-    'osVersion',
-    'browser',
-    'deviceType',
-  ] as const
+  private static readonly installationId = /^[A-Za-z0-9_-]{16,128}$/
 
   /**
    * Extracts device information from the incoming request to build a SessionDeviceInfo object.
@@ -36,6 +29,7 @@ export class SessionDevice {
       platform: ca?.platform ?? null,
       ipAddress: this.detectIpAddress(req),
       userAgent,
+      installKey: this.readInstallKey(req),
     }
   }
 
@@ -81,24 +75,17 @@ export class SessionDevice {
   }
 
   /**
-   * Builds a stable device key for matching previously issued sessions to the
-   * current request device.
+   * Builds the key that matches previously issued sessions to the current
+   * device. Only the client's installation id identifies a device: browser, OS
+   * and model are shared by every device of the same kind.
    *
    * @param deviceInfo A record containing device information.
-   * @returns A normalized device key or null when there is not enough signal.
+   * @returns The device key, or null when the client sent no installation id.
    */
   static getUniqueKey(deviceInfo?: Record<string, unknown> | null) {
-    const parts = this.uniqueIdentityFields
-      .map((field) => [field, this.readString(deviceInfo?.[field])?.toLowerCase()] as const)
-      .filter(([, value]) => !!value)
+    const installKey = this.readString(deviceInfo?.installKey)
 
-    if (parts.length < 2) {
-      const fallbackUserAgent = this.readString(deviceInfo?.userAgent)?.toLowerCase()
-
-      return fallbackUserAgent ?? null
-    }
-
-    return parts.map(([field, value]) => `${field}:${value}`).join('|')
+    return installKey ? `install:${installKey}` : null
   }
 
   /**
@@ -117,6 +104,25 @@ export class SessionDevice {
     }
 
     return leftKey === rightKey
+  }
+
+  /**
+   * Reads the client's installation id from `X-Device-Id` and returns a keyed
+   * hash of it, so the stored value cannot be replayed as the header.
+   *
+   * @param req
+   * @returns
+   */
+  private static readInstallKey(req?: Request) {
+    const value = req?.header('x-device-id')
+
+    if (typeof value !== 'string' || !this.installationId.test(value)) {
+      return null
+    }
+
+    return createHmac('sha256', appKey('JWT_SECRET') ?? 'default_secret')
+      .update(`session-device:${value}`)
+      .digest('hex')
   }
 
   /**

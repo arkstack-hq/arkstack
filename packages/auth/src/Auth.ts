@@ -6,7 +6,7 @@ import { AuthContract } from './Contracts/AuthContract'
 import { AuthenticationException } from './Exceptions/AuthenticationException'
 import { AuthSession } from './AuthSession'
 import type { PersonalAccessToken } from '@app/models/PersonalAccessToken'
-import { Request, type RequestSource } from '@arkstack/http'
+import { Request, type RequestSource, currentRequest } from '@arkstack/http'
 import { SessionDevice } from './SessionDevice'
 import type { User } from '@app/models/User'
 
@@ -17,13 +17,15 @@ import type { User } from '@app/models/User'
  * @author Legacy (3m1n3nc3)
  */
 export class Auth extends AuthContract {
+  /** Request used outside an HTTP request, such as in tests or console commands. */
   protected static req?: Request<User>
   private configuredSecret?: string
+  #req?: Request<User>
   #user: User | null = null
 
   constructor(secret?: string, req?: Request<User> | RequestSource<User>) {
     super()
-    Auth.req = Request.from<User>(req)
+    this.#req = Request.from<User>(req)
     this.configuredSecret = secret
   }
 
@@ -39,7 +41,8 @@ export class Auth extends AuthContract {
   }
 
   /**
-   * Set the current HTTP request instance being processed.
+   * Set the request used when there is neither an instance request nor a
+   * request being handled, such as in tests or console commands.
    *
    * @param req   The HTTP request instance to be set.
    * @returns     The Auth class itself for method chaining.
@@ -57,19 +60,19 @@ export class Auth extends AuthContract {
    * @returns     The Auth instance itself for method chaining.
    */
   setRequest(req: Request<User> | RequestSource<User>) {
-    Auth.req ??= Request.from<User>(req)
+    this.#req = Request.from<User>(req)
 
     return this
   }
 
   /**
-   * Get the current HTTP request instance being processed, which may contain
-   * user information and other request-specific data relevant to authentication operations.
+   * Get the request this instance serves: its own request, else the request
+   * currently being handled, else the static fallback.
    *
-   * @returns The current HTTP request instance or undefined if not set.
+   * @returns The request, or undefined when there is none.
    */
   getRequest(): Request<User> | undefined {
-    return Auth.req
+    return this.#req ?? (currentRequest() as Request<User> | undefined) ?? Auth.req
   }
 
   /**
@@ -106,7 +109,7 @@ export class Auth extends AuthContract {
 
     if (!user) {
       throw new AuthenticationException('User account not found', {
-        req: Auth.req,
+        req: this.getRequest(),
         status: 422,
         errors: { email: ['No account found for this email address'] },
       })
@@ -116,7 +119,7 @@ export class Auth extends AuthContract {
 
     if (!isValid) {
       throw new AuthenticationException('Invalid credentials', {
-        req: Auth.req,
+        req: this.getRequest(),
         status: 422,
         errors: { password: ['Invalid password'] },
       })
@@ -172,14 +175,17 @@ export class Auth extends AuthContract {
     const payload = await this.verifyJWT(token)
 
     if (!payload || payload.purpose !== purpose || !payload.sub) {
-      throw new AuthenticationException('Invalid or expired two-factor session', { req: Auth.req, status: 401 })
+      throw new AuthenticationException('Invalid or expired two-factor session', {
+        req: this.getRequest(),
+        status: 401,
+      })
     }
 
     const user = await getModel<Concrete<typeof User>>('User').query().find(payload.sub)
 
     if (!user) {
       throw new AuthenticationException('User account not found', {
-        req: Auth.req,
+        req: this.getRequest(),
         status: 401,
       })
     }
@@ -216,8 +222,10 @@ export class Auth extends AuthContract {
 
     this.#user = null
 
-    if (Auth.req?.auth === this) {
-      Auth.req.clearAuthentication()
+    const req = this.getRequest()
+
+    if (req?.auth === this) {
+      req.clearAuthentication()
     }
   }
 
@@ -252,7 +260,7 @@ export class Auth extends AuthContract {
     }
 
     const token = await this.createJWT(payload)
-    const deviceInfo = SessionDevice.fromRequest(Auth.req)
+    const deviceInfo = SessionDevice.fromRequest(this.getRequest())
 
     const pat = await this.upsertDeviceToken(user, token, deviceInfo)
 
@@ -336,7 +344,7 @@ export class Auth extends AuthContract {
 
     if (!payload) {
       throw new AuthenticationException('Invalid or expired session', {
-        req: Auth.req,
+        req: this.getRequest(),
         status: 401,
       })
     }
@@ -346,7 +354,7 @@ export class Auth extends AuthContract {
 
     if (!pat) {
       throw new AuthenticationException('Invalid or expired access token', {
-        req: Auth.req,
+        req: this.getRequest(),
         status: 401,
       })
     }
@@ -355,7 +363,7 @@ export class Auth extends AuthContract {
 
     if (!user) {
       throw new AuthenticationException('User account not found', {
-        req: Auth.req,
+        req: this.getRequest(),
         status: 401,
       })
     }
@@ -415,7 +423,7 @@ export class Auth extends AuthContract {
 
   private setAuthenticated(user: User, token?: string) {
     this.#user = user
-    Auth.req?.setAuthentication(this, user, token)
+    this.getRequest()?.setAuthentication(this, user, token)
   }
 
   /**
@@ -427,7 +435,7 @@ export class Auth extends AuthContract {
    */
   private async touchSession(pat: PersonalAccessToken) {
     const now = new Date()
-    const currentDeviceInfo = SessionDevice.fromRequest(Auth.req)
+    const currentDeviceInfo = SessionDevice.fromRequest(this.getRequest())
     const shouldUpdateLastUsedAt = !pat.lastUsedAt || now.getTime() - pat.lastUsedAt.getTime() > 5 * 60 * 1000
     const hasDeviceInfo = !!pat.deviceInfo
     const currentDisplayName = SessionDevice.getDisplayName(currentDeviceInfo)
